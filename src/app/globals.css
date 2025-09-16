@@ -1,0 +1,521 @@
+@import "tailwindcss";
+
+:root {
+  /* Light theme palette (refined) */
+  --bg-1: #f6f7fb; /* page background */
+  --bg-2: #ffffff; /* card background */
+  --muted: #6b7280; /* secondary text */
+  --text: #0f1724; /* primary text, slightly warmer */
+  --primary: #6d28d9; /* violet-600 */
+  --primary-600: #5b21b6;
+  --primary-400: #7c3aed;
+  --accent: #ef4444; /* danger/negative */
+  --success: #16a34a;
+  --card: #ffffff;
+  --border: rgba(15,23,36,0.06);
+  --glass: rgba(255,255,255,0.6);
+  /* Legacy aliases for older styles to continue working */
+  --background: var(--bg-1);
+  --foreground: var(--text);
+  --heritage-gold: #bfa14a;
+  --heritage-red: #a94442;
+  --heritage-green: #4a7c59;
+  --heritage-blue: #3b5998;
+  --heritage-brown: #7c5e3c;
+  --heritage-accent: #e2c275;
+}
+
+/* Dark theme variables when data-theme="dark" on <html> */
+:root[data-theme='dark'] {
+  /* Dark theme palette (refined) */
+  --bg-1: #071029; /* page background */
+  --bg-2: #081226; /* card background */
+  --muted: #9aa4b2; /* secondary text */
+  --text: #e6eef8; /* primary text */
+  --primary: #8b5cf6; /* violet-400 */
+  --primary-600: #6d28d9;
+  --primary-400: #8b5cf6;
+  --accent: #fb7185;
+  --success: #34d399;
+  --card: #071229;
+  --border: rgba(255,255,255,0.06);
+  --glass: rgba(9,18,38,0.44);
+  /* Legacy aliases in dark theme */
+  --background: var(--bg-1);
+  --foreground: var(--text);
+  --heritage-gold: #d4b45a;
+  --heritage-red: #c76b66;
+  --heritage-green: #7fb085;
+  --heritage-blue: #6b8bd6;
+  --heritage-brown: #8f6b4f;
+  --heritage-accent: #aa8a4f;
+}
+
+/* Smooth theme transition class added/removed by ThemeProvider */
+.theme-transition * {
+  transition: background-color 250ms ease, color 250ms ease, border-color 250ms ease, box-shadow 250ms ease;
+}
+
+/* Mobile theme toggle styles */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(180deg, var(--glass), transparent);
+  padding: 0.25rem;
+  border-radius: 9999px;
+  border: 1px solid var(--border);
+  cursor: pointer;
+}
+.theme-toggle .knob {
+  width: 1.6rem;
+  height: 1.6rem;
+  background: linear-gradient(180deg, white 0%, rgba(255,255,255,0.85) 100%);
+  border-radius: 9999px;
+  box-shadow: 0 2px 6px rgba(2,6,23,0.12);
+  transform: translateX(0);
+  transition: transform 260ms cubic-bezier(.2,.9,.2,1), background 260ms ease;
+}
+.theme-toggle[data-theme='dark'] .knob {
+  transform: translateX(1.4rem);
+  background: linear-gradient(180deg, #0f1724 0%, rgba(15,23,36,0.9) 100%);
+}
+
+/* Toggle color fade indicating current theme */
+.theme-toggle {
+  background: linear-gradient(90deg, rgba(255,255,255,0.08), rgba(0,0,0,0.04));
+  position: relative;
+}
+.theme-toggle::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, rgba(233, 213, 124, 0.06), transparent);
+  opacity: 0.9;
+  pointer-events: none;
+}
+.theme-toggle[data-theme='dark']::after {
+  background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(16,24,36,0.12));
+}
+.theme-toggle:focus { outline: 2px solid rgba(99,102,241,0.14); }
+
+/* Make home sections theme-aware by neutralizing hardcoded text colors */
+.card-glass { background: linear-gradient(180deg, var(--card), rgba(255,255,255,0.02)); }
+:root[data-theme='dark'] .text-gray-900 { color: var(--text) !important; }
+:root[data-theme='dark'] .text-gray-600 { color: var(--muted) !important; }
+
+/* Primary button using theme variables */
+.btn-primary {
+  background: linear-gradient(90deg, var(--primary-600), var(--primary-400));
+  color: white;
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  border: 1px solid rgba(0,0,0,0.06);
+  box-shadow: 0 6px 18px rgba(99,102,241,0.08);
+  transition: transform 160ms ease, box-shadow 160ms ease, opacity 160ms ease;
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(99,102,241,0.12); }
+
+/* Glass nav uses background variable */
+.glass-nav { background: linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,255,255,0.45)); }
+:root[data-theme='dark'] .glass-nav { background: linear-gradient(180deg, rgba(9,18,38,0.6), rgba(9,18,38,0.5)); }
+
+
+/* Utility for dark glass nav */
+.heritage-bg[data-theme='dark'] { background-color: var(--background); }
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: 'Merriweather', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, serif, sans-serif;
+  letter-spacing: 0.01em;
+}
+
+/* Beautiful gradient backgrounds */
+.bg-gradient-primary {
+  background: linear-gradient(135deg, #fef3c7 0%, #fed7aa 25%, #fdba74 50%, #fb923c 75%, #f97316 100%);
+}
+
+.bg-gradient-secondary {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 25%, #fcd34d 50%, #fbbf24 75%, #f59e0b 100%);
+}
+
+.bg-gradient-accent {
+  background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 25%, #fecaca 50%, #fca5a5 75%, #ef4444 100%);
+}
+
+/* Cultural pattern backgrounds */
+.cultural-bg {
+  background-image: 
+    radial-gradient(circle at 20% 80%, rgba(251, 146, 60, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(239, 68, 68, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(245, 158, 11, 0.05) 0%, transparent 50%);
+}
+
+/* Enhanced Glassmorphism effects */
+.glass {
+  background: linear-gradient(180deg, var(--glass), transparent);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+}
+
+.glass-dark {
+  background: linear-gradient(180deg, rgba(0,0,0,0.28), rgba(0,0,0,0.12));
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+}
+
+.glass-card {
+  background: var(--card);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--border);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+
+.glass-nav {
+  background: linear-gradient(180deg, var(--glass), rgba(255,255,255,0.05));
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #f97316, #ef4444);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #ea580c, #dc2626);
+}
+
+/* Beautiful shadows */
+.shadow-soft {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.shadow-medium {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.shadow-large {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.shadow-glow {
+  box-shadow: 0 0 20px rgba(251, 146, 60, 0.3);
+}
+
+/* Enhanced hover effects */
+.hover-lift {
+  transition: transform 0.32s cubic-bezier(0.2, 0, 0.1, 1), box-shadow 0.32s ease;
+}
+.hover-lift:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 40px -20px rgba(0,0,0,0.18);
+}
+
+.hover-glow:hover { box-shadow: 0 0 30px rgba(251, 146, 60, 0.18); }
+
+.hover-scale { transition: transform 0.28s ease; }
+.hover-scale:hover { transform: scale(1.03); }
+
+/* Primary / secondary buttons using theme variables */
+.btn-primary {
+  background: linear-gradient(90deg, var(--primary-600), var(--primary-400));
+  color: #fff;
+  font-weight: 700;
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(0,0,0,0.06);
+  box-shadow: 0 10px 30px rgba(99,102,241,0.06);
+  transition: transform 160ms ease, box-shadow 160ms ease, opacity 160ms ease;
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 14px 40px rgba(99,102,241,0.09); }
+
+.btn-secondary {
+  background: var(--card);
+  color: var(--primary);
+  font-weight: 700;
+  padding: 0.6rem 1.1rem;
+  border-radius: 0.6rem;
+  border: 1px solid var(--border);
+  transition: all 200ms ease;
+}
+.btn-secondary:hover { background: rgba(0,0,0,0.04); }
+
+/* Text gradients */
+.text-gradient-primary { background: linear-gradient(135deg, var(--primary-600), var(--accent)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.text-gradient-secondary { background: linear-gradient(135deg, var(--success), var(--primary)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+
+.gradient-text-animated { background: linear-gradient(-45deg, var(--primary-600), var(--accent), var(--success)); background-size: 400% 400%; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; animation: gradient-shift 8s ease infinite; }
+
+@keyframes gradient-shift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+
+/* Card styles that adapt to theme variables */
+.card { background: var(--card); border-radius: 1.25rem; box-shadow: 0 6px 18px rgba(2,6,23,0.06); transition: all 0.32s ease; border: 1px solid var(--border); color: var(--text); }
+.card-hover { background: var(--card); border-radius: 1.25rem; box-shadow: 0 10px 30px rgba(2,6,23,0.04); transition: all 0.32s ease; border: 1px solid var(--border); color: var(--text); }
+.card-hover:hover { transform: translateY(-8px) scale(1.02); box-shadow: 0 30px 60px rgba(2,6,23,0.06); }
+.card-glass { background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); backdrop-filter: blur(8px); border: 1px solid var(--border); box-shadow: 0 8px 28px rgba(0,0,0,0.06); border-radius: 1rem; transition: all 0.32s ease; }
+.card-glass:hover { box-shadow: 0 12px 48px rgba(0,0,0,0.08); }
+
+/* Heritage Mandala Pattern Background */
+.heritage-bg {
+  background-color: var(--background);
+  background-image:
+    url('/heritage-mandala.svg'),
+    radial-gradient(circle at 20% 80%, rgba(191, 161, 74, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(169, 68, 66, 0.07) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(226, 194, 117, 0.05) 0%, transparent 50%);
+  background-repeat: repeat, no-repeat, no-repeat, no-repeat;
+  background-size: 400px, auto, auto, auto;
+  background-position: center, left, right, center;
+}
+
+/* Heritage Card Border */
+.heritage-card {
+  border: 2px solid var(--heritage-gold);
+  border-radius: 1.5rem;
+  background: rgba(255,255,255,0.85);
+  box-shadow: 0 4px 24px rgba(191, 161, 74, 0.08);
+  position: relative;
+  overflow: hidden;
+}
+
+.heritage-card:before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 1.5rem;
+  border: 2px dashed var(--heritage-accent);
+  opacity: 0.2;
+  pointer-events: none;
+}
+
+/* Heritage Button */
+.btn-heritage {
+  background: linear-gradient(90deg, var(--heritage-gold) 0%, var(--heritage-red) 100%);
+  color: #fff;
+  font-weight: 700;
+  border-radius: 1rem;
+  padding: 1rem 2.5rem;
+  box-shadow: 0 6px 18px -4px rgba(191, 161, 74, 0.15);
+  border: none;
+  transition: background 0.3s, transform 0.2s;
+}
+.btn-heritage:hover {
+  background: linear-gradient(90deg, var(--heritage-red) 0%, var(--heritage-gold) 100%);
+  transform: scale(1.04);
+}
+
+/* Heritage Section Title */
+.heritage-title {
+  font-family: 'Merriweather', serif;
+  color: var(--heritage-gold);
+  letter-spacing: 0.04em;
+  text-shadow: 0 2px 8px rgba(191, 161, 74, 0.08);
+}
+
+/* Section spacing */
+.section-padding {
+  padding: 6rem 1rem;
+}
+
+.section-padding-sm {
+  padding: 4rem 1rem;
+}
+
+/* Container */
+.container-custom {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+/* Floating elements */
+.floating-element {
+  animation: float 6s ease-in-out infinite;
+}
+
+.floating-element:nth-child(2) {
+  animation-delay: 2s;
+}
+
+.floating-element:nth-child(3) {
+  animation-delay: 4s;
+}
+
+/* Animation delays */
+.animate-delay-100 { animation-delay: 0.1s; }
+.animate-delay-200 { animation-delay: 0.2s; }
+.animate-delay-300 { animation-delay: 0.3s; }
+.animate-delay-400 { animation-delay: 0.4s; }
+.animate-delay-500 { animation-delay: 0.5s; }
+
+/* Responsive adjustments */
+@media (min-width: 640px) {
+  .section-padding {
+    padding: 6rem 1.5rem;
+  }
+  
+  .container-custom {
+    padding: 0 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .section-padding {
+    padding: 6rem 2rem;
+  }
+  
+  .container-custom {
+    padding: 0 2rem;
+  }
+}
+
+/* Dark-theme utility overrides to neutralize hard-coded Tailwind utilities that assume light backgrounds
+   These use !important to make the UI readable without refactoring all components immediately. */
+:root[data-theme='dark'] {
+  /* page-level fallback */
+  background-color: var(--bg-1);
+}
+
+:root[data-theme='dark'] .text-gray-700,
+:root[data-theme='dark'] .text-gray-600,
+:root[data-theme='dark'] .text-gray-500,
+:root[data-theme='dark'] .text-gray-400 {
+  color: var(--muted) !important;
+}
+
+:root[data-theme='dark'] .text-gray-800,
+:root[data-theme='dark'] .text-gray-900,
+:root[data-theme='dark'] .text-black {
+  color: var(--text) !important;
+}
+
+/* Background overrides for light-only utility classes */
+:root[data-theme='dark'] .bg-white,
+:root[data-theme='dark'] .bg-white\/95,
+:root[data-theme='dark'] .bg-white\/50 {
+  background-color: var(--card) !important;
+  color: var(--text) !important;
+}
+
+:root[data-theme='dark'] .bg-gray-100,
+:root[data-theme='dark'] .bg-gray-50 {
+  background-color: rgba(255,255,255,0.02) !important;
+}
+
+:root[data-theme='dark'] .border-gray-200,
+:root[data-theme='dark'] .border-gray-300 {
+  border-color: rgba(255,255,255,0.04) !important;
+}
+
+/* Make heritage-card (used by footer) dark-friendly */
+:root[data-theme='dark'] .heritage-card {
+  background: linear-gradient(180deg, rgba(9,18,38,0.72), rgba(8,16,34,0.6));
+  border-color: rgba(212,180,90,0.12); /* softer gold outline */
+  box-shadow: 0 6px 24px rgba(0,0,0,0.6);
+  color: var(--text) !important;
+}
+:root[data-theme='dark'] .heritage-card:before {
+  border-color: var(--heritage-accent);
+  opacity: 0.06;
+}
+
+/* Ensure heritage-title still stands out in dark mode */
+:root[data-theme='dark'] .heritage-title {
+  color: var(--heritage-gold);
+}
+
+/* Input and placeholder colors for both themes */
+input, textarea, select {
+  background: var(--bg-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+input::placeholder, textarea::placeholder {
+  color: var(--muted);
+}
+
+/* Dark mode stronger overrides for inputs that used light-only classes */
+:root[data-theme='dark'] input,
+:root[data-theme='dark'] textarea,
+:root[data-theme='dark'] select {
+  background: var(--bg-2) !important;
+  color: var(--text) !important;
+  border-color: rgba(255,255,255,0.06) !important;
+}
+
+:root[data-theme='dark'] input::placeholder,
+:root[data-theme='dark'] textarea::placeholder {
+  color: var(--muted) !important;
+}
+
+/* Make buttons with white backgrounds readable */
+:root[data-theme='dark'] .btn-secondary,
+:root[data-theme='dark'] button.bg-white {
+  background: var(--card) !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+}
+
+/* Inputs, selects, textareas and placeholders */
+:root[data-theme='dark'] input,
+:root[data-theme='dark'] textarea,
+:root[data-theme='dark'] select,
+:root[data-theme='dark'] .input,
+:root[data-theme='dark'] .search-input {
+  background: var(--bg-2) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--border) !important;
+}
+
+:root[data-theme='dark'] input::placeholder,
+:root[data-theme='dark'] textarea::placeholder,
+:root[data-theme='dark'] .search-input::placeholder {
+  color: rgba(230,238,248,0.6) !important; /* readable pale placeholder */
+}
+
+/* Navbar specific fixes: ensure icons and text visible */
+:root[data-theme='dark'] .glass-nav a,
+:root[data-theme='dark'] .glass-nav button,
+:root[data-theme='dark'] .glass-nav span,
+:root[data-theme='dark'] .glass-nav .text-left {
+  color: var(--text) !important;
+}
+
+/* Auctions / cards in lists */
+:root[data-theme='dark'] .grid > div.bg-white,
+:root[data-theme='dark'] .border.p-3.rounded.bg-white,
+:root[data-theme='dark'] .card,
+:root[data-theme='dark'] .card-glass {
+  background: var(--card) !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+}
+
+/* Utility to align inputs and placeholders consistently */
+.form-field {
+  display: block;
+  width: 100%;
+}
+
+/* Make sure images on dark backgrounds don't disappear (slight contrast filter) */
+:root[data-theme='dark'] img {
+  filter: none !important;
+}
+

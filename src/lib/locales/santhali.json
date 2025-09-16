@@ -1,0 +1,441 @@
+{
+  "common": {
+    "loading": "ᱣᱟᱜᱮᱳ...",
+    "error": "ᱤᱯᱨᱤᱥ",
+    "success": "ᱥᱩᱪᱥᱦᱮᱲ",
+    "cancel": "ᱠᱟᱱᱥᱟᱞ",
+    "save": "ᱡᱟᱣᱤ",
+    "edit": "ᱮᱰᱤᱛ",
+    "delete": "ᱰᱮᱞᱤᱛ",
+    "add": "ᱟᱰᱟᱜ",
+    "search": "ᱥᱟᱨᱪ",
+    "filter": "ᱯᱤᱞᱤᱛᱤᱨ",
+    "sort": "ᱥᱚᱨᱛ",
+    "view": "ᱵᱟᱢᱟᱢ",
+    "close": "ᱠᱷᱚᱞ",
+    "back": "ᱵᱟᱠᱟᱞ",
+    "next": "ᱱᱮᱥᱴ",
+    "previous": "ᱵᱮᱨᱟᱥᱤᱨ",
+    "submit": "ᱥᱩᱢᱤᱴ",
+    "confirm": "ᱠᱚᱱᱥᱤᱢ",
+    "yes": "ᱚᱯᱚᱱ",
+    "no": "ᱚᱛᱚᱱ"
+  },
+  "navigation": {
+    "home": "ᱦᱚᱢ",
+    "marketplace": "ᱢᱟᱨᱠᱦᱚᱞ",
+    "dashboard": "ᱫᱟᱥᱵᱚᱨᱫ",
+    "cart": "ᱠᱟᱨᱛ",
+    "profile": "ᱯᱤᱨᱚᱯᱜᱨᱤ",
+    "signin": "ᱥᱤᱱ ᱥᱤᱱ",
+    "signup": "ᱥᱤᱱ ᱥᱤᱯ",
+    "signout": "ᱥᱤᱱ ᱥᱤᱯ",
+    "language": "ᱞᱟᱱᱜᱩᱡ"
+  },
+  "auth": {
+    "welcome": "ᱣᱮᱞᱠᱚᱢ ᱟᱢ KalaaMitra",
+    "signinTitle": "ᱥᱤᱱ ᱞᱮᱱᱟ ᱠᱚᱵᱟᱹᱨ ᱠᱚᱨᱚ ᱥᱤᱱ",
+    "signupTitle": "ᱠᱚᱨᱚ ᱥᱤᱯ ᱠᱚᱵᱟᱹᱨ",
+    "email": "ᱢᱮᱞ",
+    "password": "ᱯᱚᱥᱣᱟᱨᱰ",
+    "confirmPassword": "ᱠᱚᱱᱥᱤᱢ ᱯᱚᱥᱣᱟᱨᱰ",
+    "forgotPassword": "ᱯᱚᱥᱣᱟᱨᱰ ᱠᱚᱯᱚᱢ?",
+    "dontHaveAccount": "ᱵᱟᱞᱮ ᱠᱚᱨᱚ ᱥᱤᱱ ᱠᱷᱚᱱᱛᱟᱜ ᱚᱛᱮ ᱠᱚᱛᱚ?",
+    "alreadyHaveAccount": "ᱵᱟᱞᱮ ᱠᱚᱨᱚ ᱥᱤᱱ ᱠᱷᱚᱱᱛᱟᱜ ᱚᱛᱮ",
+    "signinWithGoogle": "Google ᱠᱷᱚᱱᱛᱟ ᱥᱤᱱ",
+    "signupWithGoogle": "Google ᱠᱷᱚᱱᱛᱟ ᱥᱤᱯ",
+    "or": "ᱚᱨ",
+    "firstName": "ᱥᱮᱨᱛᱟ ᱱᱟᱢ",
+    "lastName": "ᱠᱷᱟᱹᱭᱟ ᱱᱟᱢ",
+    "phone": "ᱯᱷᱚᱱ ᱱᱟᱢᱜᱟ",
+    "terms": "ᱥᱮᱱᱛ ᱟᱢ ᱫᱟᱛ ᱠᱚᱨᱞᱟ ᱞᱟᱹᱜᱤ ᱢᱮ ᱠᱚᱵᱟᱹᱨ",
+    "privacy": "ᱯᱨᱤᱥᱤᱭ ᱯᱚᱞᱤᱥᱤ",
+    "welcomeBack": "ᱣᱮᱞᱠᱚᱢ ᱵᱟᱠ",
+    "signinSubtitle": "KalaMitra ᱠᱚᱨᱚ ᱥᱤᱱ ᱥᱤᱱ",
+    "emailAddress": "ᱢᱮᱞ ᱟᱢᱨᱮᱱ",
+    "enterYourEmail": "ᱢᱮᱞ ᱠᱚᱛᱚ",
+    "enterYourPassword": "ᱯᱚᱥᱣᱟᱨᱰ ᱠᱚᱛᱚ",
+    "signingIn": "ᱥᱤᱱ ᱞᱮᱱᱟ...",
+    "orContinueWith": "ᱚᱨ ᱠᱚᱵᱟᱹᱨ",
+    "chooseRoleTitle": "ᱴᱷᱚᱫᱷ ᱠᱚᱵᱟᱹᱨ",
+    "chooseRoleSubtitle": "Google ᱠᱷᱚᱱᱛᱟ ᱠᱚᱵᱟᱹᱨ ᱠᱟᱞᱟᱢᱤᱴᱨ ᱟᱢ ᱠᱚᱵᱟᱹᱨ",
+    "chooseRoleTip": "ᱵᱟᱞᱮ ᱥᱤᱱ ᱠᱷᱚᱱᱛᱟᱜ ᱟᱢᱟ ᱠᱚᱵᱟᱹᱨ ᱠᱚ ᱢᱮᱱᱟ",
+    "continueAsBuyer": "ᱵᱟᱠᱟᱞ ᱥᱤᱱ",
+    "continueAsArtisan": "ᱟᱨᱴᱤᱱ ᱥᱤᱱ",
+    "googleSignInFailed": "Google ᱥᱤᱱ ᱠᱚᱯᱚᱢ. ᱵᱮᱯᱮ ᱰᱟᱜᱟ",
+    "signupSubtitle": "ᱴᱷᱚᱫᱷ ᱠᱚᱵᱟᱹᱨ ᱖ᱟᱹᱲ",
+    "fullName": "ᱵᱟᱹᱲᱤ ᱱᱟᱢ",
+    "enterFullName": "ᱵᱟᱹᱲᱤ ᱱᱟᱢ ᱠᱚᱛᱚ",
+    "createAccount": "ᱠᱚᱨᱚ ᱥᱤᱯ",
+    "creatingAccount": "ᱠᱚᱨᱚ ᱥᱤᱯ ᱞᱮᱱᱟ...",
+    "errors": {
+      "missingEmailPassword": "ᱢᱮᱞ ᱟᱢ ᱯᱚᱥᱣᱟᱨᱰ ᱠᱚᱯᱚᱢ."
+    }
+  },
+  "roles": {
+    "buyer": "ᱯᱟᱵᱟᱞ",
+    "artisan": "ᱟᱨᱴᱤᱱ",
+    "buyerTagline": "ᱠᱮᱴ ᱥᱟᱼᱟ ᱡᱚᱠᱷ ᱞᱚ ᱵᱟᱵᱟᱞ",
+    "artisanTagline": "ᱢᱟᱨᱴᱤ ᱡᱚᱠᱷ ᱠᱚᱭᱚᱱᱤ ᱞᱮᱱᱟ"
+  },
+  "marketplace": {
+    "title": "ᱟᱨᱴᱤᱱ ᱢᱟᱨᱠᱦᱚᱞ",
+    "subtitle": "ᱢᱟᱨᱠᱦᱚᱞ ᱠᱚᱭᱚᱱ ᱡᱚᱠᱷ ᱵᱮᱯᱮᱞᱤᱥ ᱨᱮᱢᱮ ᱦᱟᱸᱰᱟ",
+    "searchPlaceholder": "ᱥᱟᱨᱪ ᱨᱮ ᱯᱚᱡᱚᱢ, ᱟᱨᱴᱤᱱ, ᱠᱚᱭᱚᱱᱟ...",
+    "categories": "ᱠᱚᱭᱚᱱᱟ",
+    "featured": "ᱦᱟᱲᱟᱜ ᱯᱚᱡᱚᱢ",
+    "trending": "ᱦᱟᱲᱟᱜ ᱡᱮᱞᱩᱞᱤᱭ",
+    "newArrivals": "ᱥᱤᱦᱤᱦᱟᱜ ᱯᱮᱸᱟ",
+    "priceRange": "ᱯᱤᱨᱡᱮ ᱡᱤᱱᱤ",
+    "sortBy": "ᱥᱚᱨᱛ ᱚ ᱯᱤᱨᱡᱮ ᱠᱷᱚᱱᱛᱤ",
+    "priceLowToHigh": "ᱯᱤᱨᱡᱮ: ᱟᱢᱮᱞ ᱡᱤᱱᱤᱞᱮ ᱠᱷᱚᱱᱛᱤ",
+    "priceHighToLow": "ᱯᱤᱨᱡᱮ: ᱠᱷᱚᱱᱛᱤ ᱡᱤᱱᱤᱞᱮ",
+    "newest": "ᱞᱟᱹᱵᱟ ᱠᱚᱵᱮ",
+    "popular": "ᱮᱞᱮᱢᱮ",
+    "rating": "ᱨᱟᱛᱤᱱᱜ",
+    "location": "ᱥᱮᱠᱵᱮᱞ",
+    "distance": "ᱠᱟᱱᱟᱭ",
+    "filters": "ᱯᱤᱞᱤᱛᱤᱨ",
+    "clearFilters": "ᱯᱤᱞᱤᱛᱤᱨ ᱦᱟᱸᱰᱟ",
+    "applyFilters": "ᱯᱤᱞᱤᱛᱤᱨ ᱠᱚᱵᱟᱹᱨ",
+    "noProducts": "ᱵᱟᱵᱟᱞ ᱯᱚᱡᱚᱢ ᱮᱞᱮᱢ",
+    "noProductsDescription": "ᱢᱟᱵᱟ ᱥᱤᱨᱚᱢ ᱢᱮᱴᱟ ᱫᱤᱥᱤᱞ ᱤᱟᱸᱜᱟ ᱯᱚᱡᱚᱢ ᱟᱢ ᱯᱤᱞᱤᱛᱤᱨ",
+    "allCategories": "ᱫᱟᱹᱲ ᱠᱚᱭᱚᱱᱟ",
+    "searchInputPlaceholder": "ᱥᱟᱨᱪ ᱯᱚᱡᱚᱢ, ᱠᱚᱭᱚᱱᱟ, ᱟᱨᱴᱤᱱ...",
+    "resultsCount": "{{count}} ᱯᱚᱡᱚᱢ ᱟᱢ {{total}} ᱯᱚᱡᱚᱢ ᱦᱟᱲᱟᱹᱱ",
+    "becauseViewedSimilar": "ᱟᱢ ᱥᱤᱦᱤᱦᱟᱜ ᱯᱚᱡᱚᱢ ᱞᱮᱢᱮᱱᱤᱥᱟᱭᱟ",
+    "backToMarketplace": "ᱫᱟᱹᱲ ᱢᱟᱨᱠᱦᱚᱞ ᱦᱟᱸᱰᱟ",
+    "browseProducts": "ᱯᱚᱡᱚᱢ ᱵᱟᱜᱩᱨᱮ"
+  },
+  "product": {
+    "addToCart": "ᱟᱟᱨ ᱠᱟᱨᱛ ᱚᱠᱷᱮᱥ",
+    "buyNow": "ᱟᱢᱮᱴ ᱞᱮᱱᱟ",
+    "outOfStock": "ᱦᱟᱸᱰ ᱥᱠᱟᱯᱟᱨᱟᱹᱲ ᱠᱚᱵᱟᱹᱨ",
+    "inStock": "ᱱᱚᱛ ᱦᱟᱸᱰ",
+    "quantity": "ᱠᱩᱭᱟᱱᱴᱤᱥ",
+    "description": "ᱰᱮᱨᱡᱮᱞᱤᱠᱟ",
+    "specifications": "ᱥᱮᱯᱠᱤᱥᱤᱫᱟᱱ",
+    "reviews": "ᱨᱮᱯᱤᱱᱤᱵᱟᱢ",
+    "writeReview": "ᱨᱮᱯᱤᱱ ᱦᱮᱱᱟᱞ",
+    "relatedProducts": "ᱵᱚᱡᱚᱢ ᱢᱟᱱᱚᱱ",
+    "artisanInfo": "ᱟᱨᱴᱤᱱ ᱤᱱᱯᱚ",
+    "contactArtisan": "ᱟᱨᱴᱤᱱ ᱠᱚᱭᱚᱱᱟ",
+    "shipping": "ᱥᱦᱤᱯᱝ ᱤᱱᱯᱚ",
+    "returns": "ᱨᱮᱱᱴᱟ ᱯᱚᱞᱤᱥᱤ",
+    "warranty": "ᱣᱟᱰᱟᱹᱨᱟᱱᱴᱤ",
+    "share": "ᱯᱚᱞᱤᱥᱤ ᱵᱟᱜᱩᱨᱮ",
+    "report": "ᱵᱟᱨᱢᱟ ᱯᱚᱞᱤᱥᱤ",
+    "favorite": "ᱠᱟᱯᱷᱤ ᱵᱟᱜᱩᱨᱮ",
+    "unfavorite": "ᱠᱟᱯᱷᱤ ᱰᱮᱞᱤᱢ",
+    "byAuthor": "ᱟᱢ {{name}}",
+    "unknownArtisan": "ᱠᱚᱵᱟᱹᱨ ᱟᱨᱴᱤᱱ",
+    "addToWishlist": "ᱥᱤᱞᱤᱱ ᱠᱚᱵᱟᱹᱨ",
+    "notFound": "ᱯᱚᱡᱚᱢ ᱠᱚᱵᱟᱹᱨ ᱮᱞᱮᱢ",
+    "meetTheArtisan": "ᱟᱨᱴᱤᱱ ᱠᱚᱭᱚᱱᱟ",
+    "viewAllProducts": "ᱫᱟᱹᱲ ᱵᱚᱡᱚᱢ ᱵᱚᱡᱚᱢ"
+  },
+  "cart": {
+    "title": "ᱠᱟᱨᱛ ᱨᱚᱢᱚᱢ",
+    "empty": "ᱠᱟᱨᱛ ᱠᱚ ᱟᱢᱟᱲᱟᱹᱱ",
+    "emptyDescription": "ᱠᱟᱨᱛ ᱠᱮ ᱡᱚᱢᱚᱟ ᱵᱟᱜᱩᱨᱮ ᱠᱟᱜᱟᱹᱲ",
+    "items": "ᱵᱚᱡᱚᱢᱟᱢ",
+    "item": "ᱵᱚᱡᱚᱢ",
+    "subtotal": "ᱥᱩᱯᱥᱮᱴᱚᱞ",
+    "shipping": "ᱥᱦᱤᱯᱝ",
+    "tax": "ᱴᱟᱠ",
+    "total": "ᱨᱚᱢᱚᱢ",
+    "checkout": "ᱱᱚᱱᱰᱟ ᱠᱚᱵᱮᱥᱤ",
+    "continueShopping": "ᱵᱟᱜᱩᱨ ᱛᱮᱢᱮᱱᱮ",
+    "remove": "ᱰᱮᱞᱤᱢ",
+    "updateQuantity": "ᱠᱩᱭᱟᱱᱴᱤ ᱠᱚ ᱰᱤᱰᱮᱱᱮ",
+    "saveForLater": "ᱱᱚ ᱠᱚᱯᱷᱤᱠᱚ",
+    "moveToWishlist": "ᱥᱤᱞᱤᱱ ᱦᱮ ᱠᱮᱥᱮᱨ",
+    "estimatedTotal": "ᱨᱚᱢᱚᱢ ᱥᱤᱨᱢᱤᱲᱚᱞ",
+    "secureCheckout": "ᱛᱚᱵᱟᱲᱟ ᱠᱚᱵᱮᱥᱤ",
+    "comingSoon": "ᱠᱟᱨᱛ ᱮᱞᱮᱢᱟ ᱠᱚ ᱠᱟᱥᱮᱲ ᱡᱮᱦ ᱟᱨᱟᱜᱮ",
+    "reviewSelectedItems": "ᱠᱟᱨᱛ ᱯᱤᱞᱤᱛᱤᱨ ᱵᱚᱡᱚᱢᱟᱢ ᱨᱮᱯᱤᱱ",
+    "orderSummary": "ᱠᱚᱨᱛ ᱨᱚᱢᱚᱢ",
+    "free": "ᱥᱟᱵ"
+  },
+  "dashboard": {
+    "title": "ᱫᱟᱥᱵᱚᱨᱫ",
+    "overview": "ᱵᱮᱥᱟᱭᱮᱥ",
+    "orders": "ᱠᱚᱨᱛᱟ",
+    "wishlist": "ᱥᱤᱞᱤᱱ",
+    "reviews": "ᱨᱮᱯᱤᱱᱤᱵᱟᱢ ᱮᱞᱮᱮᱨ",
+    "settings": "ᱥᱮᱠᱴᱤᱞᱟᱱ",
+    "notifications": "ᱱᱚᱴᱟᱞᱟᱤᱱᱤᱵᱟᱢ",
+    "help": "ᱦᱚᱴᱚᱱ ᱟᱢ ᱥᱩᱯᱯᱟᱜ",
+    "welcomeMessage": "ᱣᱮᱞᱠᱚᱢ ᱵᱟᱠ! ᱯᱷᱚᱨᱤ ᱠᱚ ᱡᱟᱢᱟ ᱮᱢᱟᱭᱤᱱ ᱨᱮ...",
+    "recentOrders": "ᱥᱤᱦᱤᱦᱟᱜ ᱠᱚᱨᱛᱟ",
+    "pendingOrders": "ᱟᱨᱱᱛᱤ ᱠᱚᱨᱛᱟ",
+    "completedOrders": "ᱠᱚᱨᱛ ᱞᱮᱱᱟᱢ",
+    "totalSpent": "ᱠᱷᱮᱱᱚ ᱨᱚᱢᱚᱢ",
+    "favoriteCategories": "ᱠᱚᱭᱚᱱᱟ ᱥᱤᱞᱤᱱ",
+    "recommendations": "ᱠᱷᱮᱱᱴᱟᱜᱮᱨ ᱤᱯᱨᱮᱱᱫᱤᱢᱟᱨ"
+  },
+  
+  "seller": {
+    "title": "ᱥᱮᱞᱤᱨ ᱫᱟᱥᱵᱚᱨᱫ",
+    "subtitle": "ᱟᱢ ᱡᱟᱢ ᱟᱨᱴᱤᱱ ᱟᱢ ᱯᱚᱡᱚᱢ ᱫᱟᱱᱠᱟ",
+    "overview": "ᱵᱤᱱᱚᱥ ᱵᱟᱥᱤ᱕ᱮ",
+    "products": "ᱵᱚᱡᱚᱢ ᱞᱮᱱᱟᱢ",
+    "orders": "ᱠᱚᱨᱛᱟ",
+    "analytics": "ᱟᱱᱟᱞᱤᱠᱤᱠᱟᱱ",
+    "earnings": "ᱮᱴᱟᱹᱫᱮᱱ",
+    "customers": "ᱠᱩᱱᱠᱚᱱ",
+    "reviews": "ᱵᱚᱝᱨ ᱨᱮᱯᱤᱱ",
+    "settings": "ᱵᱤᱱᱚᱥ ᱥᱮᱠᱴᱤᱞᱟᱱ",
+    "addProduct": "ᱵᱚᱡᱚᱢ ᱥᱤᱯᱥᱮ",
+    "editProduct": "ᱵᱚᱡᱚᱢ ᱮᱰᱤᱛ",
+    "orderManagement": "ᱠᱚᱨᱛ ᱫᱟᱱᱟᱜᱮᱱᱵᱟᱢ",
+    "inventory": "ᱤᱱ᱖ᱚᱱᱴᱟᱹᱭ",
+    "pricing": "ᱯᱤᱨᱡᱮ ᱠᱷᱚᱱᱛᱤ",
+    "promotions": "ᱯᱨᱚᱢᱚᱱᱤᱵᱟᱢ",
+    "shipping": "ᱥᱦᱤᱯᱝ ᱥᱳᱞᱤᱜ",
+    "businessProfile": "ᱵᱤᱱᱚᱥ ᱯᱤᱨᱚᱯᱜᱨᱤ",
+    "analyticsTitle": "ᱠᱚᱞᱚᱛ ᱥᱤᱯᱥᱮ (30 ᱨᱤᱯᱚᱲᱟ)",
+    "quickActions": "ᱠᱩᱱ ᱟᱨᱴᱤ ᱯᱚᱲᱚᱜ",
+    "productManagement": "ᱵᱚᱡᱚᱢ ᱫᱟᱱᱚᱫᱟᱱᱢᱟᱱ",
+    "addProductWithAI": "AI ᱥᱩᱯᱥᱮ ᱵᱚᱡᱚᱢ",
+    "addProductHint": "ᱠᱟᱨᱴ ᱥᱮ ᱟᱢ AI ᱨᱚᱢᱚᱢ ᱰᱮᱥᱟᱨᱴᱤᱱ ᱟᱢ ᱯᱤᱨᱡᱮ ᱯᱤᱞᱤᱛᱤᱝ",
+    "viewYourStall": "ᱠᱚᱭᱚᱱᱟ ᱠᱟᱭᱞᱟᱹᱲ",
+    "viewPublicStall": "ᱥᱩᱱᱟᱱ‑ᱠᱚᱭᱚᱱᱟ ᱠᱚᱭᱞᱟᱹᱲ",
+    "viewStallHint": "ᱢᱟᱨᱴᱤ ᱠᱚᱭᱚᱱᱟ ᱠᱚᱴᱚᱢ ᱚᱯᱚ ᱡᱚᱠ ᱵᱚᱡᱚᱢ",
+    "yourProducts": "ᱠᱚᱭᱚᱱᱟ ᱵᱚᱡᱚᱢ",
+    "loadingProducts": "ᱵᱚᱡᱚᱢ ᱞᱮᱱᱟ…",
+    "noProducts": "ᱵᱚᱡᱚᱢ ᱠᱚᱵᱟᱹᱨ ᱠᱚ ᱯᱟᱨᱚᱢ",
+    "startByAddingFirst": "ᱵᱚᱡᱚᱢ ᱥᱤᱯᱥᱮ ᱠᱚᱵᱮᱢ ᱠᱮ ᱫᱮᱱᱟ!"
+  },
+  
+  "analyticsShort": {
+    "stallViews30d": "ᱠᱚᱭᱚᱱᱟ ᱚᱯᱚ ᱤᱦᱤᱭᱤ (30 ᱰᱤᱞᱟᱽ)",
+    "uniqueVisitors30d": "ᱥᱤᱞᱤᱱᱤ ᱠᱩᱱᱠᱚᱱ (30 ᱰᱤᱞᱟᱽ)",
+    "topProducts30d": "ᱦᱟᱲᱟᱜ ᱵᱚᱡᱚᱢ (30 ᱰᱤᱞᱟᱽ)",
+    "noProductViewsYet": "ᱵᱚᱡᱚᱢ ᱚᱯᱚ ᱠᱚ ᱫᱚᱢ ᱚᱢᱟᱨ",
+    "loading": "ᱣᱟᱜᱮᱳ ᱯᱤᱛᱤᱞᱤᱛ…",
+    "tipsTitle": "ᱴᱤᱯᱥ",
+    "askMoreTips": "ᱴᱤᱯᱥ ᱵᱟᱠᱟᱞ",
+    "askPlaceholder": "ᱠᱚᱯᱚᱢ ᱠᱚᱭᱚᱱᱟ ᱥᱤᱢᱤᱴ ᱟᱢ ᱟᱨᱴᱤᱱ…",
+    "askButton": "ᱠᱚᱯᱚᱢ",
+    "thinking": "ᱡᱟᱹᱵᱩ…"
+  },
+  "analyticsGuidance": {
+    "audienceEngagingMost": "ᱟᱢᱟᱱᱟᱢ ᱠᱚ ᱥᱤᱞᱤᱱᱤ ᱠᱚ ᱵᱷᱚᱯᱚᱨ ᱟᱢ ᱵᱷᱮᱰᱤᱠᱟᱲ: {{titles}}. ᱟᱢᱟᱨ ᱵᱚᱡᱚᱢ ᱟᱢ ᱯᱤᱞᱤᱛᱤᱨ ᱠᱚᱵᱟᱹᱨ, ᱨᱚᱱᱟ ᱫᱤᱥᱤᱞ ᱫᱚᱪᱚ ᱢᱟᱹᱜᱮ",
+    "noRecentVisits": "ᱥᱤᱦᱤᱦᱟᱜ ᱵᱟᱢ ᱠᱚ ᱫᱚᱢ ᱚᱢᱟᱨ ᱠᱚ ᱢᱟᱨᱠᱞ. ᱯᱷᱟᱹᱜᱮ ᱠᱟᱞᱟᱢᱤᱴᱨ ᱠᱚᱨᱚ, ᱵᱮᱴᱮ ᱦᱟᱯᱤ ᱠᱚ ᱰᱤᱥᱤᱞ ᱨᱮᱢᱟᱭᱤᱱ ᱟᱢ ᱡᱩᱹᱨᱟᱜ",
+    "viewsStarting": "ᱠᱚᱭᱚᱱᱟ ᱤᱥᱟᱜᱤ ᱟᱢ ᱤᱱᱡᱚᱨᱢ ᱠᱚᱛᱚᱢ ᱫᱚᱲᱚ. ᱵᱚᱡᱚᱢ ᱟᱢ ᱴᱮᱞᱤᱠᱮ ᱡᱚᱸᱢ ᱠᱚ ᱠᱩᱭᱟᱱᱴᱤ ᱟᱢ ᱸᱜᱟ ᱠᱚᱛᱚᱢᱚᱯᱮᱥ ᱦᱚᱴᱚᱽ"
+  },
+  "profile": {
+    "title": "ᱣᱤᱨᱚᱯᱜᱨᱤ ᱯᱤᱨᱚᱯᱜᱨᱤ",
+    "edit": "ᱮᱰᱤᱛ ᱣᱤᱨᱚᱯᱜᱨᱤ",
+    "cancel": "ᱠᱟᱱᱥᱟᱞ",
+    "profileImage": "ᱣᱤᱨᱚᱯᱜᱨᱤ ᱤᱱᱯᱚ",
+    "chooseImage": "ᱲᱮᱷᱟ ᱤᱱᱯᱚ",
+    "details": "ᱣᱤᱨᱚᱯᱜᱨᱤ ᱰᱮᱞᱟᱡ",
+    "fields": {
+      "storeName": {
+        "label": "ᱥᱟᱱᱴᱚᱺ ᱥᱟᱜᱤ",
+        "placeholder": "ᱥᱟᱱᱴᱚᱺ ᱥᱟᱜᱤ ᱠᱚᱛᱚ"
+      },
+      "bio": {
+        "label": "ᱵᱤᱛᱚᱱᱟᱢ",
+        "placeholder": "ᱜᱮᱵ ᱠᱷᱮᱴᱚᱞᱮ ᱠᱷᱮ ᱡᱚᱠ ᱤᱯᱨᱮᱵ ᱠᱚ..."
+      },
+      "description": {
+        "label": "ᱥᱟᱱᱴᱚᱺ ᱰᱮᱨᱡᱮᱞᱤᱠᱟ",
+        "placeholder": "ᱦᱚᱸᱮᱲ ᱣᱟ ᱥᱟᱱᱴᱚᱺ ᱥᱟᱜᱤ ᱟᱢ ᱰᱮᱨᱡᱮᱞᱤᱠᱟ..."
+      }
+    },
+    "aiGenerate": "AI ᱥᱩᱯᱥᱮ",
+    "generating": "ᱠᱚᱵᱮᱢ...",
+    "saveChanges": "ᱭᱟᱲᱟ ᱠᱚᱵᱮᱢ",
+    "saving": "ᱠᱚᱵᱮᱢ...",
+    "notSet": "ᱟᱢ ᱟᱸᱲ",
+    "noBio": "ᱵᱤᱛᱚᱱᱟᱸᱲ ᱠᱚᱵᱮᱢ",
+    "noDescription": "ᱥᱟᱱᱴᱚᱺ ᱰᱮᱨᱡᱮᱞᱤᱠᱟ ᱠᱚᱵᱮᱢ",
+    "aiDescriptionTitle": "AI-ᱥᱤᱛᱤᱞᱤ ⁠ᱡᱟᱴᱞᱤᱠᱟ ᱰᱮᱨᱡᱮᱞᱤᱠᱟ",
+    "aiDescriptionHelp": "AI ᱥᱩᱯᱥᱮ ᱢᱮᱱ ᱵᱚᱡᱚᱢ ᱯᱤᱞᱤᱛᱤᱲᱮ ᱫᱮᱵᱮᱠ ᱠᱚ ᱠᱟᱞᱟᱢᱤᱴᱨ ᱠᱚᱟᱢ ᱠᱷᱮᱱᱟ",
+    "loadingProfile": "ᱣᱟᱜᱮᱳ ᱣᱤᱨᱚᱯᱜᱨᱤ...",
+    "errors": {
+      "generateDescriptionFailed": "ᱡᱟᱴᱞᱤᱠᱟ ᱫᱮᱨᱡᱮᱞᱤᱠᱟ ᱠᱚ ᱠᱷᱮᱱᱟ. ᱵᱮᱯᱮ ᱠᱚᱯᱤᱱᱟ"
+    }
+  },
+  "footer": {
+    "about": "ᱥᱥᱮᱴᱟ",
+    "contact": "ᱠᱚᱭᱚᱱ",
+    "support": "ᱥᱩᱯᱯᱟᱜ",
+    "careers": "ᱳᱞᱚᱥ",
+    "press": "ᱵᱚᱞᱚᱥ",
+    "blog": "ᱵᱞᱚᱜ",
+    "terms": "ᱥᱮᱱᱛ ᱟᱢ ᱫᱟᱛ",
+    "privacy": "ᱯᱨᱤᱥᱤᱭ ᱡᱟᱦᱟ",
+    "cookies": "ᱠᱩᱠᱤᱮᱥ",
+    "accessibility": "ᱟᱞᱟᱧᱡᱮᱴᱚᱛ",
+    "sitemap": "ᱵᱟᱮᱥᱜ",
+    "newsletter": "ᱱᱟᱭᱩᱨᱮᱱ",
+    "subscribe": "ᱯᱟᱛᱟᱣ ᱱᱟᱭᱩᱨᱮᱱ",
+    "emailPlaceholder": "ᱢᱮᱞ ᱠᱚᱛᱚ",
+    "followUs": "ᱟᱢ ᱵᱮᱢ",
+    "copyright": "© 2024 KalaaMitra. ᱠᱟᱱᱥ ᱯᱚᱯᱟᱲᱟ",
+    "successStories": "ᱥᱩᱪᱥᱦᱮᱲ ᱡᱟᱢᱟᱢ",
+    "quickLinks": "ᱠᱩᱱ ᱞᱤᱠᱟᱱ",
+    "legal": "ᱞᱮᱜᱟᱞ",
+    "howItWorks": "ᱯᱷᱚᱞ ᱠᱚᱵᱮᱥ",
+    "contactUs": "ᱠᱚᱭᱚᱱ ᱟᱢ",
+    "tagline": "ᱴᱟᱣᱟ ᱟᱶᱩᱜᱟ, ᱟᱫᱩ ᱟᱨᱴᱤᱱ ᱚᱰᱟᱭ",
+    "communityBlurb": "ᱟᱨᱴᱤᱱ ᱠᱟᱢᱟ ᱟᱢ ᱡᱚᱠ ᱞᱮᱱᱟᱢ ᱚᱵᱮᱢ ᱟᱢᱟ Digital commerce ᱯᱟᱢᱟᱵᱟ"
+  },
+  "errors": {
+    "general": "ᱟᱱᱟᱱ ᱠᱚ ᱠᱮᱢᱚᱢ. ᱵᱮᱯᱮ ᱠᱚ ᱢᱟᱭᱮ",
+    "network": "ᱱᱩᱨᱱᱤᱥ ᱫᱚᱪ. ᱠᱚᱯᱚᱛᱚᱭ ᱠᱚᱵᱤ",
+    "unauthorized": "ᱴᱷᱚᱭ ᱚᱢᱟᱲ ᱠᱚ ᱯᱟᱦᱚᱯᱚᱱ",
+    "forbidden": "ᱛᱷᱚᱠᱚᱭ ᱠᱚ ᱯᱮᱥᱮᱢ",
+    "notFound": "ᱟᱱᱟᱵ ᱠᱚ ᱥᱤᱴᱠᱟᱪ",
+    "serverError": "ᱯᱚᱠᱴᱤᱞᱤ ᱠᱚ ᱠᱮᱢᱚᱢ. ᱵᱮᱯᱮ ᱠᱚ ᱢᱟᱭᱮ",
+    "validation": "ᱫᱤᱥᱤᱞ ᱠᱚᱭᱚᱱᱟ, ᱵᱮᱯᱮ ᱠᱚ ᱥᱮᱭᱞᱮ",
+    "invalidCredentials": "ᱯᱚᱥᱣᱟᱨᱰ ᱞᱮᱱᱟ ᱠᱚᱵᱧᱟᱹᱲ",
+    "emailExists": "ᱵᱟᱹᱲᱤ ᱢᱮᱞ ᱠᱚ ᱠᱚᱨᱚ ᱥᱤᱱ ᱞᱮᱱᱟᱨ ᱠᱚᱵᱮᱱ",
+    "weakPassword": "ᱯᱚᱥᱣᱟᱨᱰ ᱠᱚ ᱠᱩᱨᱱᱤ. ᱵᱮᱯᱮ ᱠᱚ ᱮᱡᱟᱭ ᱯᱚᱥᱣᱟᱨᱰ",
+    "passwordsDontMatch": "ᱯᱚᱥᱣᱟᱨᱰ ᱟᱢ ᱟᱢᱟ ᱠᱮᱦᱚᱢᱟᱲ"
+  },
+  "success": {
+    "profileUpdated": "ᱣᱤᱨᱚᱯᱜᱨᱤ ᱠᱚᱵᱮᱥᱤ!",
+    "passwordChanged": "ᱯᱚᱥᱣᱟᱨᱰ ᱠᱚᱵᱮᱥᱤ!",
+    "productAdded": "ᱵᱚᱡᱚᱢ ᱠᱚ ᱠᱟᱨᱛ ᱠᱚᱵᱮᱥᱤ!",
+    "productRemoved": "ᱵᱚᱡᱚᱢ ᱠᱚ ᱰᱮᱞᱤᱢ ᱠᱚᱵᱮᱥᱤ!",
+    "orderPlaced": "ᱠᱚᱨᱛ ᱞᱮᱱᱟᱢᱟᱱ!",
+    "reviewSubmitted": "ᱨᱮᱯᱤᱱ ᱵᱟᱢ ᱯᱟᱨᱚᱢ!",
+    "accountCreated": "ᱠᱚᱨᱚ ᱥᱤᱯ ᱠᱚᱵᱮᱱ!",
+    "signedIn": "ᱥᱤᱱ ᱠᱚᱵᱮᱵᱟ!",
+    "signedOut": "ᱥᱤᱱ ᱠᱚᱵᱮᱲᱟ!",
+    "emailSent": "ᱢᱮᱞ ᱠᱚ ᱯᱮᱥᱮᱱ!",
+    "settingsSaved": "ᱥᱮᱠᱴᱤᱞᱟᱱ ᱠᱚ ᱠᱟᱵᱮᱥᱤ!"
+  },
+  "ai": {
+    "generateAd": "AI ᱥᱩᱯᱥᱮ ᱠᱚᱵᱮᱥ",
+    "generateAdDescription": "ᱵᱚᱡᱚᱢ ᱡᱟᱴᱞᱤᱠᱟ ᱯᱤᱞᱤᱛᱤ AI ᱨᱚᱢᱚᱢ",
+    "recommendations": "AI ᱨᱮᱢᱮᱱᱫᱤᱢᱟᱨ",
+    "recommendationsDescription": "ᱟᱢᱟᱱᱟᱢ ᱠᱮ ᱯᱚᱡᱮᱴᱤᱞ ᱨᱮ ᱮ ᱟᱭ ᱨᱮᱭᱞᱤᱱᱟᱹᱲ",
+    "artisanAssistant": "ᱟᱨᱴᱤᱱ AI ᱟᱰᱟᱱᱠᱤ",
+    "artisanAssistantDescription": "ᱟᱨᱴᱤᱱ ᱞᱮᱰᱦᱟᱹᱲ AI ᱡᱚᱠᱷ ᱟᱢ ᱫᱮᱱᱟᱱᱟ",
+    "generate": "ᱠᱚᱵᱮᱥ",
+    "regenerate": "ᱠᱚᱵᱮᱥ ᱠᱷᱮᱱᱟ",
+    "copy": "ᱠᱚ ᱠᱚᱹᱱᱽ",
+    "download": "ᱰᱚᱲᱚᱱᱴᱚᱯ",
+    "analyzing": "ᱠᱚᱠᱩᱫᱮᱢ...",
+    "generating": "ᱠᱚᱵᱮᱥ...",
+    "prompt": "ᱠᱚᱦᱚ ᱠᱚᱵᱮᱢ...",
+    "aiFeatures": "AI ᱥᱩᱛᱤᱞᱤᱠᱟᱱ",
+    "smartSearch": "ᱥᱱᱟᱦ ᱥᱟᱨᱪ",
+    "contentGeneration": "ᱡᱟᱴᱞᱤᱠᱟ ᱥᱩᱯᱥᱮ",
+    "marketAnalysis": "ᱢᱟᱨᱠᱦᱤᱞ ᱠᱚᱠᱩᱫᱮᱢ",
+    "analyzeWithAI": "AI ᱠᱚᱠᱩᱫᱮᱢ",
+    "generatingAd": "ᱠᱚᱵᱮᱥ ᱠᱚᱺᱯ...",
+    "generateAdWithAI": "AI ᱠᱚᱵᱮᱥ",
+    "aiAnalysisResults": "AI ᱠᱚᱠᱩᱫᱮᱢ ᱨᱮᱫᱟᱝ",
+    "pricingSuggestion": "ᱯᱤᱨᱡᱮ ᱫᱮᱯᱮᱠ",
+    "range": "ᱫᱷᱚᱞᱟᱹᱱᱮ",
+    "aiGeneratedDescription": "AI‑ᱥᱤᱛᱤᱞᱤ ᱡᱟᱴᱞᱤᱠᱟ",
+    "generatedAdPreview": "ᱠᱚᱵᱮᱥ ᱠᱚᱵᱮᱥ ᱵᱟᱜᱟᱢ",
+    "form": {
+      "title": "AI‑ᱥᱩᱯᱥᱮ ᱨᱚᱢᱚᱢ ᱫᱮᱨᱡᱮᱞᱤᱠᱟ",
+      "productImage": "ᱵᱚᱡᱚᱢ ᱤᱱᱯᱚ",
+      "uploadImage": "ᱲᱮᱷ ᱤᱱᱯᱚ",
+      "or": "ᱚᱨ",
+      "pasteImageUrl": "ᱤᱱᱯᱚ URL ᱠᱚᱢᱮᱵᱮ",
+      "productPreviewAlt": "ᱵᱚᱡᱚᱢ ᱲᱭᱟᱦ",
+      "applyToForm": "ᱫᱟⁿᱲ ᱤᱯᱨᱮᱦ ᱫᱮ",
+      "suggestedTitleCategory": "ᱫᱷᱚᱢ Title & Category suggestions",
+      "saveProduct": "ᱵᱚᱡᱚᱢ ᱠᱚᱵᱮᱥ",
+      "saving": "ᱠᱚᱵᱮᱥ…",
+      "uploadingImage": "ᱤᱱᱯᱚ ᱲᱮᱷᱮ…",
+      "fields": {
+        "title": {
+          "label": "ᱵᱚᱡᱚᱢ ᱡᱟᱴᱞᱤᱠᱟ *",
+          "placeholder": "ᱵᱚᱡᱚᱢ ᱡᱟᱴᱞᱤᱠᱟ ᱠᱚᱵᱮᱥ"
+        },
+        "category": {
+          "label": "ᱠᱚᱭᱚᱱᱟ *",
+          "placeholder": "ᱺ. ᱯᱚᱛᱽᱨᱤ, ᱴᱮᱠᱥᱴᱟᱭᱞ, ᱡᱩᱭᱟᱹᱨᱤ"
+        },
+        "description": {
+          "label": "ᱰᱮᱨᱡᱮᱞᱤᱠᱟ *",
+          "placeholder": "ᱵᱚᱡᱚᱢ ᱰᱮᱨᱡᱮᱞᱤᱠᱟ ᱠᱚᱵᱟᱹᱲ..."
+        },
+        "price": {
+          "label": "ᱯᱤᱨᱡᱮ (₹) *",
+          "placeholder": "0.00"
+        }
+      },
+      "labels": {
+        "title": "ᱡᱟᱴᱞᱤᱠᱟ",
+        "category": "ᱠᱚᱭᱚᱱᱟ"
+      },
+      "errors": {
+        "noImage": "ᱤᱱᱯᱚ ᱠᱚᱵᱮᱱ ᱠᱚ ᱜᱚᱫᱟᱲ",
+        "analyzeFailed": "ᱠᱚᱠᱩᱫᱮᱢ ᱠᱚ ᱠᱷᱮᱱᱟ",
+        "needAnalyzeFirst": "ᱱᱚᱠᱟᱢ ᱠᱚᱵᱮᱢ ᱠᱚᱠᱩᱫᱮᱢ",
+        "generateFailed": "ᱠᱚᱵᱮᱥ ᱠᱚ ᱠᱷᱮᱱᱟ",
+        "invalidImage": "ᱤᱱᱯᱚ ᱠᱚᱵᱮᱱ ᱚᱢᱟᱞ ᱠᱚᱵᱮᱱ",
+        "uploadFailed": "ᱤᱱᱯᱚ ᱲᱮᱷᱮ ᱠᱚᱠᱚᱵᱮᱳ"
+      }
+    }
+  },
+  "home": {
+    "badge": "AI‑ᱥᱩᱯᱥᱮ ᱟᱨᱴᱤᱱ ᱢᱟᱨᱠᱦᱚᱞ",
+    "welcome": "ᱣᱮᱞᱠᱚᱢ",
+    "subtitle1": "ᱢᱟᱢᱟᱛ ᱠᱚᱭᱚᱱ ᱡᱚᱠᱷ ᱫᱮᱨᱹᱢᱟ ᱟᱢ ᱟᱨᱴᱤᱱ ᱫᱮᱨᱚᱢᱚ ᱛᱟᱲᱟᱢ.",
+    "subtitle2": "ᱵᱟᱹᱱᱟ ᱠᱚᱭᱚᱱᱤ ᱞᱟᱹᱵ ᱟᱢ ᱱᱟᱹᱜᱮᱭ ᱡᱚᱠᱷ, ᱟᱲᱟᱞ ᱠᱟᱹᱛᱥ ᱟᱢ ᱟᱵᱟᱜᱤᱛ᱁",
+    "startSelling": "ᱞᱮᱱᱟ ᱵᱚᱡᱚᱢ",
+    "startShopping": "ᱟᱢᱟᱭᱟ ᱵᱚᱡᱚᱢ",
+    "readyToStart": "ᱯᱚᱱᱟᱛ ᱨᱚᱵᱚ ᱵᱚᱡᱚᱢ?",
+    "readyToStartDesc": "ᱟᱨᱴᱤᱱ ᱠᱟ ᱞᱮᱱᱟ ᱠᱚ ᱵᱚᱡᱚᱢ ᱠᱚᱵᱮᱥ ᱟᱢ ᱡᱚᱠ ᱠᱟᱱᱮᱴᱤ, ᱠᱟᱞᱟᱢᱤᱴᱨ ᱟᱢ ᱮᱴᱟᱹ ᱟᱲᱮᱢᱟᱦ ᱠᱚᱛᱚᱨᱛᱟᱹᱲ",
+    "stats": {
+      "artisans": "ᱟᱨᱴᱤᱱ",
+      "products": "ᱵᱚᱡᱚᱢ",
+      "categories": "ᱠᱚᱭᱚᱱᱟ"
+    },
+    "whyChoose": "ᱯᱟᱹᱲᱟ ᱠᱚᱵᱮᱢ?",
+    "whyChooseDesc": "ᱮ ᱟᱭ‑ᱥᱩᱯᱥᱮ ᱡᱚᱠᱷ ᱟᱢ ᱨᱤᱠᱦᱮ ᱢᱟᱱᱴᱟ ᱡᱚᱠᱷ ᱯᱟᱨᱮᱱ ᱞᱮᱭᱞᱤᱱ",
+    "feature1": {
+      "title": "ᱮ ᱟᱭ‑ᱥᱩᱯᱥᱮ Tools",
+      "desc": "AI ᱠᱚᱯᱞᱤ ᱡᱚᱠᱷ ᱤᱱᱯᱚ ᱰᱮᱡᱮᱞ ᱟᱢ ᱡᱚᱠᱷ"
+    },
+    "feature2": {
+      "title": "ᱠᱚᱭᱚᱱ ᱠᱫᱮ",
+      "desc": "ᱟᱨᱴᱤᱱ ᱠᱚ ᱞᱤᱭᱟ ᱟᱢ ᱡᱚᱠ ᱠᱷᱮ ᱡᱠᱚ ᱫᱟᱞᱟᱹᱱᱮ"
+    },
+    "feature3": {
+      "title": "ᱛᱷᱟ ᱠᱚᱦᱮᱱ ᱟᱢ ᱷᱩᱞᱮ",
+      "desc": "ᱮᱞᱮᱱᱛᱤ ᱟᱢᱞᱟ ᱡᱚᱠ ᱚᱰᱟᱭ ᱫᱟᱹᱲ ᱠᱚ ᱡᱩᱨᱢᱤ"
+    },
+    "howItWorks": "ᱛᱷᱚᱞ ᱠᱚ ᱯᱟᱹᱲᱟ",
+    "works": "ᱟᱨᱴᱤᱱ",
+    "howItWorksDesc": "ᱠᱟᱞᱟᱢᱤᱴᱨ ᱫᱚᱲᱟᱭ ᱤᱠᱷᱟ ᱯᱤᱛᱤ ᱠᱚ ᱠᱮᱫᱮ",
+    "step1": {
+      "title": "ᱥᱤᱱ ᱥᱤᱯ",
+      "desc": "ᱠᱚ ᱠᱚᱮᱛ ᱠᱚ ᱠᱚᱵᱟᱞ ᱟᱢ ᱟᱨᱴᱤᱱ"
+    },
+    "step2": {
+      "title": "ᱣᱤᱨᱚᱯᱜᱨᱤ ᱠᱚᱵᱮᱥ",
+      "desc": "ᱫᱚᱲᱟ ᱠᱚᱮᱛ ᱠᱚ ᱠᱚᱭᱚᱱᱟ ᱠᱚᱵᱮᱥ"
+    },
+    "step3": {
+      "title": "ᱠᱚᱵᱮᱥ ᱠᱚᱵᱮᱥ",
+      "desc": "ᱵᱚᱡᱚᱢ ᱠᱚᱵᱮᱥ ᱟᱢ ᱠᱚᱷᱮᱱᱟ"
+    },
+    "step4": {
+      "title": "ᱵᱟᱠᱟᱹᱞ ᱟᱢ ᱟᱨᱴᱤᱱ",
+      "desc": "ᱟᱭᱤ ᱥᱩᱯᱥᱮ ᱡᱚᱠᱷ ᱡᱮᱰᱮᱞᱤ"
+    }
+  },
+  "brand": {
+    "name": "ᱠᱟᱞᱟᱢᱤᱴᱨ"
+  }
+}
+
+
+
+  
+
+  
