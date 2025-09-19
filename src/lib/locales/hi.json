@@ -24,19 +24,21 @@
   "navigation": {
     "home": "होम",
     "marketplace": "मार्केटप्लेस",
-  "auctions": "नीलामी",
+    "auctions": "नीलामी",
     "dashboard": "डैशबोर्ड",
     "cart": "कार्ट",
     "profile": "प्रोफ़ाइल",
-  "notifications": "सूचनाएँ",
-  "light": "लाइट",
-  "dark": "डार्क",
-  "theme": "थीम",
-    "signin": "साइन इन करें",
-    "signup": "साइन अप करें",
-    "signout": "साइन आउट करें",
-    "language": "भाषा"
-  ,"live": "लाइव"
+    "notifications": "सूचनाएँ",
+    "light": "लाइट",
+    "dark": "डार्क",
+    "theme": "थीम",
+  "signin": "साइन इन करें",
+  "signup": "साइन अप करें",
+  "signout": "साइन आउट करें",
+  "language": "भाषा",
+  "live": "लाइव",
+  "reels": "रील्स",
+  "ads": "विज्ञापन"
   },
   "auth": {
     "welcome": "कलामित्र में आपका स्वागत है",
@@ -140,7 +142,7 @@
   "meetTheArtisan": "कारीगर से मिलें",
   "viewAllProducts": "सभी उत्पाद देखें"
   },
-  "auction": {
+  "auctions": {
     "title": "नीलामी",
     "noAuction": "कोई नीलामी उपलब्ध नहीं",
     "invalidAmount": "अमान्य बोली राशि",
@@ -156,7 +158,8 @@
     "created": "नीलामी बनाई गई",
     "endedWithWinner": "नीलामी समाप्त। विजेता: {{name}} ₹{{amount}} के साथ",
     "endedNoBids": "कोई बोलियाँ नहीं मिलीं",
-    "deleted": "नीलामी हटाई गई"
+    "deleted": "नीलामी हटाई गई",
+    "view": "देखें"
   },
   "cart": {
     "title": "शॉपिंग कार्ट",
@@ -273,25 +276,38 @@
       }
     }
   },
-  "profile": {
-    "title": "प्रोफ़ाइल",
-    "personalInfo": "व्यक्तिगत जानकारी",
-    "contactInfo": "संपर्क जानकारी",
-    "addresses": "पते",
-    "paymentMethods": "भुगतान विधियाँ",
-    "preferences": "प्राथमिकताएँ",
-    "security": "सुरक्षा",
-    "notifications": "सूचना सेटिंग्स",
-    "language": "भाषा प्राथमिकता",
-    "currency": "मुद्रा प्राथमिकता",
-    "timezone": "समय क्षेत्र",
-    "editProfile": "प्रोफ़ाइल संपादित करें",
-    "changePassword": "पासवर्ड बदलें",
-    "twoFactorAuth": "दो-कारक प्रमाणीकरण",
-    "deleteAccount": "खाता हटाएं",
-    "dataExport": "मेरा डेटा निर्यात करें",
-    "privacySettings": "गोपनीयता सेटिंग्स"
-  },
+    "profile": {
+  "title": "प्रोफ़ाइल",
+  "edit": "संपादित करें",
+  "editProfile": "प्रोफ़ाइल संपादित करें",
+  "save": "सहेजें",
+  "signInPrompt": "अपनी प्रोफ़ाइल देखने के लिए कृपया साइन इन करें।",
+  "loading": "लोड हो रहा है...",
+  "bio": "बायो",
+  "name": "नाम",
+  "noBio": "कोई बायो नहीं",
+  "header": "प्रोफ़ाइल और सेटिंग्स",
+  "headerDesc": "अपने खाते, प्राथमिकताओं और रूप को प्रबंधित करें",
+  "language": "भाषा",
+  "theme": "थीम",
+  "lightMode": "लाइट मोड",
+  "darkMode": "डार्क मोड",
+  "personalInfo": "व्यक्तिगत जानकारी",
+  "contactInfo": "संपर्क जानकारी",
+  "addresses": "पते",
+  "paymentMethods": "भुगतान विधियाँ",
+  "preferences": "प्राथमिकताएँ",
+  "security": "सुरक्षा",
+  "notifications": "सूचना सेटिंग्स",
+  "currency": "मुद्रा प्राथमिकता",
+  "timezone": "समय क्षेत्र",
+  "changePassword": "पासवर्ड बदलें",
+  "twoFactorAuth": "दो-कारक प्रमाणीकरण",
+  "deleteAccount": "खाता हटाएँ",
+  "dataExport": "मेरा डेटा निर्यात करें",
+  "privacySettings": "गोपनीयता सेटिंग्स",
+  "signOut": "साइन आउट करें"
+    },
   "footer": {
     "about": "हमारे बारे में",
     "contact": "संपर्क करें",

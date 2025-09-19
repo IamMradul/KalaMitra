@@ -222,9 +222,14 @@ export default function Navbar() {
           </div>
           {/* Reels Button - far right, icon + text, no background (desktop) */}
           <div className="hidden md:flex items-center">
-            <Link href="/reels" className="flex items-center px-3 py-2 text-black font-semibold hover:text-orange-500 transition-all duration-200" title="Reels">
+            <Link 
+              href="/reels" 
+              className="text-[var(--text)] hover:text-heritage-gold transition-all duration-300 font-medium hover:scale-105 transform hover:translate-y-[-2px] relative group flex items-center px-3 py-2" 
+              title="Reels"
+            >
               <Video className="w-6 h-6 mr-2" />
-              <span className="text-base font-bold">Reels</span>
+              <span className="text-base">{t('navigation.reels')}</span>
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-heritage-gold to-heritage-red transition-all duration-300 group-hover:w-full"></span>
             </Link>
           </div>
 
@@ -429,7 +434,7 @@ export default function Navbar() {
               {/* Reels/Ads icon - enabled, no background, always black icon */}
               <Link href="/reels" className="flex items-center px-6 py-3" onClick={() => setIsMenuOpen(false)}>
                 <Video className="w-6 h-6 text-black mr-3" />
-                <span className="font-medium text-black">Reels/Ads</span>
+                <span className="font-medium text-black">{t('navigation.reels')}/{t('navigation.ads')}</span>
               </Link>
           {loading ? (
                 <div className="space-y-4">

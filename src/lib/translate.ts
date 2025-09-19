@@ -1,7 +1,7 @@
 // Client-safe translation utility using Google Cloud Translation API v2
 // Uses NEXT_PUBLIC_GEMINI_API_KEY (enabled for Translation) per user's setup
 
-const API_KEY = process.env.NEXT_PUBLIC_GEMINI_API_KEY
+const API_KEY = process.env.GOOGLE_TRANSLATE_API_KEY
 const GEMINI_MODEL = 'gemini-1.5-flash'
 
 // Map app i18n codes to Google Translation target codes
