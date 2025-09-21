@@ -37,6 +37,33 @@ export default function SellerReelsPage() {
     fetchReels();
   }, [user?.id]);
 
+  // Intersection Observer for auto play/pause
+  useEffect(() => {
+    const videoElements = document.querySelectorAll('.seller-reel-video');
+    const handleIntersection = (entries: IntersectionObserverEntry[]) => {
+      entries.forEach(entry => {
+        const video = entry.target as HTMLVideoElement;
+        if (entry.isIntersecting) {
+          if (video.paused) {
+            video.play().catch(() => {});
+          }
+        } else {
+          if (!video.paused) {
+            video.pause();
+          }
+        }
+      });
+    };
+    const observer = new window.IntersectionObserver(handleIntersection, {
+      threshold: 0.7
+    });
+    videoElements.forEach(video => observer.observe(video));
+    return () => {
+      videoElements.forEach(video => observer.unobserve(video));
+      observer.disconnect();
+    };
+  }, [reels]);
+
   const handleDelete = async (reelId: number) => {
     if (!confirm(t('reels.delete') + '?')) return;
     const { error } = await supabase
@@ -66,8 +93,22 @@ export default function SellerReelsPage() {
         <div className="w-full max-w-2xl grid gap-8">
           {reels.map(reel => (
             <div key={reel.id} className="rounded-xl shadow-lg bg-[var(--bg)] border border-[var(--border)] overflow-hidden flex flex-col">
-              <div className="w-full aspect-[9/16] bg-black flex items-center justify-center">
-                <video src={reel.video_url} autoPlay loop className="w-full h-full object-cover" />
+              <div className="w-full max-w-[350px] mx-auto aspect-[4/5] bg-black flex items-center justify-center rounded-lg">
+                <video
+                  src={reel.video_url}
+                  loop
+                  playsInline
+                  className="seller-reel-video w-full h-full object-cover cursor-pointer rounded-lg"
+                  onClick={e => {
+                    const video = e.currentTarget;
+                    if (video.paused) {
+                      video.play();
+                    } else {
+                      video.pause();
+                    }
+                  }}
+                  style={{ touchAction: 'manipulation' }}
+                />
               </div>
               <div className="p-4 flex flex-col gap-2">
                 <div className="text-[var(--text)] text-base font-medium">{reel.caption}</div>

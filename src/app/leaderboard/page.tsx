@@ -1,9 +1,13 @@
+'use client'
 import Leaderboard from '../../components/Leaderboard'
 
+import { useTranslation } from 'react-i18next';
+
 export default function LeaderboardPage() {
+  const { t } = useTranslation();
   return (
     <main className="container-custom py-10">
-      <h1 className="text-4xl font-bold mb-6">Leaderboard</h1>
+      <h1 className="text-4xl font-bold mb-6">{t('leaderboard.title', { defaultValue: 'Leaderboard' })}</h1>
       <Leaderboard embedMode />
     </main>
   )

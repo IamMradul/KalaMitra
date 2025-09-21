@@ -1,16 +1,18 @@
+
 'use client';
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
 import { Heart, MessageCircle, User } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface Reel {
   id: number;
   user_id: string;
   product_id: string;
   video_url: string;
-  caption: string;
+  comment: string;
   likes: number;
   created_at: string;
   profiles?: {
@@ -26,6 +28,7 @@ export default function ReelsPage() {
   const [reels, setReels] = useState<Reel[]>([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
+  const { t } = useTranslation();
 
   useEffect(() => {
     const fetchReels = async () => {
@@ -38,6 +41,33 @@ export default function ReelsPage() {
     };
     fetchReels();
   }, []);
+
+  // Intersection Observer for auto play/pause
+  useEffect(() => {
+    const videoElements = document.querySelectorAll('.reel-video');
+    const handleIntersection = (entries: IntersectionObserverEntry[]) => {
+      entries.forEach(entry => {
+        const video = entry.target as HTMLVideoElement;
+        if (entry.isIntersecting) {
+          if (video.paused) {
+            video.play().catch(() => {}); // Ignore AbortError
+          }
+        } else {
+          if (!video.paused) {
+            video.pause();
+          }
+        }
+      });
+    };
+    const observer = new window.IntersectionObserver(handleIntersection, {
+      threshold: 0.7 // 70% visible
+    });
+    videoElements.forEach(video => observer.observe(video));
+    return () => {
+      videoElements.forEach(video => observer.unobserve(video));
+      observer.disconnect();
+    };
+  }, [reels]);
 
   // Track which reels the user has liked
   const [likedReels, setLikedReels] = useState<number[]>([]);
@@ -95,15 +125,15 @@ export default function ReelsPage() {
 
   return (
     <div className="min-h-screen bg-[var(--bg-2)] flex flex-col items-center py-4">
-      <h1 className="text-3xl font-bold text-[var(--text)] mb-6">Reels</h1>
+      <h1 className="text-3xl font-bold text-[var(--text)] mb-6">{t('navigation.reels', { defaultValue: 'Reels' })}</h1>
       <div className="w-full max-w-md md:max-w-2xl flex flex-col gap-8">
         {loading ? (
           <div className="flex justify-center items-center h-96">
-            <span className="text-[var(--muted)]">Loading...</span>
+            <span className="text-[var(--muted)]">{t('common.loading', { defaultValue: 'Loading...' })}</span>
           </div>
         ) : reels.length === 0 ? (
           <div className="flex justify-center items-center h-96">
-            <span className="text-[var(--muted)]">No reels yet.</span>
+            <span className="text-[var(--muted)]">{t('reels.noReels', { defaultValue: 'No reels yet.' })}</span>
           </div>
         ) : (
           reels.map(reel => (
@@ -116,17 +146,17 @@ export default function ReelsPage() {
                 )}
                 <div>
                    <Link href={`/stall/${reel.user_id}`} className="font-semibold text-[var(--text)] hover:text-orange-600">
-                    {reel.profiles?.name || 'User'}
+                    {reel.profiles?.name || t('profile.title', { defaultValue: 'User' })}
                   </Link>
                   <div className="text-xs text-[var(--muted)]">{new Date(reel.created_at).toLocaleString()}</div>
                 </div>
               </div>
-              <div className="w-full aspect-[9/16] bg-black flex items-center justify-center">
+              <div className="w-full max-w-[350px] mx-auto aspect-[4/5] bg-black flex items-center justify-center rounded-lg">
                 <video
                   src={reel.video_url}
-                  autoPlay
                   loop
-                  className="w-full h-full object-cover cursor-pointer"
+                  playsInline
+                  className="reel-video w-full h-full object-cover cursor-pointer rounded-lg"
                   onClick={e => {
                     const video = e.currentTarget;
                     if (video.paused) {
@@ -140,7 +170,7 @@ export default function ReelsPage() {
                 />
               </div>
               <div className="p-4 flex flex-col gap-2">
-                <div className="text-[var(--text)] text-base font-medium">{reel.caption}</div>
+                <div className="text-[var(--text)] text-base font-medium">{reel.comment}</div>
                 <div className="flex items-center gap-6 mt-2">
                   <button
                     className={`flex items-center gap-1 text-[var(--muted)] hover:text-orange-600`}
@@ -151,11 +181,11 @@ export default function ReelsPage() {
                   </button>
                   <button className="flex items-center gap-1 text-[var(--muted)] hover:text-orange-600">
                     <MessageCircle className="w-5 h-5" />
-                    <span>Comment</span>
+                    <span>{t('reels.comment', { defaultValue: 'Comment' })}</span>
                   </button>
                   {reel.product_id && (
                     <Link href={`/product/${reel.product_id}`} className="text-[var(--muted)] hover:text-orange-600 text-sm">
-                      {reel.products?.title ? `View Product: ${reel.products.title}` : 'View Product'}
+                      {reel.products?.title ? `${t('product.title', { defaultValue: 'View Product' })}: ${reel.products.title}` : t('product.title', { defaultValue: 'View Product' })}
                     </Link>
                   )}
                 </div>

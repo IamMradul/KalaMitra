@@ -81,7 +81,8 @@
       "noReels": "No reels found.",
       "likes": "Likes",
       "delete": "Delete",
-      "caption": "Caption"
+      "caption": "Caption",
+      "comment": "Comment"
     },
   "navigation": {
     "home": "Home",
@@ -303,7 +304,8 @@
       "askMoreTips": "Ask for more tips",
       "askPlaceholder": "Ask a question about improving your stall…",
       "askButton": "Ask",
-      "thinking": "Thinking…"
+      "thinking": "Thinking…",
+      "manageReels": "Manage Reels"
     },
     "analyticsGuidance": {
       "audienceEngagingMost": "Your audience is engaging most with: {{titles}}. Consider featuring these items, creating bundles, or promoting similar pieces in the same categories.",
@@ -507,5 +509,9 @@
   ,
   "brand": {
     "name": "KalaMitra"
-  }
+  },
+  "leaderboard": {
+  "title": "Leaderboard",
+  "desc": "Top buyers by MitraPoints (awarded for auction wins)."
+}
 }
