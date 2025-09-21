@@ -81,7 +81,9 @@
     "noReels": "कोनो रील्स नहि भेटल।",
     "likes": "लाइक",
     "delete": "हटाउ",
-    "caption": "कैप्शन"
+    "caption": "कैप्शन",
+    "comment": "टिप्पणी"
+    
   },
   "navigation": {
     "home": "मुख पृष्ठ",
@@ -293,6 +295,7 @@
     "loadingProducts": "उत्पाद लोड हो रहल अछि...",
     "noProducts": "अभी तक कोनो उत्पाद नहि",
     "startByAddingFirst": "अपना पहिल उत्पाद जोड़िक' शुरू करू",
+    "manageReels": "अपना रील्स प्रबंधन करू",
     "analyticsShort": {
       "stallViews30d": "स्टॉल दृश्य (30 दिन)",
       "uniqueVisitors30d": "अद्वितीय आगंतुक (30 दिन)",
@@ -506,6 +509,10 @@
   },
   "brand": {
     "name": "कलामित्र"
-  }
+  },
+  "leaderboard": {
+  "title": "लीडरबोर्ड",
+  "desc": "शीर्ष खरीदार MitraPoints द्वारा (नीलामी जीतल पर देल जाइत अछि)।"
+}
 }
 

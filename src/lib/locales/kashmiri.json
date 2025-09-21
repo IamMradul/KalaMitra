@@ -81,7 +81,8 @@
     "noReels": "کوئی ریل نہیں ملی۔",
     "likes": "لائکس",
     "delete": "حذف کریں",
-    "caption": "کیپشن"
+    "caption": "کیپشن",
+    "comment": "تبصرہ"
   },
   "navigation": {
     "home": "ہوم",
@@ -293,6 +294,7 @@
     "loadingProducts": "مصنوعات لوڈ ہو رہی ہیں...",
     "noProducts": "ابھی کوئی مصنوعات نہیں",
     "startByAddingFirst": "اپنی پہلی مصنوعات شامل کر کے شروع کریں",
+    "manageReels": "اپنا ریلز مینج کریں",
     "analyticsShort": {
       "stallViews30d": "اسٹال کے نظارے (30 دن)",
       "uniqueVisitors30d": "منفرد وزیٹرز (30 دن)",
@@ -506,6 +508,10 @@
   },
   "brand": {
     "name": "کالا میترا"
-  }
+  },
+  "leaderboard": {
+  "title": "لیڈر بورڈ",
+  "desc": "سرفہرست خریدار MitraPoints کے ذریعے (نیلامی جیتنے پر دیے جاتے ہیں)."
+}
 }
 
