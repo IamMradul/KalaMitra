@@ -2,7 +2,7 @@
 // Uses NEXT_PUBLIC_GEMINI_API_KEY (enabled for Translation) per user's setup
 
 const API_KEY = process.env.GOOGLE_TRANSLATE_API_KEY
-const GEMINI_MODEL = 'gemini-1.5-flash'
+const GEMINI_MODEL = process.env.NEXT_PUBLIC_GEMINI_MODEL || 'gemini-2.5-flash'
 
 // Map app i18n codes to Google Translation target codes
 // Updated with correct ISO codes and fallback handling

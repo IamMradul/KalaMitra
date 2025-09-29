@@ -26,7 +26,8 @@ export class AIService {
   private model: ReturnType<typeof genAI.getGenerativeModel>;
 
   private constructor() {
-    this.model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const modelName = process.env.NEXT_PUBLIC_GEMINI_MODEL || 'gemini-1.5-flash';
+    this.model = genAI.getGenerativeModel({ model: modelName });
   }
 
   public static getInstance(): AIService {

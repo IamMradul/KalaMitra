@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 // Simple in-memory cache on server
 const cache = new Map<string, { v: string; t: number }>()
 const TTL_MS = 1000 * 60 * 60 * 24 * 7 // 7 days
-const GEMINI_MODEL = 'gemini-1.5-flash'
+const GEMINI_MODEL = process.env.NEXT_PUBLIC_GEMINI_MODEL || 'gemini-2.5-flash'
 
 function getTargetFromAppLang(appLang: string): string | null {
   const map: Record<string, string> = {
