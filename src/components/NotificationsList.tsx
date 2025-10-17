@@ -41,16 +41,27 @@ export default function NotificationsList() {
   if (notes.length === 0) return <div>No notifications</div>
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-4">
       {notes.map(n => (
-        <div key={n.id} className={`p-3 rounded border ${n.read ? 'bg-[var(--bg-2)]' : 'card'}`}>
-          <div className="flex justify-between items-start">
+        <div
+          key={n.id}
+          className={`p-4 rounded-xl border shadow-md transition-all duration-200 ${n.read ? 'bg-[var(--bg-2)] border-[var(--border)]' : 'notification-unread bg-[var(--bg-2)] border-[var(--border)]'} hover:shadow-lg`}
+        >
+          <div className="flex justify-between items-start gap-4">
             <div>
-              <div className="font-semibold text-[var(--text)]">{n.title}</div>
-              <div className="text-sm text-[var(--muted)]">{n.body}</div>
-              <div className="text-xs text-[var(--muted)] mt-1">{new Date(n.created_at).toLocaleString()}</div>
+              <div className="font-semibold text-lg text-[var(--text)] mb-1">{n.title}</div>
+              <div className="text-sm text-[var(--muted)] mb-1">{n.body}</div>
+              <div className="text-xs text-[var(--muted)] mt-1 italic">{new Date(n.created_at).toLocaleString()}</div>
             </div>
-            {!n.read && <button onClick={() => markRead(n.id)} className="ml-3 px-2 py-1 bg-green-600 text-white rounded">Mark read</button>}
+            {!n.read && (
+              <button
+                onClick={() => markRead(n.id)}
+                className="ml-3 px-3 py-1.5 bg-gradient-to-r from-green-500 to-green-600 text-white font-bold rounded-lg shadow hover:from-green-600 hover:to-green-700 transition-all border border-green-700 drop-shadow"
+                style={{ textShadow: '0 1px 2px rgba(0,0,0,0.18)' }}
+              >
+                Mark read
+              </button>
+            )}
           </div>
         </div>
       ))}

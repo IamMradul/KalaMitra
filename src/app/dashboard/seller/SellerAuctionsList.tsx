@@ -67,22 +67,111 @@ export default function SellerAuctionsList({ sellerId }: { sellerId: string }) {
     }
   }
 
-  if (loading) return <div>{t('common.loading')}</div>
-  if (auctions.length === 0) return <div>{t('seller.noProducts')}</div>
+  if (loading) return (
+    <div className="flex items-center justify-center py-8">
+      <div className="flex items-center gap-3 text-[var(--muted)]">
+        <div className="w-6 h-6 border-3 border-amber-200 border-t-amber-600 rounded-full animate-spin"></div>
+        <span className="text-sm sm:text-base">{t('common.loading')}</span>
+      </div>
+    </div>
+  )
+  
+  if (auctions.length === 0) return (
+    <div className="text-center py-12">
+      <div className="text-6xl mb-4">📦</div>
+      <p className="text-base sm:text-lg font-semibold text-[var(--text)] mb-2">No Active Auctions</p>
+      <p className="text-sm text-[var(--muted)]">{t('seller.noProducts')}</p>
+    </div>
+  )
 
   return (
     <div>
-      <div className="grid gap-3">
+      <div className="grid gap-4 sm:gap-6">
         {auctions.map(a => (
-          <div key={a.id} className="card border p-3 rounded flex flex-col md:flex-row md:items-center md:justify-between">
-            <div>
-              <div className="font-semibold text-[var(--text)]">{a.product_title || a.product_id}</div>
-              <div className="text-sm text-[var(--muted)]">{t('auction.status')}: {a.status} | {t('auction.title')}: {a.starts_at ? new Date(a.starts_at).toLocaleString() : ''}  {a.ends_at ? new Date(a.ends_at).toLocaleString() : ''}</div>
+          <div 
+            key={a.id} 
+            className="relative overflow-hidden rounded-xl bg-[var(--bg-2)] dark:bg-[var(--bg-2)] border-2 border-amber-300 dark:border-amber-700/50 shadow-md hover:shadow-xl transition-all duration-300 group"
+          >
+            {/* Status Badge */}
+            <div className="absolute top-4 right-4 z-10">
+              <span className={`px-3 py-1 text-xs font-bold rounded-full shadow-lg ${
+                a.status === 'running' 
+                  ? 'bg-green-500 text-white' 
+                  : a.status === 'scheduled'
+                  ? 'bg-blue-500 text-white'
+                  : a.status === 'cancelled'
+                  ? 'bg-red-500 text-white'
+                  : 'bg-gray-500 text-white'
+              }`}>
+                {a.status === 'running' ? '🟢 Active' : a.status === 'scheduled' ? '🔵 Scheduled' : a.status === 'cancelled' ? '🔴 Cancelled' : '⚫ Completed'}
+              </span>
             </div>
-            <div className="mt-3 md:mt-0 flex space-x-2">
-              {a.status !== 'completed' && <button onClick={() => endAuction(a.id)} className="px-3 py-1 bg-blue-600 text-white rounded">{t('common.confirm')}</button>}
-              <button onClick={() => deleteAuction(a.id)} className="px-3 py-1 bg-red-600 text-white rounded">{t('auction.deleted')}</button>
+
+            <div className="p-4 sm:p-6">
+              <div className="flex flex-col lg:flex-row lg:items-center gap-4 sm:gap-6">
+                {/* Product Info */}
+                <div className="flex-1 min-w-0">
+                  <h4 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-[var(--text)] mb-3 pr-24 line-clamp-2 group-hover:text-amber-600 transition-colors">
+                    {a.product_title || a.product_id}
+                  </h4>
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="flex items-center gap-2 text-sm">
+                      <span className="text-lg">💰</span>
+                      <div>
+                        <p className="text-xs text-gray-600 dark:text-[var(--muted)] font-medium">Starting Price</p>
+                        <p className="text-base font-bold text-amber-600 dark:text-amber-400">₹{a.starting_price || 'N/A'}</p>
+                      </div>
+                    </div>
+                    
+                    {a.starts_at && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <span className="text-lg">🕐</span>
+                        <div>
+                          <p className="text-xs text-gray-600 dark:text-[var(--muted)] font-medium">Starts</p>
+                          <p className="text-xs font-semibold text-gray-900 dark:text-[var(--text)]">{new Date(a.starts_at).toLocaleDateString()}</p>
+                          <p className="text-xs text-gray-600 dark:text-[var(--muted)]">{new Date(a.starts_at).toLocaleTimeString()}</p>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {a.ends_at && (
+                      <div className="flex items-center gap-2 text-sm sm:col-span-2">
+                        <span className="text-lg">⏰</span>
+                        <div>
+                          <p className="text-xs text-gray-600 dark:text-[var(--muted)] font-medium">Ends</p>
+                          <p className="text-xs font-semibold text-gray-900 dark:text-[var(--text)]">{new Date(a.ends_at).toLocaleDateString()}</p>
+                          <p className="text-xs text-gray-600 dark:text-[var(--muted)]">{new Date(a.ends_at).toLocaleTimeString()}</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex flex-col xs:flex-row lg:flex-col gap-2 lg:w-48">
+                  {a.status !== 'completed' && (
+                    <button 
+                      onClick={() => endAuction(a.id)} 
+                      className="flex-1 lg:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-white rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-md hover:shadow-lg transform hover:scale-105 transition-all"
+                    >
+                      <span>🏁</span>
+                      <span>End Auction</span>
+                    </button>
+                  )}
+                  <button 
+                    onClick={() => deleteAuction(a.id)} 
+                    className="flex-1 lg:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-white rounded-lg bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 shadow-md hover:shadow-lg transform hover:scale-105 transition-all"
+                  >
+                    <span>🗑️</span>
+                    <span>Delete</span>
+                  </button>
+                </div>
+              </div>
             </div>
+
+            {/* Decorative Element */}
+            <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-amber-400 via-orange-500 to-yellow-400"></div>
           </div>
         ))}
       </div>

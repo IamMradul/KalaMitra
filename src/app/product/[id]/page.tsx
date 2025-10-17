@@ -24,6 +24,33 @@ type Product = Database['public']['Tables']['products']['Row'] & {
     profile_image: string | null
     store_description: string | null
   }
+  isCollaborative?: boolean
+  collaborators?: {
+    id: string
+    name: string
+    bio: string | null
+    profile_image: string | null
+    store_description: string | null
+  }[]
+}
+
+type CollabJoin = {
+  product_id?: string
+  collaboration?: {
+    id: string
+    initiator_id: string
+    partner_id: string
+    status: string
+    initiator?: { id: string; name?: string; bio?: string; profile_image?: string; store_description?: string }[] | { id: string; name?: string; bio?: string; profile_image?: string; store_description?: string } | null
+    partner?: { id: string; name?: string; bio?: string; profile_image?: string; store_description?: string }[] | { id: string; name?: string; bio?: string; profile_image?: string; store_description?: string } | null
+  } | ({
+    id: string
+    initiator_id: string
+    partner_id: string
+    status: string
+    initiator?: { id: string; name?: string; bio?: string; profile_image?: string; store_description?: string }[] | null
+    partner?: { id: string; name?: string; bio?: string; profile_image?: string; store_description?: string }[] | null
+  }[]) | null
 }
 
 export default function ProductDetail() {
@@ -61,6 +88,25 @@ export default function ProductDetail() {
         .single()
 
       if (error) throw error
+
+      // Check if this is a collaborative product
+      const { data: collabData } = await supabase
+        .from('collaborative_products')
+        .select(`
+          product_id,
+          collaboration:collaborations(
+            id,
+            initiator_id,
+            partner_id,
+            status,
+            initiator:profiles!collaborations_initiator_id_fkey(id, name, bio, profile_image, store_description),
+            partner:profiles!collaborations_partner_id_fkey(id, name, bio, profile_image, store_description)
+          )
+        `)
+        .eq('product_id', productId)
+        .eq('collaboration.status', 'accepted')
+        .single()
+
       // Translate dynamic fields to current language (client-side)
       const lang = currentLanguage
       const translated = { ...data }
@@ -73,6 +119,43 @@ export default function ProductDetail() {
         translated.seller.bio = await translateText(data.seller?.bio || '' , lang)
         translated.seller.store_description = await translateText(data.seller?.store_description || '' , lang)
       }
+
+      // Add collaboration info if exists
+      if (collabData?.collaboration) {
+          const raw = collabData as unknown as CollabJoin
+          let collab = raw.collaboration
+          if (Array.isArray(collab)) collab = collab[0]
+          if (collab) {
+            // Helper to normalize value which may be an array or a single object
+            const getFirst = <T,>(val?: T[] | T | null): T | null => {
+              if (!val) return null
+              return Array.isArray(val) ? val[0] : (val as T)
+            }
+
+            const initiator = getFirst(collab.initiator)
+            const partner = getFirst(collab.partner)
+
+          const collaborators = [
+            {
+              id: collab.initiator_id,
+              name: await translateText(initiator?.name || '', lang),
+              bio: await translateText(initiator?.bio || '', lang),
+              profile_image: initiator?.profile_image || null,
+              store_description: await translateText(initiator?.store_description || '', lang)
+            },
+            {
+              id: collab.partner_id,
+              name: await translateText(partner?.name || '', lang),
+              bio: await translateText(partner?.bio || '', lang),
+              profile_image: partner?.profile_image || null,
+              store_description: await translateText(partner?.store_description || '', lang)
+            }
+          ]
+          translated.isCollaborative = true
+          translated.collaborators = collaborators
+        }
+      }
+
       setProduct(translated as Product)
       // check if product has an active auction
       try {
@@ -149,6 +232,13 @@ export default function ProductDetail() {
             className="card rounded-xl p-6"
           >
             <div className="relative aspect-square rounded-lg overflow-hidden bg-[var(--bg-2)]">
+              {/* Collaboration Badge */}
+              {product.isCollaborative && (
+                <div className="absolute top-4 right-4 z-10 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-4 py-2 rounded-full text-sm font-semibold shadow-lg">
+                  🤝 Collaborative Product
+                </div>
+              )}
+              
               {product.image_url ? (
                 <Image
                   src={product.image_url}
@@ -157,8 +247,14 @@ export default function ProductDetail() {
                   className="object-cover"
                 />
               ) : (
-                <div className="w-full h-full bg-gradient-to-br from-orange-100 to-red-100 flex items-center justify-center">
-                  <span className="text-orange-400 text-8xl">🎨</span>
+                <div className={`w-full h-full bg-gradient-to-br flex items-center justify-center ${
+                  product.isCollaborative
+                    ? 'from-yellow-100 to-orange-100'
+                    : 'from-orange-100 to-red-100'
+                }`}>
+                  <span className={`text-8xl ${
+                    product.isCollaborative ? 'text-yellow-400' : 'text-orange-400'
+                  }`}>🎨</span>
                 </div>
               )}
             </div>
@@ -255,37 +351,79 @@ export default function ProductDetail() {
               className="card-glass rounded-xl p-6"
             >
               <h3 className="text-lg font-semibold text-[var(--text)] mb-4">
-                {t('product.meetTheArtisan')}
+                {product.isCollaborative 
+                  ? '🤝 Meet the Collaborative Artisans' 
+                  : t('product.meetTheArtisan')
+                }
               </h3>
-              <div className="flex items-center space-x-4">
-                <div className="w-16 h-16 bg-gradient-to-br from-orange-100 to-red-100 rounded-full flex items-center justify-center">
-                  {product.seller?.profile_image ? (
-                    <Image
-                      src={product.seller.profile_image}
-                      alt={product.seller.name}
-                      width={64}
-                      height={64}
-                      className="rounded-full object-cover"
-                    />
-                  ) : (
-                    <User className="w-8 h-8 text-orange-600" />
-                  )}
+              
+              {product.isCollaborative && product.collaborators ? (
+                // Show all collaborators
+                <div className="space-y-4">
+                  {product.collaborators.map((collaborator, index) => (
+                    <div key={collaborator.id} className="flex items-center space-x-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-700/30">
+                      <div className="w-16 h-16 bg-gradient-to-br from-yellow-100 to-orange-100 dark:from-yellow-900/50 dark:to-orange-900/50 rounded-full flex items-center justify-center flex-shrink-0">
+                        {collaborator.profile_image ? (
+                          <Image
+                            src={collaborator.profile_image}
+                            alt={collaborator.name}
+                            width={64}
+                            height={64}
+                            className="rounded-full object-cover"
+                          />
+                        ) : (
+                          <User className="w-8 h-8 text-orange-600 dark:text-orange-400" />
+                        )}
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-[var(--text)]">
+                          {collaborator.name}
+                        </h4>
+                        <p className="text-[var(--muted)] text-sm line-clamp-2">
+                          {collaborator.store_description || collaborator.bio || 'Passionate artisan creating unique pieces'}
+                        </p>
+                        <Link
+                          href={`/stall/${collaborator.id}`}
+                          className="text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 text-sm font-medium mt-1 inline-block"
+                        >
+                          View their products →
+                        </Link>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                <div className="flex-1">
-                  <h4 className="font-semibold text-[var(--text)]">
-                    {product.seller?.name}
-                  </h4>
-                  <p className="text-[var(--muted)] text-sm">
-                    {product.seller?.store_description || product.seller?.bio || 'Passionate artisan creating unique pieces'}
-                  </p>
-                  <Link
-                    href={`/stall/${product.seller_id}`}
-                    className="text-orange-600 hover:text-orange-700 text-sm font-medium mt-1 inline-block"
-                  >
-                    {t('product.viewAllProducts')}
-                  </Link>
+              ) : (
+                // Show single seller
+                <div className="flex items-center space-x-4">
+                  <div className="w-16 h-16 bg-gradient-to-br from-orange-100 to-red-100 rounded-full flex items-center justify-center">
+                    {product.seller?.profile_image ? (
+                      <Image
+                        src={product.seller.profile_image}
+                        alt={product.seller.name}
+                        width={64}
+                        height={64}
+                        className="rounded-full object-cover"
+                      />
+                    ) : (
+                      <User className="w-8 h-8 text-orange-600" />
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-[var(--text)]">
+                      {product.seller?.name}
+                    </h4>
+                    <p className="text-[var(--muted)] text-sm">
+                      {product.seller?.store_description || product.seller?.bio || 'Passionate artisan creating unique pieces'}
+                    </p>
+                    <Link
+                      href={`/stall/${product.seller_id}`}
+                      className="text-orange-600 hover:text-orange-700 text-sm font-medium mt-1 inline-block"
+                    >
+                      {t('product.viewAllProducts')}
+                    </Link>
+                  </div>
                 </div>
-              </div>
+              )}
             </motion.div>
             {/* Auction Widget */}
             <div>

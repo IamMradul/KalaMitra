@@ -295,7 +295,7 @@ export default function Navbar() {
                   </span>
                 </Link>
                 <div className="flex items-center space-x-6">
-                  <div className="relative" onMouseLeave={() => setNotifOpen(false)}>
+                  <div className="relative">
                     <button onClick={() => { setNotifOpen(!notifOpen); fetchUnread(user?.id) }} className="p-2 rounded-xl hover:bg-heritage-gold/50">
                       <Bell className="w-5 h-5 text-[var(--text)]" />
                       {unreadCount > 0 && (
@@ -304,7 +304,14 @@ export default function Navbar() {
                     </button>
                     {notifOpen && (
                       <div className="absolute right-0 mt-2 w-80 z-50">
-                        <div className="card rounded shadow-lg p-3">
+                        <div className="card rounded shadow-lg p-3 relative max-h-[60vh] overflow-y-auto">
+                          <button
+                            className="absolute top-2 right-2 text-[var(--muted)] hover:text-red-500 text-lg font-bold rounded-full px-2 py-1 transition-all"
+                            onClick={() => setNotifOpen(false)}
+                            aria-label="Close notifications"
+                          >
+                            ×
+                          </button>
                           <NotificationsList />
                         </div>
                       </div>

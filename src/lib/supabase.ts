@@ -246,6 +246,216 @@ export type Database = {
           created_at?: string
         }
       }
+      collaborations: {
+        Row: {
+          id: string
+          initiator_id: string
+          partner_id: string
+          status: 'pending' | 'accepted' | 'rejected' | 'ended' | 'cancelled'
+          message: string | null
+          collaboration_name: string | null
+          collaboration_description: string | null
+          terms: string | null
+          created_at: string
+          updated_at: string
+          accepted_at: string | null
+          ended_at: string | null
+        }
+        Insert: {
+          id?: string
+          initiator_id: string
+          partner_id: string
+          status?: 'pending' | 'accepted' | 'rejected' | 'ended' | 'cancelled'
+          message?: string | null
+          collaboration_name?: string | null
+          collaboration_description?: string | null
+          terms?: string | null
+          created_at?: string
+          updated_at?: string
+          accepted_at?: string | null
+          ended_at?: string | null
+        }
+        Update: {
+          id?: string
+          initiator_id?: string
+          partner_id?: string
+          status?: 'pending' | 'accepted' | 'rejected' | 'ended' | 'cancelled'
+          message?: string | null
+          collaboration_name?: string | null
+          collaboration_description?: string | null
+          terms?: string | null
+          created_at?: string
+          updated_at?: string
+          accepted_at?: string | null
+          ended_at?: string | null
+        }
+      }
+      collaboration_revenue_split: {
+        Row: {
+          collaboration_id: string
+          initiator_percentage: number
+          partner_percentage: number
+          split_method: 'equal' | 'custom' | 'product_based'
+          notes: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          collaboration_id: string
+          initiator_percentage?: number
+          partner_percentage?: number
+          split_method?: 'equal' | 'custom' | 'product_based'
+          notes?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          collaboration_id?: string
+          initiator_percentage?: number
+          partner_percentage?: number
+          split_method?: 'equal' | 'custom' | 'product_based'
+          notes?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      collaborative_products: {
+        Row: {
+          id: string
+          collaboration_id: string
+          product_id: string
+          primary_seller_id: string
+          revenue_split_override: Record<string, unknown> | null
+          contribution_details: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          collaboration_id: string
+          product_id: string
+          primary_seller_id: string
+          revenue_split_override?: Record<string, unknown> | null
+          contribution_details?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          collaboration_id?: string
+          product_id?: string
+          primary_seller_id?: string
+          revenue_split_override?: Record<string, unknown> | null
+          contribution_details?: string | null
+          created_at?: string
+        }
+      }
+      collaboration_invitations: {
+        Row: {
+          id: string
+          collaboration_id: string
+          viewed_at: string | null
+          responded_at: string | null
+          response_message: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          collaboration_id: string
+          viewed_at?: string | null
+          responded_at?: string | null
+          response_message?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          collaboration_id?: string
+          viewed_at?: string | null
+          responded_at?: string | null
+          response_message?: string | null
+          created_at?: string
+        }
+      }
+      collaboration_activity: {
+        Row: {
+          id: string
+          collaboration_id: string
+          actor_id: string
+          activity_type: 'created' | 'accepted' | 'rejected' | 'ended' | 'cancelled' | 
+                        'product_added' | 'product_removed' | 'split_updated' | 'message_sent'
+          activity_data: Record<string, unknown> | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          collaboration_id: string
+          actor_id: string
+          activity_type: 'created' | 'accepted' | 'rejected' | 'ended' | 'cancelled' | 
+                        'product_added' | 'product_removed' | 'split_updated' | 'message_sent'
+          activity_data?: Record<string, unknown> | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          collaboration_id?: string
+          actor_id?: string
+          activity_type?: 'created' | 'accepted' | 'rejected' | 'ended' | 'cancelled' | 
+                         'product_added' | 'product_removed' | 'split_updated' | 'message_sent'
+          activity_data?: Record<string, unknown> | null
+          created_at?: string
+        }
+      }
+      revenue_split_proposals: {
+        Row: {
+          id: string
+          collaborative_product_id: string
+          collaboration_id: string
+          proposed_by: string
+          proposed_split: {
+            initiator: number
+            partner: number
+          }
+          reason: string | null
+          status: 'pending' | 'approved' | 'rejected' | 'expired'
+          responded_by: string | null
+          responded_at: string | null
+          created_at: string
+          updated_at: string
+          expires_at: string
+        }
+        Insert: {
+          id?: string
+          collaborative_product_id: string
+          collaboration_id: string
+          proposed_by: string
+          proposed_split: {
+            initiator: number
+            partner: number
+          }
+          reason?: string | null
+          status?: 'pending' | 'approved' | 'rejected' | 'expired'
+          responded_by?: string | null
+          responded_at?: string | null
+          created_at?: string
+          updated_at?: string
+          expires_at?: string
+        }
+        Update: {
+          id?: string
+          collaborative_product_id?: string
+          collaboration_id?: string
+          proposed_by?: string
+          proposed_split?: {
+            initiator: number
+            partner: number
+          }
+          reason?: string | null
+          status?: 'pending' | 'approved' | 'rejected' | 'expired'
+          responded_by?: string | null
+          responded_at?: string | null
+          created_at?: string
+          updated_at?: string
+          expires_at?: string
+        }
+      }
     }
   }
 }

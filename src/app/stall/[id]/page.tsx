@@ -16,6 +16,21 @@ import { translateArray, translateText } from '@/lib/translate'
 
 type Product = Database['public']['Tables']['products']['Row']
 type Profile = Database['public']['Tables']['profiles']['Row']
+type CollaborativeProduct = {
+  product: Product
+  partners: Profile[]
+  isCollaborative: boolean
+}
+
+type CollabProductRow = {
+  product: Product
+  collaboration: {
+    id: string
+    initiator_id: string
+    partner_id: string
+    status: string
+  } | null
+}
 
 export default function StallPage() {
   const { t, i18n } = useTranslation()
@@ -24,6 +39,7 @@ export default function StallPage() {
   const { user } = useAuth()
   const [stallProfile, setStallProfile] = useState<Profile | null>(null)
   const [products, setProducts] = useState<Product[]>([])
+  const [collaborativeProducts, setCollaborativeProducts] = useState<CollaborativeProduct[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -79,6 +95,49 @@ export default function StallPage() {
       } catch {
         setProducts(productsData || [])
       }
+
+      // Fetch collaborative products where this seller is involved
+      const { data: collabProductsData } = await supabase
+        .from('collaborative_products')
+        .select(`
+          *,
+          product:products(*),
+          collaboration:collaborations(
+            id,
+            initiator_id,
+            partner_id,
+            status
+          )
+        `)
+        .eq('collaboration.status', 'accepted')
+
+      // Filter to only show products for active collaborations involving this seller
+      const relevantCollabProducts = (collabProductsData || []).filter((cp: CollabProductRow) => {
+        const collab = cp.collaboration
+        return collab && (collab.initiator_id === stallId || collab.partner_id === stallId)
+      })
+
+      // Get partner information for each collaborative product
+      const collabProductsWithPartners = await Promise.all(
+        relevantCollabProducts.map(async (cp: CollabProductRow) => {
+          const collab = cp.collaboration!
+          const partnerId = collab.initiator_id === stallId ? collab.partner_id : collab.initiator_id
+
+          const { data: partnerProfile } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', partnerId)
+            .single()
+
+          return {
+            product: cp.product,
+            partners: partnerProfile ? [partnerProfile as Profile] : [],
+            isCollaborative: true
+          }
+        })
+      )
+
+      setCollaborativeProducts(collabProductsWithPartners)
       
       setLoading(false)
     } catch (error) {
@@ -246,6 +305,88 @@ export default function StallPage() {
             </div>
           )}
         </motion.div>
+
+        {/* Collaborative Products Section */}
+        {collaborativeProducts.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.25 }}
+            className="mt-12"
+          >
+            <div className="flex justify-between items-center mb-6">
+              <div>
+                <h2 className="text-2xl font-semibold text-[var(--text)] flex items-center gap-2">
+                  🤝 {t('collaboration.title')}
+                </h2>
+                <p className="text-sm text-[var(--muted)] mt-1">
+                  {t('collaboration.subtitle')}
+                </p>
+              </div>
+              <span className="text-[var(--muted)]">
+                {collaborativeProducts.length} {collaborativeProducts.length !== 1 ? 'products' : 'product'}
+              </span>
+            </div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {collaborativeProducts.map((collabProduct, index) => (
+                <motion.div
+                  key={collabProduct.product.id}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.3, delay: index * 0.1 }}
+                  className="card rounded-lg overflow-hidden hover:shadow-lg transition-all duration-200 hover:scale-105 border-2 border-yellow-400/30"
+                >
+                  <Link href={`/product/${collabProduct.product.id}`}>
+                    <div className="relative h-48 bg-[var(--bg-2)] flex items-center justify-center overflow-hidden">
+                      {/* Collaboration Badge */}
+                      <div className="absolute top-2 right-2 z-10 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg">
+                        🤝 Collab
+                      </div>
+                      
+                      {collabProduct.product.image_url ? (
+                        <Image
+                          src={collabProduct.product.image_url}
+                          alt={collabProduct.product.title}
+                          fill
+                          className="object-cover hover:scale-110 transition-transform duration-300"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-yellow-100 to-orange-100 flex items-center justify-center">
+                          <span className="text-yellow-500 text-4xl">🎨</span>
+                        </div>
+                      )}
+                    </div>
+                  </Link>
+                  
+                  <div className="p-4">
+                    <Link href={`/product/${collabProduct.product.id}`}>
+                      <h3 className="font-semibold text-[var(--text)] mb-2 hover:text-orange-600 transition-colors">
+                        {collabProduct.product.title}
+                      </h3>
+                    </Link>
+                    
+                    <p className="text-sm text-[var(--muted)] mb-2">{collabProduct.product.category}</p>
+                    
+                    {/* Partner Info */}
+                    {collabProduct.partners.length > 0 && (
+                      <div className="flex items-center gap-2 mb-2 text-xs text-[var(--muted)] bg-yellow-50 dark:bg-yellow-900/10 p-2 rounded">
+                        <span className="font-medium">In collaboration with:</span>
+                        {collabProduct.partners.map((partner, idx) => (
+                          <span key={partner.id} className="text-yellow-700 dark:text-yellow-400 font-semibold">
+                            {partner.name}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    
+                    <p className="text-lg font-bold text-orange-600">₹{collabProduct.product.price}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        )}
 
         {/* About the Artisan */}
         <motion.div

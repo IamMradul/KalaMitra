@@ -118,6 +118,19 @@
 }
 .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(99,102,241,0.12); }
 
+/* Notifications: unread style (light: warm gradient, dark: use theme card/bg) */
+.notification-unread {
+  background: linear-gradient(90deg, #fff7ed, #fff1e6 40%, #fff9f2);
+  border-color: rgba(245,158,11,0.2); /* amber-ish */
+}
+:root[data-theme='dark'] .notification-unread {
+  /* Layer a very subtle warm tint over the dark card background so unread
+     notifications remain noticeable without being garish. */
+  background: linear-gradient(90deg, rgba(255,195,102,0.06), rgba(255,140,0,0.03)), var(--bg-2) !important;
+  border-color: rgba(255,255,255,0.04) !important;
+  box-shadow: 0 6px 18px rgba(2,6,23,0.18);
+}
+
 /* Glass nav uses background variable */
 .glass-nav { background: linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,255,255,0.45)); }
 :root[data-theme='dark'] .glass-nav { background: linear-gradient(180deg, rgba(9,18,38,0.6), rgba(9,18,38,0.5)); }

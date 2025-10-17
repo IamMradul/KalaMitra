@@ -22,6 +22,13 @@ export default function SellerAnalytics({ sellerId }: Props) {
   const [question, setQuestion] = useState('')
   const [answer, setAnswer] = useState('')
   const [quotaCooldownUntil, setQuotaCooldownUntil] = useState<number>(0)
+  
+  // Collaboration stats
+  const [collabStats, setCollabStats] = useState({
+    activeCollaborations: 0,
+    collaborativeProducts: 0,
+    collaborativeRevenue: 0
+  })
 
   const toBullets = (text: string): string[] => {
     if (!text) return []
@@ -88,6 +95,31 @@ export default function SellerAnalytics({ sellerId }: Props) {
         } catch {}
         setTopProducts(top)
 
+        // Fetch collaboration statistics
+        try {
+          const { data: collaborations } = await supabase
+            .from('collaborations')
+            .select('*')
+            .or(`initiator_id.eq.${sellerId},partner_id.eq.${sellerId}`)
+            .eq('status', 'accepted')
+
+          const { data: collabProducts } = await supabase
+            .from('collaborative_products')
+            .select(`
+              *,
+              collaboration:collaborations!inner(*)
+            `)
+            .or(`collaboration.initiator_id.eq.${sellerId},collaboration.partner_id.eq.${sellerId}`)
+
+          setCollabStats({
+            activeCollaborations: collaborations?.length || 0,
+            collaborativeProducts: collabProducts?.length || 0,
+            collaborativeRevenue: 0 // Placeholder for future revenue tracking
+          })
+        } catch (err) {
+          console.error('Error fetching collaboration stats:', err)
+        }
+
         // AI Tips (fallback to rules if API fails)
         try {
           const ai = AIService.getInstance()
@@ -141,54 +173,93 @@ export default function SellerAnalytics({ sellerId }: Props) {
   }
 
   return (
-    <div className="grid md:grid-cols-3 gap-6">
-      <div className="card rounded-lg border p-4">
-        <div className="text-sm text-[var(--muted)]">{t('seller.analyticsShort.stallViews30d')}</div>
-        <div className="text-3xl font-bold text-[var(--text)]">{totalViews}</div>
+    <div className="space-y-4 sm:space-y-6">
+      {/* Main Analytics Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        <div className="card rounded-lg border p-3 sm:p-4">
+          <div className="text-xs sm:text-sm text-[var(--muted)] mb-1">{t('seller.analyticsShort.stallViews30d')}</div>
+          <div className="text-2xl sm:text-3xl font-bold text-[var(--text)]">{totalViews}</div>
+        </div>
+        <div className="card rounded-lg border p-3 sm:p-4">
+          <div className="text-xs sm:text-sm text-[var(--muted)] mb-1">{t('seller.analyticsShort.uniqueVisitors30d')}</div>
+          <div className="text-2xl sm:text-3xl font-bold text-[var(--text)]">{uniqueVisitors}</div>
+        </div>
+        <div className="card rounded-lg border p-3 sm:p-4 sm:col-span-2 lg:col-span-1">
+          <div className="text-xs sm:text-sm text-[var(--muted)] mb-2">{t('seller.analyticsShort.topProducts30d')}</div>
+          {topProducts.length === 0 ? (
+            <div className="text-xs sm:text-sm text-[var(--muted)]">{t('seller.analyticsShort.noProductViewsYet')}</div>
+          ) : (
+            <ul className="space-y-1">
+              {topProducts.map(p => (
+                <li key={p.id} className="flex justify-between text-xs sm:text-sm text-[var(--muted)]">
+                  <span className="truncate mr-2 text-[var(--text)]">{p.title}</span>
+                  <span className="font-medium text-[var(--text)]">{p.views}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </div>
-      <div className="card rounded-lg border p-4">
-        <div className="text-sm text-[var(--muted)]">{t('seller.analyticsShort.uniqueVisitors30d')}</div>
-        <div className="text-3xl font-bold text-[var(--text)]">{uniqueVisitors}</div>
-      </div>
-      <div className="card rounded-lg border p-4 md:col-span-1">
-        <div className="text-sm text-[var(--muted)] mb-2">{t('seller.analyticsShort.topProducts30d')}</div>
-        {topProducts.length === 0 ? (
-          <div className="text-[var(--muted)]">{t('seller.analyticsShort.noProductViewsYet')}</div>
-        ) : (
-          <ul className="space-y-1">
-            {topProducts.map(p => (
-              <li key={p.id} className="flex justify-between text-sm text-[var(--muted)]">
-                <span className="truncate mr-2 text-[var(--text)]">{p.title}</span>
-                <span className="font-medium text-[var(--text)]">{p.views}</span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-      <div className="card rounded-lg border p-4 md:col-span-3">
+
+      {/* Collaboration Stats */}
+      {collabStats.activeCollaborations > 0 && (
+        <div className="card rounded-lg border p-3 sm:p-4 bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-900/10 dark:to-orange-900/10">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-xl sm:text-2xl">🤝</span>
+            <h3 className="text-base sm:text-lg font-semibold text-[var(--text)]">
+              {t('collaboration.title')}
+            </h3>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+            <div>
+              <div className="text-xs sm:text-sm text-[var(--muted)]">Active Collaborations</div>
+              <div className="text-xl sm:text-2xl font-bold text-yellow-600 dark:text-yellow-400">
+                {collabStats.activeCollaborations}
+              </div>
+            </div>
+            <div>
+              <div className="text-xs sm:text-sm text-[var(--muted)]">Collaborative Products</div>
+              <div className="text-xl sm:text-2xl font-bold text-orange-600 dark:text-orange-400">
+                {collabStats.collaborativeProducts}
+              </div>
+            </div>
+            <div>
+              <div className="text-xs sm:text-sm text-[var(--muted)]">Partnership Impact</div>
+              <div className="text-xs sm:text-sm text-[var(--text)] mt-1">
+                {collabStats.collaborativeProducts > 0 
+                  ? `${Math.round((collabStats.collaborativeProducts / (topProducts.length + collabStats.collaborativeProducts)) * 100)}% of portfolio`
+                  : 'Just getting started'}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* AI Tips Section */}
+      <div className="card rounded-lg border p-3 sm:p-4 md:col-span-3">
         <div className="flex items-start">
-          <div className="mr-3 text-orange-600 text-xl">💡</div>
-          <div>
-            <div className="text-sm font-semibold text-orange-700 mb-1">{t('seller.analyticsShort.tipsTitle')}</div>
+          <div className="mr-2 sm:mr-3 text-orange-600 text-lg sm:text-xl">💡</div>
+          <div className="flex-1 min-w-0">
+            <div className="text-xs sm:text-sm font-semibold text-orange-700 mb-1">{t('seller.analyticsShort.tipsTitle')}</div>
             {toBullets(guidance).length > 1 ? (
-              <ul className="list-disc list-inside space-y-1 text-[var(--text)]">
+              <ul className="list-disc list-inside space-y-1 text-xs sm:text-sm text-[var(--text)]">
                 {toBullets(guidance).map((item, idx) => (
                   <li key={idx}>{item}</li>
                 ))}
               </ul>
             ) : (
-              <div className="text-[var(--text)] leading-relaxed">{guidance}</div>
+              <div className="text-xs sm:text-sm text-[var(--text)] leading-relaxed">{guidance}</div>
             )}
           </div>
         </div>
         <div className="mt-4 pt-3 border-t border-[var(--border)]">
-          <div className="text-sm font-semibold text-orange-700 mb-2">{t('seller.analyticsShort.askMoreTips')}</div>
-          <div className="flex gap-2">
+          <div className="text-xs sm:text-sm font-semibold text-orange-700 mb-2">{t('seller.analyticsShort.askMoreTips')}</div>
+          <div className="flex flex-col xs:flex-row gap-2">
             <input
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
               placeholder={t('seller.analyticsShort.askPlaceholder')}
-              className="flex-1 px-3 py-2 rounded-lg focus:outline-none bg-[var(--bg-2)] border-[var(--border)] text-[var(--text)]"
+              className="flex-1 px-3 py-2 text-sm sm:text-base rounded-lg focus:outline-none bg-[var(--bg-2)] border-[var(--border)] text-[var(--text)]"
             />
             <button
               disabled={qaLoading || !question.trim()}
@@ -228,20 +299,20 @@ export default function SellerAnalytics({ sellerId }: Props) {
                   setQaLoading(false)
                 }
               }}
-              className="px-4 py-2 bg-orange-600 text-white rounded-lg disabled:opacity-50"
+              className="px-4 py-2 text-sm sm:text-base bg-orange-600 text-white rounded-lg disabled:opacity-50 hover:bg-orange-700 transition-colors whitespace-nowrap"
             >
               {qaLoading ? t('seller.analyticsShort.thinking') : t('seller.analyticsShort.askButton')}
             </button>
           </div>
           {answer && (
             toBullets(answer).length > 1 ? (
-              <ul className="mt-3 list-disc list-inside space-y-1 text-[var(--text)]">
+              <ul className="mt-3 list-disc list-inside space-y-1 text-xs sm:text-sm text-[var(--text)]">
                 {toBullets(answer).map((item, idx) => (
                   <li key={idx}>{item}</li>
                 ))}
               </ul>
             ) : (
-              <div className="mt-3 text-[var(--text)] whitespace-pre-wrap">{answer}</div>
+              <div className="mt-3 text-xs sm:text-sm text-[var(--text)] whitespace-pre-wrap">{answer}</div>
             )
           )}
         </div>

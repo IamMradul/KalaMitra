@@ -15,6 +15,7 @@ import AIProductForm from '@/components/AIProductForm'
 import SellerAnalytics from './SellerAnalytics'
 import ProfileManager from './ProfileManager'
 import SellerAuctionsList from './SellerAuctionsList'
+import CollaborationManager from './CollaborationManager'
 
 type Product = Database['public']['Tables']['products']['Row']
 type Profile = Database['public']['Tables']['profiles']['Row']
@@ -32,6 +33,7 @@ export default function SellerDashboard() {
   const [editProductLoading, setEditProductLoading] = useState(false)
   const [dbStatus, setDbStatus] = useState<string>('Unknown')
   const [isTestingDb, setIsTestingDb] = useState(false)
+  const [activeSection, setActiveSection] = useState<'products' | 'analytics' | 'collaborations'>('products')
   const hasInitialized = useRef(false)
   const dbTestedRef = useRef(false)
   const productsFetchedRef = useRef(false)
@@ -490,138 +492,276 @@ export default function SellerDashboard() {
           />
         )}
 
-        {/* Quick Actions Section */}
+        {/* Navigation Tabs */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.1 }}
-              className="card-glass rounded-xl p-6 mb-8 border border-[var(--border)]"
+          transition={{ duration: 0.6, delay: 0.05 }}
+          className="card-glass rounded-xl p-3 sm:p-4 mb-6 sm:mb-8 border border-[var(--border)]"
         >
-          <h2 className="text-2xl font-semibold text-[var(--text)] mb-4">{t('seller.quickActions')}</h2>
-          <div className="grid md:grid-cols-2 gap-6">
-            <div>
-              <h3 className="text-lg font-medium text-[var(--text)] mb-2">{t('seller.productManagement')}</h3>
-              <div className="space-y-3">
-                <button
-                  onClick={() => setShowAIProductForm(true)}
-                  className="w-full flex items-center justify-center px-4 py-2 bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-lg hover:from-orange-600 hover:to-red-700 transition-all duration-200"
-                >
-                  <Sparkles className="w-4 h-4 mr-2" />
-                  {t('seller.addProductWithAI')}
-                </button>
-                <div className="text-xs text-[var(--muted)] text-center">{t('seller.addProductHint')}</div>
-              </div>
-            </div>
-            <div>
-              <h3 className="text-lg font-medium text-[var(--text)] mb-2">{t('seller.viewYourStall')}</h3>
-              <Link
-                href={`/stall/${user.id}`}
-                className="inline-flex items-center justify-center w-full px-4 py-2 bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-lg hover:from-orange-600 hover:to-red-700 transition-all duration-200"
-              >
-                <Eye className="w-4 h-4 mr-2" />
-                {t('seller.viewPublicStall')}
-              </Link>
-              <div className="text-xs text-[var(--muted)] text-center mt-2">{t('seller.viewStallHint')}</div>
-            </div>
+          <div className="flex gap-1 sm:gap-2 overflow-x-auto -mx-2 px-2 sm:mx-0 sm:px-0 pb-px" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+            <button
+              onClick={() => setActiveSection('products')}
+              className={`px-3 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium text-xs sm:text-base transition-all whitespace-nowrap flex-shrink-0 flex items-center gap-1 sm:gap-2 ${
+                activeSection === 'products'
+                  ? 'bg-gradient-to-r from-orange-500 to-red-600 text-white shadow-lg'
+                  : 'bg-[var(--bg-2)] text-[var(--muted)] hover:text-[var(--text)]'
+              }`}
+            >
+              <Palette className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span>{t('seller.products') || 'Products & Auctions'}</span>
+            </button>
+            <button
+              onClick={() => setActiveSection('analytics')}
+              className={`px-3 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium text-xs sm:text-base transition-all whitespace-nowrap flex-shrink-0 flex items-center gap-1 sm:gap-2 ${
+                activeSection === 'analytics'
+                  ? 'bg-gradient-to-r from-orange-500 to-red-600 text-white shadow-lg'
+                  : 'bg-[var(--bg-2)] text-[var(--muted)] hover:text-[var(--text)]'
+              }`}
+            >
+              <span>📊</span>
+              <span>{t('seller.analytics') || 'Analytics'}</span>
+            </button>
+            <button
+              onClick={() => setActiveSection('collaborations')}
+              className={`px-3 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium text-xs sm:text-base transition-all whitespace-nowrap flex-shrink-0 flex items-center gap-1 sm:gap-2 ${
+                activeSection === 'collaborations'
+                  ? 'bg-gradient-to-r from-orange-500 to-red-600 text-white shadow-lg'
+                  : 'bg-[var(--bg-2)] text-[var(--muted)] hover:text-[var(--text)]'
+              }`}
+            >
+              <span>🤝</span>
+              <span>{t('collaboration.title') || 'Collaborations'}</span>
+            </button>
           </div>
         </motion.div>
+
+        {/* Quick Actions Section */}
+        {activeSection === 'products' && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="card-glass rounded-xl p-4 sm:p-6 mb-6 sm:mb-8 border border-[var(--border)]"
+          >
+            <h2 className="text-xl sm:text-2xl font-semibold text-[var(--text)] mb-4">{t('seller.quickActions')}</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+              <div>
+                <h3 className="text-base sm:text-lg font-medium text-[var(--text)] mb-2 sm:mb-3">{t('seller.productManagement')}</h3>
+                <div className="space-y-2 sm:space-y-3">
+                  <button
+                    onClick={() => setShowAIProductForm(true)}
+                    className="w-full flex items-center justify-center px-4 py-2.5 sm:py-3 text-sm sm:text-base bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-lg hover:from-orange-600 hover:to-red-700 transition-all duration-200"
+                  >
+                    <Sparkles className="w-4 h-4 mr-2" />
+                    {t('seller.addProductWithAI')}
+                  </button>
+                  <div className="text-xs text-[var(--muted)] text-center">{t('seller.addProductHint')}</div>
+                </div>
+              </div>
+              <div>
+                <h3 className="text-base sm:text-lg font-medium text-[var(--text)] mb-2 sm:mb-3">{t('seller.viewYourStall')}</h3>
+                <Link
+                  href={`/stall/${user.id}`}
+                  className="inline-flex items-center justify-center w-full px-4 py-2.5 sm:py-3 text-sm sm:text-base bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-lg hover:from-orange-600 hover:to-red-700 transition-all duration-200"
+                >
+                  <Eye className="w-4 h-4 mr-2" />
+                  {t('seller.viewPublicStall')}
+                </Link>
+                <div className="text-xs text-[var(--muted)] text-center mt-2">{t('seller.viewStallHint')}</div>
+              </div>
+            </div>
+          </motion.div>
+        )}
 
         {/* Analytics Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.1 }}
-              className="card-glass rounded-xl p-6 mb-8 border border-[var(--border)]"
-        >
-          <h2 className="text-2xl font-semibold text-[var(--text)] mb-4">{t('seller.analyticsTitle')}</h2>
-          <SellerAnalytics sellerId={user.id} />
-        </motion.div>
+        {activeSection === 'analytics' && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="card-glass rounded-xl p-6 mb-8 border border-[var(--border)]"
+          >
+            <h2 className="text-2xl font-semibold text-[var(--text)] mb-4">{t('seller.analyticsTitle')}</h2>
+            <SellerAnalytics sellerId={user.id} />
+          </motion.div>
+        )}
+
+        {/* Collaborations Section */}
+        {activeSection === 'collaborations' && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="card-glass rounded-xl p-6 mb-8 border border-[var(--border)]"
+          >
+            <CollaborationManager userId={user.id} userName={profile?.name || 'Seller'} />
+          </motion.div>
+        )}
 
         {/* Products Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-              className="card-glass rounded-xl p-6 border border-[var(--border)]"
-        >
-          {/* Auction creation form for sellers */}
-          <div className="mb-6 border p-4 rounded bg-[var(--bg-2)] border-[var(--border)]">
-            <h3 className="font-semibold mb-2">{t('auction.title')} - {t('common.save')}</h3>
-                <div className="text-sm text-[var(--muted)] mb-3">{t('product.byAuthor', { name: profile?.name || '' })}</div>
-            <form onSubmit={async (e) => {
-              e.preventDefault()
-              const fd = new FormData(e.currentTarget as HTMLFormElement)
-              const product_id = fd.get('product_id') as string
-              const starting_price = Number(fd.get('starting_price'))
-              const starts_at_raw = fd.get('starts_at') as string || ''
-              const ends_at_raw = fd.get('ends_at') as string || ''
-              // Convert local datetime-local (no timezone) to ISO string (UTC) to avoid timezone drift
-              const starts_at = starts_at_raw ? new Date(starts_at_raw).toISOString() : null
-              const ends_at = ends_at_raw ? new Date(ends_at_raw).toISOString() : null
-              if (!product_id || !starting_price) return alert(t('auction.invalidAmount'))
-              try {
-                const res = await fetch('/api/auction', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ product_id, starting_price, starts_at, ends_at, seller_id: user?.id }) })
-                const j = await res.json()
-                if (!res.ok) throw new Error(j.error || 'Failed')
-                alert(t('auction.created'))
-                // Refresh products and seller auctions
-                fetchProducts()
-                // optional: refresh SellerAuctionsList by emitting event or refetch via state; simple approach: reload page
-                // location.reload()
-              } catch (err: unknown) {
-                const message = err instanceof Error ? err.message : String(err)
-                alert(t('errors.general') + ': ' + message)
-              }
-            }}>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
-                <div>
-                  <label className="block text-xs text-[var(--muted)]">{t('product.byAuthor')}</label>
-                  <select name="product_id" className="border p-2 rounded w-full bg-[var(--bg-2)] text-[var(--text)] border-[var(--border)]" required>
-                    <option value="">Select product</option>
-                    {products.map(p => (<option key={p.id} value={p.id}>{p.title}</option>))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs text-[var(--muted)]">{t('product.addToCart')}</label>
-                  <input name="starting_price" type="number" placeholder={t('auction.enterBid')} className="border p-2 rounded w-full bg-[var(--bg-2)] text-[var(--text)] border-[var(--border)]" required />
-                </div>
-                <div className="col-span-1 md:col-span-3 grid md:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs text-[var(--muted)]">Starts at</label>
-                    <input name="starts_at" type="datetime-local" className="border p-2 rounded w-full bg-[var(--bg-2)] text-[var(--text)] border-[var(--border)]" />
+        {activeSection === 'products' && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="card-glass rounded-xl p-6 border border-[var(--border)]"
+          >
+          {/* Auction Management Section */}
+          <div className="mb-8 space-y-6">
+            {/* Create Auction Card */}
+            <div className="relative overflow-hidden rounded-2xl bg-[var(--bg-2)] dark:bg-[var(--bg-2)] border-2 border-purple-300 dark:border-purple-700/50 shadow-lg">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-purple-200/30 to-blue-200/30 rounded-full blur-3xl"></div>
+              <div className="relative p-4 sm:p-6 lg:p-8">
+                <div className="flex items-center gap-3 mb-4 sm:mb-6">
+                  <div className="p-2 sm:p-3 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 shadow-lg">
+                    <span className="text-2xl sm:text-3xl">🔨</span>
                   </div>
                   <div>
-                    <label className="block text-xs text-[var(--muted)]">Ends at</label>
-                    <input name="ends_at" type="datetime-local" className="border p-2 rounded w-full bg-[var(--bg-2)] text-[var(--text)] border-[var(--border)]" />
+                    <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-[var(--text)]">Create New Auction</h3>
+                    <p className="text-xs sm:text-sm text-gray-600 dark:text-[var(--muted)]">Start bidding for your products</p>
                   </div>
                 </div>
-                <div className="col-span-1 md:col-span-3">
-                  <button type="submit" className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">{t('auction.created')}</button>
-                </div>
+
+                <form onSubmit={async (e) => {
+                  e.preventDefault()
+                  const fd = new FormData(e.currentTarget as HTMLFormElement)
+                  const product_id = fd.get('product_id') as string
+                  const starting_price = Number(fd.get('starting_price'))
+                  const starts_at_raw = fd.get('starts_at') as string || ''
+                  const ends_at_raw = fd.get('ends_at') as string || ''
+                  const starts_at = starts_at_raw ? new Date(starts_at_raw).toISOString() : null
+                  const ends_at = ends_at_raw ? new Date(ends_at_raw).toISOString() : null
+                  if (!product_id || !starting_price) return alert(t('auction.invalidAmount'))
+                  try {
+                    const res = await fetch('/api/auction', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ product_id, starting_price, starts_at, ends_at, seller_id: user?.id }) })
+                    const j = await res.json()
+                    if (!res.ok) throw new Error(j.error || 'Failed')
+                    alert(t('auction.created'))
+                    fetchProducts()
+                  } catch (err: unknown) {
+                    const message = err instanceof Error ? err.message : String(err)
+                    alert(t('errors.general') + ': ' + message)
+                  }
+                }}>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+                    {/* Product Selection */}
+                    <div className="lg:col-span-2">
+                      <label className="block text-sm sm:text-base font-semibold text-gray-900 dark:text-[var(--text)] mb-2">
+                        <span className="inline-flex items-center gap-2">
+                          🎨 Select Product
+                        </span>
+                      </label>
+                      <select 
+                        name="product_id" 
+                        className="w-full px-4 py-3 sm:py-3.5 text-sm sm:text-base rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-[var(--text)] border-2 border-purple-300 dark:border-purple-700 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all outline-none shadow-sm"
+                        required
+                      >
+                        <option value="">Choose a product to auction...</option>
+                        {products.map(p => (
+                          <option key={p.id} value={p.id}>{p.title}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Starting Price */}
+                    <div>
+                      <label className="block text-sm sm:text-base font-semibold text-gray-900 dark:text-[var(--text)] mb-2">
+                        <span className="inline-flex items-center gap-2">
+                          💰 Starting Price
+                        </span>
+                      </label>
+                      <div className="relative">
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-lg font-bold text-purple-600 dark:text-purple-400">₹</span>
+                        <input 
+                          name="starting_price" 
+                          type="number" 
+                          placeholder="Enter starting bid" 
+                          className="w-full pl-10 pr-4 py-3 sm:py-3.5 text-sm sm:text-base rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-[var(--text)] border-2 border-purple-300 dark:border-purple-700 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all outline-none shadow-sm"
+                          required 
+                        />
+                      </div>
+                    </div>
+
+                    {/* Date/Time Inputs */}
+                    <div>
+                      <label className="block text-sm sm:text-base font-semibold text-gray-900 dark:text-[var(--text)] mb-2">
+                        <span className="inline-flex items-center gap-2">
+                          📅 Schedule (Optional)
+                        </span>
+                      </label>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs text-gray-600 dark:text-[var(--muted)] mb-1">Start</label>
+                          <input 
+                            name="starts_at" 
+                            type="datetime-local" 
+                            className="w-full px-3 py-2 sm:py-2.5 text-xs sm:text-sm rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-[var(--text)] border-2 border-purple-300 dark:border-purple-700 focus:border-purple-500 transition-all outline-none"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-gray-600 dark:text-[var(--muted)] mb-1">End</label>
+                          <input 
+                            name="ends_at" 
+                            type="datetime-local" 
+                            className="w-full px-3 py-2 sm:py-2.5 text-xs sm:text-sm rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-[var(--text)] border-2 border-purple-300 dark:border-purple-700 focus:border-purple-500 transition-all outline-none"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Submit Button */}
+                  <div className="mt-6">
+                    <button 
+                      type="submit" 
+                      className="w-full sm:w-auto px-8 py-3.5 sm:py-4 text-sm sm:text-base font-bold text-white rounded-xl bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 hover:from-purple-700 hover:via-indigo-700 hover:to-blue-700 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
+                    >
+                      <span className="inline-flex items-center gap-2">
+                        <span>🚀</span>
+                        <span>Launch Auction</span>
+                      </span>
+                    </button>
+                  </div>
+                </form>
               </div>
-            </form>
+            </div>
+
+            {/* Active Auctions List */}
+            <div className="relative overflow-hidden rounded-2xl bg-[var(--bg-2)] dark:bg-[var(--bg-2)] border-2 border-amber-300 dark:border-amber-700/50 shadow-lg">
+              <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-amber-200/30 to-orange-200/30 rounded-full blur-3xl"></div>
+              <div className="relative p-4 sm:p-6 lg:p-8">
+                <div className="flex items-center gap-3 mb-4 sm:mb-6">
+                  <div className="p-2 sm:p-3 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 shadow-lg">
+                    <span className="text-2xl sm:text-3xl">⚡</span>
+                  </div>
+                  <div>
+                    <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-[var(--text)]">Your Active Auctions</h3>
+                    <p className="text-xs sm:text-sm text-gray-600 dark:text-[var(--muted)]">Manage your ongoing auctions</p>
+                  </div>
+                </div>
+                <SellerAuctionsList sellerId={user.id} />
+              </div>
+            </div>
           </div>
-          {/* Seller's Auctions Management */}
-          <div className="mb-6 border p-4 rounded bg-[var(--bg-2)] border-[var(--border)]">
-            <h3 className="font-semibold mb-2">Your Auctions</h3>
-            <SellerAuctionsList sellerId={user.id} />
-          </div>
-          <div className="flex justify-between items-center mb-6">
-      <h2 className="text-2xl font-semibold text-[var(--text)]">{t('seller.yourProducts')}</h2>
-            <div className="flex items-center space-x-3">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
+      <h2 className="text-xl sm:text-2xl font-semibold text-[var(--text)]">{t('seller.yourProducts')}</h2>
+            <div className="flex items-center gap-2 sm:space-x-3 flex-wrap">
               <Link
                 href="/dashboard/seller/reels"
-                className="flex items-center px-4 py-2 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-lg hover:from-purple-600 hover:to-indigo-700 transition-all duration-200"
+                className="flex items-center px-3 sm:px-4 py-2 text-sm sm:text-base bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-lg hover:from-purple-600 hover:to-indigo-700 transition-all duration-200"
               >
-                <Eye className="w-4 h-4 mr-2" />
-                {t('seller.manageReels')}
+                <Eye className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">{t('seller.manageReels')}</span>
+                <span className="sm:hidden">Reels</span>
               </Link>
               <button
                 onClick={() => setShowAIProductForm(true)}
-                className="flex items-center px-4 py-2 bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-lg hover:from-orange-600 hover:to-red-700 transition-all duration-200"
+                className="flex items-center px-3 sm:px-4 py-2 text-sm sm:text-base bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-lg hover:from-orange-600 hover:to-red-700 transition-all duration-200"
               >
-                <Sparkles className="w-4 h-4 mr-2" />
-        {t('seller.addProductWithAI')}
+                <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+        <span className="hidden sm:inline">{t('seller.addProductWithAI')}</span>
+                <span className="sm:hidden">Add</span>
               </button>
               {/* Sign out button removed as requested */}
             </div>
@@ -637,13 +777,13 @@ export default function SellerDashboard() {
         <p className="text-[var(--muted)] text-lg">{t('seller.loadingProducts')}</p>
             </div>
           ) : products.length === 0 ? (
-            <div className="text-center py-12">
-        <Palette className="w-16 h-16 text-[var(--muted)] mx-auto mb-4" />
-        <p className="text-[var(--muted)] text-lg">{t('seller.noProducts')}</p>
-        <p className="text-[var(--muted)]">{t('seller.startByAddingFirst')}</p>
+            <div className="text-center py-8 sm:py-12">
+        <Palette className="w-12 h-12 sm:w-16 sm:h-16 text-[var(--muted)] mx-auto mb-4" />
+        <p className="text-[var(--muted)] text-base sm:text-lg">{t('seller.noProducts')}</p>
+        <p className="text-[var(--muted)] text-sm">{t('seller.startByAddingFirst')}</p>
             </div>
           ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {products.map((product) => (
                 <motion.div
                   key={product.id}
@@ -651,7 +791,7 @@ export default function SellerDashboard() {
                   animate={{ opacity: 1, scale: 1 }}
           className="card border overflow-hidden hover:shadow-lg transition-shadow duration-200"
                 >
-          <div className="h-48 bg-[var(--bg-2)] flex items-center justify-center">
+          <div className="h-40 sm:h-48 bg-[var(--bg-2)] flex items-center justify-center">
                     {product.image_url ? (
                       <img
                         src={product.image_url}
@@ -659,28 +799,28 @@ export default function SellerDashboard() {
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <Palette className="w-12 h-12 text-[var(--muted)]" />
+                      <Palette className="w-10 h-10 sm:w-12 sm:h-12 text-[var(--muted)]" />
                     )}
                   </div>
-                  <div className="p-4">
-                    <h3 className="font-semibold text-[var(--text)] mb-2">{product.title}</h3>
-                    <p className="text-sm text-[var(--muted)] mb-2">{product.category}</p>
-                    <p className="text-lg font-bold text-orange-500">₹{product.price}</p>
-                    <div className="flex space-x-2 mt-3">
+                  <div className="p-3 sm:p-4">
+                    <h3 className="font-semibold text-sm sm:text-base text-[var(--text)] mb-2 line-clamp-2">{product.title}</h3>
+                    <p className="text-xs sm:text-sm text-[var(--muted)] mb-2">{product.category}</p>
+                    <p className="text-base sm:text-lg font-bold text-orange-500">₹{product.price}</p>
+                    <div className="flex flex-col xs:flex-row gap-2 mt-3">
                       <button
                         onClick={() => {
                           setEditingProduct(product)
                         }}
-            className="flex-1 flex items-center justify-center px-3 py-2 text-sm border border-[var(--border)] rounded-md text-[var(--text)] hover:bg-[var(--bg-2)] transition-colors"
+            className="flex-1 flex items-center justify-center px-3 py-2 text-xs sm:text-sm border border-[var(--border)] rounded-md text-[var(--text)] hover:bg-[var(--bg-2)] transition-colors"
                       >
-                        <Edit className="w-4 h-4 mr-1" />
+                        <Edit className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
                         {t('common.edit')}
                       </button>
                       <button
                         onClick={() => handleDeleteProduct(product.id)}
-                        className="flex-1 flex items-center justify-center px-3 py-2 text-sm border border-red-300 rounded-md bg-red-600 text-white hover:bg-red-700 transition-colors"
+                        className="flex-1 flex items-center justify-center px-3 py-2 text-xs sm:text-sm border border-red-300 rounded-md bg-red-600 text-white hover:bg-red-700 transition-colors"
                       >
-                        <Trash2 className="w-4 h-4 mr-1" />
+                        <Trash2 className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
                         {t('common.delete')}
                       </button>
                     </div>
@@ -690,6 +830,7 @@ export default function SellerDashboard() {
             </div>
           )}
         </motion.div>
+        )}
 
 
 
