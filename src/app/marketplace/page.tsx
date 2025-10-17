@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Search, Filter, ShoppingCart, Heart } from 'lucide-react'
+import { Search, Filter, ShoppingCart, Heart, Sparkles } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
 import { logActivity } from '@/lib/activity'
@@ -78,9 +78,45 @@ function MarketplaceContent() {
     fetchProducts()
   }, [searchParams])
 
+  // Debounce search to avoid too many API calls
   useEffect(() => {
-    filterProducts()
-  }, [products, searchTerm, selectedCategory])
+    // Don't filter if search is empty - handleSearchChange already handled it
+    if (searchTerm.trim() === '') {
+      return
+    }
+    
+    // Debounce the search by 300ms
+    const timer = setTimeout(() => {
+      filterProducts()
+    }, 300)
+    
+    return () => clearTimeout(timer)
+  }, [searchTerm])
+
+  // Filter when products or category changes (but not search term - handled above)
+  useEffect(() => {
+    // Only run if there's no active search term
+    if (searchTerm.trim() === '') {
+      filterProducts()
+    }
+  }, [products, selectedCategory])
+
+  // Handle search input change with immediate reset for empty search
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setSearchTerm(value)
+    
+    // Immediately reset to all products when search is cleared
+    if (value.trim() === '') {
+      setIsSearching(false)
+      // Apply only category filter if selected, otherwise show all products
+      let filtered = products
+      if (selectedCategory) {
+        filtered = filtered.filter(product => product.category === selectedCategory)
+      }
+      setFilteredProducts(filtered)
+    }
+  }
 
   const fetchProducts = async () => {
     try {
@@ -172,7 +208,8 @@ function MarketplaceContent() {
         setIsSearching(false)
       }
     } else {
-      // No search term, use client-side filtering
+      // No search term, reset to client-side filtering with all products
+      setIsSearching(false)
       clientSideFilter()
     }
   }
@@ -180,7 +217,8 @@ function MarketplaceContent() {
   const clientSideFilter = () => {
     let filtered = products
 
-    if (searchTerm) {
+    // Only apply search filter if searchTerm is not empty
+    if (searchTerm && searchTerm.trim().length > 0) {
       filtered = filtered.filter(product =>
         product.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         product.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -188,10 +226,18 @@ function MarketplaceContent() {
       )
     }
 
+    // Apply category filter if selected
     if (selectedCategory) {
       filtered = filtered.filter(product => product.category === selectedCategory)
     }
 
+    console.log('Client-side filter:', { 
+      searchTerm, 
+      selectedCategory, 
+      totalProducts: products.length, 
+      filteredCount: filtered.length 
+    })
+    
     setFilteredProducts(filtered)
   }
   // Translate product titles/categories and category list for display when language changes
@@ -479,6 +525,15 @@ function MarketplaceContent() {
           transition={{ duration: 0.6, delay: 0.1 }}
           className="heritage-card p-6 mb-8 border border-heritage-gold/40"
         >
+          {/* AI Helper Text */}
+          <div className="mb-4 flex items-center justify-center gap-2 text-sm text-gray-600">
+            <Sparkles className="w-4 h-4 text-orange-500" />
+            <span>
+              Try our <span className="font-semibold text-orange-600">AI Assistant</span> for smarter recommendations!
+            </span>
+            <span className="text-gray-400">→ Click the 💬 button in bottom-right corner</span>
+          </div>
+          
           <div className="grid md:grid-cols-2 gap-4">
             {/* Search */}
             <div className="relative">
@@ -487,7 +542,7 @@ function MarketplaceContent() {
                 type="text"
                 placeholder={t('marketplace.searchInputPlaceholder')}
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={handleSearchChange}
                 className="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
               />
               {isSearching && (

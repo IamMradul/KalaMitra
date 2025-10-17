@@ -217,6 +217,35 @@ export type Database = {
           created_at?: string
         }
       }
+      conversation_history: {
+        Row: {
+          id: string
+          user_id: string | null
+          session_id: string
+          role: 'user' | 'assistant'
+          message: string
+          query_context: Record<string, unknown> | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id?: string | null
+          session_id: string
+          role: 'user' | 'assistant'
+          message: string
+          query_context?: Record<string, unknown> | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string | null
+          session_id?: string
+          role?: 'user' | 'assistant'
+          message?: string
+          query_context?: Record<string, unknown> | null
+          created_at?: string
+        }
+      }
     }
   }
 }

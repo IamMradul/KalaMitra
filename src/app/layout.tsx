@@ -7,7 +7,7 @@ import { LanguageProvider } from "@/components/LanguageProvider";
 import ThemeProvider from '@/components/ThemeProvider'
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import TranslationDebug from "@/components/TranslationDebug";
+import AIShoppingChat from "@/components/AIShoppingChat";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -52,7 +52,7 @@ export default async function RootLayout({
               </main>
               <Footer />
             </div>
-            <TranslationDebug />
+            <AIShoppingChat />
             </ThemeProvider>
           </LanguageProvider>
         </AuthProvider>
