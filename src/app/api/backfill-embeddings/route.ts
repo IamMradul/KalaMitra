@@ -5,7 +5,6 @@ import { generateEmbedding } from '@/lib/embedding-service';
 
 // We can't use the edge runtime here because the embedding model
 // needs to be downloaded and cached on the server, which isn't supported on the edge.
-// export const runtime = 'edge';
 
 export async function GET() {
   try {
