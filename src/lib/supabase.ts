@@ -182,6 +182,41 @@ export type Database = {
           created_at?: string
         }
       }
+      user_preferences: {
+        Row: {
+          id: string
+          user_id: string
+          favorite_categories: Array<{ category: string; count: number }>
+          top_viewed_products: Array<{ product_id: string; count: number }>
+          common_search_terms: Array<{ term: string; count: number }>
+          total_views: number
+          total_searches: number
+          last_updated: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          favorite_categories?: Array<{ category: string; count: number }>
+          top_viewed_products?: Array<{ product_id: string; count: number }>
+          common_search_terms?: Array<{ term: string; count: number }>
+          total_views?: number
+          total_searches?: number
+          last_updated?: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          favorite_categories?: Array<{ category: string; count: number }>
+          top_viewed_products?: Array<{ product_id: string; count: number }>
+          common_search_terms?: Array<{ term: string; count: number }>
+          total_views?: number
+          total_searches?: number
+          last_updated?: string
+          created_at?: string
+        }
+      }
     }
   }
 }

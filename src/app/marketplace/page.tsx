@@ -56,6 +56,7 @@ function MarketplaceContent() {
   const [recommended, setRecommended] = useState<ProductBase[]>([])
   const [recLoading, setRecLoading] = useState(false)
   const [displayRecommended, setDisplayRecommended] = useState<ProductBase[]>([])
+  const [isSearching, setIsSearching] = useState(false)
 
   useEffect(() => {
     // Handle Google session from OAuth callback
@@ -126,7 +127,57 @@ function MarketplaceContent() {
     }
   }
 
-  const filterProducts = () => {
+  const filterProducts = async () => {
+    // If there's a search term, use semantic search
+    if (searchTerm && searchTerm.trim().length > 0) {
+      setIsSearching(true)
+      try {
+        const response = await fetch('/api/search', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ query: searchTerm }),
+        })
+
+        if (response.ok) {
+          const semanticResults = await response.json()
+          
+          // Enrich semantic results with seller information from the products we already have
+          const enrichedResults = semanticResults.map((result: ProductBase) => {
+            const fullProduct = products.find(p => p.id === result.id)
+            return {
+              ...result,
+              seller: fullProduct?.seller || { name: 'Unknown' }
+            } as Product
+          }).filter((p: Product | null): p is Product => p !== null)
+
+          // Apply category filter if selected
+          let filtered = enrichedResults
+          if (selectedCategory) {
+            filtered = filtered.filter((product: Product) => product.category === selectedCategory)
+          }
+
+          setFilteredProducts(filtered)
+        } else {
+          // Fallback to client-side filtering if API fails
+          console.warn('Semantic search API failed, falling back to client-side search')
+          clientSideFilter()
+        }
+      } catch (error) {
+        console.error('Error during semantic search:', error)
+        // Fallback to client-side filtering
+        clientSideFilter()
+      } finally {
+        setIsSearching(false)
+      }
+    } else {
+      // No search term, use client-side filtering
+      clientSideFilter()
+    }
+  }
+
+  const clientSideFilter = () => {
     let filtered = products
 
     if (searchTerm) {
@@ -141,7 +192,7 @@ function MarketplaceContent() {
       filtered = filtered.filter(product => product.category === selectedCategory)
     }
 
-  setFilteredProducts(filtered)
+    setFilteredProducts(filtered)
   }
   // Translate product titles/categories and category list for display when language changes
   useEffect(() => {
@@ -437,8 +488,13 @@ function MarketplaceContent() {
                 placeholder={t('marketplace.searchInputPlaceholder')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                className="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
               />
+              {isSearching && (
+                <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                  <div className="w-5 h-5 border-2 border-orange-200 border-t-orange-600 rounded-full animate-spin"></div>
+                </div>
+              )}
             </div>
 
             {/* Category Filter */}
