@@ -664,11 +664,12 @@ function MarketplaceContent() {
           <div className="mt-4 flex items-center justify-center">
             <button
               onClick={() => setShowCollaborativeOnly(!showCollaborativeOnly)}
-              className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 shadow-sm border ${
+              className={`px-4 py-2 rounded-lg font-medium transition-transform duration-200 ease-out transform will-change-transform flex items-center gap-2 shadow-sm hover:-translate-y-3.5 hover:scale-[1.02] hover:shadow-md focus:outline-none focus:ring-2 focus:ring-orange-200 ${
                 showCollaborativeOnly
                   ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-white shadow-md border-yellow-500'
-                  : 'bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
+                  : 'bg-white hover:border-gray-400 dark:hover:border-gray-500'
               }`}
+              aria-pressed={showCollaborativeOnly}
             >
               🤝 {showCollaborativeOnly ? 'Showing Collaborative Only' : 'Show Collaborative Products'}
             </button>
@@ -695,11 +696,7 @@ function MarketplaceContent() {
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.3, delay: index * 0.1 }}
-                  className={`bg-white dark:bg-gray-800 rounded-lg border overflow-hidden hover:shadow-lg transition-all duration-200 hover:scale-105 ${
-                    product.isCollaborative 
-                      ? 'border-yellow-400/50 dark:border-yellow-500/40' 
-                      : 'border-gray-200 dark:border-gray-700'
-                  }`}
+                  className={`bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-200 hover:scale-105 `}
                 >
                   <Link href={`/product/${product.id}`}>
                     <div className="relative h-48 bg-gray-200 flex items-center justify-center overflow-hidden">
@@ -732,20 +729,20 @@ function MarketplaceContent() {
                   
                   <div className="p-4">
                     <Link href={`/product/${product.id}`}>
-                      <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2 hover:text-orange-600 dark:hover:text-orange-400 transition-colors">
+                      <h3 className="font-semibold text-gray-900 mb-2 hover:text-orange-600 transition-colors">
                         {displayProducts.find(p => p.id === product.id)?.title || product.title}
                       </h3>
                     </Link>
                     
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{displayProducts.find(p => p.id === product.id)?.category || product.category}</p>
+                    <p className="text-sm text-gray-600 mb-2">{displayProducts.find(p => p.id === product.id)?.category || product.category}</p>
                     
                     {/* Show collaborators or single seller */}
                     {product.isCollaborative && product.collaborators && product.collaborators.length > 0 ? (
-                      <div className="text-xs mb-3 bg-yellow-50 dark:bg-yellow-900/20 p-2 rounded border border-yellow-200 dark:border-yellow-700/30">
-                        <p className="font-medium mb-1 text-gray-700 dark:text-gray-300">🤝 Collaboration by:</p>
+                      <div className="text-xs mb-3   p-3 rounded-md border border-yellow-200/90 dark:border-yellow-700/30 shadow-sm">
+                        <p className="font-medium mb-1 text-yellow-800 dark:text-gray-300">🤝 Collaboration by:</p>
                         <div className="space-y-0.5">
                           {product.collaborators.map((collab) => (
-                            <p key={collab.id} className="text-yellow-700 dark:text-yellow-400 font-semibold">
+                            <p key={collab.id} className="text-yellow-800 dark:text-yellow-400 font-semibold">
                               • {translatedSellerNames[collab.name] || collab.name}
                             </p>
                           ))}
@@ -768,13 +765,13 @@ function MarketplaceContent() {
                       <div className="flex space-x-2">
                         <button
                           onClick={() => addToCart(product.id)}
-                          className="p-2 bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 rounded-full hover:bg-orange-200 dark:hover:bg-orange-900/50 transition-colors"
+                          className="p-2 bg-orange-100 text-orange-600 rounded-full hover:bg-orange-200 transition-colors"
                           title={t('product.addToCart')}
                         >
                           <ShoppingCart className="w-4 h-4" />
                         </button>
                         <button
-                          className="p-2 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                          className="p-2 bg-gray-100 text-gray-600 rounded-full hover:bg-gray-200 transition-colors"
                           title={t('product.addToWishlist')}
                         >
                           <Heart className="w-4 h-4" />

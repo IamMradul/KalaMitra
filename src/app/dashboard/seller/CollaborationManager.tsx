@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import MessageInputModal from '@/components/MessageInputModal'
 import { useTranslation } from 'react-i18next'
 import { 
   Users, 
@@ -48,6 +49,7 @@ export default function CollaborationManager({ userId, userName }: Props) {
   const [searching, setSearching] = useState(false)
   const [actionLoading, setActionLoading] = useState<string | null>(null)
   const [showProductsManager, setShowProductsManager] = useState<{ collaborationId: string, partnerName: string } | null>(null)
+  const [showMessageModal, setShowMessageModal] = useState<null | { partnerId: string }>(null)
 
   // Fetch collaborations
   useEffect(() => {
@@ -94,8 +96,13 @@ export default function CollaborationManager({ userId, userName }: Props) {
     }
   }
 
-  // Send collaboration request
-  const sendRequest = async (partnerId: string, message: string = '') => {
+  // Send collaboration request (now uses modal)
+  const sendRequest = (partnerId: string) => {
+    setShowMessageModal({ partnerId })
+  }
+
+  // Actually send after modal input
+  const handleSendRequestWithMessage = async (partnerId: string, message: string) => {
     try {
       setActionLoading(partnerId)
       const response = await fetch('/api/collaboration/request', {
@@ -104,12 +111,11 @@ export default function CollaborationManager({ userId, userName }: Props) {
         body: JSON.stringify({
           initiatorId: userId,
           partnerId,
-          message
+          message: message && message.trim() ? message.trim() : (t('collaboration.defaultRequestMessage') || "I'd love to collaborate with you!")
         })
       })
 
       const data = await response.json()
-      
       if (data.success) {
         alert(t('collaboration.requestSent') || 'Collaboration request sent successfully!')
         await fetchCollaborations()
@@ -354,6 +360,20 @@ export default function CollaborationManager({ userId, userName }: Props) {
         )}
       </div>
 
+      {/* Message Input Modal for Collaboration Request */}
+      {showMessageModal && (
+        <MessageInputModal
+          open={!!showMessageModal}
+          onClose={() => setShowMessageModal(null)}
+          onSend={msg => {
+            handleSendRequestWithMessage(showMessageModal.partnerId, msg)
+            setShowMessageModal(null)
+          }}
+          defaultMessage={t('collaboration.defaultRequestMessage') || "I'd love to collaborate with you!"}
+          maxWords={100}
+        />
+      )}
+
       {/* Collaborative Products Manager Modal */}
       {showProductsManager && (
         <CollaborativeProductsManager
@@ -409,22 +429,22 @@ function SellerCard({ seller, onSendRequest, loading }: { seller: Seller; onSend
 
         {/* Info */}
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-sm sm:text-base text-gray-900 dark:text-gray-100 truncate">
-            <Link href={`/stall/${seller.id}`} className="hover:underline">
+          <h3 className="font-semibold text-sm sm:text-base text-yellow-800 dark:text-gray-100 truncate">
+            <Link href={`/stall/${seller.id}`} className="hover:underline text-orange-700 dark:text-yellow-300">
               {seller.name}
             </Link>
           </h3>
-          <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 line-clamp-2 mt-1">
+          <p className="text-xs sm:text-sm text-orange-900/80 dark:text-gray-400 line-clamp-2 mt-1">
             {seller.store_description || seller.bio || t('collaboration.noDescription')}
           </p>
-          <div className="flex items-center gap-2 sm:gap-4 mt-2 text-xs text-gray-500 dark:text-gray-400">
-              <span className="flex items-center gap-1">
-                <Package className="h-3 w-3" />
-                <span className="hidden sm:inline">{seller.productCount}</span>
-                <span className="sm:hidden">{seller.productCount}p</span>
-              </span>
+          <div className="flex items-center gap-2 sm:gap-4 mt-2 text-xs text-orange-700/80 dark:text-gray-400">
             <span className="flex items-center gap-1">
-              <Users className="h-3 w-3" />
+              <Package className="h-3 w-3 text-orange-500 dark:text-yellow-400" />
+              <span className="hidden sm:inline">{seller.productCount}</span>
+              <span className="sm:hidden">{seller.productCount}p</span>
+            </span>
+            <span className="flex items-center gap-1">
+              <Users className="h-3 w-3 text-yellow-600 dark:text-yellow-400" />
               <span className="hidden sm:inline">{seller.activeCollaborations} collabs</span>
               <span className="sm:hidden">{seller.activeCollaborations}c</span>
             </span>
@@ -494,41 +514,65 @@ function CollaborationCard({ collaboration, currentTab, onAccept, onReject, onEn
         {/* Info */}
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2">
-            <h3 className="font-semibold text-sm sm:text-base text-gray-900 dark:text-gray-100 truncate">
-              <Link href={`/stall/${partner.id}`} className="hover:underline">
+            <h3 className="font-semibold text-sm sm:text-base text-yellow-800 dark:text-gray-100 truncate">
+              <Link href={`/stall/${partner.id}`} className="hover:underline text-orange-700 dark:text-yellow-300">
                 {partner.name}
               </Link>
             </h3>
             {currentTab === 'active' && (
-              <span className="px-2 py-0.5 sm:py-1 text-xs bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-full flex-shrink-0">
+              <span className="px-2 py-0.5 sm:py-1 text-xs bg-green-500/10 dark:bg-green-900/30 text-green-800 dark:text-green-400 border border-green-400/40 dark:border-none rounded-full flex-shrink-0 font-semibold">
                 {t('collaboration.active') || 'Active'}
               </span>
             )}
             {currentTab !== 'active' && (
-              <span className="px-2 py-0.5 sm:py-1 text-xs bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 rounded-full flex items-center gap-1 flex-shrink-0">
-                <Clock className="h-3 w-3" />
+              <span className={`px-2 py-0.5 sm:py-1 text-xs rounded-full flex items-center gap-1 flex-shrink-0 font-semibold border dark:border-none ${currentTab === 'pending-received' ? 'bg-blue-600 text-white border-blue-600 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-none' : 'bg-blue-500/20 text-blue-900 border-blue-500/40 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-none'}`}>
+                <Clock className={`h-3 w-3 ${currentTab === 'pending-received' ? 'text-white dark:text-yellow-400' : 'text-blue-700 dark:text-yellow-400'}`} />
                 <span className="hidden sm:inline">{t('collaboration.statusPending') || 'Pending'}</span>
               </span>
             )}
           </div>
 
-          {collaboration.message && (
-            <div className="mt-2 text-xs sm:text-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-700/50 p-2 rounded">
-              <MessageSquare className="h-3 w-3 inline mr-1" />
-              <span className="line-clamp-2">{collaboration.message}</span>
-            </div>
-          )}
+          {/* Show the request message only in pending-received and pending-sent tabs */}
+          {(currentTab === 'pending-received' || currentTab === 'pending-sent') && (() => {
+            // Helper to truncate to 25 words
+            const truncateWords = (msg: string, maxWords = 25) => {
+              const words = msg.split(/\s+/)
+              if (words.length <= maxWords) return msg
+              return words.slice(0, maxWords).join(' ') + '...'
+            }
+            const message = (collaboration.message && collaboration.message.trim() !== '')
+              ? truncateWords(collaboration.message.trim())
+              : t('collaboration.defaultRequestMessage') || "I'd love to collaborate with you!"
+            return (
+              <div
+                className="mt-2 text-xs sm:text-sm rounded p-2 w-full"
+                style={{
+                  background: 'linear-gradient(90deg, #fffbe6 0%, #fff7cc 100%)',
+                  color: '#7c4a00',
+                  border: '1px solid #ffe066',
+                  whiteSpace: 'pre-line',
+                  wordBreak: 'break-word',
+                  overflow: 'hidden',
+                  maxHeight: '6em',
+                  display: 'block',
+                }}
+              >
+                <MessageSquare className="h-3 w-3 inline mr-1 text-yellow-700 align-text-top" />
+                <span style={{wordBreak: 'break-word'}}>{message}</span>
+              </div>
+            )
+          })()}
 
           {currentTab === 'active' && (
-            <div className="flex items-center gap-2 sm:gap-4 mt-2 text-xs text-gray-500 dark:text-gray-400 flex-wrap">
+            <div className="flex items-center gap-2 sm:gap-4 mt-2 text-xs text-orange-700/80 dark:text-gray-400 flex-wrap">
               <span className="flex items-center gap-1">
-                <Package className="h-3 w-3" />
+                <Package className="h-3 w-3 text-orange-500 dark:text-yellow-400" />
                 <span className="hidden sm:inline">{collaboration.productCount} products</span>
                 <span className="sm:hidden">{collaboration.productCount}p</span>
               </span>
               {collaboration.revenueSplit && (
                 <span className="flex items-center gap-1">
-                  <TrendingUp className="h-3 w-3" />
+                  <TrendingUp className="h-3 w-3 text-yellow-600 dark:text-yellow-400" />
                   {collaboration.isInitiator 
                     ? collaboration.revenueSplit.initiator_percentage 
                     : collaboration.revenueSplit.partner_percentage}%

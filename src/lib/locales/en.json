@@ -368,6 +368,7 @@
     "manageSplit": "Manage Split",
     "currentProducts": "Current Collaborative Products",
     "noProductsYet": "No collaborative products yet",
+  "defaultRequestMessage": "I'd love to collaborate with you!",
   "addFirstProduct": "Add your first product to start collaborating!",
   "addProduct": "Add Product to Collaboration",
   "removeProduct": "Remove Product from Collaboration",

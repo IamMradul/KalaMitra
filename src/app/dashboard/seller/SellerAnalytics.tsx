@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import { Database } from '@/lib/supabase'
 import AIService, { type SellerAnalyticsSnapshot } from '@/lib/ai-service'
 import { useTranslation } from 'react-i18next'
 import { useLanguage } from '@/components/LanguageProvider'
@@ -103,17 +104,25 @@ export default function SellerAnalytics({ sellerId }: Props) {
             .or(`initiator_id.eq.${sellerId},partner_id.eq.${sellerId}`)
             .eq('status', 'accepted')
 
-          const { data: collabProducts } = await supabase
-            .from('collaborative_products')
-            .select(`
-              *,
-              collaboration:collaborations!inner(*)
-            `)
-            .or(`collaboration.initiator_id.eq.${sellerId},collaboration.partner_id.eq.${sellerId}`)
+          // Safer: count collaborative_products by collaboration_id using IN (...) to avoid join/filter edge cases
+          let collabProductsCount = 0
+          try {
+            const collaborationIds = (collaborations || []).map((c) => c.id).filter(Boolean)
+            if (collaborationIds.length > 0) {
+              const { data: collabProducts } = await supabase
+                .from('collaborative_products')
+                .select('id')
+                .in('collaboration_id', collaborationIds)
+
+              collabProductsCount = collabProducts?.length || 0
+            }
+          } catch (innerErr) {
+            console.error('Error fetching collaborative products count:', innerErr)
+          }
 
           setCollabStats({
             activeCollaborations: collaborations?.length || 0,
-            collaborativeProducts: collabProducts?.length || 0,
+            collaborativeProducts: collabProductsCount,
             collaborativeRevenue: 0 // Placeholder for future revenue tracking
           })
         } catch (err) {
@@ -173,27 +182,36 @@ export default function SellerAnalytics({ sellerId }: Props) {
   }
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      {/* Main Analytics Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-        <div className="card rounded-lg border p-3 sm:p-4">
-          <div className="text-xs sm:text-sm text-[var(--muted)] mb-1">{t('seller.analyticsShort.stallViews30d')}</div>
-          <div className="text-2xl sm:text-3xl font-bold text-[var(--text)]">{totalViews}</div>
+    <div className="space-y-6">
+      {/* Main Analytics Grid - Modern Card Layout */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+  <div className="rounded-2xl shadow-lg border border-orange-200 dark:border-[var(--border)] bg-gradient-to-br from-orange-50/80 via-yellow-100/80 to-white/70 dark:from-orange-900/30 dark:via-yellow-900/30 dark:to-black/40 backdrop-blur-md bg-opacity-70 p-6 flex flex-col items-center justify-center">
+          <div className="mb-2 text-3xl sm:text-4xl text-orange-600 dark:text-orange-400 font-extrabold flex items-center gap-2">
+            <span>👁️</span>
+            {totalViews}
+          </div>
+          <div className="text-sm sm:text-base text-[var(--muted)] font-medium tracking-wide">{t('seller.analyticsShort.stallViews30d')}</div>
         </div>
-        <div className="card rounded-lg border p-3 sm:p-4">
-          <div className="text-xs sm:text-sm text-[var(--muted)] mb-1">{t('seller.analyticsShort.uniqueVisitors30d')}</div>
-          <div className="text-2xl sm:text-3xl font-bold text-[var(--text)]">{uniqueVisitors}</div>
+  <div className="rounded-2xl shadow-lg border border-yellow-200 dark:border-[var(--border)] bg-gradient-to-br from-yellow-50/80 via-orange-100/80 to-white/70 dark:from-yellow-900/30 dark:via-orange-900/30 dark:to-black/40 backdrop-blur-md bg-opacity-70 p-6 flex flex-col items-center justify-center">
+          <div className="mb-2 text-3xl sm:text-4xl text-yellow-600 dark:text-yellow-400 font-extrabold flex items-center gap-2">
+            <span>🧑‍🤝‍🧑</span>
+            {uniqueVisitors}
+          </div>
+          <div className="text-sm sm:text-base text-[var(--muted)] font-medium tracking-wide">{t('seller.analyticsShort.uniqueVisitors30d')}</div>
         </div>
-        <div className="card rounded-lg border p-3 sm:p-4 sm:col-span-2 lg:col-span-1">
-          <div className="text-xs sm:text-sm text-[var(--muted)] mb-2">{t('seller.analyticsShort.topProducts30d')}</div>
+  <div className="rounded-2xl shadow-lg border border-orange-100 dark:border-[var(--border)] bg-gradient-to-br from-orange-100/80 via-yellow-50/80 to-white/70 dark:from-orange-900/30 dark:via-yellow-900/30 dark:to-black/40 backdrop-blur-md bg-opacity-70 p-6 flex flex-col">
+          <div className="mb-2 text-lg sm:text-xl font-bold text-orange-700 dark:text-orange-400 flex items-center gap-2">
+            <span>🏆</span>
+            {t('seller.analyticsShort.topProducts30d')}
+          </div>
           {topProducts.length === 0 ? (
-            <div className="text-xs sm:text-sm text-[var(--muted)]">{t('seller.analyticsShort.noProductViewsYet')}</div>
+            <div className="text-sm text-[var(--muted)]">{t('seller.analyticsShort.noProductViewsYet')}</div>
           ) : (
             <ul className="space-y-1">
               {topProducts.map(p => (
-                <li key={p.id} className="flex justify-between text-xs sm:text-sm text-[var(--muted)]">
-                  <span className="truncate mr-2 text-[var(--text)]">{p.title}</span>
-                  <span className="font-medium text-[var(--text)]">{p.views}</span>
+                <li key={p.id} className="flex justify-between text-sm text-[var(--muted)]">
+                  <span className="truncate mr-2 text-[var(--text)] font-medium">{p.title}</span>
+                  <span className="font-bold text-orange-600 dark:text-orange-400">{p.views}</span>
                 </li>
               ))}
             </ul>
@@ -201,65 +219,77 @@ export default function SellerAnalytics({ sellerId }: Props) {
         </div>
       </div>
 
-      {/* Collaboration Stats */}
+      {/* Collaboration Stats - Modern Card with Bar */}
       {collabStats.activeCollaborations > 0 && (
-        <div className="card rounded-lg border p-3 sm:p-4 bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-900/10 dark:to-orange-900/10">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="text-xl sm:text-2xl">🤝</span>
-            <h3 className="text-base sm:text-lg font-semibold text-[var(--text)]">
+  <div className="rounded-2xl shadow-xl border border-yellow-200 dark:border-yellow-900 bg-gradient-to-br from-yellow-100/80 via-orange-50/80 to-white/70 dark:from-yellow-900/30 dark:via-orange-900/30 dark:to-black/40 backdrop-blur-md bg-opacity-70 p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <span className="text-3xl sm:text-4xl">🤝</span>
+            <h3 className="text-lg sm:text-2xl font-bold text-yellow-700 dark:text-yellow-400 tracking-wide">
               {t('collaboration.title')}
             </h3>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-            <div>
-              <div className="text-xs sm:text-sm text-[var(--muted)]">Active Collaborations</div>
-              <div className="text-xl sm:text-2xl font-bold text-yellow-600 dark:text-yellow-400">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <div className="flex flex-col items-center">
+              <div className="text-xs sm:text-sm text-[var(--muted)] mb-1">Active Collaborations</div>
+              <div className="text-2xl sm:text-3xl font-extrabold text-yellow-600 dark:text-yellow-400">
                 {collabStats.activeCollaborations}
               </div>
             </div>
-            <div>
-              <div className="text-xs sm:text-sm text-[var(--muted)]">Collaborative Products</div>
-              <div className="text-xl sm:text-2xl font-bold text-orange-600 dark:text-orange-400">
+            <div className="flex flex-col items-center">
+              <div className="text-xs sm:text-sm text-[var(--muted)] mb-1">Collaborative Products</div>
+              <div className="text-2xl sm:text-3xl font-extrabold text-orange-600 dark:text-orange-400">
                 {collabStats.collaborativeProducts}
               </div>
             </div>
-            <div>
-              <div className="text-xs sm:text-sm text-[var(--muted)]">Partnership Impact</div>
-              <div className="text-xs sm:text-sm text-[var(--text)] mt-1">
-                {collabStats.collaborativeProducts > 0 
-                  ? `${Math.round((collabStats.collaborativeProducts / (topProducts.length + collabStats.collaborativeProducts)) * 100)}% of portfolio`
-                  : 'Just getting started'}
+            <div className="flex flex-col items-center">
+              <div className="text-xs sm:text-sm text-[var(--muted)] mb-1">Partnership Impact</div>
+              <div className="w-full flex flex-col items-center">
+                {collabStats.collaborativeProducts > 0 ? (
+                  <>
+                    <div className="w-full h-3 rounded-full bg-yellow-200 dark:bg-yellow-900/30 overflow-hidden mt-2">
+                      <div
+                        className="h-3 rounded-full bg-gradient-to-r from-orange-400 to-yellow-500 dark:from-orange-600 dark:to-yellow-400 transition-all duration-700"
+                        style={{ width: `${Math.round((collabStats.collaborativeProducts / (topProducts.length + collabStats.collaborativeProducts)) * 100)}%` }}
+                      />
+                    </div>
+                    <div className="text-xs sm:text-sm text-yellow-700 dark:text-yellow-400 mt-2 font-semibold">
+                      {`${Math.round((collabStats.collaborativeProducts / (topProducts.length + collabStats.collaborativeProducts)) * 100)}% of portfolio`}
+                    </div>
+                  </>
+                ) : (
+                  <div className="text-xs sm:text-sm text-[var(--muted)] mt-2">Just getting started</div>
+                )}
               </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* AI Tips Section */}
-      <div className="card rounded-lg border p-3 sm:p-4 md:col-span-3">
-        <div className="flex items-start">
-          <div className="mr-2 sm:mr-3 text-orange-600 text-lg sm:text-xl">💡</div>
+      {/* AI Tips Section - Modern Card */}
+  <div className="rounded-2xl shadow-lg border border-orange-200 dark:border-[var(--border)] bg-gradient-to-br from-orange-50/80 via-yellow-100/80 to-white/70 dark:from-orange-900/30 dark:via-yellow-900/30 dark:to-black/40 backdrop-blur-md bg-opacity-70 p-6">
+        <div className="flex items-start gap-3">
+          <div className="text-2xl sm:text-3xl text-orange-600 dark:text-orange-400">💡</div>
           <div className="flex-1 min-w-0">
-            <div className="text-xs sm:text-sm font-semibold text-orange-700 mb-1">{t('seller.analyticsShort.tipsTitle')}</div>
+            <div className="text-sm font-semibold text-orange-700 dark:text-orange-400 mb-2">{t('seller.analyticsShort.tipsTitle')}</div>
             {toBullets(guidance).length > 1 ? (
-              <ul className="list-disc list-inside space-y-1 text-xs sm:text-sm text-[var(--text)]">
+              <ul className="list-disc list-inside space-y-1 text-sm text-[var(--text)]">
                 {toBullets(guidance).map((item, idx) => (
                   <li key={idx}>{item}</li>
                 ))}
               </ul>
             ) : (
-              <div className="text-xs sm:text-sm text-[var(--text)] leading-relaxed">{guidance}</div>
+              <div className="text-sm text-[var(--text)] leading-relaxed">{guidance}</div>
             )}
           </div>
         </div>
-        <div className="mt-4 pt-3 border-t border-[var(--border)]">
-          <div className="text-xs sm:text-sm font-semibold text-orange-700 mb-2">{t('seller.analyticsShort.askMoreTips')}</div>
+        <div className="mt-6 pt-4 border-t border-orange-100 dark:border-[var(--border)]">
+          <div className="text-sm font-semibold text-orange-700 dark:text-orange-400 mb-2">{t('seller.analyticsShort.askMoreTips')}</div>
           <div className="flex flex-col xs:flex-row gap-2">
             <input
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
               placeholder={t('seller.analyticsShort.askPlaceholder')}
-              className="flex-1 px-3 py-2 text-sm sm:text-base rounded-lg focus:outline-none bg-[var(--bg-2)] border-[var(--border)] text-[var(--text)]"
+              className="flex-1 px-3 py-2 text-base rounded-lg focus:outline-none bg-[var(--bg-2)] border-orange-100 dark:border-[var(--border)] text-[var(--text)]"
             />
             <button
               disabled={qaLoading || !question.trim()}
@@ -299,20 +329,20 @@ export default function SellerAnalytics({ sellerId }: Props) {
                   setQaLoading(false)
                 }
               }}
-              className="px-4 py-2 text-sm sm:text-base bg-orange-600 text-white rounded-lg disabled:opacity-50 hover:bg-orange-700 transition-colors whitespace-nowrap"
+              className="px-4 py-2 text-base bg-orange-600 dark:bg-orange-400 text-white rounded-lg disabled:opacity-50 hover:bg-orange-700 dark:hover:bg-orange-500 transition-colors whitespace-nowrap font-semibold"
             >
               {qaLoading ? t('seller.analyticsShort.thinking') : t('seller.analyticsShort.askButton')}
             </button>
           </div>
           {answer && (
             toBullets(answer).length > 1 ? (
-              <ul className="mt-3 list-disc list-inside space-y-1 text-xs sm:text-sm text-[var(--text)]">
+              <ul className="mt-4 list-disc list-inside space-y-1 text-sm text-[var(--text)]">
                 {toBullets(answer).map((item, idx) => (
                   <li key={idx}>{item}</li>
                 ))}
               </ul>
             ) : (
-              <div className="mt-3 text-xs sm:text-sm text-[var(--text)] whitespace-pre-wrap">{answer}</div>
+              <div className="mt-4 text-sm text-[var(--text)] whitespace-pre-wrap">{answer}</div>
             )
           )}
         </div>

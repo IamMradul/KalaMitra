@@ -542,33 +542,53 @@ export default function SellerDashboard() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="card-glass rounded-xl p-4 sm:p-6 mb-6 sm:mb-8 border border-[var(--border)]"
+            className="relative overflow-hidden rounded-2xl bg-[var(--bg-2)] dark:bg-[var(--bg-2)] border-2 border-teal-200 dark:border-teal-700/50 shadow-lg"
+            // Keep backdrop blur for subtle glass effect, but remove explicit light-mode background
+            style={{ background: 'transparent', backdropFilter: 'blur(12px)' }}
           >
-            <h2 className="text-xl sm:text-2xl font-semibold text-[var(--text)] mb-4">{t('seller.quickActions')}</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-              <div>
-                <h3 className="text-base sm:text-lg font-medium text-[var(--text)] mb-2 sm:mb-3">{t('seller.productManagement')}</h3>
-                <div className="space-y-2 sm:space-y-3">
+            {/* Decorative purple blob like the auction card */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-cyan-200/30 to-teal-200/30 rounded-full blur-3xl" />
+
+            <div className="relative p-4 sm:p-6 lg:p-8">
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900 mb-4 flex items-center gap-3">
+                <div className="p-2 sm:p-3 rounded-xl bg-gradient-to-br from-teal-500 to-cyan-600 shadow-lg">
+                  <Sparkles className="w-6 h-6 text-white animate-bounce" />
+                </div>
+                {t('seller.quickActions')}
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="rounded-xl bg-transparent p-5 shadow-md flex flex-col gap-3">
+                  <div className="flex items-center gap-3 mb-1">
+                    <div className="p-2 sm:p-3 rounded-xl bg-gradient-to-br from-teal-500 to-cyan-600 shadow-lg">
+                      <Sparkles className="w-5 h-5 text-white" />
+                    </div>
+                    <h3 className="text-lg sm:text-xl font-semibold text-gray-900">{t('seller.productManagement')}</h3>
+                  </div>
                   <button
                     onClick={() => setShowAIProductForm(true)}
-                    className="w-full flex items-center justify-center px-4 py-2.5 sm:py-3 text-sm sm:text-base bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-lg hover:from-orange-600 hover:to-red-700 transition-all duration-200"
+                    className="w-full flex items-center justify-center px-5 py-3 text-base font-bold bg-gradient-to-r from-teal-500 via-cyan-500 to-blue-500 text-white rounded-lg hover:from-teal-600 hover:via-cyan-600 hover:to-blue-600 shadow-lg transition-all duration-200"
                   >
-                    <Sparkles className="w-4 h-4 mr-2" />
+                    <Sparkles className="w-5 h-5 mr-2 animate-pulse" />
                     {t('seller.addProductWithAI')}
                   </button>
-                  <div className="text-xs text-[var(--muted)] text-center">{t('seller.addProductHint')}</div>
+                  <div className="text-xs text-gray-600 text-center mt-2">{t('seller.addProductHint')}</div>
                 </div>
-              </div>
-              <div>
-                <h3 className="text-base sm:text-lg font-medium text-[var(--text)] mb-2 sm:mb-3">{t('seller.viewYourStall')}</h3>
-                <Link
-                  href={`/stall/${user.id}`}
-                  className="inline-flex items-center justify-center w-full px-4 py-2.5 sm:py-3 text-sm sm:text-base bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-lg hover:from-orange-600 hover:to-red-700 transition-all duration-200"
-                >
-                  <Eye className="w-4 h-4 mr-2" />
-                  {t('seller.viewPublicStall')}
-                </Link>
-                <div className="text-xs text-[var(--muted)] text-center mt-2">{t('seller.viewStallHint')}</div>
+                <div className="rounded-xl bg-transparent p-5 shadow-md flex flex-col gap-3">
+                  <div className="flex items-center gap-3 mb-1">
+                    <div className="p-2 sm:p-3 rounded-xl bg-gradient-to-br from-teal-500 to-cyan-600 shadow-lg">
+                      <Eye className="w-5 h-5 text-white" />
+                    </div>
+                    <h3 className="text-lg sm:text-xl font-semibold text-gray-900">{t('seller.viewYourStall')}</h3>
+                  </div>
+                  <Link
+                    href={`/stall/${user.id}`}
+                    className="inline-flex items-center justify-center w-full px-5 py-3 text-base font-bold bg-gradient-to-r from-teal-500 via-cyan-500 to-blue-500 text-white rounded-lg hover:from-teal-600 hover:via-cyan-600 hover:to-blue-600 shadow-lg transition-all duration-200"
+                  >
+                    <Eye className="w-5 h-5 mr-2 animate-pulse" />
+                    {t('seller.viewPublicStall')}
+                  </Link>
+                  <div className="text-xs text-gray-600 text-center mt-2">{t('seller.viewStallHint')}</div>
+                </div>
               </div>
             </div>
           </motion.div>
