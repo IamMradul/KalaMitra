@@ -9,6 +9,8 @@ import { logActivity } from '@/lib/activity'
 import { hammingDistanceHex as hammingHex } from '@/lib/image-similarity'
 import { Database } from '@/lib/supabase'
 import Link from 'next/link'
+import Market3DButton from '@/components/Market3DButton'
+import type { Product as ThreeProduct } from '@/types/product'
 import { useSearchParams } from 'next/navigation'
 import { Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -716,12 +718,31 @@ function MarketplaceContent() {
           transition={{ duration: 0.6 }}
           className="mb-8"
         >
-          <h1 className="text-4xl font-bold heritage-title mb-4">
-            {t('marketplace.title')}
-          </h1>
-          <p className="text-lg text-[var(--heritage-brown)]">
-            {t('marketplace.subtitle')}
-          </p>
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <h1 className="text-4xl font-bold heritage-title mb-1">
+                {t('marketplace.title')}
+              </h1>
+              <p className="text-lg text-[var(--heritage-brown)]">
+                {t('marketplace.subtitle')}
+              </p>
+            </div>
+            <Market3DButton
+              products={filteredProducts.map(p => ({
+                ...p,
+                name: typeof p.title === 'string' ? p.title : '',
+                price: p.price,
+                image_url: p.image_url,
+                description: p.description,
+                category: p.category as ThreeProduct['category'],
+              }))}
+              onAddToCart={addToCart}
+              onViewDetails={(id) => {
+                // Reuse navigation to product detail
+                window.location.href = `/product/${id}`
+              }}
+            />
+          </div>
         </motion.div>
 
         {/* Search and Filter */}

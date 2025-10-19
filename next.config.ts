@@ -25,6 +25,8 @@ const nextConfig: NextConfig = {
       'cdn.shopify.com',
       'i.imgur.com',
       'upload.wikimedia.org', // allow Wikimedia images
+      // Supabase storage host used in product images
+      'dejyoyoctsfyjixfhfgd.supabase.co',
       // include Supabase project hostname dynamically when provided via env
       ...(getSupabaseHost() ? [getSupabaseHost() as string] : []),
     ],
