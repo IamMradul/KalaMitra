@@ -1,5 +1,6 @@
-'use client'
 
+'use client'
+import { useRef } from 'react'
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
@@ -54,17 +55,82 @@ type CollabJoin = {
 }
 
 export default function ProductDetail() {
+  // Debug: log language mapping for translation on every render
+  const langMap: Record<string, string> = {
+    en: 'en',
+    hi: 'hi',
+    assamese: 'as',
+    bengali: 'bn',
+    bodo: 'brx',
+    dogri: 'doi',
+    gujarati: 'gu',
+    kannada: 'kn', kannad: 'kn',
+    kashmiri: 'ks',
+    konkani: 'gom',
+    maithili: 'mai',
+    malayalam: 'ml', malyalam: 'ml',
+    manipuri: 'mni-Mtei',
+    marathi: 'mr',
+    nepali: 'ne',
+    oriya: 'or',
+    punjabi: 'pa',
+    sanskrit: 'sa',
+    santhali: 'sat',
+    sindhi: 'sd',
+    tamil: 'ta',
+    telugu: 'te', telgu: 'te',
+    urdu: 'ur',
+  };
+  const lang = langMap[typeof window !== 'undefined' ? window.localStorage.getItem('i18nextLng') || '' : ''] || '';
+  if (typeof window !== 'undefined') {
+    // eslint-disable-next-line no-console
+    console.log('[ProductDetail] Translating with language code:', lang, 'for app language:', window.localStorage.getItem('i18nextLng'));
+  }
+  const [isNarrating, setIsNarrating] = useState(false);
+  const utterRef = useRef<SpeechSynthesisUtterance | null>(null);
   const { t, i18n } = useTranslation()
   const { currentLanguage } = useLanguage()
   const params = useParams()
   const router = useRouter()
   const { user } = useAuth()
   const [product, setProduct] = useState<Product | null>(null)
+  const [translatedStory, setTranslatedStory] = useState<string | null>(null);
   const [loading, setLoading] = useState(true)
   const [quantity, setQuantity] = useState(1)
   const [hasActiveAuction, setHasActiveAuction] = useState(false)
 
   useEffect(() => {
+    // Debug: log language mapping for translation on every language switch
+    const langMap: Record<string, string> = {
+      en: 'en',
+      hi: 'hi',
+      assamese: 'as',
+      bengali: 'bn',
+      bodo: 'brx',
+      dogri: 'doi',
+      gujarati: 'gu',
+      kannada: 'kn', kannad: 'kn',
+      kashmiri: 'ks',
+      konkani: 'gom',
+      maithili: 'mai',
+      malayalam: 'ml', malyalam: 'ml',
+      manipuri: 'mni-Mtei',
+      marathi: 'mr',
+      nepali: 'ne',
+      oriya: 'or',
+      punjabi: 'pa',
+      sanskrit: 'sa',
+      santhali: 'sat',
+      sindhi: 'sd',
+      tamil: 'ta',
+      telugu: 'te', telgu: 'te',
+      urdu: 'ur',
+    };
+    const lang = langMap[currentLanguage] || currentLanguage;
+    if (typeof window !== 'undefined') {
+      // eslint-disable-next-line no-console
+      console.log('[ProductDetail] Translating with language code:', lang, 'for app language:', currentLanguage);
+    }
     if (params.id) {
       fetchProduct(params.id as string)
     }
@@ -107,8 +173,39 @@ export default function ProductDetail() {
         .eq('collaboration.status', 'accepted')
         .single()
 
-      // Translate dynamic fields to current language (client-side)
-      const lang = currentLanguage
+
+      // Map app language keys to Google Translate codes
+      const langMap: Record<string, string> = {
+        en: 'en',
+        hi: 'hi',
+        assamese: 'as',
+        bengali: 'bn',
+        bodo: 'brx',
+        dogri: 'doi',
+        gujarati: 'gu',
+        kannada: 'kn', kannad: 'kn',
+        kashmiri: 'ks',
+        konkani: 'gom',
+        maithili: 'mai',
+        malayalam: 'ml', malyalam: 'ml',
+        manipuri: 'mni-Mtei',
+        marathi: 'mr',
+        nepali: 'ne',
+        oriya: 'or',
+        punjabi: 'pa',
+        sanskrit: 'sa',
+        santhali: 'sat',
+        sindhi: 'sd',
+        tamil: 'ta',
+        telugu: 'te', telgu: 'te',
+        urdu: 'ur',
+      };
+      const lang = langMap[currentLanguage] || currentLanguage;
+      // Debug: log language mapping for translation
+      if (typeof window !== 'undefined') {
+        // eslint-disable-next-line no-console
+        console.log('[ProductDetail] Translating with language code:', lang, 'for app language:', currentLanguage);
+      }
       const translated = { ...data }
       translated.title = await translateText(data.title || '', lang)
       translated.category = await translateText(data.category || '', lang)
@@ -119,6 +216,17 @@ export default function ProductDetail() {
         translated.seller.bio = await translateText(data.seller?.bio || '' , lang)
         translated.seller.store_description = await translateText(data.seller?.store_description || '' , lang)
       }
+
+      // Translate product story for UI display
+      let translatedStory: string | null = null;
+      if (data.product_story) {
+        try {
+          translatedStory = await translateText(data.product_story, lang);
+        } catch (e) {
+          translatedStory = data.product_story;
+        }
+      }
+      setTranslatedStory(translatedStory);
 
       // Add collaboration info if exists
       if (collabData?.collaboration) {
@@ -206,6 +314,7 @@ export default function ProductDetail() {
 
   return (
     <div className="min-h-screen bg-[var(--bg-2)] py-8">
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Back Button */}
         <motion.div
@@ -293,6 +402,7 @@ export default function ProductDetail() {
               </p>
             </div>
 
+
             {/* Description */}
             <div>
               <h3 className="text-lg font-semibold text-[var(--text)] mb-2">
@@ -302,6 +412,148 @@ export default function ProductDetail() {
                 {product.description}
               </p>
             </div>
+
+            {/* Heritage Story Narration */}
+            {product.product_story && (
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.15, type: 'spring' }}
+                className="relative mt-8 mb-2"
+              >
+                <div className="card-glass rounded-2xl p-6 border-l-8 border-orange-400 bg-gradient-to-br from-orange-50/80 to-pink-50/60 shadow-lg flex flex-col gap-3">
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-pink-400 shadow text-white text-2xl">
+                      <svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' strokeWidth={1.5} stroke='currentColor' className='w-7 h-7'>
+                        <path strokeLinecap='round' strokeLinejoin='round' d='M12 18.75v-13.5m0 0c-2.485 0-4.5 2.015-4.5 4.5m4.5-4.5c2.485 0 4.5 2.015 4.5 4.5m-9 4.5c0 2.485 2.015 4.5 4.5 4.5m4.5-4.5c0 2.485-2.015 4.5-4.5 4.5' />
+                      </svg>
+                    </span>
+                    <span className="text-xl font-bold text-orange-700">
+                      {t('ai.form.fields.story.label', { defaultValue: 'Product Story (Heritage)' })}
+                    </span>
+                  </div>
+                  <p className="text-[var(--muted)] leading-relaxed whitespace-pre-line text-base sm:text-lg font-medium" style={{ wordBreak: 'break-word' }}>
+                    {/* Show translated story if available, else fallback to original */}
+                    {translatedStory || product.product_story}
+                  </p>
+                  <button
+                    type="button"
+                    aria-label={isNarrating ? 'Stop narration' : 'Narrate story'}
+                    title={isNarrating ? 'Stop narration' : 'Listen to story'}
+                    className={`absolute bottom-4 right-4 p-3 rounded-full bg-gradient-to-br from-orange-400 to-pink-400 shadow-lg hover:scale-110 transition-transform focus:outline-none border-4 border-white ${isNarrating ? 'ring-4 ring-orange-300 animate-pulse' : ''}`}
+                    style={{ zIndex: 10 }}
+                    onClick={async () => {
+                      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+                        if (isNarrating) {
+                          window.speechSynthesis.cancel();
+                          setIsNarrating(false);
+                        } else {
+                          window.speechSynthesis.cancel();
+                          // Use the same langMap as voice input for narration
+                          const langMap: Record<string, string> = {
+                            en: 'en-IN',
+                            hi: 'hi-IN',
+                            assamese: 'as-IN',
+                            bengali: 'bn-IN',
+                            bodo: 'brx-IN',
+                            dogri: 'doi-IN',
+                            gujarati: 'gu-IN',
+                            kannad: 'kn-IN',
+                            kashmiri: 'ks-IN',
+                            konkani: 'kok-IN',
+                            maithili: 'mai-IN',
+                            malyalam: 'ml-IN',
+                            manipuri: 'mni-IN',
+                            marathi: 'mr-IN',
+                            nepali: 'ne-NP',
+                            oriya: 'or-IN',
+                            punjabi: 'pa-IN',
+                            sanskrit: 'sa-IN',
+                            santhali: 'sat-IN',
+                            sindhi: 'sd-IN',
+                            tamil: 'ta-IN',
+                            telgu: 'te-IN',
+                            urdu: 'ur-IN',
+                            // Also support short codes
+                            as: 'as-IN',
+                            bn: 'bn-IN',
+                            brx: 'brx-IN',
+                            doi: 'doi-IN',
+                            gu: 'gu-IN',
+                            kn: 'kn-IN',
+                            ks: 'ks-IN',
+                            kok: 'kok-IN',
+                            mai: 'mai-IN',
+                            ml: 'ml-IN',
+                            mni: 'mni-IN',
+                            mr: 'mr-IN',
+                            ne: 'ne-NP',
+                            or: 'or-IN',
+                            pa: 'pa-IN',
+                            sa: 'sa-IN',
+                            sat: 'sat-IN',
+                            sd: 'sd-IN',
+                            ta: 'ta-IN',
+                            te: 'te-IN',
+                            ur: 'ur-IN',
+                          };
+                          const lang = langMap[currentLanguage] || currentLanguage || 'en-IN';
+                          // Translate story to user's language before narration
+                          let storyText = product.product_story ?? '';
+                          try {
+                            storyText = await translateText(storyText, currentLanguage);
+                          } catch (err) {
+                            // fallback to original if translation fails
+                          }
+                          const utter = new window.SpeechSynthesisUtterance(storyText);
+                          utter.lang = lang;
+                          // Try to select the best matching voice
+                          const voices = window.speechSynthesis.getVoices();
+                          const matchVoice = voices.find(v => v.lang === lang) ||
+                            voices.find(v => v.lang && v.lang.startsWith(lang.split('-')[0])) ||
+                            voices.find(v => v.lang && v.lang.startsWith('en'));
+                          if (matchVoice) utter.voice = matchVoice;
+                          utter.rate = 1;
+                          utter.pitch = 1;
+                          utter.onend = () => setIsNarrating(false);
+                          utter.onerror = () => setIsNarrating(false);
+                          utterRef.current = utter;
+                          setIsNarrating(true);
+                          // Some browsers need async getVoices, so delay if voices not loaded
+                          if (!voices.length) {
+                            window.speechSynthesis.onvoiceschanged = () => {
+                              const voices2 = window.speechSynthesis.getVoices();
+                              const matchVoice2 = voices2.find(v => v.lang === lang) ||
+                                voices2.find(v => v.lang && v.lang.startsWith(lang.split('-')[0])) ||
+                                voices2.find(v => v.lang && v.lang.startsWith('en'));
+                              if (matchVoice2) utter.voice = matchVoice2;
+                              window.speechSynthesis.speak(utter);
+                            };
+                          } else {
+                            window.speechSynthesis.speak(utter);
+                          }
+                        }
+                      } else {
+                        alert('Speech synthesis not supported in this browser.');
+                      }
+                    }}
+                  >
+                    {isNarrating ? (
+                      // Speaker off icon
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8 text-white">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12a4.5 4.5 0 01-9 0m9 0a4.5 4.5 0 00-9 0m9 0V4.75a.75.75 0 00-1.28-.53l-3.22 3.22a.75.75 0 01-1.06 0l-3.22-3.22A.75.75 0 004.5 4.75V19.25a.75.75 0 001.28.53l3.22-3.22a.75.75 0 011.06 0l3.22 3.22a.75.75 0 001.28-.53V12z" />
+                      </svg>
+                    ) : (
+                      // Speaker with sound waves icon
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8 text-white">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 9v6h4l5 5V4l-5 5H9zm7.5 3a3.5 3.5 0 01-7 0 3.5 3.5 0 017 0z" />
+                      </svg>
+                    )}
+                  </button>
+                  <div className="text-xs text-orange-500 mt-2 italic">{t('ai.form.fields.story.narrateHint', { defaultValue: 'Listen to the heritage story.' })}</div>
+                </div>
+              </motion.div>
+            )}
 
             {/* Quantity and Add to Cart */}
             <div className="space-y-4">

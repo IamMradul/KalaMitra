@@ -50,6 +50,7 @@ export type Database = {
           price: number
           image_url: string
           created_at: string
+          product_story?: string | null
         }
         Insert: {
           id?: string
@@ -60,6 +61,7 @@ export type Database = {
           price: number
           image_url: string
           created_at?: string
+          product_story?: string | null
         }
         Update: {
           id?: string
@@ -70,6 +72,7 @@ export type Database = {
           price?: number
           image_url?: string
           created_at?: string
+          product_story?: string | null
         }
       }
       auctions: {

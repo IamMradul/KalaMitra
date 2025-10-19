@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
-import { Search, Filter, ShoppingCart, Heart, Sparkles } from 'lucide-react'
+import { Search, Filter, ShoppingCart, Heart, Sparkles, Volume2, StopCircle } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
 import { logActivity } from '@/lib/activity'
@@ -63,6 +63,53 @@ export default function Marketplace() {
 }
 
 function MarketplaceContent() {
+  // Voice narration state
+  const [narratingId, setNarratingId] = useState<string | null>(null)
+  const synthRef = useRef<SpeechSynthesis | null>(typeof window !== 'undefined' ? window.speechSynthesis : null)
+  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null)
+
+  // Helper: get BCP-47 code for narration
+  const getNarrationLang = () => {
+    const lang = currentLanguage || i18n.language || 'en'
+    const langMap: Record<string, string> = {
+      en: 'en-IN', hi: 'hi-IN', assamese: 'as-IN', bengali: 'bn-IN', bodo: 'brx-IN', dogri: 'doi-IN', gujarati: 'gu-IN', kannad: 'kn-IN', kashmiri: 'ks-IN', konkani: 'kok-IN', maithili: 'mai-IN', malyalam: 'ml-IN', manipuri: 'mni-IN', marathi: 'mr-IN', nepali: 'ne-NP', oriya: 'or-IN', punjabi: 'pa-IN', sanskrit: 'sa-IN', santhali: 'sat-IN', sindhi: 'sd-IN', tamil: 'ta-IN', telgu: 'te-IN', urdu: 'ur-IN',
+      as: 'as-IN', bn: 'bn-IN', brx: 'brx-IN', doi: 'doi-IN', gu: 'gu-IN', kn: 'kn-IN', ks: 'ks-IN', kok: 'kok-IN', mai: 'mai-IN', ml: 'ml-IN', mni: 'mni-IN', mr: 'mr-IN', ne: 'ne-NP', or: 'or-IN', pa: 'pa-IN', sa: 'sa-IN', sat: 'sat-IN', sd: 'sd-IN', ta: 'ta-IN', te: 'te-IN', ur: 'ur-IN',
+    }
+    return langMap[lang] || lang
+  }
+
+  // Start narration for a product
+  const handleNarrate = (product: Product) => {
+    if (!('speechSynthesis' in window)) {
+      alert('Speech synthesis is not supported in this browser.')
+      return
+    }
+    // Stop any ongoing narration
+    if (synthRef.current && synthRef.current.speaking) {
+      synthRef.current.cancel()
+      setNarratingId(null)
+    }
+    // Compose narration text: title + product_story (heritage story)
+    const title = displayProducts.find(p => p.id === product.id)?.title || product.title
+    // Prefer product_story, fallback to description if not present
+    const story = typeof product.product_story === 'string' && product.product_story
+      ? product.product_story
+      : product.description || ''
+    const narration = `${title}. ${story}`
+    const utter = new window.SpeechSynthesisUtterance(narration)
+    utter.lang = getNarrationLang()
+    utter.onend = () => setNarratingId(null)
+    utter.onerror = () => setNarratingId(null)
+    utteranceRef.current = utter
+    setNarratingId(product.id)
+    synthRef.current?.speak(utter)
+  }
+
+  // Stop narration
+  const handleStopNarrate = () => {
+    synthRef.current?.cancel()
+    setNarratingId(null)
+  }
   const { user } = useAuth()
   const { t, i18n } = useTranslation()
   const { currentLanguage } = useLanguage()
@@ -846,6 +893,24 @@ function MarketplaceContent() {
                     <div className="flex items-center justify-between">
                       <p className="text-lg font-bold text-orange-600 dark:text-orange-400">₹{product.price}</p>
                       <div className="flex space-x-2">
+                        {/* Voice narration button */}
+                        {narratingId === product.id ? (
+                          <button
+                            onClick={handleStopNarrate}
+                            className="p-2 bg-orange-100 text-orange-600 rounded-full hover:bg-orange-200 transition-colors"
+                            title={t('product.stopNarration', { defaultValue: 'Stop Narration' })}
+                          >
+                            <StopCircle className="w-4 h-4 animate-pulse" />
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => handleNarrate(product)}
+                            className="p-2 bg-orange-100 text-orange-600 rounded-full hover:bg-orange-200 transition-colors"
+                            title={t('product.listenNarration', { defaultValue: 'Listen to Product' })}
+                          >
+                            <Volume2 className="w-4 h-4" />
+                          </button>
+                        )}
                         <button
                           onClick={() => addToCart(product.id)}
                           className="p-2 bg-orange-100 text-orange-600 rounded-full hover:bg-orange-200 transition-colors"

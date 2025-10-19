@@ -6,11 +6,31 @@ const TTL_MS = 1000 * 60 * 60 * 24 * 7 // 7 days
 const GEMINI_MODEL = process.env.NEXT_PUBLIC_GEMINI_MODEL || 'gemini-2.5-flash'
 
 function getTargetFromAppLang(appLang: string): string | null {
+  // Accept both canonical and alternate spellings from locale filenames
   const map: Record<string, string> = {
-    en: 'en', hi: 'hi', assamese: 'as', bengali: 'bn', bodo: 'brx', dogri: 'doi',
-    gujarati: 'gu', kannad: 'kn', kashmiri: 'ks', konkani: 'gom', maithili: 'mai',
-    malyalam: 'ml', manipuri: 'mni-Mtei', marathi: 'mr', nepali: 'ne', oriya: 'or',
-    punjabi: 'pa', sanskrit: 'sa', santhali: 'sat', sindhi: 'sd', tamil: 'ta', telgu: 'te', urdu: 'ur',
+    en: 'en',
+    hi: 'hi',
+    assamese: 'as',
+    bengali: 'bn',
+    bodo: 'brx',
+    dogri: 'doi',
+    gujarati: 'gu',
+    kannada: 'kn', kannad: 'kn',
+    kashmiri: 'ks',
+    konkani: 'gom',
+    maithili: 'mai',
+    malayalam: 'ml', malyalam: 'ml',
+    manipuri: 'mni-Mtei',
+    marathi: 'mr',
+    nepali: 'ne',
+    oriya: 'or',
+    punjabi: 'pa',
+    sanskrit: 'sa',
+    santhali: 'sat',
+    sindhi: 'sd',
+    tamil: 'ta',
+    telugu: 'te', telgu: 'te',
+    urdu: 'ur',
   }
   return map[appLang] ?? null
 }
@@ -27,10 +47,29 @@ const potentiallyUnsupportedLanguages = new Set([
 
 function getLangName(appLang: string): string {
   const names: Record<string, string> = {
-    en: 'English', hi: 'Hindi', assamese: 'Assamese', bengali: 'Bengali', bodo: 'Bodo', dogri: 'Dogri',
-    gujarati: 'Gujarati', kannad: 'Kannada', kashmiri: 'Kashmiri', konkani: 'Konkani', maithili: 'Maithili',
-    malyalam: 'Malayalam', manipuri: 'Meitei (Manipuri)', marathi: 'Marathi', nepali: 'Nepali', oriya: 'Odia',
-    punjabi: 'Punjabi', sanskrit: 'Sanskrit', santhali: 'Santhali', sindhi: 'Sindhi', tamil: 'Tamil', telgu: 'Telugu', urdu: 'Urdu',
+    en: 'English',
+    hi: 'Hindi',
+    assamese: 'Assamese',
+    bengali: 'Bengali',
+    bodo: 'Bodo',
+    dogri: 'Dogri',
+    gujarati: 'Gujarati',
+    kannada: 'Kannada', // fixed typo
+    kashmiri: 'Kashmiri',
+    konkani: 'Konkani',
+    maithili: 'Maithili',
+    malayalam: 'Malayalam', // fixed typo
+    manipuri: 'Meitei (Manipuri)',
+    marathi: 'Marathi',
+    nepali: 'Nepali',
+    oriya: 'Odia',
+    punjabi: 'Punjabi',
+    sanskrit: 'Sanskrit',
+    santhali: 'Santhali',
+    sindhi: 'Sindhi',
+    tamil: 'Tamil',
+    telugu: 'Telugu', // fixed typo
+    urdu: 'Urdu',
   }
   return names[appLang] || appLang
 }
@@ -39,8 +78,10 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
     const items: string[] = Array.isArray(body?.q) ? body.q : []
-    const appLang: string = String(body?.target || 'en')
-    const target = getTargetFromAppLang(appLang)
+    // Always treat 'target' as an app language key and map it
+  const appLang: string = typeof body?.target === 'string' ? body.target : 'en';
+  const target: string | null = getTargetFromAppLang(appLang);
+  console.log('[TRANSLATE API] appLang:', appLang, 'target (Google code):', target, 'items:', items);
     if (!items.length || !target) {
       return NextResponse.json({ translations: items }, { status: 200 })
     }
@@ -76,6 +117,7 @@ export async function POST(req: NextRequest) {
         })
         if (resp.ok) {
           const data = await resp.json() as { data?: { translations?: Array<{ translatedText?: string }> } }
+          console.log('[TRANSLATE API] Google response:', JSON.stringify(data));
           const translations: string[] = (data?.data?.translations || []).map((t) => String(t?.translatedText || ''))
           translations.forEach((tr, i) => {
             const original = toTrans[i]?.text
@@ -97,7 +139,8 @@ export async function POST(req: NextRequest) {
 
     // Fallback to Gemini (sequential)
     if (geminiKey) {
-      const ln = getLangName(appLang)
+      // Use the Google Translate code for Gemini prompt for consistency
+      const ln = target || getLangName(appLang);
       for (let i = 0; i < toTrans.length; i++) {
         const text = toTrans[i].text
         try {

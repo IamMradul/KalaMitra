@@ -31,6 +31,7 @@ interface AIProductFormProps {
     description?: string
     price?: number
     imageUrl?: string
+    product_story?: string
   }
 }
 declare global {
@@ -56,11 +57,38 @@ export default function AIProductForm({
   const [category, setCategory] = useState(initialData.category || '')
   const [description, setDescription] = useState(initialData.description || '')
   const [price, setPrice] = useState(initialData.price ? String(initialData.price) : '')
+  const [story, setStory] = useState(initialData.product_story || '')
   // Speech recognition state for all fields
   const [listeningField, setListeningField] = useState<string | null>(null)
   const recognitionRef = useRef<SpeechRecognition | null>(null)
 
-  // Generic speech recognition handler
+  // Generate/enhance story using Ollama (local Mistral/Gemma)
+  const [isStoryGenerating, setIsStoryGenerating] = useState(false)
+  const handleGenerateStory = async () => {
+    setIsStoryGenerating(true)
+    setError('')
+    try {
+      // Compose prompt from product details
+      const prompt = `Write a short heritage story for this product.\nTitle: ${title}\nCategory: ${category}\nDescription: ${description}\nPrice: ${price}\nStory (if any): ${story}`
+      // Call local Next.js API for story generation
+      const response = await fetch('/api/generate-story', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt })
+      })
+      if (!response.ok) throw new Error('Failed to generate story')
+      const data = await response.json()
+      if (data && data.response) {
+        setStory(data.response.trim())
+      } else {
+        setError('No story generated')
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Story generation failed')
+    } finally {
+      setIsStoryGenerating(false)
+    }
+  }
   const handleStartListening = (field: string) => {
     // Map i18next language codes to BCP-47 codes for speech recognition
     const langMap: Record<string, string> = {
@@ -136,6 +164,9 @@ export default function AIProductForm({
           break
         case 'description':
           setDescription(prev => prev ? prev + ' ' + transcript : transcript)
+          break
+        case 'story':
+          setStory(prev => prev ? prev + ' ' + transcript : transcript)
           break
         case 'price':
           setPrice(prev => prev ? prev + ' ' + transcript : transcript)
@@ -357,6 +388,9 @@ export default function AIProductForm({
         formData.set('adVideoUrl', adVideoUrl);
       }
 
+      // Ensure product story is saved
+      formData.set('product_story', story);
+
       // Save product and get productId from result
       const productId = await onSubmit(formData); // onSubmit should return productId
 
@@ -366,19 +400,19 @@ export default function AIProductForm({
         if (caption && caption.length > 255) {
           caption = caption.slice(0, 255);
         }
-          const { error: reelError } = await supabase.from('reel').insert({
-            user_id: user.id,
-            product_id: productId,
-            video_url: adVideoUrl,
-            caption,
-          });
-          if (reelError) {
-            console.error('Error posting reel:', reelError);
-            setError(
-              `Failed to save reel: ${reelError.message || 'Unknown error'}\nDetails: ${JSON.stringify(reelError, null, 2)}`
-            );
-            // Optionally, you can alert the user as well
-            alert(`Failed to save reel. Please check your data and try again.\n${reelError.message}`);
+        const { error: reelError } = await supabase.from('reel').insert({
+          user_id: user.id,
+          product_id: productId,
+          video_url: adVideoUrl,
+          caption,
+        });
+        if (reelError) {
+          console.error('Error posting reel:', reelError);
+          setError(
+            `Failed to save reel: ${reelError.message || 'Unknown error'}\nDetails: ${JSON.stringify(reelError, null, 2)}`
+          );
+          // Optionally, you can alert the user as well
+          alert(`Failed to save reel. Please check your data and try again.\n${reelError.message}`);
         }
       }
 
@@ -650,6 +684,43 @@ export default function AIProductForm({
               </button>
             </div>
             <div className="text-xs text-gray-500 mt-1">You can speak your description for easier input.</div>
+          </div>
+
+          {/* Product Story Field */}
+          <div>
+            <label className="block text-sm font-medium text-orange-700 mb-1">
+              {t('ai.form.fields.story.label', { defaultValue: 'Product Story (Heritage)' })}
+            </label>
+            <div className="relative flex flex-col gap-2">
+              <div className="relative">
+                <textarea
+                  name="product_story"
+                  rows={3}
+                  value={story}
+                  onChange={e => setStory(e.target.value)}
+                  className="w-full px-3 py-2 pr-20 border border-orange-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  placeholder={t('ai.form.fields.story.placeholder', { defaultValue: 'Share the heritage, origin, or cultural story of this product...' })}
+                />
+                <button
+                  type="button"
+                  onClick={listeningField === 'story' ? handleStopListening : () => handleStartListening('story')}
+                  className="absolute right-2 top-2 p-1 rounded-full bg-white hover:bg-gray-100"
+                  title={listeningField === 'story' ? 'Listening...' : 'Speak Story'}
+                >
+                  <Mic className={`w-5 h-5 ${listeningField === 'story' ? 'animate-pulse text-red-500' : 'text-blue-500'}`} />
+                </button>
+                <button
+                  type="button"
+                  onClick={handleGenerateStory}
+                  disabled={isStoryGenerating}
+                  className="absolute right-12 top-2 p-1 rounded-full bg-gradient-to-r from-orange-400 to-pink-400 text-white shadow hover:scale-105 transition-all duration-200 disabled:opacity-50"
+                  title={isStoryGenerating ? 'Generating...' : 'Enhance with AI'}
+                >
+                  {isStoryGenerating ? <Loader2 className="w-5 h-5 animate-spin" /> : <Sparkles className="w-5 h-5" />}
+                </button>
+              </div>
+              <div className="text-xs text-orange-500 mt-1">Let buyers experience the story behind your product. You can speak, type, or enhance with AI (local Ollama).</div>
+            </div>
           </div>
 
           <div>

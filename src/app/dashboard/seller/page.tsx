@@ -256,12 +256,13 @@ export default function SellerDashboard() {
 
     setAddProductLoading(true)
     
-    const formData = new FormData(e.currentTarget)
-    const title = formData.get('title') as string
-    const category = formData.get('category') as string
-    const description = formData.get('description') as string
-    const price = parseFloat(formData.get('price') as string)
-    const imageUrl = formData.get('imageUrl') as string
+  const formData = new FormData(e.currentTarget)
+  const title = formData.get('title') as string
+  const category = formData.get('category') as string
+  const description = formData.get('description') as string
+  const price = parseFloat(formData.get('price') as string)
+  const imageUrl = formData.get('imageUrl') as string
+  const product_story = formData.get('product_story') as string | null
 
     // Basic validation
     if (!title || !category || !description || isNaN(price) || price <= 0) {
@@ -277,7 +278,7 @@ export default function SellerDashboard() {
       console.log('Profile role:', profile?.role)
       console.log('User authenticated:', !!user)
       console.log('Profile exists:', !!profile)
-      console.log('Product data:', { title, category, description, price, imageUrl })
+  console.log('Product data:', { title, category, description, price, imageUrl, product_story })
       
       // Extract image features (best-effort)
       let features: { avgColor: { r: number; g: number; b: number }; aHash: string } | null = null
@@ -294,6 +295,7 @@ export default function SellerDashboard() {
         description,
         price,
         image_url: imageUrl || null,
+        product_story: product_story || null,
       })
       
       // Add timeout to prevent hanging
@@ -307,6 +309,7 @@ export default function SellerDashboard() {
             description,
             price,
             image_url: imageUrl || null,
+            product_story: product_story || null,
             // New optional columns if present in DB
             image_avg_r: features?.avgColor.r ?? null,
             image_avg_g: features?.avgColor.g ?? null,
@@ -389,11 +392,12 @@ export default function SellerDashboard() {
 
     setEditProductLoading(true)
     
-    const title = formData.get('title') as string
-    const category = formData.get('category') as string
-    const description = formData.get('description') as string
-    const price = parseFloat(formData.get('price') as string)
-    const imageUrl = formData.get('imageUrl') as string
+  const title = formData.get('title') as string
+  const category = formData.get('category') as string
+  const description = formData.get('description') as string
+  const price = parseFloat(formData.get('price') as string)
+  const imageUrl = formData.get('imageUrl') as string
+  const product_story = formData.get('product_story') as string | null
 
     // Basic validation
     if (!title || !category || !description || isNaN(price) || price <= 0) {
@@ -403,8 +407,7 @@ export default function SellerDashboard() {
     }
 
     try {
-      console.log('Updating product:', { productId, title, category, description, price, imageUrl })
-      
+      console.log('Updating product:', { productId, title, category, description, price, imageUrl, product_story })
       const { error } = await supabase
         .from('products')
         .update({
@@ -413,6 +416,7 @@ export default function SellerDashboard() {
           description,
           price,
           image_url: imageUrl || null,
+          product_story: product_story || null,
         })
         .eq('id', productId)
 
@@ -424,7 +428,6 @@ export default function SellerDashboard() {
 
       console.log('Product updated successfully')
       alert('Product updated successfully!')
-      
       setEditingProduct(null)
       fetchProducts()
     } catch (error) {
@@ -863,6 +866,7 @@ export default function SellerDashboard() {
               description: editingProduct.description || undefined,
               price: editingProduct.price || undefined,
               imageUrl: editingProduct.image_url || undefined,
+              product_story: editingProduct.product_story || undefined,
             }}
             onSubmit={async (formData) => {
               try {
