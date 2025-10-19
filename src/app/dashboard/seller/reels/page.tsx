@@ -1,16 +1,37 @@
 'use client';
 import { useEffect, useState } from 'react';
 
-type Reel = {
+interface ReelProfile {
+  name: string;
+  profile_image: string | null;
+  // ...existing code...
+}
+interface ReelProduct {
+  title: string;
+}
+
+export interface Reel {
   id: number;
   user_id: string;
-  product_id?: string;
+  product_id: string;
   video_url: string;
-  caption?: string;
-  likes?: number;
-  created_at?: string;
-  updated_at?: string;
-};
+  comment: string;
+  likes: number;
+  created_at: string;
+  caption?: string; // Added caption property
+  profiles?: ReelProfile;
+  products?: ReelProduct;
+}
+
+export interface ReelComment {
+  id: number;
+  reel_id: number;
+  user_id: string;
+  comment: string;
+  created_at: string;
+  profiles?: ReelProfile;
+}
+
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { Trash2, Video } from 'lucide-react';
@@ -22,6 +43,7 @@ export default function SellerReelsPage() {
   const { user } = useAuth();
   const [reels, setReels] = useState<Reel[]>([]);
   const [loading, setLoading] = useState(true);
+  const [comments, setComments] = useState<Record<number, ReelComment[]>>({}); // Use ReelComment
 
   useEffect(() => {
     const fetchReels = async () => {
@@ -64,6 +86,56 @@ export default function SellerReelsPage() {
     };
   }, [reels]);
 
+  // Fetch comments for each reel
+  useEffect(() => {
+    const fetchComments = async () => {
+      if (reels.length === 0) return;
+      const reelIds = reels.map(r => r.id);
+      const { data, error } = await supabase
+        .from('reel_comment')
+        .select('*, profiles(name, profile_image)')
+        .in('reel_id', reelIds);
+
+      if (error) {
+        setComments({});
+        return;
+      }
+      if (data) {
+        const grouped: Record<number, ReelComment[]> = {};
+        (data as ReelComment[]).forEach((c: ReelComment) => {
+          if (!grouped[c.reel_id]) grouped[c.reel_id] = [];
+          grouped[c.reel_id].push(c);
+        });
+        setComments(grouped);
+      } else {
+        setComments({});
+      }
+    };
+    fetchComments();
+  }, [reels]);
+
+  // Delete comment handler
+  const handleDeleteComment = async (commentId: number, reelId: number) => {
+    if (!confirm(t('reels.deleteComment') + '?')) return;
+    const { error } = await supabase
+      .from('reel_comment')
+      .delete()
+      .eq('id', commentId);
+    if (error) {
+      alert(t('reels.deleteComment') + ' ' + t('common.error'));
+      return;
+    }
+    // Refetch comments for this reel for smoothness
+    const { data, error: fetchError } = await supabase
+      .from('reel_comment')
+      .select('*, profiles(name, profile_image)')
+      .eq('reel_id', reelId);
+    if (!fetchError && data) {
+      setComments(prev => ({ ...prev, [reelId]: data }));
+    } else {
+      setComments(prev => ({ ...prev, [reelId]: [] }));
+    }
+  };
   const handleDelete = async (reelId: number) => {
     if (!confirm(t('reels.delete') + '?')) return;
     const { error } = await supabase
@@ -120,6 +192,38 @@ export default function SellerReelsPage() {
                   >
                     <Trash2 className="w-5 h-5" /> {t('reels.delete')}
                   </button>
+                </div>
+                {/* Comments Section */}
+                <div className="mt-4">
+                  <div className="text-[var(--muted)] text-sm font-semibold mb-2">{t('reels.comments')}</div>
+                  {Array.isArray(comments[reel.id]) && comments[reel.id].length > 0 ? (
+                    <ul className="space-y-2">
+                      {comments[reel.id].map(comment => (
+                        <li key={comment.id} className="flex items-center bg-[var(--bg-2)] rounded px-2 py-1">
+                          {comment.profiles?.profile_image ? (
+                            <img src={comment.profiles.profile_image} alt={comment.profiles.name} className="w-7 h-7 rounded-full object-cover mr-2" />
+                          ) : (
+                            <div className="w-7 h-7 rounded-full bg-orange-100 flex items-center justify-center mr-2">
+                              <span className="text-orange-600 font-bold">{comment.profiles?.name?.[0] || '?'}</span>
+                            </div>
+                          )}
+                          <div className="flex-1">
+                            <span className="font-semibold text-[var(--text)] text-sm">{comment.profiles?.name ? comment.profiles.name : t('profile.title', { defaultValue: 'User' })}</span>
+                            <span className="ml-2 text-xs text-[var(--muted)]">{new Date(comment.created_at).toLocaleString()}</span>
+                            <div className="text-[var(--text)] text-sm mt-1">{comment.comment}</div>
+                          </div>
+                          <button
+                            className="text-red-600 hover:text-red-800 ml-2"
+                            onClick={() => handleDeleteComment(comment.id, reel.id)}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <span className="text-[var(--muted)] text-xs">{t('reels.noComments')}</span>
+                  )}
                 </div>
               </div>
             </div>

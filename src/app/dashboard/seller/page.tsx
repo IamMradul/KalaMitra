@@ -866,11 +866,14 @@ export default function SellerDashboard() {
             }}
             onSubmit={async (formData) => {
               try {
-                await handleEditProduct(editingProduct.id, formData)
-                setEditingProduct(null)
+                await handleEditProduct(editingProduct.id, formData);
+                setEditingProduct(null);
+                // Return the product ID so AIProductForm can use it for reel creation
+                return editingProduct.id;
               } catch (error) {
-                console.error('Error saving edited product:', error)
+                console.error('Error saving edited product:', error);
                 // keep modal open on error
+                return null;
               }
             }}
             onCancel={() => setEditingProduct(null)}

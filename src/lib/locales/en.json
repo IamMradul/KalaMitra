@@ -82,7 +82,9 @@
       "likes": "Likes",
       "delete": "Delete",
       "caption": "Caption",
-      "comment": "Comment"
+      "comment": "Comment",
+      "comments": "Comments",
+      "noComments": "No comments yet."
     },
   "navigation": {
     "home": "Home",

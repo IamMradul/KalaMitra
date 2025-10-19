@@ -6,8 +6,16 @@ import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
 import { Heart, MessageCircle, User } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+interface ReelProfile {
+  name: string;
+  profile_image: string | null;
+// ...existing code...
+}
+interface ReelProduct {
+  title: string;
+}
 
-interface Reel {
+export interface Reel {
   id: number;
   user_id: string;
   product_id: string;
@@ -15,20 +23,30 @@ interface Reel {
   comment: string;
   likes: number;
   created_at: string;
-  profiles?: {
-    name: string;
-    profile_image: string | null;
-  };
-  products?: {
-    title: string;
-  };
+  profiles?: ReelProfile;
+  products?: ReelProduct;
 }
 
-export default function ReelsPage() {
+export interface ReelComment {
+  id: number;
+  reel_id: number;
+  user_id: string;
+  comment: string;
+  created_at: string;
+  profiles?: ReelProfile;
+}
+
+const ReelsPage = () => {
   const [reels, setReels] = useState<Reel[]>([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
   const { t } = useTranslation();
+
+  // Comment UI state
+  const [openCommentReelId, setOpenCommentReelId] = useState<number | null>(null);
+  const [commentInput, setCommentInput] = useState<string>('');
+  const [commentLoading, setCommentLoading] = useState(false);
+  const [comments, setComments] = useState<Record<number, ReelComment[]>>({});
 
   useEffect(() => {
     const fetchReels = async () => {
@@ -41,6 +59,18 @@ export default function ReelsPage() {
     };
     fetchReels();
   }, []);
+
+  // Fetch comments for a reel
+  const fetchComments = async (reelId: number) => {
+    const { data, error } = await supabase
+      .from('reel_comment')
+      .select('*, profiles(name, profile_image)')
+      .eq('reel_id', reelId)
+      .order('created_at', { ascending: true });
+    if (!error && data) {
+      setComments(prev => ({ ...prev, [reelId]: data }));
+    }
+  };
 
   // Intersection Observer for auto play/pause
   useEffect(() => {
@@ -151,6 +181,7 @@ export default function ReelsPage() {
                   <div className="text-xs text-[var(--muted)]">{new Date(reel.created_at).toLocaleString()}</div>
                 </div>
               </div>
+
               <div className="w-full max-w-[350px] mx-auto aspect-[4/5] bg-black flex items-center justify-center rounded-lg">
                 <video
                   src={reel.video_url}
@@ -179,7 +210,18 @@ export default function ReelsPage() {
                     <Heart className="w-5 h-5" fill={likedReels.includes(reel.id) ? 'orange' : 'none'} stroke={likedReels.includes(reel.id) ? 'orange' : 'currentColor'} />
                     <span>{reel.likes || 0}</span>
                   </button>
-                  <button className="flex items-center gap-1 text-[var(--muted)] hover:text-orange-600">
+                  <button
+                    className="flex items-center gap-1 text-[var(--muted)] hover:text-orange-600"
+                    onClick={() => {
+                      if (openCommentReelId === reel.id) {
+                        setOpenCommentReelId(null);
+                      } else {
+                        setOpenCommentReelId(reel.id);
+                        setCommentInput('');
+                        if (!comments[reel.id]) fetchComments(reel.id);
+                      }
+                    }}
+                  >
                     <MessageCircle className="w-5 h-5" />
                     <span>{t('reels.comment', { defaultValue: 'Comment' })}</span>
                   </button>
@@ -189,6 +231,77 @@ export default function ReelsPage() {
                     </Link>
                   )}
                 </div>
+                {/* Comments Section */}
+                {openCommentReelId === reel.id && (
+                  <div className="mt-4">
+                    <div className="flex flex-col gap-2">
+                      {/* Existing comments */}
+                      <div className="max-h-40 overflow-y-auto mb-2">
+                        {comments[reel.id]?.length ? (
+                          comments[reel.id].map(cmt => (
+                            <div key={cmt.id} className="flex items-start gap-2 mb-2">
+                              {cmt.profiles?.profile_image ? (
+                                <img src={cmt.profiles.profile_image} alt={cmt.profiles.name} className="w-7 h-7 rounded-full object-cover" />
+                              ) : (
+                                <User className="w-6 h-6 text-orange-600" />
+                              )}
+                              <div>
+                                <span className="font-semibold text-[var(--text)] text-sm">{cmt.profiles?.name || t('profile.title', { defaultValue: 'User' })}</span>
+                                <span className="ml-2 text-xs text-[var(--muted)]">{new Date(cmt.created_at).toLocaleString()}</span>
+                                <div className="text-[var(--text)] text-sm mt-1">{cmt.comment}</div>
+                              </div>
+                            </div>
+                          ))
+                        ) : (
+                          <span className="text-[var(--muted)] text-sm">{t('reels.noComments', { defaultValue: 'No comments yet.' })}</span>
+                        )}
+                      </div>
+                      {/* Comment input */}
+                      <form
+                        className="flex gap-2"
+                        onSubmit={async e => {
+                          e.preventDefault();
+                          if (!user?.id) {
+                            alert('You must be logged in to comment.');
+                            return;
+                          }
+                          if (!commentInput.trim()) return;
+                          setCommentLoading(true);
+                          const { error } = await supabase
+                            .from('reel_comment')
+                            .insert({
+                              reel_id: reel.id,
+                              user_id: user.id,
+                              comment: commentInput.trim(),
+                            });
+                          setCommentLoading(false);
+                          if (error) {
+                            alert('Failed to post comment.');
+                            return;
+                          }
+                          setCommentInput('');
+                          fetchComments(reel.id);
+                        }}
+                      >
+                        <input
+                          type="text"
+                          className="flex-1 rounded-lg border border-[var(--border)] px-3 py-2 text-[var(--text)] bg-[var(--bg-2)] focus:outline-none focus:border-orange-600"
+                          placeholder={t('reels.addComment', { defaultValue: 'Add a comment...' })}
+                          value={commentInput}
+                          onChange={e => setCommentInput(e.target.value)}
+                          disabled={commentLoading}
+                        />
+                        <button
+                          type="submit"
+                          className="px-4 py-2 rounded-lg bg-orange-600 text-white font-semibold disabled:opacity-60"
+                          disabled={commentLoading || !commentInput.trim()}
+                        >
+                          {commentLoading ? t('common.loading', { defaultValue: 'Posting...' }) : t('reels.post', { defaultValue: 'Post' })}
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           ))
@@ -196,4 +309,7 @@ export default function ReelsPage() {
       </div>
     </div>
   );
-}
+};
+
+export default ReelsPage;
+

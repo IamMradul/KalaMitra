@@ -33,6 +33,8 @@ interface AIProductFormProps {
 }
 
 export default function AIProductForm({ 
+  // Controlled state for ad generation fields
+
   onSubmit, 
   onCancel, 
   loading = false,
@@ -41,6 +43,15 @@ export default function AIProductForm({
   const { t } = useTranslation()
   const { user, profile } = useAuth()
   const [imageUrl, setImageUrl] = useState(initialData.imageUrl || '')
+  const [title, setTitle] = useState(initialData.title || '')
+  const [category, setCategory] = useState(initialData.category || '')
+  const [description, setDescription] = useState(initialData.description || '')
+  const [price, setPrice] = useState(initialData.price ? String(initialData.price) : '')
+  const [ctaText, setCtaText] = useState('Shop Now')
+  const [website, setWebsite] = useState(profile?.name?.trim() ? profile.name : 'https://yourwebsite.com')
+
+  // Check if all required fields for ad generation are filled
+  const isAdGenerationReady = !!(imageUrl && title && category && description && price && ctaText && website)
   const [uploadedFile, setUploadedFile] = useState<File | null>(null)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
@@ -193,26 +204,13 @@ export default function AIProductForm({
   }
 
   const applyAIResults = () => {
-    if (!aiResult) return
-
-    const titleInput = document.querySelector('input[name="title"]') as HTMLInputElement
-    const categoryInput = document.querySelector('input[name="category"]') as HTMLInputElement
-    const descriptionInput = document.querySelector('textarea[name="description"]') as HTMLTextAreaElement
-    const priceInput = document.querySelector('input[name="price"]') as HTMLInputElement
-
-    if (titleInput) {
-      titleInput.value = aiResult.title
-    }
-    if (categoryInput) {
-      categoryInput.value = aiResult.category
-    }
-    if (descriptionInput) {
-      descriptionInput.value = aiResult.description
-    }
-    if (priceInput) {
-      const suggestedPrice = (aiResult.pricingSuggestion.minPrice + aiResult.pricingSuggestion.maxPrice) / 2
-      priceInput.value = suggestedPrice.toFixed(2)
-    }
+    if (!aiResult) return;
+    setTitle(aiResult.title);
+    setCategory(aiResult.category);
+    setDescription(aiResult.description);
+    const suggestedPrice = (aiResult.pricingSuggestion.minPrice + aiResult.pricingSuggestion.maxPrice) / 2;
+    setPrice(suggestedPrice.toFixed(2));
+    // If you want to update ctaText/website from AI, add here
   }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -347,19 +345,26 @@ export default function AIProductForm({
                     )}
                     {isAnalyzing ? t('ai.analyzing') : t('ai.analyzeWithAI')}
                   </button>
-                  <button
-                    type="button"
-                    onClick={generateAd}
-                    disabled={isGeneratingAd}
-                    className="flex items-center px-3 py-2 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-lg hover:from-purple-600 hover:to-indigo-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {isGeneratingAd ? (
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    ) : (
-                      <Video className="w-4 h-4 mr-2" />
+                  <div className="relative group inline-block">
+                    <button
+                      type="button"
+                      onClick={generateAd}
+                      disabled={isGeneratingAd || !isAdGenerationReady}
+                      className="flex items-center px-3 py-2 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-lg hover:from-purple-600 hover:to-indigo-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isGeneratingAd ? (
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      ) : (
+                        <Video className="w-4 h-4 mr-2" />
+                      )}
+                      {isGeneratingAd ? t('ai.generatingAd') : t('ai.generateAdWithAI')}
+                    </button>
+                    {!isAdGenerationReady && (
+                      <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-56 bg-gray-800 text-white text-xs rounded-lg px-3 py-2 z-10 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200">
+                        {t('ai.form.fillAllFieldsForAd', { defaultValue: 'Please fill all product details (image, title, description, price, CTA, website) before generating an ad.' })}
+                      </div>
                     )}
-                    {isGeneratingAd ? t('ai.generatingAd') : t('ai.generateAdWithAI')}
-                  </button>
+                  </div>
                 </div>
               </div>
             )}
@@ -460,7 +465,8 @@ export default function AIProductForm({
               <input
                 name="title"
                 required
-                defaultValue={initialData.title}
+                value={title}
+                onChange={e => setTitle(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                 placeholder={t('ai.form.fields.title.placeholder')}
               />
@@ -472,7 +478,8 @@ export default function AIProductForm({
               <input
                 name="category"
                 required
-                defaultValue={initialData.category}
+                value={category}
+                onChange={e => setCategory(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                 placeholder={t('ai.form.fields.category.placeholder')}
               />
@@ -487,7 +494,8 @@ export default function AIProductForm({
               name="description"
               required
               rows={4}
-              defaultValue={initialData.description}
+              value={description}
+              onChange={e => setDescription(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
               placeholder={t('ai.form.fields.description.placeholder')}
             />
@@ -503,7 +511,8 @@ export default function AIProductForm({
               step="0.01"
               min="0"
               required
-              defaultValue={initialData.price}
+              value={price}
+              onChange={e => setPrice(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
               placeholder={t('ai.form.fields.price.placeholder')}
             />
@@ -517,7 +526,8 @@ export default function AIProductForm({
             <input
               name="ctaText"
               type="text"
-              defaultValue={"Shop Now"}
+              value={ctaText}
+              onChange={e => setCtaText(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
               placeholder={"Enter call-to-action text"}
             />
@@ -529,7 +539,8 @@ export default function AIProductForm({
             <input
               name="website"
               type="text"
-              defaultValue={profile?.name?.trim() ? profile.name : "https://yourwebsite.com"}
+              value={website}
+              onChange={e => setWebsite(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
               placeholder={"Enter website URL"}
             />
