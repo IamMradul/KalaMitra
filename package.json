@@ -25,6 +25,7 @@
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-i18next": "^15.7.3",
+    "three": "^0.180.0",
     "uuid": "^13.0.0"
   },
   "devDependencies": {
