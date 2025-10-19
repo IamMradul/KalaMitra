@@ -1,10 +1,12 @@
+
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { MessageCircle, X, Send, Sparkles, Loader2, RefreshCw, Trash2 } from 'lucide-react'
+import { MessageCircle, X, Send, Sparkles, Loader2, RefreshCw, Trash2, Mic } from 'lucide-react'
 import Link from 'next/link'
 import { useTranslation } from 'react-i18next'
+import { useLanguage } from './LanguageProvider'
 import { useAuth } from '@/contexts/AuthContext'
 import { supabase, Database } from '@/lib/supabase'
 
@@ -17,8 +19,14 @@ interface Message {
   products?: Product[]
   timestamp: Date
 }
-
+declare global {
+  interface Window {
+    SpeechRecognition?: typeof SpeechRecognition;
+    webkitSpeechRecognition?: typeof SpeechRecognition;
+  }
+}
 export default function AIShoppingChat() {
+  const { currentLanguage } = useLanguage()
   const { t } = useTranslation()
   const { user } = useAuth()
   const [isOpen, setIsOpen] = useState(false)
@@ -26,6 +34,73 @@ export default function AIShoppingChat() {
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [isLoadingHistory, setIsLoadingHistory] = useState(false)
+  // Speech recognition state
+  const [listening, setListening] = useState(false)
+  const recognitionRef = useRef<SpeechRecognition | null>(null)
+  // Map app language to BCP-47 code
+  const langMap: Record<string, string> = {
+    en: 'en-IN',
+    hi: 'hi-IN',
+    assamese: 'as-IN',
+    bengali: 'bn-IN',
+    bodo: 'brx-IN',
+    dogri: 'doi-IN',
+    gujarati: 'gu-IN',
+    kannad: 'kn-IN',
+    kashmiri: 'ks-IN',
+    konkani: 'kok-IN',
+    maithili: 'mai-IN',
+    malyalam: 'ml-IN',
+    manipuri: 'mni-IN',
+    marathi: 'mr-IN',
+    nepali: 'ne-NP',
+    oriya: 'or-IN',
+    punjabi: 'pa-IN',
+    sanskrit: 'sa-IN',
+    santhali: 'sat-IN',
+    sindhi: 'sd-IN',
+    tamil: 'ta-IN',
+    telgu: 'te-IN',
+    urdu: 'ur-IN',
+    // Short codes
+    as: 'as-IN', bn: 'bn-IN', brx: 'brx-IN', doi: 'doi-IN', gu: 'gu-IN', kn: 'kn-IN', ks: 'ks-IN', kok: 'kok-IN', mai: 'mai-IN', ml: 'ml-IN', mni: 'mni-IN', mr: 'mr-IN', ne: 'ne-NP', or: 'or-IN', pa: 'pa-IN', sa: 'sa-IN', sat: 'sat-IN', sd: 'sd-IN', ta: 'ta-IN', te: 'te-IN', ur: 'ur-IN',
+  }
+
+  const handleStartListening = () => {
+    const speechLang = langMap[currentLanguage] || currentLanguage || 'en-IN'
+    if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+      alert('Speech recognition not supported in this browser.')
+      return
+    }
+    const SpeechRecognitionCtor = window.SpeechRecognition || window.webkitSpeechRecognition
+    if (!SpeechRecognitionCtor) {
+      alert('Speech recognition not supported in this browser.')
+      return
+    }
+    const recognition: SpeechRecognition = new SpeechRecognitionCtor()
+    recognition.lang = speechLang
+    recognition.interimResults = false
+    recognition.maxAlternatives = 1
+    recognition.onresult = (event: SpeechRecognitionEvent) => {
+      const transcript = event.results[0][0].transcript
+      setInput(prev => prev ? prev + ' ' + transcript : transcript)
+    }
+    recognition.onerror = () => {
+      setListening(false)
+    }
+    recognition.onend = () => {
+      setListening(false)
+    }
+    recognitionRef.current = recognition
+    recognition.start()
+    setListening(true)
+  }
+  const handleStopListening = () => {
+    if (recognitionRef.current) {
+      recognitionRef.current.stop()
+      setListening(false)
+    }
+  }
   const [sessionId, setSessionId] = useState<string>('')
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -448,16 +523,26 @@ export default function AIShoppingChat() {
             {/* Input */}
             <div className="p-4 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
               <div className="flex items-center space-x-2">
-                <input
-                  ref={inputRef}
-                  type="text"
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  placeholder="Ask me anything..."
-                  disabled={isLoading}
-                  className="flex-1 px-4 py-2.5 bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white rounded-full focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all text-sm"
-                />
+                <div className="relative flex-1">
+                  <input
+                    ref={inputRef}
+                    type="text"
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    placeholder="Ask me anything..."
+                    disabled={isLoading}
+                    className="w-full px-4 py-2.5 pr-10 bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white rounded-full focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all text-sm"
+                  />
+                  <button
+                    type="button"
+                    onClick={listening ? handleStopListening : handleStartListening}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-full bg-white hover:bg-gray-100"
+                    title={listening ? 'Listening...' : 'Speak'}
+                  >
+                    <Mic className={`w-5 h-5 ${listening ? 'animate-pulse text-red-500' : 'text-blue-500'}`} />
+                  </button>
+                </div>
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}

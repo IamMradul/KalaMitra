@@ -1,13 +1,15 @@
+
  'use client'
 
 import { useState, useRef, useEffect } from 'react'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
-import { Camera, Sparkles, Save, User, Store } from 'lucide-react'
+import { Camera, Sparkles, Save, User, Store, Mic } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import AIService from '@/lib/ai-service'
 import { Database } from '@/lib/supabase'
 import { useTranslation } from 'react-i18next'
+import { useLanguage } from '@/components/LanguageProvider'
 import { translateText } from '@/lib/translate'
 
 type Profile = Database['public']['Tables']['profiles']['Row']
@@ -18,8 +20,87 @@ type Props = {
   products: Product[]
   onProfileUpdate: (updatedProfile: Profile) => void
 }
+declare global {
+  interface Window {
+    SpeechRecognition?: typeof SpeechRecognition;
+    webkitSpeechRecognition?: typeof SpeechRecognition;
+  }
+}
 
 export default function ProfileManager({ profile, products, onProfileUpdate }: Props) {
+  const { currentLanguage } = useLanguage()
+  const [listeningField, setListeningField] = useState<string | null>(null)
+  const recognitionRef = useRef<SpeechRecognition | null>(null)
+  // Map app language to BCP-47 code
+  const langMap: Record<string, string> = {
+    en: 'en-IN',
+    hi: 'hi-IN',
+    assamese: 'as-IN',
+    bengali: 'bn-IN',
+    bodo: 'brx-IN',
+    dogri: 'doi-IN',
+    gujarati: 'gu-IN',
+    kannad: 'kn-IN',
+    kashmiri: 'ks-IN',
+    konkani: 'kok-IN',
+    maithili: 'mai-IN',
+    malyalam: 'ml-IN',
+    manipuri: 'mni-IN',
+    marathi: 'mr-IN',
+    nepali: 'ne-NP',
+    oriya: 'or-IN',
+    punjabi: 'pa-IN',
+    sanskrit: 'sa-IN',
+    santhali: 'sat-IN',
+    sindhi: 'sd-IN',
+    tamil: 'ta-IN',
+    telgu: 'te-IN',
+    urdu: 'ur-IN',
+    // Short codes
+    as: 'as-IN', bn: 'bn-IN', brx: 'brx-IN', doi: 'doi-IN', gu: 'gu-IN', kn: 'kn-IN', ks: 'ks-IN', kok: 'kok-IN', mai: 'mai-IN', ml: 'ml-IN', mni: 'mni-IN', mr: 'mr-IN', ne: 'ne-NP', or: 'or-IN', pa: 'pa-IN', sa: 'sa-IN', sat: 'sat-IN', sd: 'sd-IN', ta: 'ta-IN', te: 'te-IN', ur: 'ur-IN',
+  }
+
+  const handleStartListening = (field: string) => {
+    const speechLang = langMap[currentLanguage] || currentLanguage || 'en-IN'
+    if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+      alert('Speech recognition not supported in this browser.')
+      return
+    }
+  const SpeechRecognitionCtor = window.SpeechRecognition || window.webkitSpeechRecognition
+  if (!SpeechRecognitionCtor) {
+    alert('Speech recognition not supported in this browser.')
+    return
+  }
+  const recognition: SpeechRecognition = new SpeechRecognitionCtor()
+    recognition.lang = speechLang
+    recognition.interimResults = false
+    recognition.maxAlternatives = 1
+    recognition.onresult = (event: SpeechRecognitionEvent) => {
+      const transcript = event.results[0][0].transcript
+      if (field === 'name') {
+        setFormData(prev => ({ ...prev, name: prev.name ? prev.name + ' ' + transcript : transcript }))
+      } else if (field === 'bio') {
+        setFormData(prev => ({ ...prev, bio: prev.bio ? prev.bio + ' ' + transcript : transcript }))
+      } else if (field === 'store_description') {
+        setFormData(prev => ({ ...prev, store_description: prev.store_description ? prev.store_description + ' ' + transcript : transcript }))
+      }
+    }
+    recognition.onerror = (event: Event) => {
+      setListeningField(null)
+    }
+    recognition.onend = () => {
+      setListeningField(null)
+    }
+    recognitionRef.current = recognition
+    recognition.start()
+    setListeningField(field)
+  }
+  const handleStopListening = () => {
+    if (recognitionRef.current) {
+      recognitionRef.current.stop()
+      setListeningField(null)
+    }
+  }
   const { t, i18n } = useTranslation()
   const [isEditing, setIsEditing] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -279,26 +360,46 @@ export default function ProfileManager({ profile, products, onProfileUpdate }: P
                 <label className="block text-sm font-medium text-[var(--muted)] mb-1">
                   {t('seller.profile.fields.storeName.label')}
                 </label>
-                <input
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                  className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 bg-[var(--bg-2)] border-[var(--border)] text-[var(--text)]"
-                  placeholder={t('seller.profile.fields.storeName.placeholder')}
-                />
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                    className="w-full px-3 py-2 pr-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 bg-[var(--bg-2)] border-[var(--border)] text-[var(--text)]"
+                    placeholder={t('seller.profile.fields.storeName.placeholder')}
+                  />
+                  <button
+                    type="button"
+                    onClick={listeningField === 'name' ? handleStopListening : () => handleStartListening('name')}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-full bg-white hover:bg-gray-100"
+                    title={listeningField === 'name' ? 'Listening...' : 'Speak'}
+                  >
+                    <Mic className={`w-5 h-5 ${listeningField === 'name' ? 'animate-pulse text-red-500' : 'text-blue-500'}`} />
+                  </button>
+                </div>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-[var(--muted)] mb-1">
                   {t('seller.profile.fields.bio.label')}
                 </label>
-                <textarea
-                  value={formData.bio}
-                  onChange={(e) => setFormData(prev => ({ ...prev, bio: e.target.value }))}
-                  rows={3}
-                  className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 bg-[var(--bg-2)] border-[var(--border)] text-[var(--text)]"
-                  placeholder={t('seller.profile.fields.bio.placeholder')}
-                />
+                <div className="relative">
+                  <textarea
+                    value={formData.bio}
+                    onChange={(e) => setFormData(prev => ({ ...prev, bio: e.target.value }))}
+                    rows={3}
+                    className="w-full px-3 py-2 pr-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 bg-[var(--bg-2)] border-[var(--border)] text-[var(--text)]"
+                    placeholder={t('seller.profile.fields.bio.placeholder')}
+                  />
+                  <button
+                    type="button"
+                    onClick={listeningField === 'bio' ? handleStopListening : () => handleStartListening('bio')}
+                    className="absolute right-2 top-2 p-1 rounded-full bg-white hover:bg-gray-100"
+                    title={listeningField === 'bio' ? 'Listening...' : 'Speak'}
+                  >
+                    <Mic className={`w-5 h-5 ${listeningField === 'bio' ? 'animate-pulse text-red-500' : 'text-blue-500'}`} />
+                  </button>
+                </div>
               </div>
 
               <div>
@@ -315,13 +416,23 @@ export default function ProfileManager({ profile, products, onProfileUpdate }: P
                     {aiLoading ? t('seller.profile.generating') : t('seller.profile.aiGenerate')}
                   </button>
                 </div>
-                <textarea
-                  value={formData.store_description}
-                  onChange={(e) => setFormData(prev => ({ ...prev, store_description: e.target.value }))}
-                  rows={4}
-                  className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 bg-[var(--bg-2)] border-[var(--border)] text-[var(--text)]"
-                  placeholder={t('seller.profile.fields.description.placeholder')}
-                />
+                <div className="relative">
+                  <textarea
+                    value={formData.store_description}
+                    onChange={(e) => setFormData(prev => ({ ...prev, store_description: e.target.value }))}
+                    rows={4}
+                    className="w-full px-3 py-2 pr-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 bg-[var(--bg-2)] border-[var(--border)] text-[var(--text)]"
+                    placeholder={t('seller.profile.fields.description.placeholder')}
+                  />
+                  <button
+                    type="button"
+                    onClick={listeningField === 'store_description' ? handleStopListening : () => handleStartListening('store_description')}
+                    className="absolute right-2 top-2 p-1 rounded-full bg-white hover:bg-gray-100"
+                    title={listeningField === 'store_description' ? 'Listening...' : 'Speak'}
+                  >
+                    <Mic className={`w-5 h-5 ${listeningField === 'store_description' ? 'animate-pulse text-red-500' : 'text-blue-500'}`} />
+                  </button>
+                </div>
               </div>
 
               <button

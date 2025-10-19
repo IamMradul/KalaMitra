@@ -1,15 +1,92 @@
-
 'use client'
 import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '../../components/LanguageProvider';
-import { Sun, Moon, LogOut } from 'lucide-react';
+import { Sun, Moon, LogOut, Mic } from 'lucide-react';
 import { useTheme } from '../../components/ThemeProvider';
 import { useTranslation } from 'react-i18next';
 
+declare global {
+  interface Window {
+    SpeechRecognition?: typeof SpeechRecognition;
+    webkitSpeechRecognition?: typeof SpeechRecognition;
+  }
+}
+
 export default function ProfilePage() {
+  const [listeningField, setListeningField] = useState<string | null>(null)
+  const recognitionRef = useRef<SpeechRecognition | null>(null)
+
+  // Map app language to BCP-47 code
+  const langMap: Record<string, string> = {
+    en: 'en-IN',
+    hi: 'hi-IN',
+    assamese: 'as-IN',
+    bengali: 'bn-IN',
+    bodo: 'brx-IN',
+    dogri: 'doi-IN',
+    gujarati: 'gu-IN',
+    kannad: 'kn-IN',
+    kashmiri: 'ks-IN',
+    konkani: 'kok-IN',
+    maithili: 'mai-IN',
+    malyalam: 'ml-IN',
+    manipuri: 'mni-IN',
+    marathi: 'mr-IN',
+    nepali: 'ne-NP',
+    oriya: 'or-IN',
+    punjabi: 'pa-IN',
+    sanskrit: 'sa-IN',
+    santhali: 'sat-IN',
+    sindhi: 'sd-IN',
+    tamil: 'ta-IN',
+    telgu: 'te-IN',
+    urdu: 'ur-IN',
+    // Short codes
+    as: 'as-IN', bn: 'bn-IN', brx: 'brx-IN', doi: 'doi-IN', gu: 'gu-IN', kn: 'kn-IN', ks: 'ks-IN', kok: 'kok-IN', mai: 'mai-IN', ml: 'ml-IN', mni: 'mni-IN', mr: 'mr-IN', ne: 'ne-NP', or: 'or-IN', pa: 'pa-IN', sa: 'sa-IN', sat: 'sat-IN', sd: 'sd-IN', ta: 'ta-IN', te: 'te-IN', ur: 'ur-IN',
+  }
+
+  const handleStartListening = (field: string) => {
+    const speechLang = langMap[currentLanguage] || currentLanguage || 'en-IN'
+    if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+      alert('Speech recognition not supported in this browser.')
+      return
+    }
+  const SpeechRecognitionCtor = window.SpeechRecognition || window.webkitSpeechRecognition
+  if (!SpeechRecognitionCtor) {
+    alert('Speech recognition not supported in this browser.')
+    return
+  }
+  const recognition: SpeechRecognition = new SpeechRecognitionCtor()
+    recognition.lang = speechLang
+    recognition.interimResults = false
+    recognition.maxAlternatives = 1
+    recognition.onresult = (event: SpeechRecognitionEvent) => {
+      const transcript = event.results[0][0].transcript
+      if (field === 'name') {
+        setForm(f => ({ ...f, name: f.name ? f.name + ' ' + transcript : transcript }))
+      } else if (field === 'bio') {
+        setForm(f => ({ ...f, bio: f.bio ? f.bio + ' ' + transcript : transcript }))
+      }
+    }
+    recognition.onerror = (event: Event) => {
+      setListeningField(null)
+    }
+    recognition.onend = () => {
+      setListeningField(null)
+    }
+    recognitionRef.current = recognition
+    recognition.start()
+    setListeningField(field)
+  }
+  const handleStopListening = () => {
+    if (recognitionRef.current) {
+      recognitionRef.current.stop()
+      setListeningField(null)
+    }
+  }
   // Full language list (should match Navbar)
   const languages = [
     { code: 'en', label: 'English', flag: '🇬🇧' },
@@ -161,11 +238,43 @@ export default function ProfilePage() {
           <form onSubmit={handleSave} className="space-y-6 bg-white dark:bg-[#23233b] p-8 rounded-2xl shadow-2xl border border-neutral-200 dark:border-yellow-900 animate-fade-in">
             <div className="flex flex-col gap-2">
               <label className="block text-sm font-semibold text-neutral-800 dark:text-yellow-100">{t('profile.name')}</label>
-              <input name="name" value={form.name} onChange={handleChange} className="w-full border-2 border-neutral-200 dark:border-pink-900 rounded-lg p-3 bg-white dark:bg-[#22223b] text-lg text-neutral-900 dark:text-white focus:ring-2 focus:ring-yellow-200 dark:focus:ring-pink-300 transition-all duration-200" required />
+              <div className="relative">
+                <input
+                  name="name"
+                  value={form.name}
+                  onChange={handleChange}
+                  className="w-full border-2 border-neutral-200 dark:border-pink-900 rounded-lg p-3 pr-10 bg-white dark:bg-[#22223b] text-lg text-neutral-900 dark:text-white focus:ring-2 focus:ring-yellow-200 dark:focus:ring-pink-300 transition-all duration-200"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={listeningField === 'name' ? handleStopListening : () => handleStartListening('name')}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-full bg-white hover:bg-gray-100"
+                  title={listeningField === 'name' ? 'Listening...' : 'Speak'}
+                >
+                  <Mic className={`w-5 h-5 ${listeningField === 'name' ? 'animate-pulse text-red-500' : 'text-blue-500'}`} />
+                </button>
+              </div>
             </div>
             <div className="flex flex-col gap-2">
               <label className="block text-sm font-semibold text-neutral-800 dark:text-yellow-100">{t('profile.bio')}</label>
-              <textarea name="bio" value={form.bio} onChange={handleChange} className="w-full border-2 border-neutral-200 dark:border-pink-900 rounded-lg p-3 bg-white dark:bg-[#22223b] text-lg text-neutral-900 dark:text-white focus:ring-2 focus:ring-yellow-200 dark:focus:ring-pink-300 transition-all duration-200" rows={3} />
+              <div className="relative">
+                <textarea
+                  name="bio"
+                  value={form.bio}
+                  onChange={handleChange}
+                  className="w-full border-2 border-neutral-200 dark:border-pink-900 rounded-lg p-3 pr-10 bg-white dark:bg-[#22223b] text-lg text-neutral-900 dark:text-white focus:ring-2 focus:ring-yellow-200 dark:focus:ring-pink-300 transition-all duration-200"
+                  rows={3}
+                />
+                <button
+                  type="button"
+                  onClick={listeningField === 'bio' ? handleStopListening : () => handleStartListening('bio')}
+                  className="absolute right-2 top-2 p-1 rounded-full bg-white hover:bg-gray-100"
+                  title={listeningField === 'bio' ? 'Listening...' : 'Speak'}
+                >
+                  <Mic className={`w-5 h-5 ${listeningField === 'bio' ? 'animate-pulse text-red-500' : 'text-blue-500'}`} />
+                </button>
+              </div>
             </div>
             <div className="flex gap-4 justify-end">
               <button type="submit" className="btn-primary px-8 py-2 shadow bg-gradient-to-r from-yellow-400 via-pink-400 to-blue-400 text-white font-bold rounded-xl transition-all duration-200 hover:scale-105 hover:shadow-xl active:scale-95 focus:ring-4 focus:ring-yellow-200/50 dark:focus:ring-pink-200/50" disabled={saving || uploading}>

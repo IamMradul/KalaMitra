@@ -12,11 +12,13 @@ import {
   AlertCircle,
   Upload,
   X,
-  Video
+  Video,
+  Mic
 } from 'lucide-react'
 import AIService, { AIAnalysisResult } from '@/lib/ai-service'
 import { supabase } from '@/lib/supabase'
 import { useTranslation } from 'react-i18next'
+import { useLanguage } from './LanguageProvider'
 import { useAuth } from '@/contexts/AuthContext'
 
 interface AIProductFormProps {
@@ -31,6 +33,12 @@ interface AIProductFormProps {
     imageUrl?: string
   }
 }
+declare global {
+  interface Window {
+    SpeechRecognition?: typeof SpeechRecognition;
+    webkitSpeechRecognition?: typeof SpeechRecognition;
+  }
+}
 
 export default function AIProductForm({ 
   // Controlled state for ad generation fields
@@ -41,12 +49,124 @@ export default function AIProductForm({
   initialData = {}
 }: AIProductFormProps) {
   const { t } = useTranslation()
+  const { currentLanguage } = useLanguage()
   const { user, profile } = useAuth()
   const [imageUrl, setImageUrl] = useState(initialData.imageUrl || '')
   const [title, setTitle] = useState(initialData.title || '')
   const [category, setCategory] = useState(initialData.category || '')
   const [description, setDescription] = useState(initialData.description || '')
   const [price, setPrice] = useState(initialData.price ? String(initialData.price) : '')
+  // Speech recognition state for all fields
+  const [listeningField, setListeningField] = useState<string | null>(null)
+  const recognitionRef = useRef<SpeechRecognition | null>(null)
+
+  // Generic speech recognition handler
+  const handleStartListening = (field: string) => {
+    // Map i18next language codes to BCP-47 codes for speech recognition
+    const langMap: Record<string, string> = {
+      en: 'en-IN',
+      hi: 'hi-IN',
+      assamese: 'as-IN',
+      bengali: 'bn-IN',
+      bodo: 'brx-IN',
+      dogri: 'doi-IN',
+      gujarati: 'gu-IN',
+      kannad: 'kn-IN',
+      kashmiri: 'ks-IN',
+      konkani: 'kok-IN',
+      maithili: 'mai-IN',
+      malyalam: 'ml-IN',
+      manipuri: 'mni-IN',
+      marathi: 'mr-IN',
+      nepali: 'ne-NP',
+      oriya: 'or-IN',
+      punjabi: 'pa-IN',
+      sanskrit: 'sa-IN',
+      santhali: 'sat-IN',
+      sindhi: 'sd-IN',
+      tamil: 'ta-IN',
+      telgu: 'te-IN',
+      urdu: 'ur-IN',
+      // Also support short codes
+      as: 'as-IN',
+      bn: 'bn-IN',
+      brx: 'brx-IN',
+      doi: 'doi-IN',
+      gu: 'gu-IN',
+      kn: 'kn-IN',
+      ks: 'ks-IN',
+      kok: 'kok-IN',
+      mai: 'mai-IN',
+      ml: 'ml-IN',
+      mni: 'mni-IN',
+      mr: 'mr-IN',
+      ne: 'ne-NP',
+      or: 'or-IN',
+      pa: 'pa-IN',
+      sa: 'sa-IN',
+      sat: 'sat-IN',
+      sd: 'sd-IN',
+      ta: 'ta-IN',
+      te: 'te-IN',
+      ur: 'ur-IN',
+    }
+  const appLang = currentLanguage || 'en'
+  const speechLang = langMap[appLang] || appLang || 'en-IN'
+    if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+      setError('Speech recognition not supported in this browser.')
+      return
+    }
+  const SpeechRecognitionCtor = window.SpeechRecognition || window.webkitSpeechRecognition
+  if (!SpeechRecognitionCtor) {
+    setError('Speech recognition not supported in this browser.')
+    return
+  }
+  const recognition: SpeechRecognition = new SpeechRecognitionCtor()
+    recognition.lang = speechLang
+    recognition.interimResults = false
+    recognition.maxAlternatives = 1
+    recognition.onresult = (event: SpeechRecognitionEvent) => {
+      const transcript = event.results[0][0].transcript
+      switch (field) {
+        case 'title':
+          setTitle(prev => prev ? prev + ' ' + transcript : transcript)
+          break
+        case 'category':
+          setCategory(prev => prev ? prev + ' ' + transcript : transcript)
+          break
+        case 'description':
+          setDescription(prev => prev ? prev + ' ' + transcript : transcript)
+          break
+        case 'price':
+          setPrice(prev => prev ? prev + ' ' + transcript : transcript)
+          break
+        case 'ctaText':
+          setCtaText(prev => prev ? prev + ' ' + transcript : transcript)
+          break
+        case 'website':
+          setWebsite(prev => prev ? prev + ' ' + transcript : transcript)
+          break
+        default:
+          break
+      }
+    }
+    recognition.onerror = (event: Event) => {
+      setError('Speech recognition error')
+      setListeningField(null)
+    }
+    recognition.onend = () => {
+      setListeningField(null)
+    }
+    recognitionRef.current = recognition
+    recognition.start()
+    setListeningField(field)
+  }
+  const handleStopListening = () => {
+    if (recognitionRef.current) {
+      recognitionRef.current.stop()
+      setListeningField(null)
+    }
+  }
   const [ctaText, setCtaText] = useState('Shop Now')
   const [website, setWebsite] = useState(profile?.name?.trim() ? profile.name : 'https://yourwebsite.com')
 
@@ -457,65 +577,106 @@ export default function AIProductForm({
           )}
 
           {/* Product Details Form */}
-          <div className="grid md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t('ai.form.fields.title.label')}
-              </label>
-              <input
-                name="title"
-                required
-                value={title}
-                onChange={e => setTitle(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-                placeholder={t('ai.form.fields.title.placeholder')}
-              />
+            <div className="grid md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  {t('ai.form.fields.title.label')}
+                </label>
+                <div className="relative">
+                  <input
+                    name="title"
+                    required
+                    value={title}
+                    onChange={e => setTitle(e.target.value)}
+                    className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    placeholder={t('ai.form.fields.title.placeholder')}
+                  />
+                  <button
+                    type="button"
+                    onClick={listeningField === 'title' ? handleStopListening : () => handleStartListening('title')}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-full bg-white hover:bg-gray-100"
+                    title={listeningField === 'title' ? 'Listening...' : 'Speak Title'}
+                  >
+                    <Mic className={`w-5 h-5 ${listeningField === 'title' ? 'animate-pulse text-red-500' : 'text-blue-500'}`} />
+                  </button>
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  {t('ai.form.fields.category.label')}
+                </label>
+                <div className="relative">
+                  <input
+                    name="category"
+                    required
+                    value={category}
+                    onChange={e => setCategory(e.target.value)}
+                    className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    placeholder={t('ai.form.fields.category.placeholder')}
+                  />
+                  <button
+                    type="button"
+                    onClick={listeningField === 'category' ? handleStopListening : () => handleStartListening('category')}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-full bg-white hover:bg-gray-100"
+                    title={listeningField === 'category' ? 'Listening...' : 'Speak Category'}
+                  >
+                    <Mic className={`w-5 h-5 ${listeningField === 'category' ? 'animate-pulse text-red-500' : 'text-blue-500'}`} />
+                  </button>
+                </div>
+              </div>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t('ai.form.fields.category.label')}
-              </label>
-              <input
-                name="category"
-                required
-                value={category}
-                onChange={e => setCategory(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-                placeholder={t('ai.form.fields.category.placeholder')}
-              />
-            </div>
-          </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               {t('ai.form.fields.description.label')}
             </label>
-            <textarea
-              name="description"
-              required
-              rows={4}
-              value={description}
-              onChange={e => setDescription(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-              placeholder={t('ai.form.fields.description.placeholder')}
-            />
+            <div className="relative">
+              <textarea
+                name="description"
+                required
+                rows={4}
+                value={description}
+                onChange={e => setDescription(e.target.value)}
+                className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                placeholder={t('ai.form.fields.description.placeholder')}
+              />
+              <button
+                type="button"
+                onClick={listeningField === 'description' ? handleStopListening : () => handleStartListening('description')}
+                className="absolute right-2 top-2 p-1 rounded-full bg-white hover:bg-gray-100"
+                title={listeningField === 'description' ? 'Listening...' : 'Speak Description'}
+              >
+                <Mic className={`w-5 h-5 ${listeningField === 'description' ? 'animate-pulse text-red-500' : 'text-blue-500'}`} />
+              </button>
+            </div>
+            <div className="text-xs text-gray-500 mt-1">You can speak your description for easier input.</div>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               {t('ai.form.fields.price.label')}
             </label>
-            <input
-              name="price"
-              type="number"
-              step="0.01"
-              min="0"
-              required
-              value={price}
-              onChange={e => setPrice(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-              placeholder={t('ai.form.fields.price.placeholder')}
-            />
+            <div className="relative">
+              <input
+                name="price"
+                type="number"
+                step="0.01"
+                min="0"
+                required
+                value={price}
+                onChange={e => setPrice(e.target.value)}
+                className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                placeholder={t('ai.form.fields.price.placeholder')}
+              />
+              <button
+                type="button"
+                onClick={listeningField === 'price' ? handleStopListening : () => handleStartListening('price')}
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-full bg-white hover:bg-gray-100"
+                title={listeningField === 'price' ? 'Listening...' : 'Speak Price'}
+              >
+                <Mic className={`w-5 h-5 ${listeningField === 'price' ? 'animate-pulse text-red-500' : 'text-blue-500'}`} />
+              </button>
+            </div>
           </div>
 
           {/* CTA and Website fields for ad generation */}
@@ -523,27 +684,47 @@ export default function AIProductForm({
             <label className="block text-sm font-medium text-gray-700 mb-1">
               CTA Text
             </label>
-            <input
-              name="ctaText"
-              type="text"
-              value={ctaText}
-              onChange={e => setCtaText(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-              placeholder={"Enter call-to-action text"}
-            />
+            <div className="relative">
+              <input
+                name="ctaText"
+                type="text"
+                value={ctaText}
+                onChange={e => setCtaText(e.target.value)}
+                className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                placeholder={"Enter call-to-action text"}
+              />
+              <button
+                type="button"
+                onClick={listeningField === 'ctaText' ? handleStopListening : () => handleStartListening('ctaText')}
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-full bg-white hover:bg-gray-100"
+                title={listeningField === 'ctaText' ? 'Listening...' : 'Speak CTA Text'}
+              >
+                <Mic className={`w-5 h-5 ${listeningField === 'ctaText' ? 'animate-pulse text-red-500' : 'text-blue-500'}`} />
+              </button>
+            </div>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Website
             </label>
-            <input
-              name="website"
-              type="text"
-              value={website}
-              onChange={e => setWebsite(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-              placeholder={"Enter website URL"}
-            />
+            <div className="relative">
+              <input
+                name="website"
+                type="text"
+                value={website}
+                onChange={e => setWebsite(e.target.value)}
+                className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                placeholder={"Enter website URL"}
+              />
+              <button
+                type="button"
+                onClick={listeningField === 'website' ? handleStopListening : () => handleStartListening('website')}
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-full bg-white hover:bg-gray-100"
+                title={listeningField === 'website' ? 'Listening...' : 'Speak Website'}
+              >
+                <Mic className={`w-5 h-5 ${listeningField === 'website' ? 'animate-pulse text-red-500' : 'text-blue-500'}`} />
+              </button>
+            </div>
           </div>
 
           {/* Form Actions */}
