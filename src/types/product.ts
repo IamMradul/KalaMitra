@@ -5,6 +5,11 @@ export interface Product {
   image_url: string;
   description: string;
   category: 'pottery' | 'textile' | 'basket' | 'decoration';
+  title?: string;
+  seller?: { name: string };
+  isCollaborative?: boolean;
+  collaborators?: { id: string; name: string }[];
+  product_story?: string | null;
 }
 
 export interface StallProps {

@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { initStallScene, BillboardSpec } from '../utils/stallScene';
-import ProductModal from './ProductModal';
 import { Product, StallProps } from '../types/product';
 
 export default function ThreeDStall({ sellerId, sellerName, products, onAddToCart, onViewDetails }: StallProps) {
@@ -20,7 +19,7 @@ export default function ThreeDStall({ sellerId, sellerName, products, onAddToCar
     ];
     return products.slice(0, 8).map((p, idx) => ({
       id: p.id,
-      imageUrl: p.imageUrl,
+      imageUrl: p.image_url,
       width: 1.0,
       height: 1.25,
       position: positions[idx % positions.length].clone().add(new THREE.Vector3(0, Math.floor(idx / positions.length) * 0.1, (idx % 2 === 0 ? 1 : -1) * 0.02)),
@@ -55,7 +54,7 @@ export default function ThreeDStall({ sellerId, sellerName, products, onAddToCar
     raycaster.setFromCamera(pointer, current.camera);
     const intersects = raycaster.intersectObjects(current.billboards.map((b) => b.mesh));
     if (intersects.length > 0) {
-      const hit = intersects[0].object as THREE.Mesh;
+  const hit = intersects[0].object as InstanceType<typeof import('three')['Mesh']>;
       const id = current.billboards.find((b) => b.mesh === hit)?.id;
       if (id) {
         const product = products.find((p) => p.id === id) ?? null;
@@ -81,8 +80,6 @@ export default function ThreeDStall({ sellerId, sellerName, products, onAddToCar
       <div className="relative w-full aspect-[16/9] rounded-lg overflow-hidden shadow-lg bg-[#f7f2ea]">
         <canvas ref={canvasRef} className="w-full h-full block" onClick={handleCanvasClick} />
       </div>
-
-      <ProductModal product={selected} isOpen={modalOpen} onClose={closeModal} onAddToCart={handleAddToCart} />
     </div>
   );
 }

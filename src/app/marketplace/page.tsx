@@ -728,7 +728,14 @@ function MarketplaceContent() {
               </p>
             </div>
             <Market3DButton
-              products={filteredProducts}
+              products={filteredProducts.map(p => ({
+                ...p,
+                name: typeof p.title === 'string' ? p.title : '',
+                price: p.price,
+                image_url: p.image_url,
+                description: p.description,
+                category: p.category as ThreeProduct['category'],
+              }))}
               onAddToCart={addToCart}
               onViewDetails={(id) => {
                 // Reuse navigation to product detail

@@ -1,14 +1,20 @@
 import * as THREE from 'three';
 
+type Mesh = InstanceType<typeof import('three')['Mesh']>;
+type Group = InstanceType<typeof import('three')['Group']>;
+type Scene = InstanceType<typeof import('three')['Scene']>;
+type PerspectiveCamera = InstanceType<typeof import('three')['PerspectiveCamera']>;
+type WebGLRenderer = InstanceType<typeof import('three')['WebGLRenderer']>;
+
 export interface BillboardItem {
   id: string;
-  mesh: THREE.Mesh;
+  mesh: Mesh;
 }
 
 export interface StallSceneRefs {
-  scene: THREE.Scene;
-  camera: THREE.PerspectiveCamera;
-  renderer: THREE.WebGLRenderer;
+  scene: Scene;
+  camera: PerspectiveCamera;
+  renderer: WebGLRenderer;
   billboards: BillboardItem[];
   resize: () => void;
   dispose: () => void;
@@ -21,10 +27,10 @@ export type BillboardSpec = {
   imageUrl: string;
   width?: number;
   height?: number;
-  position: THREE.Vector3;
+  position: InstanceType<typeof import('three')['Vector3']>;
 };
 
-function createStallStructure(): THREE.Group {
+function createStallStructure(): Group {
   const group = new THREE.Group();
 
   // Ground
@@ -81,7 +87,7 @@ function createStallStructure(): THREE.Group {
   return group;
 }
 
-function createBillboardMesh(texture: THREE.Texture, width = 1, height = 1.2): THREE.Mesh {
+function createBillboardMesh(texture: InstanceType<typeof import('three')['Texture']>, width = 1, height = 1.2): Mesh {
   const geometry = new THREE.PlaneGeometry(width, height);
   const material = new THREE.MeshBasicMaterial({ map: texture, transparent: true });
   const mesh = new THREE.Mesh(geometry, material);
@@ -94,16 +100,16 @@ export function initStallScene(
   billboardSpecs: BillboardSpec[],
   opts?: { background?: number; devicePixelRatio?: number }
 ): StallSceneRefs {
-  const scene = new THREE.Scene();
+  const scene: Scene = new THREE.Scene();
   scene.background = new THREE.Color(opts?.background ?? 0xf5efe6);
 
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+  const renderer: WebGLRenderer = new THREE.WebGLRenderer({ canvas, antialias: true });
   renderer.setPixelRatio(opts?.devicePixelRatio ?? Math.min(window.devicePixelRatio, 2));
   renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-  const camera = new THREE.PerspectiveCamera(50, canvas.clientWidth / canvas.clientHeight, 0.1, 100);
+  const camera: PerspectiveCamera = new THREE.PerspectiveCamera(50, canvas.clientWidth / canvas.clientHeight, 0.1, 100);
   camera.position.set(6, 4.5, 8);
   camera.lookAt(0, 1.2, 0);
 
@@ -124,8 +130,8 @@ export function initStallScene(
   const textureLoader = new THREE.TextureLoader();
   const billboards: BillboardItem[] = [];
   billboardSpecs.forEach((spec, index) => {
-    const texture = textureLoader.load(spec.imageUrl);
-    texture.colorSpace = THREE.SRGBColorSpace as unknown as THREE.ColorSpace; // compat for TS types
+  const texture = textureLoader.load(spec.imageUrl);
+  texture.colorSpace = THREE.SRGBColorSpace;
     const mesh = createBillboardMesh(texture, spec.width ?? 1.1, spec.height ?? 1.4);
     mesh.position.copy(spec.position);
     // Slight vertical variance
@@ -166,10 +172,12 @@ export function initStallScene(
   const dispose = () => {
     stop();
     billboards.forEach((b) => {
-      const material = b.mesh.material as THREE.Material;
-      const geometry = b.mesh.geometry as THREE.BufferGeometry;
-      material.dispose();
-      geometry.dispose();
+      if ('dispose' in b.mesh.material && typeof b.mesh.material.dispose === 'function') {
+        b.mesh.material.dispose();
+      }
+      if ('dispose' in b.mesh.geometry && typeof b.mesh.geometry.dispose === 'function') {
+        b.mesh.geometry.dispose();
+      }
     });
     renderer.dispose();
   };

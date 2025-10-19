@@ -1,22 +1,73 @@
+// Helper: create a simple human avatar (cylinder body, sphere head)
+function createSimpleAvatar(color: number = 0x3b82f6): InstanceType<typeof THREE.Group> {
+  const group = new THREE.Group();
+  // Taller body
+  const body = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.18, 0.18, 0.95, 16),
+    new THREE.MeshStandardMaterial({ color, roughness: 0.5 })
+  );
+  body.position.y = 0.475;
+  group.add(body);
+  // Larger head
+  const head = new THREE.Mesh(
+    new THREE.SphereGeometry(0.22, 16, 16),
+    new THREE.MeshStandardMaterial({ color: 0xffe0bd, roughness: 0.4 })
+  );
+  head.position.y = 1.08;
+  group.add(head);
+  // Simple face: eyes and mouth
+  // Eyes
+  const eyeMat = new THREE.MeshStandardMaterial({ color: 0x222222 });
+  const leftEye = new THREE.Mesh(new THREE.SphereGeometry(0.03, 8, 8), eyeMat);
+  leftEye.position.set(-0.06, 1.15, 0.19);
+  group.add(leftEye);
+  const rightEye = new THREE.Mesh(new THREE.SphereGeometry(0.03, 8, 8), eyeMat);
+  rightEye.position.set(0.06, 1.15, 0.19);
+  group.add(rightEye);
+  // Mouth
+  const mouthMat = new THREE.MeshStandardMaterial({ color: 0x8d5524 });
+  const mouth = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.08, 8), mouthMat);
+  mouth.position.set(0, 1.09, 0.21);
+  mouth.rotation.x = Math.PI / 2;
+  group.add(mouth);
+  // Arms
+  const armMat = new THREE.MeshStandardMaterial({ color, roughness: 0.5 });
+  const leftArm = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.38, 12), armMat);
+  leftArm.position.set(-0.22, 0.75, 0);
+  leftArm.rotation.z = Math.PI / 5;
+  group.add(leftArm);
+  const rightArm = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.38, 12), armMat);
+  rightArm.position.set(0.22, 0.75, 0);
+  rightArm.rotation.z = -Math.PI / 5;
+  group.add(rightArm);
+  group.scale.set(2, 2, 2); // Double the size in all dimensions
+  return group;
+}
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { supabase } from '../lib/supabase';
+type Mesh = InstanceType<typeof import('three')['Mesh']>;
+type Group = InstanceType<typeof import('three')['Group']>;
+type Scene = InstanceType<typeof import('three')['Scene']>;
+type PerspectiveCamera = InstanceType<typeof import('three')['PerspectiveCamera']>;
+type WebGLRenderer = InstanceType<typeof import('three')['WebGLRenderer']>;
 
 export interface MarketBillboard {
   id: string;
-  mesh: THREE.Mesh;
+  mesh: Mesh;
 }
 
 export interface MarketStall {
   sellerId: string;
-  group: THREE.Group;
+  group: Group;
   billboards: MarketBillboard[];
-  gotoButton?: THREE.Mesh;
+  gotoButton?: Mesh;
 }
 
 export interface MarketplaceRefs {
-  scene: THREE.Scene;
-  camera: THREE.PerspectiveCamera;
-  renderer: THREE.WebGLRenderer;
+  scene: Scene;
+  camera: PerspectiveCamera;
+  renderer: WebGLRenderer;
   controls: OrbitControls;
   stalls: MarketStall[];
   resize: () => void;
@@ -28,9 +79,11 @@ export interface MarketplaceRefs {
 export type StallInput = {
   sellerId: string;
   productImages: { id: string; url: string }[];
+  storeName?: string;
+  addAvatar?: boolean;
 };
 
-function createDecorUmbrella(): THREE.Group {
+function createDecorUmbrella(): Group {
   const g = new THREE.Group();
   const canopy = new THREE.Mesh(new THREE.ConeGeometry(0.8, 0.5, 8), new THREE.MeshStandardMaterial({ color: 0xf39c12, metalness: 0.1, roughness: 0.8 }));
   canopy.position.y = 0.55;
@@ -48,7 +101,7 @@ function createDecorUmbrella(): THREE.Group {
   return g;
 }
 
-function createLantern(): THREE.Group {
+function createLantern(): Group {
   const g = new THREE.Group();
   const body = new THREE.Mesh(new THREE.OctahedronGeometry(0.25, 0), new THREE.MeshStandardMaterial({ color: 0xf1c40f, emissive: 0x8a6d1f, emissiveIntensity: 0.2 }));
   g.add(body);
@@ -58,14 +111,14 @@ function createLantern(): THREE.Group {
   return g;
 }
 
-function createWheel(): THREE.Mesh {
+function createWheel(): Mesh {
   const wheel = new THREE.Mesh(new THREE.TorusGeometry(0.8, 0.08, 12, 24), new THREE.MeshStandardMaterial({ color: 0xf1c40f }));
   wheel.rotation.z = Math.PI / 2;
   wheel.castShadow = true;
   return wheel;
 }
 
-function createStallStructure(): THREE.Group {
+function createStallStructure(): Group {
   const group = new THREE.Group();
 
   const groundGeom = new THREE.PlaneGeometry(10, 10);
@@ -144,7 +197,7 @@ function createStallStructure(): THREE.Group {
   return group;
 }
 
-function createBillboard(url: string, w = 1.0, h = 1.25): THREE.Mesh {
+function createBillboard(url: string, w = 1.0, h = 1.25): Mesh {
   // Handle empty or invalid URLs
   if (!url || url.trim() === '') {
     // Create a placeholder billboard with a default texture
@@ -163,11 +216,12 @@ function createBillboard(url: string, w = 1.0, h = 1.25): THREE.Mesh {
     url,
     undefined, // onLoad
     undefined, // onProgress
-    (error) => {
+    (error: unknown) => {
       console.warn('Failed to load texture for 3D bazaar:', url, error);
     }
   );
-  tex.colorSpace = THREE.SRGBColorSpace as unknown as THREE.ColorSpace;
+
+  tex.colorSpace = THREE.SRGBColorSpace;
   const mat = new THREE.MeshBasicMaterial({ map: tex, transparent: true });
   const geo = new THREE.PlaneGeometry(w, h);
   const mesh = new THREE.Mesh(geo, mat);
@@ -175,13 +229,17 @@ function createBillboard(url: string, w = 1.0, h = 1.25): THREE.Mesh {
   return mesh;
 }
 
-export function initMarketplaceScene(
+export async function initMarketplaceScene(
   canvas: HTMLCanvasElement,
   stallsInput: StallInput[],
-  options?: { background?: number }
-): MarketplaceRefs {
+  dayMode: boolean = false
+): Promise<MarketplaceRefs> {
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x0b0f16); // slightly lighter night blue
+  if (dayMode) {
+    scene.background = new THREE.Color(0xcbeefd); // light blue sky
+  } else {
+    scene.background = new THREE.Color(0x0b0f16); // slightly lighter night blue
+  }
 
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -208,16 +266,27 @@ export function initMarketplaceScene(
   controls.maxPolarAngle = Math.PI * 0.49; // stay above ground
   controls.target.set(0, 1.2, 0);
 
-  const ambient = new THREE.AmbientLight(0xffffff, 0.22);
+  let ambient: InstanceType<typeof import('three')['AmbientLight']>;
+  let dir: InstanceType<typeof import('three')['DirectionalLight']>;
+  if (dayMode) {
+    ambient = new THREE.AmbientLight(0xffffff, 0.55);
+    dir = new THREE.DirectionalLight(0xfff7e0, 0.85); // sunlight
+    dir.position.set(-30, 40, -10);
+    dir.castShadow = true;
+    dir.shadow.mapSize.set(1024, 1024);
+  } else {
+    ambient = new THREE.AmbientLight(0xffffff, 0.22);
+    dir = new THREE.DirectionalLight(0xbfdfff, 0.25); // soft moonlight
+    dir.position.set(-30, 25, -10);
+    dir.castShadow = true;
+    dir.shadow.mapSize.set(1024, 1024);
+  }
   scene.add(ambient);
-  const dir = new THREE.DirectionalLight(0xbfdfff, 0.25); // soft moonlight
-  dir.position.set(-30, 25, -10);
-  dir.castShadow = true;
-  dir.shadow.mapSize.set(1024, 1024);
   scene.add(dir);
 
   // Large ground to walk around
-  const plaza = new THREE.Mesh(new THREE.PlaneGeometry(90, 60), new THREE.MeshStandardMaterial({ color: 0x2a2a2a, roughness: 1 }));
+  const groundColor = dayMode ? 0xf7e9c4 : 0x2a2a2a;
+  const plaza = new THREE.Mesh(new THREE.PlaneGeometry(90, 60), new THREE.MeshStandardMaterial({ color: groundColor, roughness: 1 }));
   plaza.rotation.x = -Math.PI / 2;
   plaza.receiveShadow = true;
   scene.add(plaza);
@@ -271,42 +340,105 @@ export function initMarketplaceScene(
   addGateArches();
   addStringLights();
 
-  // Night sky: stars and moon
-  const addStars = () => {
-    const starCount = 800;
-    const positions = new Float32Array(starCount * 3);
-    for (let i = 0; i < starCount; i++) {
-      const i3 = i * 3;
-      positions[i3 + 0] = (Math.random() - 0.5) * 200;
-      positions[i3 + 1] = Math.random() * 80 + 10;
-      positions[i3 + 2] = (Math.random() - 0.5) * 200;
-    }
-    const geo = new THREE.BufferGeometry();
-    geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    const mat = new THREE.PointsMaterial({ color: 0xffffff, size: 0.6, sizeAttenuation: true });
-    const points = new THREE.Points(geo, mat);
-    scene.add(points);
-  };
+  if (dayMode) {
+    // Add sun
+    const sun = new THREE.Mesh(
+      new THREE.SphereGeometry(4, 32, 32),
+      new THREE.MeshStandardMaterial({ color: 0xfff7b2, emissive: 0xffe066, emissiveIntensity: 0.7, roughness: 0.7 })
+    );
+    sun.position.set(-35, 38, -25);
+    sun.castShadow = false;
+    scene.add(sun);
+  } else {
+    // Night sky: stars and moon
+    const addStars = () => {
+      const starCount = 800;
+      const positions = new Float32Array(starCount * 3);
+      for (let i = 0; i < starCount; i++) {
+        const i3 = i * 3;
+        positions[i3 + 0] = (Math.random() - 0.5) * 200;
+        positions[i3 + 1] = Math.random() * 80 + 10;
+        positions[i3 + 2] = (Math.random() - 0.5) * 200;
+      }
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+      const mat = new THREE.PointsMaterial({ color: 0xffffff, size: 0.6, sizeAttenuation: true });
+      const points = new THREE.Points(geo, mat);
+      scene.add(points);
+    };
 
-  const addMoon = () => {
-    const moon = new THREE.Mesh(new THREE.SphereGeometry(3, 24, 24), new THREE.MeshStandardMaterial({ color: 0xf0f0f0, emissive: 0x888888, emissiveIntensity: 0.8, roughness: 0.9 }));
-    moon.position.set(-35, 28, -25);
-    moon.castShadow = false;
-    scene.add(moon);
-  };
+    const addMoon = () => {
+      const moon = new THREE.Mesh(new THREE.SphereGeometry(3, 24, 24), new THREE.MeshStandardMaterial({ color: 0xf0f0f0, emissive: 0x888888, emissiveIntensity: 0.8, roughness: 0.9 }));
+      moon.position.set(-35, 28, -25);
+      moon.castShadow = false;
+      scene.add(moon);
+    };
 
-  addStars();
-  addMoon();
+    addStars();
+    addMoon();
+  }
 
   const stalls: MarketStall[] = [];
   const rowSpacing = 14;
   const colSpacing = 18;
+  // Fetch seller names from Supabase for label display
+  const sellerIds = stallsInput.map(s => s.sellerId);
+  const { data: profiles, error } = await supabase
+    .from('profiles')
+    .select('id, name')
+    .in('id', sellerIds);
+  if (error) {
+    console.warn('Error fetching seller profiles:', error);
+  }
+  const sellerNameMap: Record<string, string> = {};
+  if (profiles) {
+    profiles.forEach((profile: { id: string; name: string }) => {
+      sellerNameMap[profile.id] = profile.name;
+    });
+  }
+
   stallsInput.forEach((stall, idx) => {
     const sGroup = createStallStructure();
     const row = Math.floor(idx / 3);
     const col = idx % 3;
     sGroup.position.set((col - 1) * colSpacing, 0, (row - 0.5) * rowSpacing);
     scene.add(sGroup);
+
+    // Add avatar behind stall if requested
+    if (stall.addAvatar) {
+      // Alternate color for variety
+      const avatarColor = idx % 2 === 0 ? 0x3b82f6 : 0xf43f5e;
+      const avatar = createSimpleAvatar(avatarColor);
+      avatar.position.set(0, 0, -1.35); // behind the stall
+      sGroup.add(avatar);
+    }
+
+    // Add seller/store name label above stall
+    const makeSellerLabel = (name: string) => {
+      const canvas = document.createElement('canvas');
+      canvas.width = 256;
+      canvas.height = 64;
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.font = 'bold 32px Arial';
+        ctx.fillStyle = '#fff';
+        ctx.textAlign = 'center';
+        ctx.shadowColor = '#222';
+        ctx.shadowBlur = 8;
+        ctx.fillText(name, canvas.width / 2, 44);
+      }
+      const texture = new THREE.CanvasTexture(canvas);
+      texture.needsUpdate = true;
+      const mat = new THREE.SpriteMaterial({ map: texture, transparent: true });
+      const sprite = new THREE.Sprite(mat);
+      sprite.scale.set(3.5, 0.9, 1);
+      sprite.position.set(0, 3.9, 0);
+      return sprite;
+    };
+  const labelText = sellerNameMap[stall.sellerId] || stall.storeName || stall.sellerId;
+  const sellerLabel = makeSellerLabel(labelText);
+  sGroup.add(sellerLabel);
 
     // Street lights near each stall (two warm posts)
     const makeLamp = (offsetX: number, offsetZ: number) => {
@@ -340,7 +472,7 @@ export function initMarketplaceScene(
       const pos = billboardPositions[i2 % billboardPositions.length].clone();
       mesh.position.copy(pos);
       mesh.renderOrder = 2; // ensure billboards render above nearby decor
-      (mesh as any).userData = { ...(mesh as any).userData, productId: p.id };
+      mesh.userData = { ...(mesh.userData as object), productId: p.id };
       sGroup.add(mesh);
       billboards.push({ id: p.id, mesh });
     });
@@ -351,7 +483,7 @@ export function initMarketplaceScene(
     const gotoBtn = new THREE.Mesh(btnGeo, btnMat);
     gotoBtn.position.set(0, 0.08, 2.0);
     gotoBtn.castShadow = true;
-    (gotoBtn as any).userData = { action: 'goto-stall', sellerId: stall.sellerId };
+    gotoBtn.userData = { action: 'goto-stall', sellerId: stall.sellerId };
     sGroup.add(gotoBtn);
 
     stalls.push({ sellerId: stall.sellerId, group: sGroup, billboards, gotoButton: gotoBtn });
@@ -368,7 +500,48 @@ export function initMarketplaceScene(
   };
 
   const animate = () => {
-    stalls.forEach((s) => s.billboards.forEach((b) => b.mesh.lookAt(camera.position.x, b.mesh.position.y, camera.position.z)));
+    stalls.forEach((s) => {
+      s.billboards.forEach((b) => b.mesh.lookAt(camera.position.x, b.mesh.position.y, camera.position.z));
+      // Animate avatar movement if present
+      const avatar = s.group.children.find(
+        (child: unknown): child is Group =>
+          child instanceof Object &&
+          'children' in child &&
+          Array.isArray((child as Group).children) &&
+          (child as Group).children.some((c: Mesh) => c.geometry && c.geometry.type === 'SphereGeometry')
+      );
+      if (avatar && 'children' in avatar) {
+        const t = performance.now() * 0.001;
+        // Head nod/sway
+        const head = (avatar as Group).children.find(
+          (c: Mesh): c is Mesh => c.geometry && c.geometry.type === 'SphereGeometry'
+        );
+        if (head) {
+          head.rotation.z = Math.sin(t * 1.2) * 0.18;
+          head.rotation.x = Math.sin(t * 0.7) * 0.09;
+        }
+        // Body sway
+        const body = (avatar as Group).children.find(
+          (c: Mesh): c is Mesh => c.geometry && c.geometry.type === 'CylinderGeometry' && c.scale.y > 1.5
+        );
+        if (body) {
+          body.position.x = Math.sin(t * 0.7) * 0.12;
+        }
+        // Arms waving
+        const leftArm = (avatar as Group).children.find(
+          (c: Mesh): c is Mesh => c.geometry && c.geometry.type === 'CylinderGeometry' && c.position.x < 0
+        );
+        const rightArm = (avatar as Group).children.find(
+          (c: Mesh): c is Mesh => c.geometry && c.geometry.type === 'CylinderGeometry' && c.position.x > 0
+        );
+        if (leftArm) {
+          leftArm.rotation.x = Math.sin(t * 1.5) * 0.25;
+        }
+        if (rightArm) {
+          rightArm.rotation.x = Math.cos(t * 1.5) * 0.25;
+        }
+      }
+    });
     controls.update();
     renderer.render(scene, camera);
     raf = requestAnimationFrame(animate);
@@ -381,8 +554,12 @@ export function initMarketplaceScene(
     stop();
     controls.dispose();
     stalls.forEach((s) => s.billboards.forEach((b) => {
-      (b.mesh.material as THREE.Material).dispose();
-      (b.mesh.geometry as THREE.BufferGeometry).dispose();
+      if ('dispose' in b.mesh.material && typeof b.mesh.material.dispose === 'function') {
+        b.mesh.material.dispose();
+      }
+      if ('dispose' in b.mesh.geometry && typeof b.mesh.geometry.dispose === 'function') {
+        b.mesh.geometry.dispose();
+      }
     }));
     renderer.dispose();
   };

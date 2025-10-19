@@ -2,7 +2,7 @@ declare module 'three';
 
 declare module 'three/examples/jsm/controls/OrbitControls.js' {
   export class OrbitControls {
-    constructor(object: any, domElement?: any);
+    constructor(object: import('three').Camera, domElement?: HTMLElement);
     enableDamping: boolean;
     dampingFactor: number;
     enablePan: boolean;
@@ -14,7 +14,7 @@ declare module 'three/examples/jsm/controls/OrbitControls.js' {
     panSpeed: number;
     zoomSpeed: number;
     screenSpacePanning: boolean;
-    target: any;
+  target: import('three').Vector3;
     maxPolarAngle: number;
     update(): void;
     dispose(): void;
