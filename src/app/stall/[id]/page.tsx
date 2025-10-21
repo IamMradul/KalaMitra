@@ -9,6 +9,7 @@ import { ArrowLeft, User, Palette, MapPin, Calendar } from 'lucide-react'
 import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
 import { Database } from '@/lib/supabase'
+import { Product as ModalProduct } from '@/types/product';
 import Link from 'next/link'
 import { useTranslation } from 'react-i18next'
 import { useLanguage } from '@/components/LanguageProvider'
@@ -32,6 +33,10 @@ type CollabProductRow = {
   } | null
 }
 
+import dynamic from 'next/dynamic';
+const Market3DButton = dynamic(() => import('@/components/Market3DButton'), { ssr: false });
+const MarketplaceStalls3D = dynamic(() => import('@/components/MarketplaceStalls3D'), { ssr: false });
+
 export default function StallPage() {
   const { t, i18n } = useTranslation()
   const { currentLanguage } = useLanguage()
@@ -41,12 +46,52 @@ export default function StallPage() {
   const [products, setProducts] = useState<Product[]>([])
   const [collaborativeProducts, setCollaborativeProducts] = useState<CollaborativeProduct[]>([])
   const [loading, setLoading] = useState(true)
+  // For 3D modal: all sellers and their products
+  type SellerGroup = {
+    sellerId: string;
+    sellerName: string;
+    products: ModalProduct[];
+  };
+
+  const [allSellers, setAllSellers] = useState<SellerGroup[]>([]);
+  const [show3DModal, setShow3DModal] = useState(false);
 
   useEffect(() => {
     if (params.id) {
       fetchStallData(params.id as string)
+      fetchAllSellers();
     }
   }, [params.id, currentLanguage])
+
+  // Fetch all sellers and their products for 3D modal
+  const fetchAllSellers = async () => {
+    try {
+      const { data: productsData, error } = await supabase
+        .from('products')
+        .select('*, seller:profiles(id, name)')
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      // Group by seller
+      const sellerMap: Record<string, SellerGroup> = {};
+      (productsData || []).forEach((p) => {
+        const sellerId: string = p.seller_id;
+        const sellerName: string = p.seller?.name || sellerId;
+        if (!sellerMap[sellerId]) sellerMap[sellerId] = { sellerId, sellerName, products: [] };
+    // Allow all categories, including user-defined
+    const safeCategory: ModalProduct['category'] = p.category;
+        // Build ModalProduct type for compatibility
+        const modalProduct: ModalProduct = {
+          ...p,
+          category: safeCategory,
+          name: p.title || '',
+        };
+        sellerMap[sellerId].products.push(modalProduct);
+      });
+      setAllSellers(Object.values(sellerMap));
+    } catch (err) {
+      setAllSellers([]);
+    }
+  };
 
   useEffect(() => {
     if (user && params.id) {
@@ -174,6 +219,7 @@ export default function StallPage() {
     )
   }
 
+
   return (
     <div className="min-h-screen bg-[var(--bg-2)] py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -213,24 +259,20 @@ export default function StallPage() {
               <User className="w-12 h-12 text-orange-600" />
             )}
           </div>
-          
           <h1 className="text-4xl font-bold text-[var(--text)] mb-4">
             {stallProfile.name}&apos;s {t('navigation.profile')}
           </h1>
-          
           {stallProfile.store_description && (
             <p className="text-lg text-[var(--muted)] max-w-2xl mx-auto mb-6">
               {stallProfile.store_description}
             </p>
           )}
-          
           {!stallProfile.store_description && stallProfile.bio && (
             <p className="text-lg text-[var(--muted)] max-w-2xl mx-auto mb-6">
               {stallProfile.bio}
             </p>
           )}
-          
-          <div className="flex justify-center space-x-8 text-sm text-[var(--muted)]">
+          <div className="flex justify-center space-x-8 text-sm text-[var(--muted)] mb-6">
             <div className="flex items-center">
               <MapPin className="w-4 h-4 mr-2" />
               <span>{t('navigation.dashboard')}</span>
@@ -240,7 +282,28 @@ export default function StallPage() {
               <span>{t('profile.memberSince', { defaultValue: 'Member since' })} {new Date(stallProfile.created_at).getFullYear()}</span>
             </div>
           </div>
+          {/* Open 3D Stall Button */}
+          <button
+            type="button"
+            className="inline-flex items-center gap-2 rounded-lg px-5 py-3 font-semibold text-white bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 shadow-lg hover:scale-105 hover:shadow-xl transition-all duration-200 mb-2"
+            onClick={() => setShow3DModal(true)}
+          >
+            <Palette className="w-5 h-5 text-white drop-shadow" />
+            Open 3D Stall
+          </button>
         </motion.div>
+
+        {/* 3D Marketplace Modal (focus on this stall) */}
+        {show3DModal && (
+          <MarketplaceStalls3D
+            isOpen={show3DModal}
+            onClose={() => setShow3DModal(false)}
+            sellers={allSellers}
+            onAddToCart={() => {}}
+            onViewDetails={() => {}}
+            focusSellerId={stallProfile.id}
+          />
+        )}
 
         {/* Products Section */}
         <motion.div
