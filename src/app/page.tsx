@@ -41,7 +41,7 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Glassmorphism Overlay */}
+        {/* Glassmorphism-Overlay */}
         <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-white/5 backdrop-blur-sm"></div>
 
         <div className="container-custom relative z-10">
