@@ -16,9 +16,10 @@ interface MarketplaceStalls3DProps {
   sellers: SellerGroup[];
   onAddToCart: (productId: string) => void;
   onViewDetails: (productId: string) => void;
+  focusSellerId?: string;
 }
 
-export default function MarketplaceStalls3D({ isOpen, onClose, sellers, onAddToCart, onViewDetails }: MarketplaceStalls3DProps) {
+export default function MarketplaceStalls3D({ isOpen, onClose, sellers, onAddToCart, onViewDetails, focusSellerId }: MarketplaceStalls3DProps) {
   useEffect(() => {
     if (!isOpen) return;
     const previousOverflow = document.body.style.overflow;
@@ -51,6 +52,7 @@ export default function MarketplaceStalls3D({ isOpen, onClose, sellers, onAddToC
           <MarketplaceNavigator3D
             sellers={sellers.map(s => ({ sellerId: s.sellerId, products: s.products }))}
             onProductClick={(id) => onViewDetails(id)}
+            focusSellerId={focusSellerId}
           />
         </div>
       </div>

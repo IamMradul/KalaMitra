@@ -47,15 +47,22 @@ export default function Home() {
             </p>
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-8 justify-center mb-20 animate-slide-in-up animate-delay-300">
-              <Link href="/auth/signup?role=seller" className="btn-primary bg-white text-orange-600 hover:bg-gray-100 group">
-                <span className="flex items-center justify-center space-x-3">
+              <Link href="/auth/signup?role=seller" className="btn-primary bg-white text-orange-600 hover:bg-gray-100 group flex items-center">
+                <span className="flex items-center justify-center space-x-3 text-center w-full">
                   <span>{t('home.startSelling')}</span>
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform duration-300" />
                 </span>
               </Link>
-              <Link href="/marketplace" className="btn-secondary border-white text-white hover:bg-white hover:text-orange-600 group">
-                <span className="flex items-center justify-center space-x-3">
+              <Link href="/marketplace" className="btn-secondary border-white text-white hover:bg-white hover:text-orange-600 group flex items-center">
+                <span className="flex items-center justify-center space-x-3 text-center w-full">
                   <span>{t('home.startShopping')}</span>
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform duration-300" />
+                </span>
+              </Link>
+              <Link href="/marketplace?view=3d" className="btn-3d-bazaar bg-gradient-to-br from-blue-500 via-pink-400 to-orange-400 text-white shadow-lg hover:scale-105 transition-transform duration-300 group flex items-center justify-center px-8 py-4 rounded-xl border-2 border-white/30 flex items-center">
+                <span className="flex items-center justify-center space-x-3">
+                  <Palette className="w-6 h-6 text-white drop-shadow-md animate-spin-slow" />
+                  <span className="font-semibold text-lg">Explore 3D Bazaar</span>
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform duration-300" />
                 </span>
               </Link>

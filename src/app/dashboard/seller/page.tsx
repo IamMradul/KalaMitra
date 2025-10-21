@@ -16,6 +16,7 @@ import SellerAnalytics from './SellerAnalytics'
 import ProfileManager from './ProfileManager'
 import SellerAuctionsList from './SellerAuctionsList'
 import CollaborationManager from './CollaborationManager'
+import StallCustomizationModal, { StallCustomizationSettings } from '@/components/StallCustomizationModal'
 
 type Product = Database['public']['Tables']['products']['Row']
 type Profile = Database['public']['Tables']['profiles']['Row']
@@ -27,6 +28,45 @@ export default function SellerDashboard() {
   const [products, setProducts] = useState<Product[]>([])
   const [showAIProductForm, setShowAIProductForm] = useState(false)
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
+  const [showStallCustomization, setShowStallCustomization] = useState(false)
+  const [stallCustomizationSettings, setStallCustomizationSettings] = useState<StallCustomizationSettings | undefined>(undefined)
+  const [stallCustomizationLoading, setStallCustomizationLoading] = useState(false);
+  // Load stall customization from Supabase when modal opens
+  useEffect(() => {
+    const fetchStallCustomization = async () => {
+      if (!user || !showStallCustomization) return;
+      setStallCustomizationLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('stall_customizations')
+          .select('*')
+          .eq('seller_id', user.id)
+          .single();
+        if (error && error.code !== 'PGRST116') { // PGRST116: No rows found
+          console.error('Error fetching stall customization:', error);
+        }
+        if (data) {
+          setStallCustomizationSettings({
+            stall_theme: data.stall_theme || 'classic',
+            welcome_message: data.welcome_message || '',
+            decor: data.decor || {},
+            featured_product_ids: data.featured_product_ids || [],
+          });
+        } else {
+          setStallCustomizationSettings(undefined);
+        }
+      } catch (err) {
+        console.error('Error loading stall customization:', err);
+        setStallCustomizationSettings(undefined);
+      } finally {
+        setStallCustomizationLoading(false);
+      }
+    };
+    if (showStallCustomization) {
+      fetchStallCustomization();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showStallCustomization, user]);
   const [stallProfile, setStallProfile] = useState<Profile | null>(null)
   const [productsLoading, setProductsLoading] = useState(false)
   const [addProductLoading, setAddProductLoading] = useState(false)
@@ -593,9 +633,70 @@ export default function SellerDashboard() {
                   <div className="text-xs text-gray-600 text-center mt-2">{t('seller.viewStallHint')}</div>
                 </div>
               </div>
+              {/* Centered Customize 3D Stall card below the grid */}
+              <div className="flex justify-center mt-6">
+                <div className="rounded-xl bg-transparent p-5 shadow-md flex flex-col gap-3 w-full max-w-md">
+                  <div className="flex items-center gap-3 mb-1 justify-center">
+                    <div className="p-2 sm:p-3 rounded-xl bg-gradient-to-br from-teal-500 to-cyan-600 shadow-lg">
+                      <Palette className="w-5 h-5 text-white animate-spin-slow" />
+                    </div>
+                    <h3 className="text-lg sm:text-xl font-semibold text-gray-900">Customize 3D Stall</h3>
+                  </div>
+                  <button
+                    onClick={() => setShowStallCustomization(true)}
+                    className="w-full flex items-center justify-center px-5 py-3 text-base font-bold bg-gradient-to-r from-teal-500 via-cyan-500 to-blue-500 text-white rounded-lg hover:from-teal-600 hover:via-cyan-600 hover:to-blue-600 shadow-lg transition-all duration-200"
+                  >
+                    <Palette className="w-5 h-5 mr-2 animate-spin-slow" />
+                    Customize 3D Stall
+                  </button>
+                  <div className="text-xs text-gray-600 text-center mt-2">Personalize your public stall&apos;s look, welcome message, and featured products.</div>
+                </div>
+              </div>
             </div>
           </motion.div>
         )}
+
+      {/* Stall Customization Modal (always at page root, overlays everything) */}
+      <StallCustomizationModal
+        open={showStallCustomization}
+        onClose={() => setShowStallCustomization(false)}
+        onSave={async (settings) => {
+          if (!user) {
+            alert('User not authenticated');
+            return;
+          }
+          setStallCustomizationLoading(true);
+          try {
+            const { error } = await supabase
+              .from('stall_customizations')
+              .upsert([
+                {
+                  seller_id: user.id,
+                  stall_theme: settings.stall_theme,
+                  welcome_message: settings.welcome_message,
+                  decor: settings.decor,
+                  featured_product_ids: settings.featured_product_ids,
+                  updated_at: new Date().toISOString(),
+                },
+              ], { onConflict: 'seller_id' });
+            if (error) {
+              alert('Failed to save customization: ' + error.message);
+              return;
+            }
+            setStallCustomizationSettings(settings);
+            setShowStallCustomization(false);
+            alert('Stall customization saved!');
+          } catch (err) {
+            alert('Failed to save customization.');
+            console.error('Error saving customization:', err);
+          } finally {
+            setStallCustomizationLoading(false);
+          }
+        }}
+        initialSettings={stallCustomizationSettings}
+        loading={stallCustomizationLoading}
+        products={products.map(p => ({ id: p.id, title: p.title || '' }))}
+      />
 
         {/* Analytics Section */}
         {activeSection === 'analytics' && (
