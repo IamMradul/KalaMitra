@@ -317,6 +317,18 @@ export default function Navbar() {
                       </div>
                     )}
                   </div>
+                  {/* Theme Toggle (Desktop) */}
+                  <button
+                    onClick={() => toggle()}
+                    className="p-2 rounded-xl hover:bg-heritage-gold/50 transition-all duration-300 hover:scale-105"
+                    aria-label="Toggle theme"
+                  >
+                    {theme === 'dark' ? (
+                      <Sun className="w-5 h-5 text-[var(--text)]" />
+                    ) : (
+                      <Moon className="w-5 h-5 text-[var(--text)]" />
+                    )}
+                  </button>
                   {/* Profile avatar/name direct link to profile page (no dropdown) */}
                   <Link href="/profile" className="flex items-center space-x-3 px-3 py-2 rounded-xl hover:bg-heritage-gold/20">
                     {profile?.profile_image ? (
