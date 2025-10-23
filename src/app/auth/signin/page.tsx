@@ -110,17 +110,17 @@ export default function SignIn() {
                 <span className="text-white font-bold text-2xl">KM</span>
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-[var(--text)]">KalaMitra</h1>
-                <p className="text-[var(--text-muted)]">Your Artisan Marketplace</p>
+                <h1 className="text-3xl font-bold text-[var(--text)]">{t('auth.branding.kalaMitra')}</h1>
+                <p className="text-[var(--text-muted)]">{t('auth.branding.yourArtisanMarketplace')}</p>
               </div>
             </div>
             
             <h2 className="text-4xl font-bold text-[var(--text)] leading-tight">
-              Welcome Back to Your <span className="gradient-text">Creative Journey</span>
+              {t('auth.branding.welcomeBackToCreativeJourney')}
             </h2>
             
             <p className="text-lg text-[var(--text-muted)] leading-relaxed">
-              Connect with artisans, discover unique crafts, and be part of India&apos;s vibrant creative community.
+              {t('auth.branding.connectWithArtisans')}
             </p>
           </div>
 
@@ -130,16 +130,16 @@ export default function SignIn() {
               <div className="w-12 h-12 bg-gradient-to-br from-[var(--saffron)] to-[var(--turquoise)] rounded-xl flex items-center justify-center">
                 <Shield className="w-6 h-6 text-white" />
               </div>
-              <h3 className="font-semibold text-[var(--text)]">Secure Platform</h3>
-              <p className="text-sm text-[var(--text-muted)]">Your data and transactions are protected</p>
+              <h3 className="font-semibold text-[var(--text)]">{t('auth.branding.securePlatform')}</h3>
+              <p className="text-sm text-[var(--text-muted)]">{t('auth.branding.yourDataProtected')}</p>
             </div>
             
             <div className="card-glass p-6 space-y-3">
               <div className="w-12 h-12 bg-gradient-to-br from-[var(--emerald)] to-[var(--maroon)] rounded-xl flex items-center justify-center">
                 <Users className="w-6 h-6 text-white" />
               </div>
-              <h3 className="font-semibold text-[var(--text)]">Trusted Community</h3>
-              <p className="text-sm text-[var(--text-muted)]">Join thousands of verified artisans</p>
+              <h3 className="font-semibold text-[var(--text)]">{t('auth.branding.trustedCommunity')}</h3>
+              <p className="text-sm text-[var(--text-muted)]">{t('auth.branding.joinVerifiedArtisans')}</p>
             </div>
           </div>
         </div>
@@ -313,7 +313,7 @@ export default function SignIn() {
                 </div>
                 <div className="text-left">
                   <div className="font-medium">{t('auth.continueAsBuyer')}</div>
-                  <div className="text-xs text-[var(--text-muted)]">Shop for unique art</div>
+                  <div className="text-xs text-[var(--text-muted)]">{t('auth.branding.shopForUniqueArt')}</div>
                 </div>
               </button>
               
@@ -327,7 +327,7 @@ export default function SignIn() {
                 </div>
                 <div className="text-left">
                   <div className="font-medium">{t('auth.continueAsArtisan')}</div>
-                  <div className="text-xs text-[var(--text-muted)]">Sell your creations</div>
+                  <div className="text-xs text-[var(--text-muted)]">{t('auth.branding.sellYourCreations')}</div>
                 </div>
               </button>
             </div>

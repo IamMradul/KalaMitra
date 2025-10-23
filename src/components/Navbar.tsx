@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
 import { useLanguage } from '@/components/LanguageProvider'
@@ -24,6 +24,8 @@ export default function Navbar() {
   const [notifOpen, setNotifOpen] = useState(false)
   const [leaderboardOpen, setLeaderboardOpen] = useState(false)
   const [unreadCount, setUnreadCount] = useState(0)
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false)
+  const profileDropdownRef = useRef<HTMLDivElement>(null)
   const [mitraPoints, setMitraPoints] = useState<number | null>(null)
   const [hasLiveAuctions, setHasLiveAuctions] = useState(false)
   const { i18n, t } = useTranslation();
@@ -57,6 +59,23 @@ export default function Navbar() {
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (profileDropdownRef.current && !profileDropdownRef.current.contains(event.target as Node)) {
+        setProfileDropdownOpen(false)
+      }
+    }
+
+    if (profileDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [profileDropdownOpen])
 
   // Poll for live auctions and unread count every 30s
   useEffect(() => {
@@ -329,26 +348,75 @@ export default function Navbar() {
                       <Moon className="w-5 h-5 text-[var(--text)]" />
                     )}
                   </button>
-                  {/* Profile avatar/name direct link to profile page (no dropdown) */}
-                  <Link href="/profile" className="flex items-center space-x-3 px-3 py-2 rounded-xl hover:bg-heritage-gold/20">
-                    {profile?.profile_image ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={profile.profile_image} alt="avatar" className="w-8 h-8 rounded-full object-cover" />
-                    ) : (
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-heritage-gold to-heritage-red text-white flex items-center justify-center font-semibold">
-                        {profile?.name ? profile.name.split(' ').map(s=>s[0]).slice(0,2).join('') : <User className="w-4 h-4" />}
+                  {/* Profile dropdown */}
+                  <div className="relative" ref={profileDropdownRef}>
+                    <button 
+                      onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+                      className="flex items-center space-x-3 px-3 py-2 rounded-xl hover:bg-heritage-gold/20 transition-all duration-200"
+                    >
+                      {profile?.profile_image ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={profile.profile_image} alt="avatar" className="w-8 h-8 rounded-full object-cover" />
+                      ) : (
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-heritage-gold to-heritage-red text-white flex items-center justify-center font-semibold">
+                          {profile?.name ? profile.name.split(' ').map(s=>s[0]).slice(0,2).join('') : <User className="w-4 h-4" />}
+                        </div>
+                      )}
+                      <div className="text-left">
+                        <div className="flex items-center space-x-2">
+                          <div className="text-sm font-medium text-[var(--text)]">{translatedName || profile?.name}</div>
+                          {mitraPoints != null && (
+                            <div title="MitraPoints" className="text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full font-semibold">{mitraPoints} MP</div>
+                          )}
+                        </div>
+                        <div className="text-xs text-[var(--muted)]">{profile?.role || ''}</div>
+                      </div>
+                    </button>
+                    
+                    {/* Profile Dropdown Modal */}
+                    {profileDropdownOpen && (
+                      <div className="absolute right-0 mt-2 w-64 z-50">
+                        <div className="card-glass rounded-2xl shadow-2xl p-4 border border-[var(--border)] bg-[var(--bg)]">
+                          <div className="flex items-center space-x-3 mb-4 pb-4 border-b border-[var(--border)]">
+                            {profile?.profile_image ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img src={profile.profile_image} alt="avatar" className="w-12 h-12 rounded-full object-cover" />
+                            ) : (
+                              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-heritage-gold to-heritage-red text-white flex items-center justify-center font-semibold text-lg">
+                                {profile?.name ? profile.name.split(' ').map(s=>s[0]).slice(0,2).join('') : <User className="w-6 h-6" />}
+                              </div>
+                            )}
+                            <div>
+                              <div className="font-semibold text-[var(--text)]">{translatedName || profile?.name}</div>
+                              <div className="text-sm text-[var(--muted)]">{profile?.role || ''}</div>
+                            </div>
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <Link 
+                              href="/profile"
+                              onClick={() => setProfileDropdownOpen(false)}
+                              className="flex items-center space-x-3 w-full px-4 py-3 rounded-xl hover:bg-[var(--bg-2)] transition-all duration-200 group"
+                            >
+                              <User className="w-5 h-5 text-[var(--muted)] group-hover:text-heritage-gold" />
+                              <span className="text-[var(--text)] font-medium">View Profile</span>
+                            </Link>
+                            
+                            <button 
+                              onClick={async () => { 
+                                setProfileDropdownOpen(false);
+                                await signOut(); 
+                              }}
+                              className="flex items-center space-x-3 w-full px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-200 group"
+                            >
+                              <LogOut className="w-5 h-5 text-red-500 group-hover:text-red-600" />
+                              <span className="text-red-600 font-medium">Sign Out</span>
+                            </button>
+                          </div>
+                        </div>
                       </div>
                     )}
-                    <div className="text-left">
-                      <div className="flex items-center space-x-2">
-                        <div className="text-sm font-medium text-[var(--text)]">{translatedName || profile?.name}</div>
-                        {mitraPoints != null && (
-                          <div title="MitraPoints" className="text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full font-semibold">{mitraPoints} MP</div>
-                        )}
-                      </div>
-                      <div className="text-xs text-[var(--muted)]">{profile?.role || ''}</div>
-                    </div>
-                  </Link>
+                  </div>
                 </div>
               </>
                 ) : (

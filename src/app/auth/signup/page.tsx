@@ -46,10 +46,10 @@ function SignUpContent() {
       await signUp(email, password, name, role)
       // Show success message
       setError('')
-      alert('Account created successfully! Please check your email and click the confirmation link. You can then sign in with your credentials.')
+      alert(t('auth.branding.accountCreatedSuccessfully'))
     } catch (error: unknown) {
       console.error('Signup error details:', error)
-      setError(error instanceof Error ? error.message : 'An error occurred during sign up. Please try again.')
+      setError(error instanceof Error ? error.message : t('auth.branding.errorOccurredDuringSignup'))
     } finally {
       setLoading(false)
     }
@@ -68,7 +68,7 @@ function SignUpContent() {
       if (error instanceof Error) {
         setError(error.message)
       } else {
-        setError('Google sign up failed. Please try again.')
+        setError(t('auth.branding.googleSignupFailed'))
       }
     } finally {
       setGoogleLoading(false)
@@ -95,17 +95,17 @@ function SignUpContent() {
                 <span className="text-white font-bold text-2xl">KM</span>
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-[var(--text)]">KalaMitra</h1>
-                <p className="text-[var(--text-muted)]">Your Artisan Marketplace</p>
+                <h1 className="text-3xl font-bold text-[var(--text)]">{t('auth.branding.kalaMitra')}</h1>
+                <p className="text-[var(--text-muted)]">{t('auth.branding.yourArtisanMarketplace')}</p>
               </div>
             </div>
             
             <h2 className="text-4xl font-bold text-[var(--text)] leading-tight">
-              Start Your <span className="gradient-text">Creative Journey</span> Today
+              {t('auth.branding.startYourCreativeJourneyToday')}
             </h2>
             
             <p className="text-lg text-[var(--text-muted)] leading-relaxed">
-              Join thousands of artisans and buyers in India&apos;s most vibrant creative marketplace. Create, connect, and grow together.
+              {t('auth.branding.joinThousandsOfArtisans')}
             </p>
           </div>
 
@@ -115,16 +115,16 @@ function SignUpContent() {
               <div className="w-12 h-12 bg-gradient-to-br from-[var(--saffron)] to-[var(--turquoise)] rounded-xl flex items-center justify-center">
                 <Star className="w-6 h-6 text-white" />
               </div>
-              <h3 className="font-semibold text-[var(--text)]">Premium Quality</h3>
-              <p className="text-sm text-[var(--text-muted)]">Curated collection of authentic crafts</p>
+              <h3 className="font-semibold text-[var(--text)]">{t('auth.branding.premiumQuality')}</h3>
+              <p className="text-sm text-[var(--text-muted)]">{t('auth.branding.curatedCollection')}</p>
             </div>
             
             <div className="card-glass p-6 space-y-3">
               <div className="w-12 h-12 bg-gradient-to-br from-[var(--emerald)] to-[var(--maroon)] rounded-xl flex items-center justify-center">
                 <Heart className="w-6 h-6 text-white" />
               </div>
-              <h3 className="font-semibold text-[var(--text)]">Community Driven</h3>
-              <p className="text-sm text-[var(--text-muted)]">Support local artisans and traditions</p>
+              <h3 className="font-semibold text-[var(--text)]">{t('auth.branding.communityDriven')}</h3>
+              <p className="text-sm text-[var(--text-muted)]">{t('auth.branding.supportLocalArtisans')}</p>
             </div>
           </div>
 
@@ -132,15 +132,15 @@ function SignUpContent() {
           <div className="grid grid-cols-3 gap-4 pt-4">
             <div className="text-center">
               <div className="text-2xl font-bold text-[var(--saffron)]">10K+</div>
-              <div className="text-sm text-[var(--text-muted)]">Artisans</div>
+              <div className="text-sm text-[var(--text-muted)]">{t('auth.branding.artisans')}</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-[var(--emerald)]">50K+</div>
-              <div className="text-sm text-[var(--text-muted)]">Products</div>
+              <div className="text-sm text-[var(--text-muted)]">{t('auth.branding.products')}</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-[var(--maroon)]">100K+</div>
-              <div className="text-sm text-[var(--text-muted)]">Happy Customers</div>
+              <div className="text-sm text-[var(--text-muted)]">{t('auth.branding.happyCustomers')}</div>
             </div>
           </div>
         </div>
@@ -377,7 +377,7 @@ function SignUpContent() {
                 </div>
                 <div className="text-left">
                   <div className="font-medium">{t('auth.continueAsBuyer')}</div>
-                  <div className="text-xs text-[var(--text-muted)]">Shop for unique art</div>
+                  <div className="text-xs text-[var(--text-muted)]">{t('auth.branding.shopForUniqueArt')}</div>
                 </div>
               </button>
               
@@ -391,7 +391,7 @@ function SignUpContent() {
                 </div>
                 <div className="text-left">
                   <div className="font-medium">{t('auth.continueAsArtisan')}</div>
-                  <div className="text-xs text-[var(--text-muted)]">Sell your creations</div>
+                  <div className="text-xs text-[var(--text-muted)]">{t('auth.branding.sellYourCreations')}</div>
                 </div>
               </button>
             </div>
