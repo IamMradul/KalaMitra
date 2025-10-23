@@ -284,7 +284,7 @@ export default function Home() {
       </section>
 
       {/* 3D Bazaar Feature Section */}
-      <section className="py-16 md:py-24 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 relative overflow-hidden">
+      <section className="py-16 md:py-24 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-blue-900/20 dark:via-purple-900/20 dark:to-pink-900/20 relative overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-20 left-10 w-64 h-64 bg-gradient-to-br from-blue-400 to-purple-400 rounded-full mix-blend-multiply filter blur-2xl floating-element"></div>
@@ -293,10 +293,10 @@ export default function Home() {
 
         <div className="container-custom relative">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-8 animate-slide-in-up">
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-[var(--text)] mb-8 animate-slide-in-up">
               Experience Our <span className="gradient-text-animated">3D Bazaar</span>
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto animate-slide-in-up animate-delay-100">
+            <p className="text-xl text-[var(--muted)] max-w-3xl mx-auto animate-slide-in-up animate-delay-100">
               Step into a virtual marketplace where you can explore traditional items in an immersive 3D environment, 
               bringing the authentic shopping experience right to your screen.
             </p>
@@ -311,8 +311,8 @@ export default function Home() {
                     <Palette className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">Immersive Shopping</h3>
-                    <p className="text-gray-600">Walk through virtual stalls and interact with products in a realistic 3D environment.</p>
+                    <h3 className="text-xl font-semibold text-[var(--text)] mb-2">Immersive Shopping</h3>
+                    <p className="text-[var(--muted)]">Walk through virtual stalls and interact with products in a realistic 3D environment.</p>
                   </div>
                 </div>
 
@@ -321,8 +321,8 @@ export default function Home() {
                     <Sparkles className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">Interactive Experience</h3>
-                    <p className="text-gray-600">Rotate, zoom, and examine products from every angle before making a purchase.</p>
+                    <h3 className="text-xl font-semibold text-[var(--text)] mb-2">Interactive Experience</h3>
+                    <p className="text-[var(--muted)]">Rotate, zoom, and examine products from every angle before making a purchase.</p>
                   </div>
                 </div>
 
@@ -331,8 +331,8 @@ export default function Home() {
                     <Heart className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">Authentic Atmosphere</h3>
-                    <p className="text-gray-600">Experience the vibrant atmosphere of traditional Indian markets from anywhere in the world.</p>
+                    <h3 className="text-xl font-semibold text-[var(--text)] mb-2">Authentic Atmosphere</h3>
+                    <p className="text-[var(--muted)]">Experience the vibrant atmosphere of traditional Indian markets from anywhere in the world.</p>
                   </div>
                 </div>
               </div>
@@ -349,13 +349,13 @@ export default function Home() {
             {/* Right Side - Visual */}
             <div className="animate-slide-in-up animate-delay-300">
               <div className="relative">
-                <div className="aspect-square bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 rounded-3xl p-8 flex items-center justify-center shadow-2xl">
+                <div className="aspect-square bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 dark:from-blue-900/30 dark:via-purple-900/30 dark:to-pink-900/30 rounded-3xl p-8 flex items-center justify-center shadow-2xl">
                   <div className="text-center">
                     <div className="w-32 h-32 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-glow animate-pulse">
                       <Palette className="w-16 h-16 text-white" />
                     </div>
-                    <h3 className="text-2xl font-bold text-gray-900 mb-2">3D Marketplace</h3>
-                    <p className="text-gray-600 mb-4">Experience shopping like never before</p>
+                    <h3 className="text-2xl font-bold text-[var(--text)] mb-2">3D Marketplace</h3>
+                    <p className="text-[var(--muted)] mb-4">Experience shopping like never before</p>
                     <div className="flex justify-center space-x-2">
                       <div className="w-3 h-3 bg-blue-500 rounded-full animate-bounce"></div>
                       <div className="w-3 h-3 bg-purple-500 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>

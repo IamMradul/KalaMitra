@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { useAuth } from '@/contexts/AuthContext'
 import { logActivity } from '@/lib/activity'
-import { ArrowLeft, User, Palette, MapPin, Calendar } from 'lucide-react'
+import { ArrowLeft, User, Palette, MapPin, Calendar, Users } from 'lucide-react'
 import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
 import { Database } from '@/lib/supabase'
@@ -55,6 +55,54 @@ export default function StallPage() {
 
   const [allSellers, setAllSellers] = useState<SellerGroup[]>([]);
   const [show3DModal, setShow3DModal] = useState(false);
+  const [followersCount, setFollowersCount] = useState(0);
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [followersLoading, setFollowersLoading] = useState(true);
+
+  // Followers logic
+  useEffect(() => {
+    const fetchFollowers = async () => {
+      if (!stallProfile?.id || !user?.id) return;
+      setFollowersLoading(true);
+      // Count followers
+      const { count } = await supabase
+        .from('followers')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', stallProfile.id);
+      setFollowersCount(count || 0);
+      // Am I following?
+      const { data: existing } = await supabase
+        .from('followers')
+        .select('*')
+        .eq('user_id', stallProfile.id)
+        .eq('follower_id', user.id)
+        .maybeSingle();
+      setIsFollowing(!!existing);
+      setFollowersLoading(false);
+    };
+    fetchFollowers();
+  }, [stallProfile?.id, user?.id]);
+
+  const handleFollowClick = async () => {
+    if (!stallProfile?.id || !user?.id || stallProfile.id === user.id) return;
+    setFollowersLoading(true);
+    if (isFollowing) {
+      await supabase
+        .from('followers')
+        .delete()
+        .eq('user_id', stallProfile.id)
+        .eq('follower_id', user.id);
+      setFollowersCount(f => Math.max(0, f - 1));
+      setIsFollowing(false);
+    } else {
+      await supabase
+        .from('followers')
+        .insert({ user_id: stallProfile.id, follower_id: user.id });
+      setFollowersCount(f => f + 1);
+      setIsFollowing(true);
+    }
+    setFollowersLoading(false);
+  };
 
   useEffect(() => {
     if (params.id) {
@@ -262,6 +310,23 @@ export default function StallPage() {
           <h1 className="text-4xl font-bold text-[var(--text)] mb-4">
             {stallProfile.name}&apos;s {t('navigation.profile')}
           </h1>
+          <div className="flex flex-col md:flex-row justify-center items-center gap-3 mb-4">
+            <div className="flex items-center gap-2">
+              <Users className="w-5 h-5 text-[var(--saffron)]" />
+              <span className="font-semibold text-[var(--text)] text-base">{followersLoading ? <span className="animate-pulse text-[var(--muted)]">...</span> : followersCount}</span>
+              <span className="text-xs text-[var(--muted)] ml-1">Followers</span>
+            </div>
+            {user && stallProfile && user.id !== stallProfile.id && (
+              <button
+                className={`btn-indian-secondary px-4 py-1 md:py-2 rounded-xl flex items-center gap-2 text-sm md:text-base ${followersLoading ? 'opacity-60 pointer-events-none' : ''}`}
+                onClick={handleFollowClick}
+                disabled={followersLoading}
+              >
+                <Users className="w-4 h-4" />
+                {isFollowing ? 'Following' : 'Follow'}
+              </button>
+            )}
+          </div>
           {stallProfile.store_description && (
             <p className="text-lg text-[var(--muted)] max-w-2xl mx-auto mb-6">
               {stallProfile.store_description}

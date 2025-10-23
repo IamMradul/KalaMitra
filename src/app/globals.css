@@ -23,6 +23,31 @@
   --heritage-blue: #3b5998;
   --heritage-brown: #7c5e3c;
   --heritage-accent: #e2c275;
+  
+  /* Traditional Indian Color Palette */
+  --saffron: #ff9933;
+  --saffron-light: #ffb366;
+  --saffron-dark: #e6851a;
+  --turquoise: #40e0d0;
+  --turquoise-light: #7fffd4;
+  --turquoise-dark: #20b2aa;
+  --maroon: #800000;
+  --maroon-light: #a52a2a;
+  --maroon-dark: #5c0000;
+  --royal-blue: #4169e1;
+  --royal-blue-light: #6495ed;
+  --royal-blue-dark: #191970;
+  --emerald: #50c878;
+  --emerald-light: #90ee90;
+  --emerald-dark: #228b22;
+  
+  /* Trust and Status Colors */
+  --trust-gold: #ffd700;
+  --trust-silver: #c0c0c0;
+  --trust-bronze: #cd7f32;
+  --verified-green: #00c851;
+  --warning-orange: #ff8800;
+  --danger-red: #ff4444;
 }
 
 /* Dark theme variables when data-theme="dark" on <html> */
@@ -49,11 +74,241 @@
   --heritage-blue: #6b8bd6;
   --heritage-brown: #8f6b4f;
   --heritage-accent: #aa8a4f;
+  
+  /* Traditional Indian Color Palette - Dark Theme */
+  --saffron: #ffb366;
+  --saffron-light: #ffcc99;
+  --saffron-dark: #e6851a;
+  --turquoise: #7fffd4;
+  --turquoise-light: #b3ffff;
+  --turquoise-dark: #40e0d0;
+  --maroon: #a52a2a;
+  --maroon-light: #cc4444;
+  --maroon-dark: #800000;
+  --royal-blue: #6495ed;
+  --royal-blue-light: #87ceeb;
+  --royal-blue-dark: #4169e1;
+  --emerald: #90ee90;
+  --emerald-light: #98fb98;
+  --emerald-dark: #50c878;
+  
+  /* Trust and Status Colors - Dark Theme */
+  --trust-gold: #ffd700;
+  --trust-silver: #e6e6e6;
+  --trust-bronze: #daa520;
+  --verified-green: #00ff88;
+  --warning-orange: #ffaa00;
+  --danger-red: #ff6666;
 }
 
 /* Smooth theme transition class added/removed by ThemeProvider */
 .theme-transition * {
   transition: background-color 250ms ease, color 250ms ease, border-color 250ms ease, box-shadow 250ms ease;
+}
+
+/* Traditional Indian Design Elements */
+.indian-pattern {
+  background-image: 
+    radial-gradient(circle at 20% 20%, var(--saffron) 2px, transparent 2px),
+    radial-gradient(circle at 80% 80%, var(--turquoise) 1px, transparent 1px),
+    radial-gradient(circle at 40% 60%, var(--maroon) 1.5px, transparent 1.5px);
+  background-size: 30px 30px, 20px 20px, 25px 25px;
+  opacity: 0.1;
+}
+
+.mandala-border {
+  position: relative;
+}
+
+.mandala-border::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, var(--saffron), var(--turquoise), var(--maroon), var(--royal-blue));
+  border-radius: inherit;
+  z-index: -1;
+  opacity: 0.3;
+}
+
+.rangoli-gradient {
+  background: linear-gradient(135deg, 
+    var(--saffron-light) 0%, 
+    var(--turquoise-light) 25%, 
+    var(--emerald-light) 50%, 
+    var(--royal-blue-light) 75%, 
+    var(--maroon-light) 100%);
+}
+
+.trust-badge {
+  background: linear-gradient(135deg, var(--trust-gold), var(--saffron));
+  color: white;
+  font-weight: bold;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+  box-shadow: 0 2px 8px rgba(255, 153, 51, 0.3);
+}
+
+.verified-badge {
+  background: linear-gradient(135deg, var(--verified-green), var(--emerald));
+  color: white;
+  font-weight: bold;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+  box-shadow: 0 2px 8px rgba(0, 200, 81, 0.3);
+}
+
+.specialization-badge {
+  background: linear-gradient(135deg, var(--royal-blue), var(--turquoise));
+  color: white;
+  font-weight: 600;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+  box-shadow: 0 2px 8px rgba(65, 105, 225, 0.3);
+}
+
+.achievement-badge {
+  background: linear-gradient(135deg, var(--maroon), var(--heritage-red));
+  color: white;
+  font-weight: bold;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+  box-shadow: 0 2px 8px rgba(128, 0, 0, 0.3);
+}
+
+/* Traditional Indian Card Styles */
+.indian-card {
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.9) 0%, 
+    rgba(255, 255, 255, 0.7) 100%);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  position: relative;
+}
+
+.indian-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, var(--saffron), var(--turquoise), var(--maroon));
+  border-radius: inherit;
+  z-index: -1;
+  margin: -2px;
+}
+
+.indian-card-dark {
+  background: linear-gradient(135deg, 
+    rgba(7, 16, 41, 0.9) 0%, 
+    rgba(7, 16, 41, 0.7) 100%);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  position: relative;
+}
+
+.indian-card-dark::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, var(--saffron), var(--turquoise), var(--maroon));
+  border-radius: inherit;
+  z-index: -1;
+  margin: -2px;
+}
+
+/* Traditional Indian Button Styles */
+.btn-indian-primary {
+  background: linear-gradient(135deg, var(--saffron), var(--saffron-dark));
+  color: white;
+  font-weight: 600;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 12px rgba(255, 153, 51, 0.3);
+  transition: all 0.3s ease;
+}
+
+.btn-indian-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(255, 153, 51, 0.4);
+}
+
+.btn-indian-secondary {
+  background: linear-gradient(135deg, var(--turquoise), var(--turquoise-dark));
+  color: white;
+  font-weight: 600;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 12px rgba(64, 224, 208, 0.3);
+  transition: all 0.3s ease;
+}
+
+.btn-indian-secondary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(64, 224, 208, 0.4);
+}
+
+/* Traditional Indian Avatar Frame */
+.avatar-indian-frame {
+  position: relative;
+  background: linear-gradient(135deg, var(--saffron), var(--turquoise), var(--maroon), var(--royal-blue));
+  padding: 4px;
+  border-radius: 50%;
+  box-shadow: 0 4px 16px rgba(255, 153, 51, 0.3);
+}
+
+.avatar-indian-frame::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, var(--saffron), var(--turquoise), var(--maroon), var(--royal-blue));
+  border-radius: 50%;
+  z-index: -1;
+  animation: rotate 3s linear infinite;
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Trust Score Display */
+.trust-score {
+  background: linear-gradient(135deg, var(--trust-gold), var(--saffron));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: bold;
+  font-size: 1.2em;
+}
+
+/* Regional Craftsmanship Badges */
+.craft-badge-banarasi {
+  background: linear-gradient(135deg, #8B4513, #D2691E);
+  color: white;
+}
+
+.craft-badge-rajasthani {
+  background: linear-gradient(135deg, #FF6347, #FF4500);
+  color: white;
+}
+
+.craft-badge-kashmiri {
+  background: linear-gradient(135deg, #4169E1, #191970);
+  color: white;
+}
+
+.craft-badge-bengali {
+  background: linear-gradient(135deg, #228B22, #006400);
+  color: white;
+}
+
+.craft-badge-gujarati {
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  color: white;
 }
 
 /* Mobile theme toggle styles */
