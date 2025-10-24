@@ -52,6 +52,7 @@ export default function ARViewer({ open, onClose, imageUrl, productType }: { ope
     if (!closedRef.current) {
       closedRef.current = true;
       sessionRef.current = null; // Mark session as ended
+      
       onClose();
     }
   };
@@ -96,6 +97,7 @@ export default function ARViewer({ open, onClose, imageUrl, productType }: { ope
   // Add useEffect that, upon AR open, shows the image processing modal and resets arReady
   useEffect(() => {
     if (open) {
+      closedRef.current = false; // Reset close state for new session
       setARReady(false);
       setShowArStartupModal(true);
     } else {
