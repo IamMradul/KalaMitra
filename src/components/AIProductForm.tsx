@@ -32,6 +32,7 @@ interface AIProductFormProps {
     price?: number
     imageUrl?: string
     product_story?: string
+    product_type?: 'vertical' | 'horizontal'
   }
 }
 declare global {
@@ -58,6 +59,7 @@ export default function AIProductForm({
   const [description, setDescription] = useState(initialData.description || '')
   const [price, setPrice] = useState(initialData.price ? String(initialData.price) : '')
   const [story, setStory] = useState(initialData.product_story || '')
+  const [productType, setProductType] = useState<'vertical' | 'horizontal'>(initialData.product_type || 'vertical')
   // Speech recognition state for all fields
   const [listeningField, setListeningField] = useState<string | null>(null)
   const recognitionRef = useRef<SpeechRecognition | null>(null)
@@ -359,6 +361,7 @@ export default function AIProductForm({
     setTitle(aiResult.title);
     setCategory(aiResult.category);
     setDescription(aiResult.description);
+    setProductType(aiResult.productType);
     const suggestedPrice = (aiResult.pricingSuggestion.minPrice + aiResult.pricingSuggestion.maxPrice) / 2;
     setPrice(suggestedPrice.toFixed(2));
     // If you want to update ctaText/website from AI, add here
@@ -390,6 +393,9 @@ export default function AIProductForm({
 
       // Ensure product story is saved
       formData.set('product_story', story);
+      
+      // Ensure product type is saved
+      formData.set('product_type', productType);
 
       // Save product and get productId from result
       const productId = await onSubmit(formData); // onSubmit should return productId
@@ -570,6 +576,7 @@ export default function AIProductForm({
                     </h5>
                     <p className="text-blue-800 mb-1"><strong>{t('ai.form.labels.title', { defaultValue: 'Title' })}:</strong> {aiResult.title}</p>
                     <p className="text-blue-800 mb-1"><strong>{t('ai.form.labels.category', { defaultValue: 'Category' })}:</strong> {aiResult.category}</p>
+                    <p className="text-blue-800 mb-1"><strong>AR Type:</strong> {aiResult.productType === 'vertical' ? 'Vertical (Wall/Standing)' : 'Horizontal (Floor/Table)'}</p>
                     <div className="flex flex-wrap gap-1">
                       {aiResult.tags.map((tag, index) => (
                         <span
@@ -747,6 +754,27 @@ export default function AIProductForm({
               >
                 <Mic className={`w-5 h-5 ${listeningField === 'price' ? 'animate-pulse text-red-500' : 'text-blue-500'}`} />
               </button>
+            </div>
+          </div>
+
+          {/* Product Type for AR */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              AR Display Type
+            </label>
+            <div className="relative">
+              <select
+                name="product_type"
+                value={productType}
+                onChange={e => setProductType(e.target.value as 'vertical' | 'horizontal')}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+              >
+                <option value="vertical">Vertical (Wall/Standing) - Paintings, Pottery, Sculptures</option>
+                <option value="horizontal">Horizontal (Floor/Table) - Rangoli, Carpets, Mats</option>
+              </select>
+            </div>
+            <div className="text-xs text-gray-500 mt-1">
+              This determines how the product will be displayed in AR. AI analysis will suggest the best option.
             </div>
           </div>
 

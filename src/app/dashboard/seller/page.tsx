@@ -303,6 +303,18 @@ export default function SellerDashboard() {
   const price = parseFloat(formData.get('price') as string)
   const imageUrl = formData.get('imageUrl') as string
   const product_story = formData.get('product_story') as string | null
+  const product_type = formData.get('product_type') as 'vertical' | 'horizontal' | null
+
+  // Debug: Log all form data
+  console.log('=== FORM DATA DEBUG ===')
+  for (const [key, value] of formData.entries()) {
+    console.log(`${key}: ${value}`)
+  }
+  console.log('Extracted product_type:', product_type)
+  
+  // Fallback if product_type is not found
+  const finalProductType = product_type || 'vertical'
+  console.log('Final product_type to save:', finalProductType)
 
     // Basic validation
     if (!title || !category || !description || isNaN(price) || price <= 0) {
@@ -318,7 +330,7 @@ export default function SellerDashboard() {
       console.log('Profile role:', profile?.role)
       console.log('User authenticated:', !!user)
       console.log('Profile exists:', !!profile)
-  console.log('Product data:', { title, category, description, price, imageUrl, product_story })
+  console.log('Product data:', { title, category, description, price, imageUrl, product_story, product_type })
       
       // Extract image features (best-effort)
       let features: { avgColor: { r: number; g: number; b: number }; aHash: string } | null = null
@@ -336,7 +348,19 @@ export default function SellerDashboard() {
         price,
         image_url: imageUrl || null,
         product_story: product_story || null,
+        product_type: finalProductType,
       })
+      
+      // Test if product_type column exists by trying a simple query first
+      try {
+        const { data: testData, error: testError } = await supabase
+          .from('products')
+          .select('product_type')
+          .limit(1)
+        console.log('Column test result:', { testData, testError })
+      } catch (testErr) {
+        console.log('Column test error:', testErr)
+      }
       
       // Add timeout to prevent hanging
       const insertPromise = supabase
@@ -350,6 +374,7 @@ export default function SellerDashboard() {
             price,
             image_url: imageUrl || null,
             product_story: product_story || null,
+            product_type: finalProductType,
             // New optional columns if present in DB
             image_avg_r: features?.avgColor.r ?? null,
             image_avg_g: features?.avgColor.g ?? null,
@@ -382,6 +407,8 @@ export default function SellerDashboard() {
           alert('Products table does not exist. Please run the database setup SQL.')
         } else if (error.code === '42501') {
           alert('Permission denied. Check your Row Level Security policies.')
+        } else if (error.message.includes('product_type')) {
+          alert('Product type column error. Please run the database migration to add the product_type column.')
         } else {
           alert(`Failed to add product: ${error.message}`)
         }
@@ -438,6 +465,7 @@ export default function SellerDashboard() {
   const price = parseFloat(formData.get('price') as string)
   const imageUrl = formData.get('imageUrl') as string
   const product_story = formData.get('product_story') as string | null
+  const product_type = formData.get('product_type') as 'vertical' | 'horizontal' | null
 
     // Basic validation
     if (!title || !category || !description || isNaN(price) || price <= 0) {
@@ -447,7 +475,7 @@ export default function SellerDashboard() {
     }
 
     try {
-      console.log('Updating product:', { productId, title, category, description, price, imageUrl, product_story })
+      console.log('Updating product:', { productId, title, category, description, price, imageUrl, product_story, product_type })
       const { error } = await supabase
         .from('products')
         .update({
@@ -457,6 +485,7 @@ export default function SellerDashboard() {
           price,
           image_url: imageUrl || null,
           product_story: product_story || null,
+          product_type: product_type || 'vertical',
         })
         .eq('id', productId)
 
@@ -968,6 +997,7 @@ export default function SellerDashboard() {
               price: editingProduct.price || undefined,
               imageUrl: editingProduct.image_url || undefined,
               product_story: editingProduct.product_story || undefined,
+              product_type: (editingProduct?.product_type as 'vertical' | 'horizontal' | undefined) || 'vertical',
             }}
             onSubmit={async (formData) => {
               try {

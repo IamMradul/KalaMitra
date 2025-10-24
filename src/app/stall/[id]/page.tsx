@@ -14,6 +14,7 @@ import Link from 'next/link'
 import { useTranslation } from 'react-i18next'
 import { useLanguage } from '@/components/LanguageProvider'
 import { translateArray, translateText } from '@/lib/translate'
+import { ShareModal } from '@/components/ShareModal';
 
 type Product = Database['public']['Tables']['products']['Row']
 type Profile = Database['public']['Tables']['profiles']['Row']
@@ -58,6 +59,7 @@ export default function StallPage() {
   const [followersCount, setFollowersCount] = useState(0);
   const [isFollowing, setIsFollowing] = useState(false);
   const [followersLoading, setFollowersLoading] = useState(true);
+  const [showShareModal, setShowShareModal] = useState(false);
 
   // Followers logic
   useEffect(() => {
@@ -239,6 +241,58 @@ export default function StallPage() {
     }
   }
 
+  // Stall share logic
+  const getShareUrl = () => {
+    if (typeof window === 'undefined' || !params.id) return '';
+    return `https://kalaaamitra.vercel.app/stall/${params.id}`;
+  };
+  const getShareTitle = () => (stallProfile?.name ? `${stallProfile.name}'s ${t('navigation.profile')}` : t('navigation.profile'));
+
+  const handleCopyLink = async () => {
+    try {
+      const url = getShareUrl();
+      if (!url) return;
+      await navigator.clipboard.writeText(url);
+      setShowShareModal(false);
+    } catch (e) {
+      // noop
+    }
+  };
+  const handleNativeShare = async () => {
+    const url = getShareUrl();
+    if (!url) return;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: getShareTitle(), text: t('profile.checkOutProfile'), url });
+        setShowShareModal(false);
+        return;
+      } catch {
+        // fall through to web intents
+      }
+    }
+    const text = encodeURIComponent(`${t('profile.checkOutProfile')}: ${url}`);
+    window.open(`https://wa.me/?text=${text}`, '_blank');
+  };
+  const handleShareWhatsApp = () => {
+    const url = getShareUrl();
+    if (!url) return;
+    const text = encodeURIComponent(`${t('profile.checkOutProfile')}: ${url}`);
+    window.open(`https://wa.me/?text=${text}`, '_blank');
+  };
+  const handleShareTwitter = () => {
+    const url = getShareUrl();
+    if (!url) return;
+    const text = encodeURIComponent(t('profile.checkOutProfile'));
+    const shareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${text}`;
+    window.open(shareUrl, '_blank');
+  };
+  const handleShareFacebook = () => {
+    const url = getShareUrl();
+    if (!url) return;
+    const shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+    window.open(shareUrl, '_blank');
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -347,15 +401,39 @@ export default function StallPage() {
               <span>{t('profile.memberSince', { defaultValue: 'Member since' })} {new Date(stallProfile.created_at).getFullYear()}</span>
             </div>
           </div>
-          {/* Open 3D Stall Button */}
-          <button
-            type="button"
-            className="inline-flex items-center gap-2 rounded-lg px-5 py-3 font-semibold text-white bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 shadow-lg hover:scale-105 hover:shadow-xl transition-all duration-200 mb-2"
-            onClick={() => setShow3DModal(true)}
-          >
-            <Palette className="w-5 h-5 text-white drop-shadow" />
-            Open 3D Stall
-          </button>
+          {/* 3D Stall and Share Buttons with Spacing */}
+          <div className="flex justify-center gap-3 mb-2">
+            <button
+              type="button"
+              className="inline-flex items-center gap-2 rounded-lg px-5 py-3 font-semibold text-white bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 shadow-lg hover:scale-105 hover:shadow-xl transition-all duration-200"
+              onClick={() => setShow3DModal(true)}
+            >
+              <Palette className="w-5 h-5 text-white drop-shadow" />
+              Open 3D Stall
+            </button>
+            <button
+              type="button"
+              className="inline-flex items-center gap-2 rounded-lg px-5 py-3 font-semibold bg-gradient-to-r from-orange-300 via-orange-400 to-orange-500 text-white shadow hover:scale-105 transition"
+              onClick={() => setShowShareModal(true)}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 8.25V6a3 3 0 1 0-6 0v2.25m6 0H9m6 0a2.25 2.25 0 0 1 0 4.5h-6a2.25 2.25 0 1 1 0-4.5m0 0V6a3 3 0 1 1 6 0v2.25" />
+              </svg>
+              {t('profile.share') || 'Share Stall'}
+            </button>
+          </div>
+          <ShareModal
+            open={showShareModal}
+            onClose={() => setShowShareModal(false)}
+            shareUrl={getShareUrl()}
+            getShareTitle={getShareTitle}
+            t={t}
+            handleCopyLink={handleCopyLink}
+            handleNativeShare={handleNativeShare}
+            handleShareWhatsApp={handleShareWhatsApp}
+            handleShareTwitter={handleShareTwitter}
+            handleShareFacebook={handleShareFacebook}
+          />
         </motion.div>
 
         {/* 3D Marketplace Modal (focus on this stall) */}

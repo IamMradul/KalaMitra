@@ -13,6 +13,7 @@ export interface AIAnalysisResult {
   };
   category: string;
   tags: string[];
+  productType: 'vertical' | 'horizontal';
 }
 
 export interface SellerAnalyticsSnapshot {
@@ -117,7 +118,8 @@ Answer as a pragmatic marketplace strategist. Give specific, short recommendatio
             "reasoning": "pricing reasoning here"
           },
           "category": "category name",
-          "tags": ["tag1", "tag2", "tag3"]
+          "tags": ["tag1", "tag2", "tag3"],
+          "productType": "vertical"
         }
         
         Requirements:
@@ -144,6 +146,10 @@ Answer as a pragmatic marketplace strategist. Give specific, short recommendatio
         4. Product category (e.g., Pottery, Textiles, Jewelry, Woodwork, Metalwork)
         
         5. Relevant tags for searchability
+        
+        6. Product type for AR placement:
+           - "vertical" for items typically displayed vertically (paintings, wall hangings, pottery, sculptures, artwork, canvas, frames)
+           - "horizontal" for items typically displayed horizontally (rangoli, kolam, floor art, carpets, mats, rugs, table runners)
         
         IMPORTANT:
         - Currency must be INR (₹) suitable for Indian online marketplace buyers
@@ -196,7 +202,7 @@ Answer as a pragmatic marketplace strategist. Give specific, short recommendatio
       }
       
       // Validate the response structure
-      if (!aiResult.title || !aiResult.description || !aiResult.pricingSuggestion || !aiResult.category || !aiResult.tags) {
+      if (!aiResult.title || !aiResult.description || !aiResult.pricingSuggestion || !aiResult.category || !aiResult.tags || !aiResult.productType) {
         console.error('Invalid AI response structure:', aiResult);
         throw new Error('AI response is incomplete. Please try again.');
       }
@@ -210,7 +216,8 @@ Answer as a pragmatic marketplace strategist. Give specific, short recommendatio
           reasoning: aiResult.pricingSuggestion.reasoning
         },
         category: aiResult.category,
-        tags: aiResult.tags
+        tags: aiResult.tags,
+        productType: aiResult.productType
       };
     } catch (error) {
       console.error('AI analysis failed:', error);
@@ -247,7 +254,8 @@ Answer as a pragmatic marketplace strategist. Give specific, short recommendatio
             "reasoning": "pricing reasoning here"
           },
           "category": "category name",
-          "tags": ["tag1", "tag2", "tag3"]
+          "tags": ["tag1", "tag2", "tag3"],
+          "productType": "vertical"
         }
         
         Requirements:
@@ -274,6 +282,10 @@ Answer as a pragmatic marketplace strategist. Give specific, short recommendatio
         4. Product category (e.g., Pottery, Textiles, Jewelry, Woodwork, Metalwork)
         
         5. Relevant tags for searchability
+        
+        6. Product type for AR placement:
+           - "vertical" for items typically displayed vertically (paintings, wall hangings, pottery, sculptures, artwork, canvas, frames)
+           - "horizontal" for items typically displayed horizontally (rangoli, kolam, floor art, carpets, mats, rugs, table runners)
         
         IMPORTANT:
         - Currency must be INR (₹) suitable for Indian online marketplace buyers
@@ -326,7 +338,7 @@ Answer as a pragmatic marketplace strategist. Give specific, short recommendatio
       }
       
       // Validate the response structure
-      if (!aiResult.title || !aiResult.description || !aiResult.pricingSuggestion || !aiResult.category || !aiResult.tags) {
+      if (!aiResult.title || !aiResult.description || !aiResult.pricingSuggestion || !aiResult.category || !aiResult.tags || !aiResult.productType) {
         console.error('Invalid AI response structure:', aiResult);
         throw new Error('AI response is incomplete. Please try again.');
       }
@@ -340,7 +352,8 @@ Answer as a pragmatic marketplace strategist. Give specific, short recommendatio
           reasoning: aiResult.pricingSuggestion.reasoning
         },
         category: aiResult.category,
-        tags: aiResult.tags
+        tags: aiResult.tags,
+        productType: aiResult.productType
       };
     } catch (error) {
       console.error('AI analysis failed:', error);
