@@ -1,4 +1,5 @@
 
+
 'use client'
 import { useRef } from 'react'
 import { useState, useEffect } from 'react'
@@ -17,6 +18,7 @@ import { translateText } from '@/lib/translate'
 import dynamic from 'next/dynamic'
 
 const AuctionWidget = dynamic(() => import('@/components/AuctionWidget'), { ssr: false })
+const ARViewer = dynamic(() => import('@/components/ARViewer'), { ssr: false })
 
 type Product = Database['public']['Tables']['products']['Row'] & {
   seller: {
@@ -98,6 +100,13 @@ export default function ProductDetail() {
   const [loading, setLoading] = useState(true)
   const [quantity, setQuantity] = useState(1)
   const [hasActiveAuction, setHasActiveAuction] = useState(false)
+  const [arOpen, setArOpen] = useState(false)
+  const [arImageUrl, setArImageUrl] = useState('')
+  const [arProductType, setArProductType] = useState<'vertical' | 'horizontal'>('vertical')
+  
+
+
+  
 
   useEffect(() => {
     // Debug: log language mapping for translation on every language switch
@@ -364,6 +373,28 @@ export default function ProductDetail() {
                   <span className={`text-8xl ${
                     product.isCollaborative ? 'text-yellow-400' : 'text-orange-400'
                   }`}>🎨</span>
+                </div>
+              )}
+              
+              {/* AR Button */}
+              {product.image_url && (
+                <div className="absolute bottom-4 left-4 z-10">
+                  <button
+                    onClick={() => {
+                      setArImageUrl(product.image_url)
+                      setArProductType((product.product_type as 'vertical' | 'horizontal' | undefined) || 'vertical')
+                      setArOpen(true)
+                    }}
+                    className="group relative p-3 bg-gradient-to-r from-green-100 to-emerald-100 text-green-700 rounded-full hover:from-green-200 hover:to-emerald-200 transition-all duration-200 shadow-lg hover:shadow-xl"
+                    title="View in Augmented Reality - Place this product in your space"
+                  >
+                    <span role="img" aria-label="AR" className="text-xl">📱</span>
+                    {/* Tooltip */}
+                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-20">
+                      View in AR
+                      <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                    </div>
+                  </button>
                 </div>
               )}
             </div>
@@ -685,6 +716,12 @@ export default function ProductDetail() {
           </motion.div>
         </div>
       </div>
+      
+
+      {/* AR Viewer */}
+      {arOpen && (
+  <ARViewer open={arOpen} onClose={() => setArOpen(false)} imageUrl={arImageUrl} productType={arProductType} />
+      )}
     </div>
   )
 }

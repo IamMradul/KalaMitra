@@ -51,6 +51,7 @@ export type Database = {
           image_url: string
           created_at: string
           product_story?: string | null
+          product_type?: 'vertical' | 'horizontal' | null
         }
         Insert: {
           id?: string
@@ -62,6 +63,7 @@ export type Database = {
           image_url: string
           created_at?: string
           product_story?: string | null
+          product_type?: 'vertical' | 'horizontal' | null
         }
         Update: {
           id?: string
@@ -73,6 +75,7 @@ export type Database = {
           image_url?: string
           created_at?: string
           product_story?: string | null
+          product_type?: 'vertical' | 'horizontal' | null
         }
       }
       auctions: {
