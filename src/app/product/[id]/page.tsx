@@ -1,5 +1,3 @@
-
-
 'use client'
 import { useRef } from 'react'
 import { useState, useEffect } from 'react'
@@ -8,6 +6,7 @@ import { motion } from 'framer-motion'
 import { useAuth } from '@/contexts/AuthContext'
 import { logActivity } from '@/lib/activity'
 import { ShoppingCart, Heart, ArrowLeft, Star, User } from 'lucide-react'
+import GroupGiftModal from '@/components/GroupGiftModal'
 import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
 import { Database } from '@/lib/supabase'
@@ -56,6 +55,13 @@ type CollabJoin = {
   }[]) | null
 }
 
+type RecipientProfile = {
+  id: string;
+  name: string;
+  email: string;
+  profile_image: string | null;
+};
+
 export default function ProductDetail() {
   // Debug: log language mapping for translation on every render
   const langMap: Record<string, string> = {
@@ -94,7 +100,7 @@ export default function ProductDetail() {
   const { currentLanguage } = useLanguage()
   const params = useParams()
   const router = useRouter()
-  const { user } = useAuth()
+  const { user, profile } = useAuth()
   const [product, setProduct] = useState<Product | null>(null)
   const [translatedStory, setTranslatedStory] = useState<string | null>(null);
   const [loading, setLoading] = useState(true)
@@ -103,10 +109,83 @@ export default function ProductDetail() {
   const [arOpen, setArOpen] = useState(false)
   const [arImageUrl, setArImageUrl] = useState('')
   const [arProductType, setArProductType] = useState<'vertical' | 'horizontal'>('vertical')
-  
+  // Gift Modal State
+  const [giftModalOpen, setGiftModalOpen] = useState(false)
+  const [giftType, setGiftType] = useState<'individual' | 'group'>('individual')
+  const [groupGiftModalOpen, setGroupGiftModalOpen] = useState(false)
+  const [giftRecipient, setGiftRecipient] = useState("")
+  const [giftMessage, setGiftMessage] = useState("")
+  const [gifting, setGifting] = useState(false)
+  const [giftSuccess, setGiftSuccess] = useState(false)
+  const [giftError, setGiftError] = useState<string | null>(null);
+  // Recipient search state for realtime search
+  const [recipientQuery, setRecipientQuery] = useState("");
+  const [recipientResults, setRecipientResults] = useState<RecipientProfile[]>([]);
+  const [recipientLoading, setRecipientLoading] = useState(false);
+  const [selectedRecipient, setSelectedRecipient] = useState<RecipientProfile | null>(null);
+  // Debounce for recipient search
+  useEffect(() => {
+    if (!recipientQuery || recipientQuery.length <= 1) {
+      setRecipientResults([])
+      setRecipientLoading(false)
+      return
+    }
+    setRecipientLoading(true);
+    const timer = setTimeout(async () => {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, name, email, profile_image')
+        .or(`name.ilike.%${recipientQuery}%,email.ilike.%${recipientQuery}%`)
+        .neq('id', user?.id || '')
+        .limit(5)
+      setRecipientResults(data || [])
+      setRecipientLoading(false)
+    }, 350)
+    return () => clearTimeout(timer)
+  }, [recipientQuery, user])
 
+  // Update handleSendGift for API POST
+  const handleSendGift = async () => {
+    setGifting(true);
+    setGiftError(null);
+    try {
+      if (!selectedRecipient) {
+        setGiftError('Please select a recipient.');
+        setGifting(false);
+        return;
+      }
+      const res = await fetch('/api/gift', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          product_id: product?.id,
+          recipient_id: selectedRecipient.id,
+          message: giftMessage,
+          user_id: profile?.id
+        }),
+      });
+      const json = await res.json();
+      console.log('Gift API response:', json);
+      if (!res.ok) {
+        setGiftError(json?.error || 'Gift could not be sent.');
+        setGifting(false);
+        return;
+      }
+      console.log('Gift sent successfully!');
+      setGiftSuccess(true);
+      setGiftMessage("");
+      setRecipientQuery("");
+      setSelectedRecipient(null);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setGiftError(err.message);
+      } else {
+        setGiftError('Could not send gift – try again later.');
+      }
+    }
+    setGifting(false);
+  }
 
-  
 
   useEffect(() => {
     // Debug: log language mapping for translation on every language switch
@@ -623,6 +702,14 @@ export default function ProductDetail() {
                 <button className="px-6 py-3 border border-[var(--border)] text-[var(--text)] font-semibold rounded-lg hover:bg-[var(--bg-2)] transition-colors" title={t('product.addToWishlist')}>
                   <Heart className="w-5 h-5" />
                 </button>
+                {/* Gift Button */}
+                <button
+                  className="px-6 py-3 border border-pink-300 text-pink-700 bg-pink-50 font-semibold rounded-lg hover:bg-pink-100 hover:border-pink-400 transition-colors flex items-center gap-2"
+                  title="Gift this item"
+                  onClick={() => setGiftModalOpen(true)}
+                >
+                  <span role="img" aria-label="gift">🎁</span> Gift
+                </button>
               </div>
             </div>
 
@@ -722,6 +809,165 @@ export default function ProductDetail() {
       {arOpen && (
   <ARViewer open={arOpen} onClose={() => setArOpen(false)} imageUrl={arImageUrl} productType={arProductType} />
       )}
+
+      {/* Gift Modal (simple) */}
+      {giftModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full relative">
+            <button className="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-xl" onClick={() => {setGiftModalOpen(false); setGiftSuccess(false);}}>&times;</button>
+            <h2 className="text-2xl font-bold mb-4">Send as a Gift 🎁</h2>
+            
+            {/* Gift Type Selection */}
+            <div className="mb-6">
+              <label className="block mb-3 font-semibold">Choose Gift Type:</label>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setGiftType('individual')}
+                  className={`flex-1 p-3 rounded-lg border-2 transition-all ${
+                    giftType === 'individual'
+                      ? 'border-pink-500 bg-pink-50 text-pink-700'
+                      : 'border-gray-300 bg-white text-gray-700 hover:border-pink-300'
+                  }`}
+                >
+                  <div className="text-center">
+                    <div className="text-2xl mb-1">🎁</div>
+                    <div className="font-semibold">Individual Gift</div>
+                    <div className="text-xs text-gray-500">Send directly to someone</div>
+                  </div>
+                </button>
+                <button
+                  onClick={() => setGiftType('group')}
+                  className={`flex-1 p-3 rounded-lg border-2 transition-all ${
+                    giftType === 'group'
+                      ? 'border-purple-500 bg-purple-50 text-purple-700'
+                      : 'border-gray-300 bg-white text-gray-700 hover:border-purple-300'
+                  }`}
+                >
+                  <div className="text-center">
+                    <div className="text-2xl mb-1">👥</div>
+                    <div className="font-semibold">Group Gift</div>
+                    <div className="text-xs text-gray-500">Multiple people contribute</div>
+                  </div>
+                </button>
+              </div>
+            </div>
+            {giftError && <div className="mb-2 text-pink-700 bg-pink-100 border border-pink-300 rounded px-3 py-2 text-sm">{giftError}</div>}
+            
+            {giftType === 'individual' ? (
+              <>
+                {giftSuccess ? (
+                  <div className="text-center py-8">
+                    <div className="text-6xl mb-4">🎉</div>
+                    <h3 className="text-2xl font-bold text-green-600 mb-2">Gift Sent Successfully!</h3>
+                    <p className="text-gray-600 mb-6">Your gift has been sent to {selectedRecipient?.name}!</p>
+                    <button
+                      onClick={() => {
+                        setGiftModalOpen(false);
+                        setGiftSuccess(false);
+                        setSelectedRecipient(null);
+                        setGiftRecipient("");
+                        setRecipientQuery("");
+                        setGiftMessage("");
+                      }}
+                      className="w-full px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 font-bold"
+                    >
+                      Close
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    {!selectedRecipient ? (
+                      <>
+                        <label className="block mb-2 font-semibold">Recipient&apos;s Username or Email</label>
+                        <input
+                          type="text"
+                          value={recipientQuery}
+                          onChange={e => {
+                            setRecipientQuery(e.target.value);
+                            setGiftRecipient("");
+                          }}
+                          className="w-full mb-1 p-2 border rounded-lg"
+                          placeholder="Start typing username or email..."
+                          disabled={gifting}
+                        />
+                        {recipientLoading && <div className="text-xs text-gray-400 mb-2">Searching...</div>}
+                        {recipientResults.length > 0 && (
+                          <ul className="bg-white border rounded-lg shadow max-h-48 overflow-auto mb-2">
+                            {recipientResults.map(profile => (
+                              <li
+                                key={profile.id}
+                                className="flex items-center px-3 py-2 hover:bg-pink-50 cursor-pointer gap-3"
+                                onClick={() => {
+                                  setSelectedRecipient(profile);
+                                  setGiftRecipient(profile.id);
+                                  setRecipientQuery(profile.name+" ("+profile.email+")");
+                                  setRecipientResults([]);
+                                }}
+                              >
+                                {profile.profile_image && (
+                                  <img src={profile.profile_image} alt="profile" className="w-7 h-7 rounded-full object-cover" />
+                                )}
+                                <span className="font-medium">{profile.name}</span>
+                                <span className="text-xs text-gray-500">{profile.email}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </>
+                    ) : (
+                      <div className="mb-2 flex items-center gap-3 p-2 bg-pink-50 rounded">
+                        {selectedRecipient.profile_image && (
+                          <img src={selectedRecipient.profile_image} alt="profile" className="w-7 h-7 rounded-full object-cover" />
+                        )}
+                        <span className="font-medium">{selectedRecipient.name}</span>
+                        <span className="text-xs text-gray-500">{selectedRecipient.email}</span>
+                        <button className="ml-2 px-2 text-sm text-pink-500 underline" onClick={() => {
+                          setSelectedRecipient(null); setGiftRecipient(""); setRecipientQuery("");
+                        }}>Change</button>
+                      </div>
+                    )}
+                    <label className="block mb-2 font-semibold">Personal Message (optional)</label>
+                    <textarea value={giftMessage} onChange={e => setGiftMessage(e.target.value)} className="w-full mb-4 p-2 border rounded-lg" placeholder="Write a message..." />
+                    <button
+                      className="w-full px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 font-bold disabled:opacity-70"
+                      onClick={handleSendGift}
+                      disabled={gifting || !giftRecipient}
+                    >
+                      {gifting ? 'Sending...' : 'Send Individual Gift'}
+                    </button>
+                  </>
+                )}
+              </>
+            ) : (
+              <div className="text-center py-8">
+                <div className="text-6xl mb-4">👥</div>
+                <h3 className="text-xl font-bold text-purple-700 mb-2">Start a Group Gift</h3>
+                <p className="text-gray-600 mb-6">Let multiple people contribute to this gift for your friend!</p>
+                <button
+                  onClick={() => {
+                    console.log('Opening group gift modal...');
+                    setGiftModalOpen(false);
+                    setGroupGiftModalOpen(true);
+                  }}
+                  className="w-full px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 font-bold"
+                >
+                  Create Group Gift
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Group Gift Modal */}
+      <GroupGiftModal
+        isOpen={groupGiftModalOpen}
+        onClose={() => setGroupGiftModalOpen(false)}
+        productId={product?.id}
+        productTitle={product?.title}
+        productPrice={product?.price}
+        productImage={product?.image_url}
+      />
     </div>
   )
 }

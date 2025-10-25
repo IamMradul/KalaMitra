@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
 import { useLanguage } from '@/components/LanguageProvider'
-import { ShoppingCart, LogOut, Menu, X, Palette, Bell, Moon, Sun, User, Video } from 'lucide-react'
+import { ShoppingCart, LogOut, Menu, X, Palette, Bell, Moon, Sun, User, Video, Gift } from 'lucide-react'
 import { useTheme } from './ThemeProvider'
 import Leaderboard from './Leaderboard'
 import { supabase } from '@/lib/supabase'
@@ -77,14 +77,23 @@ export default function Navbar() {
     }
   }, [profileDropdownOpen])
 
-  // Poll for live auctions and unread count every 30s
+  // Poll for live auctions every 30s and notifications every 5s for real-time badge
   useEffect(() => {
     fetchLiveAuctions()
-    const iv = setInterval(() => {
+    const auctionIv = setInterval(() => {
       fetchLiveAuctions()
-      if (user?.id) fetchUnread(user.id)
     }, 30000)
-    return () => clearInterval(iv)
+    let notifIv: NodeJS.Timeout | null = null;
+    if (user?.id) {
+      fetchUnread(user.id)
+      notifIv = setInterval(() => {
+        fetchUnread(user.id)
+      }, 5000)
+    }
+    return () => {
+      clearInterval(auctionIv)
+      if (notifIv) clearInterval(notifIv)
+    }
   }, [user?.id])
 
   // Translate user name when profile or language changes
@@ -239,8 +248,10 @@ export default function Navbar() {
               <span className="text-3xl font-bold heritage-title md:hidden" key={`brand-short-${currentLanguage}`}>KM</span>
             </Link>
           </div>
-          {/* Reels Button - far right, icon + text, no background (desktop) */}
-          <div className="hidden md:flex items-center">
+
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center space-x-10">
+                      {/* ...existing code... */}
             <Link 
               href="/reels" 
               className="text-[var(--text)] hover:text-heritage-gold transition-all duration-300 font-medium hover:scale-105 transform hover:translate-y-[-2px] relative group flex items-center px-3 py-2" 
@@ -250,10 +261,7 @@ export default function Navbar() {
               <span className="text-base">{t('navigation.reels')}</span>
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-heritage-gold to-heritage-red transition-all duration-300 group-hover:w-full"></span>
             </Link>
-          </div>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-10">
             <Link 
               href="/marketplace" 
               className="text-[var(--text)] hover:text-heritage-gold transition-all duration-300 font-medium hover:scale-105 transform hover:translate-y-[-2px] relative group"
@@ -295,6 +303,7 @@ export default function Navbar() {
               </div>
             ) : user ? (
               <>
+                {/* Dashboard only for sellers, no placeholder for buyers */}
                 {profile?.role === 'seller' && (
                   <Link 
                     href="/dashboard" 
@@ -304,6 +313,7 @@ export default function Navbar() {
                     <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-heritage-gold to-heritage-red transition-all duration-300 group-hover:w-full"></span>
                   </Link>
                 )}
+                {/* Cart, Gifts, Notifications, Theme, Profile always present */}
                 <Link 
                   href="/cart" 
                   className="text-[var(--text)] hover:text-heritage-gold transition-all duration-300 font-medium relative hover:scale-105 transform hover:translate-y-[-2px] group"
@@ -312,6 +322,13 @@ export default function Navbar() {
                   <span className="absolute -top-2 -right-2 bg-gradient-to-r from-heritage-gold to-heritage-red text-white text-xs rounded-full w-6 h-6 flex items-center justify-center shadow-medium animate-pulse-glow">
                     0
                   </span>
+                </Link>
+                <Link 
+                  href="/gifts" 
+                  className="text-[var(--text)] hover:text-pink-600 transition-all duration-300 font-medium relative hover:scale-105 transform hover:translate-y-[-2px] group"
+                  title="Gifts"
+                >
+                  <Gift className="w-6 h-6" />
                 </Link>
                 <div className="flex items-center space-x-6">
                   <div className="relative">
@@ -419,7 +436,7 @@ export default function Navbar() {
                   </div>
                 </div>
               </>
-                ) : (
+            ) : (
               <div className="flex items-center space-x-6">
                 <Link 
                   href="/auth/signin"
@@ -552,6 +569,14 @@ export default function Navbar() {
                     onClick={() => setIsMenuOpen(false)}
                   >
                     {t('navigation.cart')}
+                  </Link>
+                  <Link 
+                    href="/gifts" 
+                    className="text-[var(--text)] hover:text-pink-600 transition-all duration-300 font-medium px-6 py-3 hover:bg-pink-100 rounded-2xl hover:translate-x-2 transform flex items-center gap-2"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <Gift className="w-5 h-5" />
+                    Gifts
                   </Link>
                     <div className="pt-4 border-t border-heritage-gold/50 px-6">
                     <span className="text-[var(--text)] font-medium block mb-3 px-4 py-2 bg-[var(--bg-2)] rounded-xl backdrop-blur-sm">
