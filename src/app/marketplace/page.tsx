@@ -724,7 +724,7 @@ function MarketplaceContent() {
           transition={{ duration: 0.6 }}
           className="mb-8"
         >
-          <div className="flex items-center justify-between gap-4">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
             <div>
               <h1 className="text-4xl font-bold heritage-title mb-1">
                 {t('marketplace.title')}
@@ -733,21 +733,23 @@ function MarketplaceContent() {
                 {t('marketplace.subtitle')}
               </p>
             </div>
-            <Market3DButton
-              products={filteredProducts.map(p => ({
-                ...p,
-                name: typeof p.title === 'string' ? p.title : '',
-                price: p.price,
-                image_url: p.image_url,
-                description: p.description,
-                category: p.category as ThreeProduct['category'],
-              }))}
-              onAddToCart={addToCart}
-              onViewDetails={(id) => {
-                // Reuse navigation to product detail
-                window.location.href = `/product/${id}`
-              }}
-            />
+            <div className="w-full md:w-auto mt-4 md:mt-0 flex justify-center md:justify-end">
+              <Market3DButton
+                products={filteredProducts.map(p => ({
+                  ...p,
+                  name: typeof p.title === 'string' ? p.title : '',
+                  price: p.price,
+                  image_url: p.image_url,
+                  description: p.description,
+                  category: p.category as ThreeProduct['category'],
+                }))}
+                onAddToCart={addToCart}
+                onViewDetails={(id) => {
+                  // Reuse navigation to product detail
+                  window.location.href = `/product/${id}`
+                }}
+              />
+            </div>
           </div>
         </motion.div>
 
@@ -766,7 +768,9 @@ function MarketplaceContent() {
             </span>
             <span className="text-gray-400">→ Click the 💬 button in bottom-right corner</span>
           </div>
-          
+
+ 
+
           <div className="grid md:grid-cols-2 gap-4">
             {/* Search */}
             <div className="relative">
@@ -816,9 +820,19 @@ function MarketplaceContent() {
               </select>
             </div>
           </div>
-
-          {/* Collaborative Filter Toggle */}
-          <div className="mt-4 flex items-center justify-center">
+                 {/* Gifting & Collaborative Button Row */}
+          <div className="mb-4 mt-4 flex flex-col md:flex-row items-center justify-center gap-4">
+            <button
+              type="button"
+              aria-label="Giftable Products"
+              className={`px-4 py-2 rounded-lg font-medium transition-transform duration-200 ease-out transform will-change-transform flex items-center gap-2 shadow-sm hover:-translate-y-3.5 hover:scale-[1.02] hover:shadow-md focus:outline-none focus:ring-2 focus:ring-orange-200  ${searchTerm === 'gift item'
+                ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-white shadow-md border-yellow-500'
+                : 'bg-white hover:border-gray-400 dark:hover:border-gray-500'}
+              `}
+              onClick={() => setSearchTerm(searchTerm === 'gift item' ? '' : 'gift item')}
+            >
+              🎁 Giftable Products
+            </button>
             <button
               onClick={() => setShowCollaborativeOnly(!showCollaborativeOnly)}
               className={`px-4 py-2 rounded-lg font-medium transition-transform duration-200 ease-out transform will-change-transform flex items-center gap-2 shadow-sm hover:-translate-y-3.5 hover:scale-[1.02] hover:shadow-md focus:outline-none focus:ring-2 focus:ring-orange-200 ${
@@ -832,6 +846,8 @@ function MarketplaceContent() {
             </button>
           </div>
         </motion.div>
+
+        
 
         {/* Products Grid */}
         <motion.div
