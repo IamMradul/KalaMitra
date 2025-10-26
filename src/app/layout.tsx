@@ -7,7 +7,7 @@ import { LanguageProvider } from "@/components/LanguageProvider";
 import ThemeProvider from '@/components/ThemeProvider'
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import AIShoppingChat from "@/components/AIShoppingChat";
+import AIChatConditional from '@/components/AIChatConditional';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,6 +34,8 @@ export default async function RootLayout({
   // Read preferred language from cookies to keep SSR and client in sync
   const cookieStore = await cookies()
   const preferredLang = cookieStore.get('preferredLanguage')?.value || 'en'
+  // Add client-side path check for conditional rendering
+  // Use a wrapper component for conditional AIShoppingChat
   return (
     <html lang={preferredLang}>
       <head>
@@ -52,7 +54,7 @@ export default async function RootLayout({
               </main>
               <Footer />
             </div>
-            <AIShoppingChat />
+            <AIChatConditional />
             </ThemeProvider>
           </LanguageProvider>
         </AuthProvider>

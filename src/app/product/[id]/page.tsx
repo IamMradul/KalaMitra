@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { useAuth } from '@/contexts/AuthContext'
 import { logActivity } from '@/lib/activity'
-import { ShoppingCart, Heart, ArrowLeft, Star, User } from 'lucide-react'
+import { ShoppingCart, Heart, ArrowLeft, Star, User, Sparkles } from 'lucide-react'
 import GroupGiftModal from '@/components/GroupGiftModal'
 import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
@@ -118,6 +118,12 @@ export default function ProductDetail() {
   const [gifting, setGifting] = useState(false)
   const [giftSuccess, setGiftSuccess] = useState(false)
   const [giftError, setGiftError] = useState<string | null>(null);
+    // Custom Request Modal State
+    const [customRequestModalOpen, setCustomRequestModalOpen] = useState(false);
+    const [customRequestMessage, setCustomRequestMessage] = useState("");
+    const [customRequestLoading, setCustomRequestLoading] = useState(false);
+    const [customRequestSuccess, setCustomRequestSuccess] = useState(false);
+    const [customRequestError, setCustomRequestError] = useState<string | null>(null);
   // Recipient search state for realtime search
   const [recipientQuery, setRecipientQuery] = useState("");
   const [recipientResults, setRecipientResults] = useState<RecipientProfile[]>([]);
@@ -710,6 +716,15 @@ export default function ProductDetail() {
                 >
                   <span role="img" aria-label="gift">🎁</span> Gift
                 </button>
+                  {/* Custom Request Button */}
+                  <button
+                    className="px-6 py-3 border border-teal-300 text-teal-700 bg-teal-50 font-semibold rounded-lg hover:bg-teal-100 hover:border-teal-400 transition-colors flex items-center gap-2"
+                    title="Request a Custom Craft"
+                    onClick={() => setCustomRequestModalOpen(true)}
+                  >
+                    <Sparkles className="w-5 h-5" />
+                    Request Custom Craft
+                  </button>
               </div>
             </div>
 
@@ -968,6 +983,137 @@ export default function ProductDetail() {
         productPrice={product?.price}
         productImage={product?.image_url}
       />
+
+        {/* Custom Request Modal */}
+        {customRequestModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+            <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full relative">
+              <button className="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-xl" onClick={() => {setCustomRequestModalOpen(false); setCustomRequestSuccess(false); setCustomRequestMessage(""); setCustomRequestError(null);}}>&times;</button>
+              <h2 className="text-2xl font-bold mb-4">Request a Custom Craft ✨</h2>
+              {customRequestError && <div className="mb-2 text-teal-700 bg-teal-100 border border-teal-300 rounded px-3 py-2 text-sm">{customRequestError}</div>}
+              {customRequestSuccess ? (
+                <div className="text-center py-8">
+                  <div className="text-6xl mb-4">🎉</div>
+                  <h3 className="text-2xl font-bold text-green-600 mb-2">Request Sent!</h3>
+                  <p className="text-gray-600 mb-2">Your custom craft request has been sent to the seller.</p>
+                  <p className="text-teal-700 bg-teal-50 border border-teal-200 rounded px-3 py-2 text-sm mb-4">The seller will reach out to you through DM (Direct Message) for further details and updates.</p>
+                  <button
+                    onClick={() => {
+                      setCustomRequestModalOpen(false);
+                      setCustomRequestSuccess(false);
+                      setCustomRequestMessage("");
+                      setCustomRequestError(null);
+                    }}
+                    className="w-full px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 font-bold"
+                  >
+                    Close
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <label className="block mb-2 font-semibold">Describe your custom craft request</label>
+                  <div className="relative mb-4">
+                    <textarea
+                      value={customRequestMessage}
+                      onChange={e => setCustomRequestMessage(e.target.value)}
+                      className="w-full p-2 border rounded-lg pr-12"
+                      placeholder="Describe what you want..."
+                      disabled={customRequestLoading}
+                      rows={4}
+                    />
+                    <button
+                      type="button"
+                      className="absolute top-2 right-2 bg-teal-100 hover:bg-teal-200 text-teal-700 rounded-full p-2 shadow focus:outline-none"
+                      title="Speak your request"
+                      onClick={() => {
+                        if (typeof window !== 'undefined' && ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+                          const win = window as typeof window & {
+                            SpeechRecognition?: typeof SpeechRecognition;
+                            webkitSpeechRecognition?: typeof SpeechRecognition;
+                          };
+                          const SpeechRecognitionCtor: typeof SpeechRecognition | undefined = win.SpeechRecognition || win.webkitSpeechRecognition;
+                          if (!SpeechRecognitionCtor) {
+                            setCustomRequestError('Speech recognition not supported in this browser.');
+                            return;
+                          }
+                          const recognition = new SpeechRecognitionCtor();
+                          // Map app language to BCP-47 code
+                          const langMap: Record<string, string> = {
+                            en: 'en-IN', hi: 'hi-IN', assamese: 'as-IN', bengali: 'bn-IN', bodo: 'brx-IN', dogri: 'doi-IN', gujarati: 'gu-IN', kannad: 'kn-IN', kannada: 'kn-IN', kashmiri: 'ks-IN', konkani: 'kok-IN', maithili: 'mai-IN', malyalam: 'ml-IN', malayalam: 'ml-IN', manipuri: 'mni-IN', marathi: 'mr-IN', nepali: 'ne-NP', oriya: 'or-IN', punjabi: 'pa-IN', sanskrit: 'sa-IN', santhali: 'sat-IN', sindhi: 'sd-IN', tamil: 'ta-IN', telgu: 'te-IN', telugu: 'te-IN', urdu: 'ur-IN', as: 'as-IN', bn: 'bn-IN', brx: 'brx-IN', doi: 'doi-IN', gu: 'gu-IN', kn: 'kn-IN', ks: 'ks-IN', kok: 'kok-IN', mai: 'mai-IN', ml: 'ml-IN', mni: 'mni-IN', mr: 'mr-IN', ne: 'ne-NP', or: 'or-IN', pa: 'pa-IN', sa: 'sa-IN', sat: 'sat-IN', sd: 'sd-IN', ta: 'ta-IN', te: 'te-IN', ur: 'ur-IN',
+                          };
+                          // Use currentLanguage or i18n.language
+                          const appLang = (typeof currentLanguage !== 'undefined' && currentLanguage) ? currentLanguage : (typeof i18n !== 'undefined' && i18n.language ? i18n.language : 'en');
+                          recognition.lang = langMap[appLang] || appLang || 'en-IN';
+                          recognition.interimResults = false;
+                          recognition.maxAlternatives = 1;
+                          recognition.onresult = (event: SpeechRecognitionEvent) => {
+                            const transcript = event.results[0][0].transcript;
+                            setCustomRequestMessage(prev => prev ? prev + ' ' + transcript : transcript);
+                          };
+                          recognition.onerror = (event: Event) => {
+                            const error = (event as { error?: string }).error;
+                            setCustomRequestError('Voice input error: ' + (error || 'Unknown error'));
+                          };
+                          recognition.start();
+                        } else {
+                          setCustomRequestError('Speech recognition not supported in this browser.');
+                        }
+                      }}
+                      disabled={customRequestLoading}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 18.75v-1.5m0-13.5a3.75 3.75 0 013.75 3.75v6a3.75 3.75 0 01-7.5 0v-6A3.75 3.75 0 0112 3.75zm0 0v13.5m6-6a6 6 0 11-12 0" />
+                      </svg>
+                    </button>
+                  </div>
+                  <button
+                    className="w-full px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 font-bold disabled:opacity-70"
+                    onClick={async () => {
+                      setCustomRequestLoading(true);
+                      setCustomRequestError(null);
+                      try {
+                        if (!customRequestMessage.trim()) {
+                          setCustomRequestError('Please describe your custom craft request.');
+                          setCustomRequestLoading(false);
+                          return;
+                        }
+                        if (!user) {
+                          setCustomRequestError('You must be signed in to send a request.');
+                          setCustomRequestLoading(false);
+                          return;
+                        }
+                        const res = await fetch('/api/custom-request', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({
+                            product_id: product?.id,
+                            seller_id: product?.seller_id,
+                            buyer_id: user.id,
+                            description: customRequestMessage,
+                          }),
+                        });
+                        const json = await res.json();
+                        if (!res.ok) {
+                          setCustomRequestError(json?.error || 'Could not send request.');
+                          setCustomRequestLoading(false);
+                          return;
+                        }
+                        setCustomRequestSuccess(true);
+                        setCustomRequestMessage("");
+                      } catch (err) {
+                        setCustomRequestError('Could not send request – try again later.');
+                      }
+                      setCustomRequestLoading(false);
+                    }}
+                    disabled={customRequestLoading || !customRequestMessage.trim()}
+                  >
+                    {customRequestLoading ? 'Sending...' : 'Send Custom Request'}
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        )}
     </div>
   )
 }

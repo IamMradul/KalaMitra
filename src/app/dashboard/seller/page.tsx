@@ -17,13 +17,15 @@ import ProfileManager from './ProfileManager'
 import SellerAuctionsList from './SellerAuctionsList'
 import CollaborationManager from './CollaborationManager'
 import StallCustomizationModal, { StallCustomizationSettings } from '@/components/StallCustomizationModal'
+import { useLanguage } from '@/components/LanguageProvider'
 
 type Product = Database['public']['Tables']['products']['Row']
 type Profile = Database['public']['Tables']['profiles']['Row']
 
 export default function SellerDashboard() {
   const { user, profile, loading, signOut } = useAuth()
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+  const { currentLanguage } = useLanguage()
   const router = useRouter()
   const [products, setProducts] = useState<Product[]>([])
   const [showAIProductForm, setShowAIProductForm] = useState(false)
@@ -73,7 +75,204 @@ export default function SellerDashboard() {
   const [editProductLoading, setEditProductLoading] = useState(false)
   const [dbStatus, setDbStatus] = useState<string>('Unknown')
   const [isTestingDb, setIsTestingDb] = useState(false)
-  const [activeSection, setActiveSection] = useState<'products' | 'analytics' | 'collaborations'>('products')
+  const [activeSection, setActiveSection] = useState<'products' | 'analytics' | 'collaborations' | 'customRequests'>('products')
+  type CustomRequest = {
+    id: string;
+    description: string;
+    status: string;
+    buyer_id: string;
+    product_id: string;
+    ai_draft_url?: string;
+    // ...other fields as needed
+  };
+  const [customRequests, setCustomRequests] = useState<CustomRequest[]>([]);
+  const [customRequestsLoading, setCustomRequestsLoading] = useState(false);
+  const [respondModalOpen, setRespondModalOpen] = useState(false);
+  const [respondingRequest, setRespondingRequest] = useState<CustomRequest | null>(null);
+  const [respondMessage, setRespondMessage] = useState('');
+  const [respondLoading, setRespondLoading] = useState(false);
+  const [respondSuccess, setRespondSuccess] = useState(false);
+    const [buyerNames, setBuyerNames] = useState<Record<string, string>>({});
+    const [productNames, setProductNames] = useState<Record<string, string>>({});
+
+  // Handler for marking request as completed
+  const handleMarkCompleted = async (requestId: string) => {
+    if (!requestId) return;
+    try {
+      setCustomRequestsLoading(true);
+      const res = await fetch('/api/custom-request', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: requestId, status: 'Completed' })
+      });
+      if (!res.ok) throw new Error('Failed to update request');
+      // Refresh requests
+      fetch(`/api/custom-request?seller_id=${user!.id}`)
+        .then(res => res.json())
+        .then(({ data }) => setCustomRequests((data || []) as CustomRequest[]))
+        .catch(() => setCustomRequests([]));
+    } catch (err) {
+      alert('Failed to mark as completed');
+    } finally {
+      setCustomRequestsLoading(false);
+    }
+  };
+
+  // Handler for opening respond modal
+  const handleRespond = (req: CustomRequest) => {
+    setRespondingRequest(req);
+    setRespondMessage('');
+    setRespondModalOpen(true);
+  };
+
+  // Handler for sending response
+  const handleSendResponse = async () => {
+    if (!respondingRequest || !respondMessage || !user?.id) return;
+    setRespondLoading(true);
+    setRespondSuccess(false);
+    try {
+      // Send DM to buyer
+      const dmPayload = {
+        sender_id: user.id,
+        receiver_id: respondingRequest.buyer_id,
+        message: respondMessage,
+        custom_request_id: respondingRequest.id,
+        sent_at: new Date().toISOString(),
+      };
+      // Find or create threadId between seller and buyer
+      let threadId = null;
+      // Try to find existing thread
+      const threadRes = await fetch(`/api/chat/thread?userA=${user.id}&userB=${respondingRequest.buyer_id}`);
+      if (threadRes.ok) {
+        const threadData = await threadRes.json();
+        threadId = threadData.threadId || threadData.id || null;
+      }
+      // If not found, create new thread
+      if (!threadId) {
+        const createRes = await fetch('/api/chat/thread', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userA: user.id, userB: respondingRequest.buyer_id }),
+        });
+        if (createRes.ok) {
+          const createData = await createRes.json();
+          threadId = createData.threadId || createData.id || null;
+        }
+      }
+      if (!threadId) throw new Error('Could not find or create chat thread');
+      // Send message
+      // Add reference to custom request in message content
+      const referenceText = respondingRequest?.description
+        ? `[Regarding your custom request: "${respondingRequest.description}"]` + String.fromCharCode(13,10,13,10) : '';
+      const chatPayload = {
+        threadId,
+        senderId: user.id,
+        content: referenceText + respondMessage,
+        messageType: 'text',
+      };
+      const res = await fetch('/api/chat/message', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(chatPayload),
+      });
+      if (!res.ok) throw new Error('Failed to send DM');
+
+      // Insert notification for buyer
+      await supabase
+        .from('notifications')
+        .insert({
+          user_id: respondingRequest.buyer_id,
+          title: 'Seller responded to your custom request',
+          body: `${profile?.name || 'Seller'} responded to your custom request: "${respondingRequest.description}"`,
+          read: false,
+          metadata: {
+            type: 'custom_request_response',
+            custom_request_id: respondingRequest.id,
+            seller_id: user.id,
+            thread_id: threadId
+          }
+        });
+
+      setRespondSuccess(true);
+      // Optionally, close modal after a short delay
+      setTimeout(() => {
+        setRespondModalOpen(false);
+        setRespondSuccess(false);
+      }, 1800);
+    } catch (err) {
+      setRespondSuccess(false);
+      alert('Failed to send response');
+    } finally {
+      setRespondLoading(false);
+    }
+  };
+const handleMicRespond = () => {
+  if (typeof window !== 'undefined' && ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+    type SpeechRecognitionType = typeof window extends { SpeechRecognition: infer T } ? T : typeof window extends { webkitSpeechRecognition: infer U } ? U : never;
+    const win = window as typeof window & {
+      SpeechRecognition?: typeof SpeechRecognition;
+      webkitSpeechRecognition?: typeof SpeechRecognition;
+    };
+    const SpeechRecognitionCtor: typeof SpeechRecognition | undefined = win.SpeechRecognition || win.webkitSpeechRecognition;
+    if (!SpeechRecognitionCtor) {
+      alert('Speech recognition not supported in this browser.');
+      return;
+    }
+    const recognition = new SpeechRecognitionCtor();
+    const langMap: Record<string, string> = {
+      en: 'en-IN', hi: 'hi-IN', assamese: 'as-IN', bengali: 'bn-IN', bodo: 'brx-IN', dogri: 'doi-IN', gujarati: 'gu-IN', kannad: 'kn-IN', kannada: 'kn-IN', kashmiri: 'ks-IN', konkani: 'kok-IN', maithili: 'mai-IN', malyalam: 'ml-IN', malayalam: 'ml-IN', manipuri: 'mni-IN', marathi: 'mr-IN', nepali: 'ne-NP', oriya: 'or-IN', punjabi: 'pa-IN', sanskrit: 'sa-IN', santhali: 'sat-IN', sindhi: 'sd-IN', tamil: 'ta-IN', telgu: 'te-IN', telugu: 'te-IN', urdu: 'ur-IN', as: 'as-IN', bn: 'bn-IN', brx: 'brx-IN', doi: 'doi-IN', gu: 'gu-IN', kn: 'kn-IN', ks: 'ks-IN', kok: 'kok-IN', mai: 'mai-IN', ml: 'ml-IN', mni: 'mni-IN', mr: 'mr-IN', ne: 'ne-NP', or: 'or-IN', pa: 'pa-IN', sa: 'sa-IN', sat: 'sat-IN', sd: 'sd-IN', ta: 'ta-IN', te: 'te-IN', ur: 'ur-IN',
+    };
+  const appLang = i18n && i18n.language ? i18n.language : 'en';
+    recognition.lang = langMap[appLang] || appLang || 'en-IN';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+    recognition.onresult = (event: SpeechRecognitionEvent) => {
+      const transcript = event.results[0][0].transcript;
+      setRespondMessage(prev => prev ? prev + ' ' + transcript : transcript);
+    };
+    recognition.onerror = (event: Event) => {
+      const error = (event as { error?: string }).error;
+      alert('Voice input error: ' + (error || 'Unknown error'));
+    };
+    recognition.start();
+  } else {
+    alert('Speech recognition not supported in this browser.');
+  }
+};
+  // Fetch custom requests for seller
+  useEffect(() => {
+    if (activeSection !== 'customRequests' || !user) return;
+    setCustomRequestsLoading(true);
+  fetch(`/api/custom-request?seller_id=${user!.id}`)
+      .then(res => res.json())
+      .then(({ data }) => {
+        setCustomRequests(data || []);
+          const buyerIds = Array.from(new Set((data || []).map((r: CustomRequest) => r.buyer_id).filter(Boolean)));
+          const productIds = Array.from(new Set((data || []).map((r: CustomRequest) => r.product_id).filter(Boolean)));
+          if (buyerIds.length > 0) {
+            supabase.from('profiles').select('id, name').in('id', buyerIds).then(({ data }) => {
+              if (data) {
+                type BuyerProfile = { id: string; name: string };
+                const map: Record<string, string> = {};
+                (data as BuyerProfile[]).forEach((p) => { map[p.id] = p.name; });
+                setBuyerNames(map);
+              }
+            });
+          }
+          if (productIds.length > 0) {
+            supabase.from('products').select('id, title').in('id', productIds).then(({ data }) => {
+              if (data) {
+                type ProductProfile = { id: string; title: string };
+                const map: Record<string, string> = {};
+                (data as ProductProfile[]).forEach((p) => { map[p.id] = p.title; });
+                setProductNames(map);
+              }
+            });
+          }
+      })
+      .catch(() => setCustomRequests([]))
+      .finally(() => setCustomRequestsLoading(false));
+  }, [activeSection, user]);
   const hasInitialized = useRef(false)
   const dbTestedRef = useRef(false)
   const productsFetchedRef = useRef(false)
@@ -571,7 +770,10 @@ export default function SellerDashboard() {
           transition={{ duration: 0.6, delay: 0.05 }}
           className="card-glass rounded-xl p-3 sm:p-4 mb-6 sm:mb-8 border border-[var(--border)]"
         >
-          <div className="flex gap-1 sm:gap-2 overflow-x-auto -mx-2 px-2 sm:mx-0 sm:px-0 pb-px" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+          {/* Desktop: All tabs in a row. Mobile: Only first 3 tabs horizontally. */}
+          <div className="flex gap-1 sm:gap-2 overflow-x-auto -mx-2 px-2 sm:mx-0 sm:px-0 pb-px"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+            {/* Products Tab */}
             <button
               onClick={() => setActiveSection('products')}
               className={`px-3 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium text-xs sm:text-base transition-all whitespace-nowrap flex-shrink-0 flex items-center gap-1 sm:gap-2 ${
@@ -583,6 +785,7 @@ export default function SellerDashboard() {
               <Palette className="w-3 h-3 sm:w-4 sm:h-4" />
               <span>{t('seller.products') || 'Products & Auctions'}</span>
             </button>
+            {/* Analytics Tab */}
             <button
               onClick={() => setActiveSection('analytics')}
               className={`px-3 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium text-xs sm:text-base transition-all whitespace-nowrap flex-shrink-0 flex items-center gap-1 sm:gap-2 ${
@@ -594,6 +797,7 @@ export default function SellerDashboard() {
               <span>📊</span>
               <span>{t('seller.analytics') || 'Analytics'}</span>
             </button>
+            {/* Collaborations Tab */}
             <button
               onClick={() => setActiveSection('collaborations')}
               className={`px-3 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium text-xs sm:text-base transition-all whitespace-nowrap flex-shrink-0 flex items-center gap-1 sm:gap-2 ${
@@ -605,8 +809,102 @@ export default function SellerDashboard() {
               <span>🤝</span>
               <span>{t('collaboration.title') || 'Collaborations'}</span>
             </button>
+            {/* Custom Requests tab: only show inline on desktop (sm and up) */}
+            <button
+              onClick={() => setActiveSection('customRequests')}
+              className={`hidden sm:flex px-3 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium text-xs sm:text-base transition-all whitespace-nowrap flex-shrink-0 flex items-center gap-1 sm:gap-2 ${
+                activeSection === 'customRequests'
+                  ? 'bg-gradient-to-r from-teal-500 to-cyan-600 text-white shadow-lg'
+                  : 'bg-[var(--bg-2)] text-[var(--muted)] hover:text-[var(--text)]'
+              }`}
+            >
+              <Sparkles className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span>Custom Requests</span>
+            </button>
+          </div>
+          {/* On mobile, show Custom Requests tab below, centered */}
+          <div className="flex sm:hidden justify-center mt-3">
+            <button
+              onClick={() => setActiveSection('customRequests')}
+              className={`px-3 py-2.5 rounded-lg font-medium text-xs transition-all whitespace-nowrap flex-shrink-0 flex items-center gap-1 ${
+                activeSection === 'customRequests'
+                  ? 'bg-gradient-to-r from-teal-500 to-cyan-600 text-white shadow-lg'
+                  : 'bg-[var(--bg-2)] text-[var(--muted)] hover:text-[var(--text)]'
+              }`}
+            >
+              <Sparkles className="w-3 h-3" />
+              <span>Custom Requests</span>
+            </button>
           </div>
         </motion.div>
+        {/* Custom Requests Section */}
+        {activeSection === 'customRequests' && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="card-glass rounded-xl p-6 mb-8 border border-[var(--border)]"
+          >
+            <h2 className="text-2xl font-semibold text-[var(--text)] mb-4 flex items-center gap-2">
+              <Sparkles className="w-6 h-6 text-teal-500 dark:text-cyan-400" />
+              Custom Craft Requests
+            </h2>
+            {customRequestsLoading ? (
+              <div className="text-center py-8">
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                  className="w-12 h-12 border-4 border-teal-200 border-t-teal-600 rounded-full mx-auto mb-4"
+                />
+                <p className="text-[var(--muted)] text-lg">Loading custom requests...</p>
+              </div>
+            ) : customRequests.length === 0 ? (
+              <div className="text-center py-8">
+                <Sparkles className="w-12 h-12 sm:w-16 sm:h-16 text-[var(--muted)] mx-auto mb-4" />
+                <p className="text-[var(--muted)] text-base sm:text-lg">No custom requests yet.</p>
+                <p className="text-[var(--muted)] text-sm">Buyers can request personalized crafts for your products.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                {customRequests.map((req) => (
+                  <div
+                    key={req.id}
+                    className="card border overflow-hidden hover:shadow-lg transition-shadow duration-200 bg-[var(--bg-2)] dark:bg-[var(--bg-2)] rounded-xl"
+                  >
+                    <div className="p-4 flex flex-col gap-2">
+                      <h3 className="font-semibold text-base text-[var(--text)] mb-1">{req.description}</h3>
+                      <p className="text-xs text-[var(--muted)]">Status: <span className="font-bold">{req.status}</span></p>
+                      {req.ai_draft_url && (
+                        <a href={req.ai_draft_url} target="_blank" rel="noopener noreferrer" className="text-xs text-teal-600 dark:text-cyan-400 underline">View AI Draft</a>
+                      )}
+                        <p className="text-xs text-[var(--muted)]">Requested by: <span className="font-bold">{buyerNames[req.buyer_id] || req.buyer_id}</span></p>
+                        <p className="text-xs text-[var(--muted)]">Product: <span className="font-bold">{productNames[req.product_id] || req.product_id}</span></p>
+                      <div className="flex gap-2 mt-2">
+                        {req.status === 'Completed' ? (
+                          <span className="w-full px-3 py-2 text-xs rounded-md bg-green-100 text-green-700 font-semibold shadow border border-green-300 text-center cursor-default select-none">Completed</span>
+                        ) : (
+                          <>
+                            <button
+                              className="flex-1 px-3 py-2 text-xs rounded-md bg-gradient-to-r from-teal-500 to-cyan-600 text-white font-semibold shadow hover:from-teal-600 hover:to-cyan-700 transition-all"
+                              onClick={() => handleRespond(req)}
+                              disabled={customRequestsLoading}
+                            >Respond</button>
+                            <button
+                              className="flex-1 px-3 py-2 text-xs rounded-md bg-gradient-to-r from-gray-300 to-gray-400 dark:from-gray-700 dark:to-gray-800 text-gray-900 dark:text-white font-semibold shadow hover:from-gray-400 hover:to-gray-500 dark:hover:from-gray-800 dark:hover:to-gray-900 transition-all"
+                              onClick={() => handleMarkCompleted(req.id)}
+                              disabled={customRequestsLoading}
+                            >Mark Completed</button>
+                          </>
+                        )}
+
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </motion.div>
+        )}
 
         {/* Quick Actions Section */}
         {activeSection === 'products' && (
@@ -1048,6 +1346,84 @@ export default function SellerDashboard() {
             loading={addProductLoading}
           />
         )}
+        
+
+{/* Respond Modal (always at page root, overlays everything) */}
+{respondModalOpen && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-teal-100/60 via-cyan-100/60 to-blue-100/60 dark:from-gray-900/80 dark:via-gray-950/80 dark:to-gray-900/80 backdrop-blur-sm transition-colors">
+    <div className="relative bg-white dark:bg-gray-900 rounded-2xl shadow-2xl p-0 w-full max-w-lg mx-auto border border-teal-200 dark:border-cyan-700/40 overflow-hidden transition-colors">
+      {/* Decorative Top Bar */}
+      <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-teal-400 via-cyan-400 to-blue-400 dark:from-cyan-700 dark:via-blue-800 dark:to-teal-700 rounded-t-2xl transition-colors" />
+      {/* Icon and Title */}
+      <div className="flex items-center gap-3 px-6 pt-6 pb-2">
+        <span className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-teal-400 to-cyan-400 dark:from-cyan-700 dark:to-blue-700 shadow text-white text-2xl transition-colors">
+          <Sparkles className="w-7 h-7" />
+        </span>
+        <div>
+          <h3 className="text-2xl font-extrabold text-teal-700 dark:text-cyan-300 mb-1 transition-colors">Respond to Request</h3>
+          <p className="text-sm text-[var(--muted)] dark:text-cyan-200/80 transition-colors">Craft a personalized response for the buyer below.</p>
+        </div>
+      </div>
+      {/* Request Description */}
+      <div className="px-6 pt-2 pb-1">
+        <div className="bg-teal-50 dark:bg-gray-800 border border-teal-200 dark:border-cyan-700/30 rounded-lg p-3 text-[var(--text)] dark:text-cyan-100 text-base font-medium mb-2 shadow-sm transition-colors">
+          {respondingRequest?.description}
+        </div>
+      </div>
+      {/* Response Input or Success Message */}
+      <div className="relative px-6 pb-2 min-h-[120px] flex items-center justify-center">
+        {respondSuccess ? (
+          <div className="w-full flex flex-col items-center justify-center py-8">
+            <div className="flex items-center justify-center mb-3">
+              <span className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-teal-400 to-cyan-400 dark:from-cyan-700 dark:to-blue-700 shadow text-white text-2xl">
+                <Sparkles className="w-7 h-7" />
+              </span>
+            </div>
+            <div className="text-xl font-bold text-teal-700 dark:text-cyan-300 mb-2">Response sent!</div>
+            <div className="text-base text-[var(--muted)] dark:text-cyan-200/80">Your reply has been delivered to the buyer as a DM.</div>
+          </div>
+        ) : (
+          <>
+            <textarea
+              className="w-full p-4 rounded-xl border-2 border-teal-200 dark:border-cyan-700 bg-teal-50 dark:bg-gray-800 text-[var(--text)] dark:text-cyan-100 resize-none pr-14 text-base font-medium focus:outline-none focus:ring-2 focus:ring-teal-300 dark:focus:ring-cyan-700 transition-all shadow"
+              rows={5}
+              placeholder="Type your response..."
+              value={respondMessage}
+              onChange={e => setRespondMessage(e.target.value)}
+              disabled={respondLoading}
+            />
+            <button
+              type="button"
+              className="absolute top-4 right-8 bg-gradient-to-br from-teal-200 to-cyan-200 dark:from-cyan-800 dark:to-blue-900 text-teal-700 dark:text-cyan-200 rounded-full p-2 shadow-lg hover:bg-teal-300 dark:hover:bg-cyan-900 focus:outline-none border border-teal-300 dark:border-cyan-700 transition-colors"
+              title="Speak your response"
+              disabled={respondLoading}
+              onClick={handleMicRespond}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 18.75v-1.5m0-13.5a3.75 3.75 0 013.75 3.75v6a3.75 3.75 0 01-7.5 0v-6A3.75 3.75 0 0112 3.75zm0 0v13.5m6-6a6 6 0 11-12 0" />
+              </svg>
+            </button>
+          </>
+        )}
+      </div>
+      {/* Action Buttons */}
+      {!respondSuccess && (
+        <div className="flex gap-3 justify-end px-6 pb-6 pt-2">
+          <button
+            className="px-5 py-2.5 rounded-lg bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-800 dark:to-gray-700 text-gray-900 dark:text-cyan-100 font-semibold shadow hover:from-gray-300 hover:to-gray-400 dark:hover:from-gray-700 dark:hover:to-gray-800 transition-all"
+            onClick={() => setRespondModalOpen(false)}
+            disabled={respondLoading}
+          >Cancel</button>
+          <button
+            className="px-5 py-2.5 rounded-lg bg-gradient-to-r from-teal-500 to-cyan-600 dark:from-cyan-700 dark:to-blue-700 text-white font-bold shadow-lg hover:from-teal-600 hover:to-cyan-700 dark:hover:from-cyan-800 dark:hover:to-blue-800 transition-all disabled:opacity-60"
+            onClick={handleSendResponse}
+            disabled={respondLoading || !respondMessage}
+          >Send</button>
+        </div>
+      )}
+    </div>
+  </div>
+)}
       </div>
     </div>
   )

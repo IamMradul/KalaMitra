@@ -1,11 +1,11 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useParams } from 'next/navigation'
 import { supabase } from '../../../lib/supabase';
 import { Database } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
-import { Trophy, Users } from 'lucide-react';
+import { Trophy, Users, Send } from 'lucide-react';
 
 type Profile = Database['public']['Tables']['profiles']['Row']
 
@@ -80,6 +80,13 @@ export default function PublicProfilePage() {
     setFollowersLoading(false);
   };
 
+  // Floating DM button handler
+  const handleFloatingDM = useCallback(() => {
+    if (profile && user && user.id !== user_id) {
+      window.location.href = `/dm?userId=${user_id}`;
+    }
+  }, [profile, user, user_id]);
+
   if (!profile) return <div className="min-h-screen flex items-center justify-center text-[var(--muted)]">Profile not found.</div>;
 
   return (
@@ -102,7 +109,7 @@ export default function PublicProfilePage() {
             </div>
           </div>
           <h2 className="text-2xl font-extrabold mb-1 bg-gradient-to-r from-[var(--saffron)] via-[var(--turquoise)] to-[var(--maroon)] bg-clip-text text-transparent drop-shadow-lg">{profile.name || 'User'}</h2>
-          {/* Followers and Follow button */}
+          {/* Followers, Follow, and Message button */}
           <div className="flex flex-col md:flex-row justify-center items-center gap-3 mb-4">
             <div className="flex items-center gap-2">
               <Users className="w-5 h-5 text-[var(--saffron)]" />
@@ -110,14 +117,30 @@ export default function PublicProfilePage() {
               <span className="text-xs text-[var(--muted)] ml-1">Followers</span>
             </div>
             {user && user.id !== user_id && (
-              <button
-                className={`btn-indian-secondary px-4 py-1 md:py-2 rounded-xl flex items-center gap-2 text-sm md:text-base ${followersLoading ? 'opacity-60 pointer-events-none' : ''}`}
-                onClick={handleFollowClick}
-                disabled={followersLoading}
-              >
-                <Users className="w-4 h-4" />
-                {isFollowing ? 'Following' : 'Follow'}
-              </button>
+              <>
+                <button
+                  className={`btn-indian-secondary px-4 py-1 md:py-2 rounded-xl flex items-center gap-2 text-sm md:text-base ${followersLoading ? 'opacity-60 pointer-events-none' : ''}`}
+                  onClick={handleFollowClick}
+                  disabled={followersLoading}
+                >
+                  <Users className="w-4 h-4" />
+                  {isFollowing ? 'Following' : 'Follow'}
+                </button>
+                <a
+                  href={`/dm?userId=${user_id}`}
+                  className="btn-indian-primary px-4 py-1 md:py-2 rounded-xl flex items-center gap-2 text-sm md:text-base"
+                  title="Message"
+                  onClick={e => {
+                    e.preventDefault();
+                    window.location.href = `/dm?userId=${user_id}`;
+                  }}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4-4.5 7-9 7s-9-3-9-7a9 9 0 1 1 18 0z" />
+                  </svg>
+                  Message
+                </a>
+              </>
             )}
           </div>
           {/* MitraPoints */}
@@ -134,6 +157,19 @@ export default function PublicProfilePage() {
           </div>
         </div>
       </div>
+      {/* Floating Message Button - only for logged-in users not viewing own profile */}
+      {user && profile && user.id !== user_id && (
+        <button
+          onClick={handleFloatingDM}
+          className="fixed bottom-6 right-6 z-50 bg-gradient-to-r from-blue-500 via-green-500 to-teal-500 text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition-all duration-300 px-5 py-3 font-semibold"
+          title={`Message ${profile.name || 'User'}`}
+        >
+          <span className="flex items-center gap-2">
+            <Send className="w-5 h-5" />
+            <span className="text-xs font-semibold">Message</span>
+          </span>
+        </button>
+      )}
     </main>
   );
 }
