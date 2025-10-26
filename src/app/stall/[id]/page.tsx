@@ -1,11 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useParams } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { useAuth } from '@/contexts/AuthContext'
 import { logActivity } from '@/lib/activity'
-import { ArrowLeft, User, Palette, MapPin, Calendar, Users } from 'lucide-react'
+import { ArrowLeft, User, Palette, MapPin, Calendar, Users, MessageCircle, Send } from 'lucide-react'
 import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
 import { Database } from '@/lib/supabase'
@@ -293,6 +293,13 @@ export default function StallPage() {
     window.open(shareUrl, '_blank');
   };
 
+  // Floating DM button handler
+  const handleFloatingDM = useCallback(() => {
+    if (stallProfile && user && user.id !== stallProfile.id) {
+      window.location.href = `/dm?userId=${stallProfile.id}`;
+    }
+  }, [stallProfile, user]);
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -421,6 +428,21 @@ export default function StallPage() {
               </svg>
               {t('profile.share') || 'Share Stall'}
             </button>
+            {/* Message Button: Only show if user is logged in and not viewing their own stall */}
+            {user && stallProfile && user.id !== stallProfile.id && (
+              <a
+                href={`/dm?userId=${stallProfile.id}`}
+                className="inline-flex items-center gap-2 rounded-lg px-5 py-3 font-semibold bg-gradient-to-r from-blue-500 via-green-500 to-teal-500 text-white shadow hover:scale-105 transition"
+                title="Message"
+                onClick={e => {
+                  e.preventDefault();
+                  window.location.href = `/dm?userId=${stallProfile.id}`;
+                }}
+              >
+                <MessageCircle className="w-5 h-5" />
+                Message
+              </a>
+            )}
           </div>
           <ShareModal
             open={showShareModal}
@@ -623,6 +645,19 @@ export default function StallPage() {
           </div>
         </motion.div>
       </div>
+      {/* Floating Message Button - only for logged-in users not viewing own stall */}
+      {user && stallProfile && user.id !== stallProfile.id && (
+        <button
+          onClick={handleFloatingDM}
+          className="fixed bottom-6 right-6 z-50 bg-gradient-to-r from-blue-500 via-green-500 to-teal-500 text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition-all duration-300 px-5 py-3 font-semibold"
+          title={`Message ${stallProfile.name || 'User'}`}
+        >
+          <span className="flex items-center gap-2">
+            <Send className="w-5 h-5" />
+            <span className="text-xs font-semibold">Message</span>
+          </span>
+        </button>
+      )}
     </div>
   )
 }

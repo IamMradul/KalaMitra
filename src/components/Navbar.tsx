@@ -1,6 +1,9 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import { MessageCircle } from 'lucide-react'
+import { AnimatePresence, motion } from 'framer-motion'
+import DMChat from './DMChat'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
 import { useLanguage } from '@/components/LanguageProvider'
@@ -15,20 +18,85 @@ import { translateText } from '@/lib/translate';
 import '@/lib/i18n';
 
 export default function Navbar() {
-  const { user, profile, signOut, loading } = useAuth()
-  const { currentLanguage, changeLanguage, isLoading: languageLoading } = useLanguage()
-  const { theme, toggle } = useTheme()
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [mounted, setMounted] = useState(false)
-  const [translatedName, setTranslatedName] = useState('')
-  const [notifOpen, setNotifOpen] = useState(false)
-  const [leaderboardOpen, setLeaderboardOpen] = useState(false)
-  const [unreadCount, setUnreadCount] = useState(0)
-  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false)
-  const profileDropdownRef = useRef<HTMLDivElement>(null)
-  const [mitraPoints, setMitraPoints] = useState<number | null>(null)
+  const { user, profile, signOut, loading } = useAuth();
+  const { currentLanguage, changeLanguage, isLoading: languageLoading } = useLanguage();
+  const { theme, toggle } = useTheme();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [translatedName, setTranslatedName] = useState('');
+  const [notifOpen, setNotifOpen] = useState(false);
+  const [leaderboardOpen, setLeaderboardOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+  const profileDropdownRef = useRef<HTMLDivElement>(null);
+  const [mitraPoints, setMitraPoints] = useState<number | null>(null);
+  // DM Drawer modal state
+  const [dmDrawerOpen, setDmDrawerOpen] = useState(false);
+  // Selected thread and user for DMChat
+  const [selectedThreadId, setSelectedThreadId] = useState<string | null>(null);
+  const [selectedOtherUser, setSelectedOtherUser] = useState<{ id: string; name: string; profile_image?: string } | null>(null);
+  // DM thread type
+  type DMThread = {
+    id: string;
+    participants: { id: string; name: string; profile_image?: string }[];
+    unreadCount?: number;
+  };
+  // Poll for unread DM count every 5s
+  useEffect(() => {
+    async function fetchUnreadDMs() {
+      if (!user?.id) {
+        setDmUnreadCount(0);
+        return;
+      }
+      try {
+        const res = await fetch('/api/chat/threads?userId=' + user.id);
+        const json = await res.json();
+        const threads: DMThread[] = json.threads || [];
+        const unread = threads.reduce((acc: number, thread) => acc + (thread.unreadCount || 0), 0);
+        setDmUnreadCount(unread);
+      } catch {
+        setDmUnreadCount(0);
+      }
+    }
+    fetchUnreadDMs();
+  }, [user?.id]);
   const [hasLiveAuctions, setHasLiveAuctions] = useState(false)
   const { i18n, t } = useTranslation();
+  // ...existing code...
+  // DM threads state for drawer
+  const [dmThreads, setDmThreads] = useState<DMThread[]>([]);
+  const [dmLoading, setDmLoading] = useState(false);
+  const [dmError, setDmError] = useState<string | null>(null);
+  // Unread DM count for badge
+  const [dmUnreadCount, setDmUnreadCount] = useState(0);
+
+  // Fetch DM threads when drawer opens
+  useEffect(() => {
+    if (dmDrawerOpen && user?.id) {
+      fetchDMThreads();
+    }
+  }, [dmDrawerOpen, user?.id]);
+
+  async function fetchDMThreads() {
+    setDmLoading(true);
+    setDmError(null);
+    if (!user) {
+      setDmLoading(false);
+      return;
+    }
+    try {
+      const res = await fetch('/api/chat/threads?userId=' + user.id);
+      const json = await res.json();
+      const threads: DMThread[] = json.threads || [];
+      setDmThreads(threads);
+      // Count unread messages
+      const unread = threads.reduce((acc: number, thread) => acc + (thread.unreadCount || 0), 0);
+      setDmUnreadCount(unread);
+    } catch (err) {
+      setDmError('Failed to load chats');
+    }
+    setDmLoading(false);
+  }
   const languages = [
     { code: 'en', label: 'English', flag: '🇬🇧' },
     { code: 'hi', label: 'हिंदी', flag: '🇮🇳' },
@@ -78,23 +146,31 @@ export default function Navbar() {
   }, [profileDropdownOpen])
 
   // Poll for live auctions every 30s and notifications every 5s for real-time badge
+  // Track if new notification arrived since last open
+  const [hasNewNotif, setHasNewNotif] = useState(false);
   useEffect(() => {
-    fetchLiveAuctions()
+    fetchLiveAuctions();
     const auctionIv = setInterval(() => {
-      fetchLiveAuctions()
-    }, 30000)
+      fetchLiveAuctions();
+    }, 30000);
     let notifIv: NodeJS.Timeout | null = null;
+    let lastUnreadCount = unreadCount;
     if (user?.id) {
-      fetchUnread(user.id)
-      notifIv = setInterval(() => {
-        fetchUnread(user.id)
-      }, 5000)
+      fetchUnread(user.id);
+      notifIv = setInterval(async () => {
+        await fetchUnread(user.id);
+        // If unreadCount increases, set hasNewNotif true
+        if (unreadCount > lastUnreadCount) {
+          setHasNewNotif(true);
+        }
+        lastUnreadCount = unreadCount;
+      }, 5000);
     }
     return () => {
-      clearInterval(auctionIv)
-      if (notifIv) clearInterval(notifIv)
-    }
-  }, [user?.id])
+      clearInterval(auctionIv);
+      if (notifIv) clearInterval(notifIv);
+    };
+  }, [user?.id]);
 
   // Translate user name when profile or language changes
   useEffect(() => {
@@ -142,14 +218,18 @@ export default function Navbar() {
   }, [user?.id])
 
   const fetchUnread = async (uid?: string | null) => {
-    if (!uid) return setUnreadCount(0)
+    if (!uid) return setUnreadCount(0);
     try {
-      const { count } = await supabase.from('notifications').select('*', { count: 'exact', head: true }).eq('user_id', uid).eq('read', false)
-      setUnreadCount(count || 0)
+      const { count } = await supabase.from('notifications').select('*', { count: 'exact', head: true }).eq('user_id', uid).eq('read', false);
+      // If unreadCount increases, set hasNewNotif true
+      if (typeof count === 'number' && count > unreadCount) {
+        setHasNewNotif(true);
+      }
+      setUnreadCount(count || 0);
     } catch (err) {
-      console.error('failed fetch unread', err)
+      console.error('failed fetch unread', err);
     }
-  }
+  };
 
   const fetchLiveAuctions = async () => {
     try {
@@ -331,6 +411,15 @@ export default function Navbar() {
                   <Gift className="w-6 h-6" />
                 </Link>
                 <div className="flex items-center space-x-6">
+                  {/* DM Chat Icon (desktop) - opens /dm page directly */}
+                  <div className="relative">
+                    <Link href="/dm" className="p-2 rounded-xl hover:bg-heritage-gold/50" title="Messages">
+                      <MessageCircle className="w-5 h-5 text-[var(--text)]" />
+                      {dmUnreadCount > 0 && (
+                        <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">{dmUnreadCount}</span>
+                      )}
+                    </Link>
+                  </div>
                   <div className="relative">
                     <button onClick={() => { setNotifOpen(!notifOpen); fetchUnread(user?.id) }} className="p-2 rounded-xl hover:bg-heritage-gold/50">
                       <Bell className="w-5 h-5 text-[var(--text)]" />
@@ -457,6 +546,7 @@ export default function Navbar() {
 
           {/* Mobile theme toggle (visible on small screens) */}
             <div className="md:hidden flex items-center space-x-2">
+            {/* DM Chat Icon (mobile) removed; now in menu below */}
             {/* Profile image icon for mobile, always at top left of menu */}
             {user && (
               <Link href="/profile" className="mr-2 flex items-center justify-center">
@@ -500,13 +590,23 @@ export default function Navbar() {
             >
               <div className="knob" />
             </button>
-            {/* Mobile menu button */}
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="p-3 rounded-2xl text-[var(--text)] hover:text-heritage-gold hover:bg-heritage-gold/50 transition-all duration-300 hover:scale-105"
-            >
-              {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </button>
+            {/* Mobile menu button with orange dot if new notification */}
+            <div className="relative">
+              <button
+                onClick={() => {
+                  setIsMenuOpen(!isMenuOpen);
+                  // If opening menu, and notification panel is open, clear orange dot
+                  if (!isMenuOpen && hasNewNotif) setHasNewNotif(false);
+                }}
+                className="p-3 rounded-2xl text-[var(--text)] hover:text-heritage-gold hover:bg-heritage-gold/50 transition-all duration-300 hover:scale-105"
+              >
+                {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                {/* Orange dot for new notification */}
+                {hasNewNotif && !isMenuOpen && (
+                  <span className="absolute top-1 right-1 w-3 h-3 bg-orange-500 rounded-full border-2 border-white animate-pulse" />
+                )}
+              </button>
+            </div>
           </div>
 
   {/* Leaderboard modal removed: always use /leaderboard page */}
@@ -523,6 +623,21 @@ export default function Navbar() {
               >
                 {t('navigation.marketplace')}
               </Link>
+              {/* DM Chat Option (mobile menu) */}
+              {user && (
+                <Link 
+                  href="/dm" 
+                  className="text-[var(--text)] hover:text-heritage-gold transition-all duration-300 font-medium px-6 py-3 hover:bg-heritage-gold/50 rounded-2xl hover:translate-x-2 transform flex items-center gap-2 relative"
+                  onClick={() => setIsMenuOpen(false)}
+                  title="Messages"
+                >
+                  <MessageCircle className="w-5 h-5" />
+                  <span>Messages</span>
+                  {dmUnreadCount > 0 && (
+                    <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">{dmUnreadCount}</span>
+                  )}
+                </Link>
+              )}
               <Link 
                 href="/auctions" 
                 className="text-[var(--text)] hover:text-heritage-gold transition-all duration-300 font-medium px-6 py-3 hover:bg-heritage-gold/50 rounded-2xl hover:translate-x-2 transform"
@@ -558,10 +673,17 @@ export default function Navbar() {
                   )}
                   <Link 
                     href="/notifications" 
-                    className="text-[var(--text)] hover:text-heritage-gold transition-all duration-300 font-medium px-6 py-3 hover:bg-heritage-gold/50 rounded-2xl hover:translate-x-2 transform"
-                    onClick={() => setIsMenuOpen(false)}
+                    className="text-[var(--text)] hover:text-heritage-gold transition-all duration-300 font-medium px-6 py-3 hover:bg-heritage-gold/50 rounded-2xl hover:translate-x-2 transform flex items-center gap-2 relative"
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      setHasNewNotif(false); // Clear orange dot when notifications opened
+                    }}
                   >
                     {t('navigation.notifications') || 'Notifications'}
+                    {/* Orange dot for new notification in menu */}
+                    {hasNewNotif && (
+                      <span className="ml-2 w-3 h-3 bg-orange-500 rounded-full border-2 border-white animate-pulse" />
+                    )}
                   </Link>
                   <Link 
                     href="/cart" 
@@ -631,6 +753,7 @@ export default function Navbar() {
           </div>
         )}
       </div>
+      {/* DM Drawer Modal removed: DM icon now opens /dm page directly */}
     </nav>
   )
 }
