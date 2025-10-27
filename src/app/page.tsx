@@ -348,22 +348,21 @@ export default function Home() {
 
             {/* Right Side - Visual */}
             <div className="animate-slide-in-up animate-delay-300">
-              <div className="relative">
-                <div className="aspect-square bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 dark:from-blue-900/30 dark:via-purple-900/30 dark:to-pink-900/30 rounded-3xl p-8 flex items-center justify-center shadow-2xl">
-                  <div className="text-center">
-                    <div className="w-32 h-32 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-glow animate-pulse">
-                      <Palette className="w-16 h-16 text-white" />
-                    </div>
-                    <h3 className="text-2xl font-bold text-[var(--text)] mb-2">3D Marketplace</h3>
-                    <p className="text-[var(--muted)] mb-4">Experience shopping like never before</p>
-                    <div className="flex justify-center space-x-2">
-                      <div className="w-3 h-3 bg-blue-500 rounded-full animate-bounce"></div>
-                      <div className="w-3 h-3 bg-purple-500 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-                      <div className="w-3 h-3 bg-pink-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
-                    </div>
-                  </div>
+              <div className="relative aspect-square flex items-center justify-center rounded-3xl shadow-2xl bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 dark:from-blue-900/30 dark:via-purple-900/30 dark:to-pink-900/30">
+                <div style={{position: 'absolute', inset: 0, zIndex: 0}}>
+                  <iframe
+                    width="100%"
+                    height="100%"
+                    src="https://www.youtube.com/embed/Ge7mo6KzMTo?autoplay=1&mute=1&loop=1&playlist=Ge7mo6KzMTo&controls=0&modestbranding=1&rel=0&showinfo=0&fs=0&disablekb=1"
+                    title="KalaMitra 3D Bazaar Preview"
+                    allow="autoplay; encrypted-media"
+                    allowFullScreen={false}
+                    className="aspect-square rounded-2xl overflow-hidden shadow-2xl"
+                    style={{ minHeight: '320px', minWidth: '320px', border: 'none', pointerEvents: 'none' }}
+                    frameBorder="0"
+                  ></iframe>
                 </div>
-                
+                <div style={{position: 'absolute', inset: 0, zIndex: 1, pointerEvents: 'auto'}} className="rounded-2xl bg-transparent" />
                 {/* Decorative Elements */}
                 <div className="absolute -top-4 -right-4 w-8 h-8 bg-gradient-to-br from-blue-400 to-purple-400 rounded-full opacity-60"></div>
                 <div className="absolute -bottom-4 -left-4 w-6 h-6 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full opacity-60"></div>
