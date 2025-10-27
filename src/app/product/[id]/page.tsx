@@ -671,60 +671,106 @@ export default function ProductDetail() {
               </motion.div>
             )}
 
-            {/* Quantity and Add to Cart */}
-            <div className="space-y-4">
-              <div>
-        <label className="block text-sm font-medium text-[var(--muted)] mb-2">
-                  {t('product.quantity')}
-                </label>
-                <div className="flex items-center space-x-3">
-                  <button
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-          className="w-10 h-10 border border-[var(--border)] rounded-lg flex items-center justify-center hover:bg-[var(--bg-2)] transition-colors"
-                  >
-                    -
-                  </button>
-                  <span className="w-16 text-center text-lg font-medium">
-                    {quantity}
-                  </span>
-                  <button
-                    onClick={() => setQuantity(quantity + 1)}
-          className="w-10 h-10 border border-[var(--border)] rounded-lg flex items-center justify-center hover:bg-[var(--bg-2)] transition-colors"
-                  >
-                    +
-                  </button>
+              {/* Quantity and Add to Cart */}
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-semibold text-[var(--muted)] mb-3 tracking-wide">
+                    {t('product.quantity')}
+                  </label>
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                      className="w-8 h-8 border-2 border-gray-300 rounded-lg flex items-center justify-center hover:bg-gradient-to-br hover:from-orange-50 hover:to-red-50 hover:border-orange-400 text-gray-700 font-bold text-sm transition-all duration-200 hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-orange-300 bg-white shadow-sm [data-theme='dark']:border-gray-600 [data-theme='dark']:bg-gray-800 [data-theme='dark']:text-gray-300 [data-theme='dark']:hover:from-orange-900/30 [data-theme='dark']:hover:to-red-900/30 [data-theme='dark']:hover:border-orange-500 [data-theme='dark']:focus:ring-orange-600 [data-theme='dark']:shadow-none"
+                    >
+                      -
+                    </button>
+                    <span className="w-14 text-center text-lg font-bold text-gray-800 bg-gradient-to-br from-orange-50 to-red-50 py-1.5 rounded-lg border-2 border-orange-200 shadow-sm [data-theme='dark']:text-gray-100 [data-theme='dark']:bg-gradient-to-br [data-theme='dark']:from-gray-800 [data-theme='dark']:to-gray-700 [data-theme='dark']:border-orange-700">
+                      {quantity}
+                    </span>
+                    <button
+                      onClick={() => setQuantity(quantity + 1)}
+                      className="w-8 h-8 border-2 border-gray-300 rounded-lg flex items-center justify-center hover:bg-gradient-to-br hover:from-orange-50 hover:to-red-50 hover:border-orange-400 text-gray-700 font-bold text-sm transition-all duration-200 hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-orange-300 bg-white shadow-sm [data-theme='dark']:border-gray-600 [data-theme='dark']:bg-gray-800 [data-theme='dark']:text-gray-300 [data-theme='dark']:hover:from-orange-900/30 [data-theme='dark']:hover:to-red-900/30 [data-theme='dark']:hover:border-orange-500 [data-theme='dark']:focus:ring-orange-600 [data-theme='dark']:shadow-none"
+                    >
+                      +
+                    </button>
+                  </div>
                 </div>
-              </div>
 
-              <div className="flex space-x-4">
+              <div className="flex flex-col sm:flex-row gap-3">
+                {/* Add to Cart Button */}
                 <button
                   onClick={addToCart}
                   disabled={hasActiveAuction}
-                  className={`flex-1 flex items-center justify-center px-6 py-3 ${hasActiveAuction ? 'bg-[var(--bg-2)] text-[var(--muted)] cursor-not-allowed' : 'bg-gradient-to-r from-orange-500 to-red-600 text-white'} font-semibold rounded-lg hover:from-orange-600 hover:to-red-700 transition-all duration-200`}
+                  className={`group relative flex-1 flex items-center justify-center px-4 py-2.5 font-semibold rounded-xl transition-all duration-300 ease-out transform hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-4 focus:ring-blue-200/50 ${
+                    hasActiveAuction 
+                      ? 'bg-gradient-to-br from-gray-100 to-gray-200 text-gray-400 cursor-not-allowed border-2 border-gray-300 shadow-none [data-theme="dark"]:from-gray-800 [data-theme="dark"]:to-gray-700 [data-theme="dark"]:text-gray-500 [data-theme="dark"]:border-gray-700' 
+                      : 'bg-gradient-to-r from-blue-500 via-blue-600 to-indigo-600 text-white shadow-xl hover:shadow-2xl hover:from-blue-600 hover:via-blue-700 hover:to-indigo-700 [data-theme="dark"]:from-blue-600 [data-theme="dark"]:via-blue-700 [data-theme="dark"]:to-indigo-700 [data-theme="dark"]:hover:from-blue-700 [data-theme="dark"]:hover:via-blue-800 [data-theme="dark"]:hover:to-indigo-800'
+                  }`}
                 >
-                  <ShoppingCart className="w-5 h-5 mr-2" />
-                  {hasActiveAuction ? t('auction.onAuction') : t('product.addToCart')}
+                  <div className="flex items-center gap-1.5 relative z-10">
+                    <div className={`p-1.5 rounded-lg transition-transform duration-300 group-hover:scale-110 ${
+                      hasActiveAuction ? 'bg-gray-200/50 [data-theme="dark"]:bg-gray-700/50' : 'bg-white/20 backdrop-blur-sm [data-theme="dark"]:bg-white/10'
+                    }`}>
+                      <ShoppingCart className={`w-3.5 h-3.5 ${hasActiveAuction ? 'text-gray-400 [data-theme="dark"]:text-gray-600' : 'text-white'}`} />
+                    </div>
+                    <span className="text-xs md:text-sm font-bold tracking-wide">
+                      {hasActiveAuction ? t('auction.onAuction') : t('product.addToCart')}
+                    </span>
+                  </div>
+                  {!hasActiveAuction && (
+                    <>
+                      <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-indigo-500 rounded-xl opacity-0 group-hover:opacity-30 transition-opacity duration-500 [data-theme='dark']:from-blue-500 [data-theme='dark']:to-indigo-600"></div>
+                      <div className="absolute inset-0 rounded-xl bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300 [data-theme='dark']:bg-white/10"></div>
+                    </>
+                  )}
                 </button>
-                <button className="px-6 py-3 border border-[var(--border)] text-[var(--text)] font-semibold rounded-lg hover:bg-[var(--bg-2)] transition-colors" title={t('product.addToWishlist')}>
-                  <Heart className="w-5 h-5" />
+
+                {/* Wishlist Button */}
+                <button 
+                  className="group relative px-4 py-2.5 border-2 border-gray-300/50 text-gray-700 font-semibold rounded-xl hover:border-red-400/60 hover:bg-gradient-to-br hover:from-red-50 hover:to-pink-50 hover:text-red-600 transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-4 focus:ring-red-100/50 shadow-sm hover:shadow-md backdrop-blur-sm bg-white/50 [data-theme='dark']:border-gray-600/50 [data-theme='dark']:text-gray-300 [data-theme='dark']:hover:border-red-500/70 [data-theme='dark']:hover:from-red-900/20 [data-theme='dark']:hover:to-pink-900/20 [data-theme='dark']:hover:text-red-400 [data-theme='dark']:focus:ring-red-900/30 [data-theme='dark']:shadow-none [data-theme='dark']:hover:shadow-lg [data-theme='dark']:bg-gray-800/50" 
+                  title={t('product.addToWishlist')}
+                >
+                  <div className="flex items-center justify-center relative z-10">
+                    <Heart className="w-4 h-4 transition-all duration-300 group-hover:fill-red-500 group-hover:scale-110 [data-theme='dark']:group-hover:fill-red-400" />
+                  </div>
                 </button>
+              </div>
+
+              {/* Secondary Action Buttons */}
+              <div className="flex flex-col sm:flex-row gap-3 mt-3">
                 {/* Gift Button */}
                 <button
-                  className="px-6 py-3 border border-pink-300 text-pink-700 bg-pink-50 font-semibold rounded-lg hover:bg-pink-100 hover:border-pink-400 transition-colors flex items-center gap-2"
+                  className="group relative flex-1 flex items-center justify-center px-4 py-2.5 bg-gradient-to-br from-purple-500 via-purple-600 to-violet-600 text-white font-semibold rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-4 focus:ring-purple-200/50 overflow-hidden [data-theme='dark']:from-purple-600 [data-theme='dark']:via-purple-700 [data-theme='dark']:to-violet-700 [data-theme='dark']:shadow-purple-900/30 [data-theme='dark']:hover:shadow-purple-900/50 [data-theme='dark']:focus:ring-purple-900/30"
                   title="Gift this item"
                   onClick={() => setGiftModalOpen(true)}
                 >
-                  <span role="img" aria-label="gift">🎁</span> Gift
+                  <div className="flex items-center gap-1.5 relative z-10">
+                    <div className="p-1.5 rounded-lg bg-white/20 backdrop-blur-sm transition-transform duration-300 group-hover:scale-110 group-hover:rotate-12 [data-theme='dark']:bg-white/10">
+                      <span role="img" aria-label="gift" className="text-base">🎁</span>
+                    </div>
+                    <span className="text-xs md:text-sm font-bold tracking-wide">Send as Gift</span>
+                  </div>
+                  <div className="absolute inset-0 bg-gradient-to-r from-purple-300 to-violet-400 rounded-xl opacity-0 group-hover:opacity-30 transition-opacity duration-500 [data-theme='dark']:from-purple-400 [data-theme='dark']:to-violet-500"></div>
+                  <div className="absolute inset-0 rounded-xl bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300 [data-theme='dark']:bg-white/10"></div>
+                  <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 </button>
-                  {/* Custom Request Button */}
-                  <button
-                    className="px-6 py-3 border border-teal-300 text-teal-700 bg-teal-50 font-semibold rounded-lg hover:bg-teal-100 hover:border-teal-400 transition-colors flex items-center gap-2"
-                    title="Request a Custom Craft"
-                    onClick={() => setCustomRequestModalOpen(true)}
-                  >
-                    <Sparkles className="w-5 h-5" />
-                    Request Custom Craft
-                  </button>
+
+                {/* Custom Request Button */}
+                <button
+                  className="group relative flex-1 flex items-center justify-center px-4 py-2.5 bg-gradient-to-br from-teal-500 via-teal-600 to-emerald-600 text-white font-semibold rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-4 focus:ring-teal-200/50 overflow-hidden [data-theme='dark']:from-teal-600 [data-theme='dark']:via-teal-700 [data-theme='dark']:to-emerald-700 [data-theme='dark']:shadow-emerald-900/30 [data-theme='dark']:hover:shadow-emerald-900/50 [data-theme='dark']:focus:ring-teal-900/30"
+                  title="Request a Custom Craft"
+                  onClick={() => setCustomRequestModalOpen(true)}
+                >
+                  <div className="flex items-center gap-1.5 relative z-10">
+                    <div className="p-1.5 rounded-lg bg-white/20 backdrop-blur-sm transition-all duration-300 group-hover:scale-110 group-hover:rotate-12 [data-theme='dark']:bg-white/10">
+                      <Sparkles className="w-3.5 h-3.5 group-hover:animate-pulse" />
+                    </div>
+                    <span className="text-xs md:text-sm font-bold tracking-wide">Custom Request</span>
+                  </div>
+                  <div className="absolute inset-0 bg-gradient-to-r from-teal-300 to-emerald-400 rounded-xl opacity-0 group-hover:opacity-30 transition-opacity duration-500 [data-theme='dark']:from-teal-400 [data-theme='dark']:to-emerald-500"></div>
+                  <div className="absolute inset-0 rounded-xl bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300 [data-theme='dark']:bg-white/10"></div>
+                  <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                </button>
               </div>
             </div>
 
@@ -884,7 +930,7 @@ export default function ProductDetail() {
                         setRecipientQuery("");
                         setGiftMessage("");
                       }}
-                      className="w-full px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 font-bold"
+                      className="w-full px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-green-200 shadow-lg hover:shadow-xl"
                     >
                       Close
                     </button>
@@ -944,7 +990,7 @@ export default function ProductDetail() {
                     <label className="block mb-2 font-semibold">Personal Message (optional)</label>
                     <textarea value={giftMessage} onChange={e => setGiftMessage(e.target.value)} className="w-full mb-4 p-2 border rounded-lg" placeholder="Write a message..." />
                     <button
-                      className="w-full px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 font-bold disabled:opacity-70"
+                      className="w-full px-6 py-3 bg-gradient-to-r from-pink-500 to-rose-600 text-white font-semibold rounded-xl hover:from-pink-600 hover:to-rose-700 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-pink-200 shadow-lg hover:shadow-xl disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
                       onClick={handleSendGift}
                       disabled={gifting || !giftRecipient}
                     >
@@ -964,7 +1010,7 @@ export default function ProductDetail() {
                     setGiftModalOpen(false);
                     setGroupGiftModalOpen(true);
                   }}
-                  className="w-full px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 font-bold"
+                  className="w-full px-6 py-3 bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-semibold rounded-xl hover:from-purple-600 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-purple-200 shadow-lg hover:shadow-xl"
                 >
                   Create Group Gift
                 </button>
@@ -1004,7 +1050,7 @@ export default function ProductDetail() {
                       setCustomRequestMessage("");
                       setCustomRequestError(null);
                     }}
-                    className="w-full px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 font-bold"
+                    className="w-full px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-green-200 shadow-lg hover:shadow-xl"
                   >
                     Close
                   </button>
@@ -1067,7 +1113,7 @@ export default function ProductDetail() {
                     </button>
                   </div>
                   <button
-                    className="w-full px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 font-bold disabled:opacity-70"
+                    className="w-full px-6 py-3 bg-gradient-to-r from-teal-500 to-emerald-600 text-white font-semibold rounded-xl hover:from-teal-600 hover:to-emerald-700 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-teal-200 shadow-lg hover:shadow-xl disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
                     onClick={async () => {
                       setCustomRequestLoading(true);
                       setCustomRequestError(null);

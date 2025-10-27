@@ -105,6 +105,7 @@ export default function VideoPlayer({
         poster={poster}
         preload="metadata"
         playsInline
+        loop
         onMouseEnter={() => setShowControls(true)}
         onMouseLeave={() => setShowControls(false)}
       >
