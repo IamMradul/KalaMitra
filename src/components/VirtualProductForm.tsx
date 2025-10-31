@@ -426,12 +426,54 @@ export default function AIProductForm({
     try {
       const formData = new FormData(e.currentTarget);
 
-      let uploadedFileUrl = '';
+  const uploadedFileUrl = '';
       // Handle image upload
       if (uploadedFile && uploadedFile.type !== 'application/pdf') {
-        uploadedFileUrl = await uploadImageToSupabase(uploadedFile);
-        formData.set('imageUrl', uploadedFileUrl);
-        formData.set('virtual_file_url', uploadedFileUrl);
+        // Upload original image
+        const originalUrl = await uploadImageToSupabase(uploadedFile);
+        formData.set('virtual_file_url', originalUrl);
+        // Generate watermark image and upload
+        const img = new window.Image();
+        img.crossOrigin = 'anonymous';
+        const watermarkUrl = await new Promise<string>(resolve => {
+          img.onload = async () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+              ctx.drawImage(img, 0, 0);
+              // Add diagonal watermark
+              const watermarkText = 'KalaMitra';
+              ctx.save();
+              ctx.translate(canvas.width / 2, canvas.height / 2);
+              ctx.rotate(-Math.atan(canvas.height / canvas.width));
+              ctx.globalAlpha = 0.44;
+              ctx.font = `bold ${Math.floor(canvas.width / 8)}px sans-serif`;
+              ctx.fillStyle = '#FF6600';
+              ctx.textAlign = 'center';
+              ctx.textBaseline = 'middle';
+              ctx.fillText(watermarkText, 0, 0);
+              ctx.restore();
+              canvas.toBlob(async blob => {
+                if (blob) {
+                  const watermarkFile = new File([blob], `watermarked-${Date.now()}.png`, { type: 'image/png' });
+                  const url = await uploadImageToSupabase(watermarkFile);
+                  resolve(url);
+                } else {
+                  resolve(originalUrl); // fallback to original
+                }
+              }, 'image/png');
+            } else {
+              resolve(originalUrl); // fallback to original
+            }
+          };
+          img.onerror = () => {
+            resolve(originalUrl); // fallback to original
+          };
+          img.src = URL.createObjectURL(uploadedFile);
+        });
+        formData.set('imageUrl', watermarkUrl);
       }
       // Handle PDF upload
       else if (file && file.type === 'application/pdf') {
@@ -659,25 +701,29 @@ export default function AIProductForm({
     return (
       <div className="flex flex-col gap-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-extrabold text-orange-700 flex items-center gap-3">
-            <span className="inline-flex items-center justify-center p-2 rounded-xl bg-gradient-to-br from-orange-400 to-pink-400 shadow-lg">
-              <Sparkles className="w-6 h-6 text-white" />
-            </span>
-            Tutorial / Recipe Creator
-          </h2>
-          <div className="flex items-center gap-2">
-            <button onClick={onBack} className="px-3 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50">Back</button>
-          </div>
+            <h2 className="text-2xl font-extrabold text-orange-700 flex items-center gap-3">
+              <span className="inline-flex items-center justify-center p-2 rounded-xl bg-gradient-to-br from-orange-400 to-pink-400 shadow-lg">
+                <Sparkles className="w-6 h-6 text-white" />
+              </span>
+              {t('ai.virtualForm.virtual.tutorialCreator', { defaultValue: 'Tutorial / Recipe Creator' })}
+            </h2>
+            <div className="flex items-center gap-2">
+              <button onClick={onBack} className="px-3 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50">
+                {t('ai.virtualForm.virtual.back', { defaultValue: 'Back' })}
+              </button>
+            </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            {t('ai.virtualForm.virtual.fields.tutorialTitle.label', { defaultValue: 'Title' })}
+          </label>
           <div className="relative">
             <input
               value={tutorialTitle}
               onChange={e => setTutorialTitle(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-              placeholder="Enter tutorial / recipe title"
+              placeholder={t('ai.virtualForm.virtual.fields.tutorialTitle.placeholder', { defaultValue: 'Enter tutorial / recipe title' })}
             />
             <button
               type="button"
@@ -690,7 +736,9 @@ export default function AIProductForm({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Steps</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            {t('ai.virtualForm.virtual.fields.tutorialSteps.label', { defaultValue: 'Steps' })}
+          </label>
           <div className="space-y-3">
             {tutorialSteps.map((stepText, idx) => (
               <div key={idx} className="p-3 border border-gray-200 rounded-lg relative">
@@ -701,9 +749,11 @@ export default function AIProductForm({
                       value={stepText}
                       onChange={e => updateStep(idx, e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                      placeholder={`Step ${idx + 1} description`}
+                      placeholder={t('ai.virtualForm.virtual.fields.tutorialSteps.stepPlaceholder', { idx: idx + 1, defaultValue: `Step ${idx + 1} description` })}
                     />
-                    <div className="text-xs text-gray-500 mt-1">You can record each step with the mic, then refine with AI.</div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      {t('ai.virtualForm.virtual.fields.tutorialSteps.helper', { defaultValue: 'You can record each step with the mic, then refine with AI.' })}
+                    </div>
                   </div>
                   <div className="flex flex-col gap-2">
                     <button
@@ -728,12 +778,14 @@ export default function AIProductForm({
             ))}
           </div>
           <div className="mt-2 flex gap-2">
-            <button onClick={addStep} className="px-3 py-2 bg-cyan-50 border border-cyan-200 text-cyan-700 rounded-lg">+ Add Step</button>
+            <button onClick={addStep} className="px-3 py-2 bg-cyan-50 border border-cyan-200 text-cyan-700 rounded-lg">
+              {t('ai.virtualForm.virtual.fields.tutorialSteps.addStep', { defaultValue: '+ Add Step' })}
+            </button>
             <button onClick={refineWithAI} disabled={isRefining} className="px-3 py-2 bg-gradient-to-r from-orange-400 to-pink-400 text-white rounded-lg disabled:opacity-50">
-              {isRefining ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Refine with AI'}
+              {isRefining ? <Loader2 className="w-4 h-4 animate-spin" /> : t('ai.virtualForm.virtual.fields.tutorialSteps.refineWithAI', { defaultValue: 'Refine with AI' })}
             </button>
             <button onClick={generatePdf} disabled={isGeneratingPdf} className="px-3 py-2 bg-gray-800 text-white rounded-lg disabled:opacity-50">
-              {isGeneratingPdf ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Generate PDF'}
+              {isGeneratingPdf ? <Loader2 className="w-4 h-4 animate-spin" /> : t('ai.virtualForm.virtual.fields.tutorialSteps.generatePdf', { defaultValue: 'Generate PDF' })}
             </button>
           </div>
         </div>
@@ -742,23 +794,37 @@ export default function AIProductForm({
           <div className="p-3 border border-green-100 bg-green-50 rounded-lg">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <a href={pdfUrl} target="_blank" rel="noreferrer" className="text-sm text-green-800 underline">Open generated PDF</a>
-                <a href={pdfUrl} download className="text-sm text-green-800 underline">Download</a>
+                <a href={pdfUrl} target="_blank" rel="noreferrer" className="text-sm text-green-800 underline">
+                  {t('ai.virtualForm.virtual.fields.tutorialSteps.openPdf', { defaultValue: 'Open generated PDF' })}
+                </a>
+                <a href={pdfUrl} download className="text-sm text-green-800 underline">
+                  {t('ai.virtualForm.virtual.fields.tutorialSteps.downloadPdf', { defaultValue: 'Download' })}
+                </a>
               </div>
               <div className="flex gap-2">
-                <button onClick={() => { navigator.clipboard?.writeText(pdfUrl); }} className="px-2 py-1 bg-white border rounded">Copy Link</button>
-                <button onClick={insertToForm} className="px-3 py-1 bg-cyan-600 text-white rounded">Insert to Product</button>
+                <button onClick={() => { navigator.clipboard?.writeText(pdfUrl); }} className="px-2 py-1 bg-white border rounded">
+                  {t('ai.virtualForm.virtual.fields.tutorialSteps.copyLink', { defaultValue: 'Copy Link' })}
+                </button>
+                <button onClick={insertToForm} className="px-3 py-1 bg-cyan-600 text-white rounded">
+                  {t('ai.virtualForm.virtual.fields.tutorialSteps.insertToProduct', { defaultValue: 'Insert to Product' })}
+                </button>
               </div>
             </div>
           </div>
         )}
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Preview</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            {t('ai.virtualForm.virtual.fields.tutorialSteps.preview', { defaultValue: 'Preview' })}
+          </label>
           <div className="p-3 border border-gray-100 rounded-lg bg-white text-sm">
-            <h3 className="font-semibold mb-2">{tutorialTitle || 'Untitled tutorial'}</h3>
+            <h3 className="font-semibold mb-2">{tutorialTitle || t('ai.virtualForm.virtual.fields.tutorialSteps.untitled', { defaultValue: 'Untitled tutorial' })}</h3>
             <ol className="list-decimal pl-5 space-y-2">
-              {tutorialSteps.map((s, i) => <li key={i} className="text-gray-700">{s || <em className="text-gray-400">Step {i + 1} (empty)</em>}</li>)}
+              {tutorialSteps.map((s, i) => (
+                <li key={i} className="text-gray-700">
+                  {s || <em className="text-gray-400">{t('ai.virtualForm.virtual.fields.tutorialSteps.emptyStep', { idx: i + 1, defaultValue: `Step ${i + 1} (empty)` })}</em>}
+                </li>
+              ))}
             </ol>
           </div>
         </div>
@@ -775,45 +841,53 @@ export default function AIProductForm({
       >
         {step === 0 ? (
           <div className="flex flex-col items-center justify-center gap-6">
-        <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900 mb-2 flex items-center gap-3">
-          <span className="inline-flex items-center justify-center p-2 rounded-xl bg-gradient-to-br from-cyan-500 to-teal-500 shadow-lg">
-            <Sparkles className="w-6 h-6 text-white" />
-          </span>
-          AI-Powered Product Creation
-        </h2>
-        <p className="text-base text-gray-600 mb-4 text-center">Choose how you want to create your virtual product:</p>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full">
-          <button
-            className="flex flex-col items-center justify-center px-6 py-5 rounded-xl bg-gradient-to-br from-cyan-500 to-teal-500 text-white font-bold shadow hover:scale-105 transition-all duration-200"
-            onClick={() => window.open('https://kolamai.vercel.app/creation', '_blank')}
-          >
-            <span className="text-3xl mb-2">🎨</span>
-            Kolam AI
-            <span className="text-xs mt-1">Create Kolam/Rangoli designs with AI</span>
-          </button>
-          <button
-            className="flex flex-col items-center justify-center px-6 py-5 rounded-xl bg-gradient-to-br from-orange-400 to-pink-400 text-white font-bold shadow hover:scale-105 transition-all duration-200"
-            onClick={() => setStep(2)}
-          >
-            <span className="text-3xl mb-2">📖</span>
-            Tutorial/Recipe
-            <span className="text-xs mt-1">Create a tutorial or recipe (mic input, AI, PDF)</span>
-          </button>
-          <button
-            className="flex flex-col items-center justify-center px-6 py-5 rounded-xl bg-gradient-to-br from-gray-200 to-gray-400 text-gray-900 font-bold shadow hover:scale-105 transition-all duration-200"
-            onClick={() => setStep(1)}
-          >
-            <span className="text-3xl mb-2">⬆️</span>
-            Direct Upload
-            <span className="text-xs mt-1">Upload an existing product (full form)</span>
-          </button>
-        </div>
-        <button
-          onClick={onCancel}
-          className="mt-6 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
-        >
-          {t('common.cancel')}
-        </button>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900 mb-2 flex items-center gap-3">
+              <span className="inline-flex items-center justify-center p-2 rounded-xl bg-gradient-to-br from-cyan-500 to-teal-500 shadow-lg">
+                <Sparkles className="w-6 h-6 text-white" />
+              </span>
+              {t('ai.virtualForm.virtual.creationTitle', { defaultValue: 'AI-Powered Product Creation' })}
+            </h2>
+            <p className="text-base text-gray-600 mb-4 text-center">
+              {t('ai.virtualForm.virtual.chooseCreationMethod', { defaultValue: 'Choose how you want to create your virtual product:' })}
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full">
+              <button
+                className="flex flex-col items-center justify-center px-6 py-5 rounded-xl bg-gradient-to-br from-cyan-500 to-teal-500 text-white font-bold shadow hover:scale-105 transition-all duration-200"
+                onClick={() => window.open('https://kolamai.vercel.app/creation', '_blank')}
+              >
+                <span className="text-3xl mb-2">🎨</span>
+                {t('ai.virtualForm.virtual.kolamAI', { defaultValue: 'Kolam AI' })}
+                <span className="text-xs mt-1">
+                  {t('ai.virtualForm.virtual.kolamAIDesc', { defaultValue: 'Create Kolam/Rangoli designs with AI' })}
+                </span>
+              </button>
+              <button
+                className="flex flex-col items-center justify-center px-6 py-5 rounded-xl bg-gradient-to-br from-orange-400 to-pink-400 text-white font-bold shadow hover:scale-105 transition-all duration-200"
+                onClick={() => setStep(2)}
+              >
+                <span className="text-3xl mb-2">📖</span>
+                {t('ai.virtualForm.virtual.tutorialRecipe', { defaultValue: 'Tutorial/Recipe' })}
+                <span className="text-xs mt-1">
+                  {t('ai.virtualForm.virtual.tutorialRecipeDesc', { defaultValue: 'Create a tutorial or recipe (mic input, AI, PDF)' })}
+                </span>
+              </button>
+              <button
+                className="flex flex-col items-center justify-center px-6 py-5 rounded-xl bg-gradient-to-br from-gray-200 to-gray-400 text-gray-900 font-bold shadow hover:scale-105 transition-all duration-200"
+                onClick={() => setStep(1)}
+              >
+                <span className="text-3xl mb-2">⬆️</span>
+                {t('ai.virtualForm.virtual.directUpload', { defaultValue: 'Direct Upload' })}
+                <span className="text-xs mt-1">
+                  {t('ai.virtualForm.virtual.directUploadDesc', { defaultValue: 'Upload an existing product (full form)' })}
+                </span>
+              </button>
+            </div>
+            <button
+              onClick={onCancel}
+              className="mt-6 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+              {t('common.cancel')}
+            </button>
           </div>
         ) : step === 1 ? (
           // Full form for direct upload and editing
@@ -825,7 +899,7 @@ export default function AIProductForm({
           <span className="inline-flex items-center justify-center p-2 rounded-xl bg-gradient-to-br from-cyan-500 to-teal-500 shadow-lg">
             <Sparkles className="w-6 h-6 text-white" />
           </span>
-          AI-Powered Product Creation
+              {t('ai.virtualForm.virtual.creationTitle')}
             </h2>
             <button
           onClick={onCancel}
@@ -834,7 +908,9 @@ export default function AIProductForm({
           <X className="w-6 h-6" />
             </button>
           </div>
-          <p className="text-base text-gray-600 mt-1">Create and manage your virtual products (Kolam, Rangoli, templates, recipes) with AI assistance.</p>
+          <p className="text-base text-gray-600 mt-1">
+            {t('ai.virtualForm.virtual.productCreationDesc')}
+          </p>
         </div>
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Gemini PDF Analysis Section */}
@@ -888,6 +964,18 @@ export default function AIProductForm({
                           return;
                         }
                         await page.render({ canvasContext: context, viewport, canvas }).promise;
+                          // Add a single diagonal watermark across the center
+                          const watermarkText = 'KalaMitra';
+                          context.save();
+                          context.translate(canvas.width / 2, canvas.height / 2);
+                          context.rotate(-Math.atan(canvas.height / canvas.width));
+                          context.globalAlpha = 0.22;
+                          context.font = `bold ${Math.floor(canvas.width / 8)}px sans-serif`;
+                          context.fillStyle = '#FF6600';
+                          context.textAlign = 'center';
+                          context.textBaseline = 'middle';
+                          context.fillText(watermarkText, 0, 0);
+                          context.restore();
                         // Convert canvas to blob and set imageUrl
                         const imageBlob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, 'image/png'));
                         if (imageBlob) {
@@ -904,14 +992,51 @@ export default function AIProductForm({
                     } else {
                       // Image upload logic
                       const url = URL.createObjectURL(file);
-                      setImageUrl(url);
+                      setVirtualFileUrl(url); // keep original image for upload
                       setUploadedFile(file);
                       setFile(file);
-                      setVirtualFileUrl(url);
                       setAiResult(null);
                       setShowAiResult(false);
                       setError('');
                       setAdVideoUrl('');
+                      // Create watermark preview for setImageUrl
+                      const img = new window.Image();
+                      img.crossOrigin = 'anonymous';
+                      img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        const ctx = canvas.getContext('2d');
+                        if (ctx) {
+                          ctx.drawImage(img, 0, 0);
+                          // Add diagonal watermark
+                          const watermarkText = 'KalaMitra';
+                          ctx.save();
+                          ctx.translate(canvas.width / 2, canvas.height / 2);
+                          ctx.rotate(-Math.atan(canvas.height / canvas.width));
+                          ctx.globalAlpha = 0.44;
+                          ctx.font = `bold ${Math.floor(canvas.width / 8)}px sans-serif`;
+                          ctx.fillStyle = '#FF6600';
+                          ctx.textAlign = 'center';
+                          ctx.textBaseline = 'middle';
+                          ctx.fillText(watermarkText, 0, 0);
+                          ctx.restore();
+                          canvas.toBlob(blob => {
+                            if (blob) {
+                              const watermarkUrl = URL.createObjectURL(blob);
+                              setImageUrl(watermarkUrl);
+                            } else {
+                              setImageUrl(url); // fallback to original
+                            }
+                          }, 'image/png');
+                        } else {
+                          setImageUrl(url); // fallback to original
+                        }
+                      };
+                      img.onerror = () => {
+                        setImageUrl(url); // fallback to original
+                      };
+                      img.src = url;
                     }
                   }
                 }}
@@ -1039,7 +1164,7 @@ export default function AIProductForm({
             </h5>
             <p className="text-blue-800 mb-1"><strong>{t('ai.form.labels.title', { defaultValue: 'Title' })}:</strong> {aiResult.title}</p>
             <p className="text-blue-800 mb-1"><strong>{t('ai.form.labels.category', { defaultValue: 'Category' })}:</strong> {aiResult.category}</p>
-            <p className="text-blue-800 mb-1"><strong>AR Type:</strong> {aiResult.productType === 'vertical' ? 'Vertical (Wall/Standing)' : 'Horizontal (Floor/Table)'}</p>
+            <p className="text-blue-800 mb-1"><strong>{t('ai.form.fields.arType.label', { defaultValue: 'AR Type:' })}</strong> {aiResult.productType === 'vertical' ? t('ai.form.fields.arType.vertical', { defaultValue: 'Vertical (Wall/Standing)' }) : t('ai.form.fields.arType.horizontal', { defaultValue: 'Horizontal (Floor/Table)' })}</p>
             <div className="flex flex-wrap gap-1">
               {aiResult.tags.map((tag, index) => (
                 <span
@@ -1153,7 +1278,7 @@ export default function AIProductForm({
             <Mic className={`w-5 h-5 ${listeningField === 'description' ? 'animate-pulse text-red-500' : 'text-blue-500'}`} />
           </button>
             </div>
-            <div className="text-xs text-gray-500 mt-1">You can speak your description for easier input.</div>
+            <div className="text-xs text-gray-500 mt-1">{t('ai.form.fields.description.helper', { defaultValue: 'You can speak your description for easier input.' })}</div>
           </div>
 
           {/* Product Story Field */}
@@ -1189,7 +1314,7 @@ export default function AIProductForm({
               {isStoryGenerating ? <Loader2 className="w-5 h-5 animate-spin" /> : <Sparkles className="w-5 h-5" />}
             </button>
           </div>
-          <div className="text-xs text-orange-500 mt-1">Let buyers experience the story behind your product. You can speak, type, or enhance with AI (local Ollama).</div>
+          <div className="text-xs text-orange-500 mt-1">{t('ai.form.fields.story.helper', { defaultValue: 'Let buyers experience the story behind your product. You can speak, type, or enhance with AI (local Ollama).' })}</div>
             </div>
           </div>
 
@@ -1223,7 +1348,7 @@ export default function AIProductForm({
           {/* Product Type for AR */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-          AR Display Type
+              {t('ai.form.arDisplayType')}
             </label>
             <div className="relative">
           <select
@@ -1232,19 +1357,19 @@ export default function AIProductForm({
             onChange={e => setProductType(e.target.value as 'vertical' | 'horizontal')}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
           >
-            <option value="vertical">Vertical (Wall/Standing) - Paintings, Pottery, Sculptures</option>
-            <option value="horizontal">Horizontal (Floor/Table) - Rangoli, Carpets, Mats</option>
+                <option value="vertical">{t('ai.form.arDisplayTypeOptions.vertical')}</option>
+                <option value="horizontal">{t('ai.form.arDisplayTypeOptions.horizontal')}</option>
           </select>
             </div>
             <div className="text-xs text-gray-500 mt-1">
-          This determines how the product will be displayed in AR. AI analysis will suggest the best option.
+               {t('ai.form.arDisplayTypeHelper')}
             </div>
           </div>
 
           {/* Virtual Product Type */}
           <div>
             <label className="block text-sm font-medium text-cyan-700 mb-1">
-          Virtual Product Type
+                {t('ai.virtualForm.virtual.virtualTypeLabel')}
             </label>
             <div className="relative">
           <select
@@ -1253,14 +1378,14 @@ export default function AIProductForm({
             onChange={e => setVirtualType(e.target.value)}
             className="w-full px-3 py-2 border border-cyan-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
           >
-            <option value="kolam">Kolam/Rangoli Design</option>
-            <option value="recipe">Recipe/Tutorial</option>
-            <option value="template">Printable Template</option>
-            <option value="other">Other Digital Product</option>
+            <option value="kolam">{t('ai.virtualForm.virtual.virtualTypeOptions.kolam', { defaultValue: 'Kolam/Rangoli Design' })}</option>
+            <option value="recipe">{t('ai.virtualForm.virtual.virtualTypeOptions.recipe', { defaultValue: 'Recipe/Tutorial' })}</option>
+            <option value="template">{t('ai.virtualForm.virtual.virtualTypeOptions.template', { defaultValue: 'Printable Template' })}</option>
+            <option value="other">{t('ai.virtualForm.virtual.virtualTypeOptions.other', { defaultValue: 'Other Digital Product' })}</option>
           </select>
             </div>
             <div className="text-xs text-cyan-500 mt-1">
-          Select the type of virtual product you are uploading.
+          {t('ai.form.fields.virtualType.helper', { defaultValue: 'Select the type of virtual product you are uploading.' })}
             </div>
 
           </div>
@@ -1268,7 +1393,7 @@ export default function AIProductForm({
           {/* CTA and Website fields for ad generation */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-          CTA Text
+          {t('ai.form.ctaTextLabel', { defaultValue: 'CTA Text' })}
             </label>
             <div className="relative">
           <input
@@ -1277,13 +1402,13 @@ export default function AIProductForm({
             value={ctaText}
             onChange={e => setCtaText(e.target.value)}
             className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-            placeholder={"Enter call-to-action text"}
+            placeholder={t('ai.form.ctaTextPlaceholder', { defaultValue: 'Enter call-to-action text' })}
           />
           <button
             type="button"
             onClick={listeningField === 'ctaText' ? handleStopListening : () => handleStartListening('ctaText')}
             className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-full bg-white hover:bg-gray-100"
-            title={listeningField === 'ctaText' ? 'Listening...' : 'Speak CTA Text'}
+            title={listeningField === 'ctaText' ? t('common.listening', 'Listening...') : t('ai.form.ctaTextSpeak')}
           >
             <Mic className={`w-5 h-5 ${listeningField === 'ctaText' ? 'animate-pulse text-red-500' : 'text-blue-500'}`} />
           </button>
@@ -1291,7 +1416,7 @@ export default function AIProductForm({
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-          Website
+          {t('ai.form.websiteLabel', { defaultValue: 'Website' })}
             </label>
             <div className="relative">
           <input
@@ -1300,13 +1425,13 @@ export default function AIProductForm({
             value={website}
             onChange={e => setWebsite(e.target.value)}
             className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-            placeholder={"Enter website URL"}
+                placeholder={t('ai.form.websitePlaceholder')}
           />
           <button
             type="button"
             onClick={listeningField === 'website' ? handleStopListening : () => handleStartListening('website')}
             className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-full bg-white hover:bg-gray-100"
-            title={listeningField === 'website' ? 'Listening...' : 'Speak Website'}
+                title={listeningField === 'website' ? t('common.listening', 'Listening...') : t('ai.form.websiteSpeak')}
           >
             <Mic className={`w-5 h-5 ${listeningField === 'website' ? 'animate-pulse text-red-500' : 'text-blue-500'}`} />
           </button>

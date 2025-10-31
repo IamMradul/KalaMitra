@@ -4,9 +4,11 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Gift, User, Heart } from 'lucide-react';
 
+import { Gift, User, Heart } from 'lucide-react';
+import { useTranslation } from 'next-i18next';
 export default function GiftsPage() {
+  const { t } = useTranslation();
   const { user, profile } = useAuth();
   const [activeTab, setActiveTab] = useState<'received' | 'sent' | 'group'>('received');
 
@@ -65,6 +67,7 @@ export default function GiftsPage() {
     }
     return new Set();
   });
+
 
   // Helper to enrich a gift with product and profile info
   async function enrichGift(gift: Gift): Promise<Gift> {
@@ -275,18 +278,19 @@ export default function GiftsPage() {
   // Modern, professional, and responsive UI with improved contrast and theme switching
   if (!user) {
     return (
-  <div className="min-h-screen flex flex-col items-center justify-center gap-6 px-4 text-center">
+      <div className="min-h-screen flex flex-col items-center justify-center gap-6 px-4 text-center">
         <Gift className="w-16 h-16 text-pink-500 dark:text-pink-400 mx-auto mb-6 animate-bounce drop-shadow-lg" />
-        <h1 className="text-4xl font-extrabold text-pink-700 dark:text-pink-400 mb-2">Sign in to view your Gifts</h1>
-        <p className="text-lg text-gray-600 dark:text-gray-300 mb-2">Start sending or receiving gifts on the marketplace!</p>
-        <Link href="/auth/signin" className="px-8 py-3 bg-gradient-to-r from-pink-500 to-orange-400 text-white rounded-xl text-lg font-semibold shadow-lg hover:from-pink-600 hover:to-orange-500 transition-all">Sign In</Link>
+        <h1 className="text-4xl font-extrabold text-pink-700 dark:text-pink-400 mb-2">{t('gifts.signInTitle')}</h1>
+        <p className="text-lg text-gray-600 dark:text-gray-300 mb-2">{t('gifts.signInSubtitle')}</p>
+        <Link href="/auth/signin" className="px-8 py-3 bg-gradient-to-r from-pink-500 to-orange-400 text-white rounded-xl text-lg font-semibold shadow-lg hover:from-pink-600 hover:to-orange-500 transition-all">{t('gifts.signInButton')}</Link>
       </div>
     );
   }
   if (loading) {
+    // ...existing code...
     return (
-  <div className="min-h-screen flex items-center justify-center">
-        <span className="text-pink-500 dark:text-pink-400 animate-pulse text-2xl font-bold">Loading your gifts…</span>
+      <div className="min-h-screen flex items-center justify-center">
+        <span className="text-pink-500 dark:text-pink-400 animate-pulse text-2xl font-bold">{t('gifts.loading')}</span>
       </div>
     );
   }
@@ -295,22 +299,22 @@ export default function GiftsPage() {
       <div className="max-w-4xl mx-auto">
         <div className="flex flex-col items-center mb-10">
           <Gift className="w-20 h-20 text-pink-500 dark:text-pink-400 mb-4 animate-bounce drop-shadow-lg" />
-          <h1 className="text-5xl font-extrabold mb-2 text-pink-700 dark:text-pink-400 tracking-tight">Gifting Center</h1>
-          <p className="text-xl text-pink-600 dark:text-pink-300 font-medium mb-2">Celebrate every thoughtful exchange!</p>
+          <h1 className="text-5xl font-extrabold mb-2 text-pink-700 dark:text-pink-400 tracking-tight">{t('gifts.centerTitle')}</h1>
+          <p className="text-xl text-pink-600 dark:text-pink-300 font-medium mb-2">{t('gifts.centerSubtitle')}</p>
           <div className="mt-6 flex flex-wrap gap-4 justify-center">
             <Link 
               href="/marketplace" 
               className="px-8 py-3 bg-gradient-to-r from-pink-500 to-orange-500 text-white rounded-2xl font-semibold shadow-lg hover:from-pink-600 hover:to-orange-600 transition-all flex items-center gap-2"
             >
               <Gift className="w-6 h-6" />
-              Send Individual Gift
+              {t('gifts.sendIndividualGift')}
             </Link>
             <button 
               className="px-8 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-2xl font-semibold shadow-lg hover:from-purple-600 hover:to-pink-600 transition-all flex items-center gap-2"
               onClick={() => window.location.href = '/marketplace'}
             >
               <span className="text-xl">👥</span>
-              Start Group Gift
+              {t('gifts.startGroupGift')}
             </button>
           </div>
         </div>
@@ -319,22 +323,22 @@ export default function GiftsPage() {
           <button
             className={`px-8 py-3 rounded-t-2xl font-semibold transition border-b-4 shadow-sm text-lg ${activeTab === 'received' ? 'border-pink-500 text-pink-700 dark:text-pink-400' : 'border-transparent text-gray-500 dark:text-gray-400'}`}
             onClick={() => setActiveTab('received')}
-          >Received <span className="font-bold">({giftsR.length})</span></button>
+          >{t('gifts.receivedTab')} <span className="font-bold">({giftsR.length})</span></button>
           <button
             className={`px-8 py-3 rounded-t-2xl font-semibold transition border-b-4 shadow-sm text-lg ${activeTab === 'sent' ? 'border-orange-400 text-orange-700 dark:text-orange-400' : 'border-transparent text-gray-500 dark:text-gray-400'}`}
             onClick={() => setActiveTab('sent')}
-          >Sent <span className="font-bold">({giftsS.length})</span></button>
+          >{t('gifts.sentTab')} <span className="font-bold">({giftsS.length})</span></button>
           <button
             className={`px-8 py-3 rounded-t-2xl font-semibold transition border-b-4 shadow-sm text-lg ${activeTab === 'group' ? 'border-purple-500 text-purple-700 dark:text-purple-400' : 'border-transparent text-gray-500 dark:text-gray-400'}`}
             onClick={() => setActiveTab('group')}
-          >Group Gifts <span className="font-bold">({groupGifts.length})</span></button>
+          >{t('gifts.groupTab')} <span className="font-bold">({groupGifts.length})</span></button>
         </div>
         {/* Received Gifts */}
         {activeTab === 'received' && (
           giftsR.length === 0 ? (
             <div className="text-center py-20 rounded-2xl shadow-lg">
-              <p className="text-xl text-gray-600 dark:text-gray-300 mb-4">No gifts received yet! Waiting for a surprise?</p>
-              <Link href="/marketplace" className="inline-block mt-4 px-8 py-3 bg-gradient-to-r from-orange-400 to-pink-500 text-white rounded-2xl font-semibold shadow-lg hover:from-pink-500 hover:to-orange-400 transition-all">Send a Gift Now</Link>
+              <p className="text-xl text-gray-600 dark:text-gray-300 mb-4">{t('gifts.receivedEmpty')}</p>
+              <Link href="/marketplace" className="inline-block mt-4 px-8 py-3 bg-gradient-to-r from-orange-400 to-pink-500 text-white rounded-2xl font-semibold shadow-lg hover:from-pink-500 hover:to-orange-400 transition-all">{t('gifts.sendGiftNow')}</Link>
             </div>
           ) : (
             <div className="grid gap-8 sm:grid-cols-1 md:grid-cols-2">
@@ -371,9 +375,9 @@ export default function GiftsPage() {
                           {gift.product?.title}
                         </Link>
                       ) : (
-                        <span className="text-xl font-bold text-pink-800 dark:text-pink-300">🎁 Gift</span>
+                        <span className="text-xl font-bold text-pink-800 dark:text-pink-300">{t('gifts.gift')}</span>
                       )}
-                      <div className="mt-1 text-sm text-gray-800 dark:text-gray-300">Received on {new Date(gift.created_at).toLocaleString()}</div>
+                      <div className="mt-1 text-sm text-gray-800 dark:text-gray-300">{t('gifts.receivedOn', { date: new Date(gift.created_at).toLocaleString() })}</div>
                     </div>
                   </div>
                   <div className="flex items-center gap-3 mt-2">
@@ -408,10 +412,10 @@ export default function GiftsPage() {
                       {gift.viewed ? (
                         gift.metadata?.type === 'group_gift' && Array.isArray(gift.contributors) && gift.contributors.length > 0
                           ? gift.contributors.map((c: Contributor) => c.name).join(', ')
-                          : (gift.sender?.name ? gift.sender.name : 'Unknown Sender')
-                      ) : 'Sender Hidden'}
+                          : (gift.sender?.name ? gift.sender.name : t('gifts.unknownSender'))
+                      ) : t('gifts.senderHidden')}
                     </span>
-                    <span className="text-sm text-gray-800 dark:text-gray-300">sent you a gift!</span>
+                    <span className="text-sm text-gray-800 dark:text-gray-300">{t('gifts.sentYouGift')}</span>
                   </div>
                   {gift.message && (
                     <div className="py-3 px-5 mt-2 rounded-xl bg-pink-50 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300 font-medium border border-pink-200 dark:border-pink-700 shadow">
@@ -422,17 +426,17 @@ export default function GiftsPage() {
                     <button
                       className="mt-4 text-white bg-gradient-to-r from-pink-500 to-orange-400 py-3 px-8 rounded-full font-bold shadow-lg hover:from-pink-600 hover:to-orange-500 transition-all text-xl"
                       onClick={() => handleUnbox(gift.id)}
-                    >Unwrap Gift 🎁</button>
+                    >{t('gifts.unwrapGift')}</button>
                   )}
                   {gift.viewed && !thankedGifts.has(gift.id) && (
                     <button
                       className="mt-4 text-white bg-gradient-to-r from-pink-500 to-orange-400 py-3 px-8 rounded-full font-bold shadow-lg hover:from-pink-600 hover:to-orange-500 transition-all text-xl flex items-center gap-2"
                       onClick={() => handleThank(gift.id)}
-                    ><Heart className="w-5 h-5" /> Thank Sender</button>
+                    ><Heart className="w-5 h-5" /> {t('gifts.thankSender')}</button>
                   )}
                   {thankedGifts.has(gift.id) && (
                     <div className="mt-4 text-green-700 font-semibold text-xl flex items-center gap-2">
-                      <Heart className="w-5 h-5" /> Thanked!
+                      <Heart className="w-5 h-5" /> {t('gifts.thanked')}
                     </div>
                   )}
                 </motion.div>
@@ -444,8 +448,8 @@ export default function GiftsPage() {
         {activeTab === 'sent' && (
           giftsS.length === 0 ? (
             <div className="text-center py-20 rounded-2xl shadow-lg">
-              <p className="text-xl text-gray-700 mb-4">No gifts sent yet. Spread some happiness!</p>
-              <Link href="/marketplace" className="inline-block mt-4 px-8 py-3 bg-gradient-to-r from-orange-400 to-pink-500 text-white rounded-2xl font-semibold shadow-lg hover:from-pink-500 hover:to-orange-400 transition-all">Send a Gift Now</Link>
+              <p className="text-xl text-gray-700 mb-4">{t('gifts.sentEmpty')}</p>
+              <Link href="/marketplace" className="inline-block mt-4 px-8 py-3 bg-gradient-to-r from-orange-400 to-pink-500 text-white rounded-2xl font-semibold shadow-lg hover:from-pink-500 hover:to-orange-400 transition-all">{t('gifts.sendGiftNow')}</Link>
             </div>
           ) : (
             <div className="grid gap-8 sm:grid-cols-1 md:grid-cols-2">
@@ -468,7 +472,7 @@ export default function GiftsPage() {
                         className="text-xl font-bold text-pink-800 dark:text-pink-300 hover:underline">
                         {gift.product?.title}
                       </Link>
-                      <div className="mt-1 text-sm text-gray-800 dark:text-gray-300">Sent on {new Date(gift.created_at).toLocaleString()}</div>
+                      <div className="mt-1 text-sm text-gray-800 dark:text-gray-300">{t('gifts.sentOn', { date: new Date(gift.created_at).toLocaleString() })}</div>
                     </div>
                   </div>
                   <div className="flex items-center gap-3 mt-2">
@@ -477,8 +481,8 @@ export default function GiftsPage() {
                     ) : (
                       <User className="w-8 h-8 text-pink-400" />
                     )}
-                    <span className="font-medium text-purple-800 dark:text-purple-300 text-lg">{gift.recipient?.name ? gift.recipient.name : 'Unknown Recipient'}</span>
-                    <span className="text-sm text-gray-800 dark:text-gray-300">received your gift!</span>
+                    <span className="font-medium text-purple-800 dark:text-purple-300 text-lg">{gift.recipient?.name ? gift.recipient.name : t('gifts.unknownRecipient')}</span>
+                    <span className="text-sm text-gray-800 dark:text-gray-300">{t('gifts.receivedYourGift')}</span>
                   </div>
                   {gift.message && (
                     <div className="py-3 px-5 mt-2 rounded-xl bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 font-medium border border-orange-200 dark:border-orange-700 shadow">
@@ -494,8 +498,8 @@ export default function GiftsPage() {
         {activeTab === 'group' && (
           groupGifts.length === 0 ? (
             <div className="text-center py-20 rounded-2xl shadow-lg">
-              <p className="text-xl text-gray-600 dark:text-gray-300 mb-4">No group gifts yet! Start or join a group gift to see it here.</p>
-              <Link href="/marketplace" className="inline-block mt-4 px-8 py-3 bg-gradient-to-r from-purple-400 to-pink-500 text-white rounded-2xl font-semibold shadow-lg hover:from-pink-500 hover:to-purple-400 transition-all">Start a Group Gift</Link>
+              <p className="text-xl text-gray-600 dark:text-gray-300 mb-4">{t('gifts.groupEmpty')}</p>
+              <Link href="/marketplace" className="inline-block mt-4 px-8 py-3 bg-gradient-to-r from-purple-400 to-pink-500 text-white rounded-2xl font-semibold shadow-lg hover:from-pink-500 hover:to-purple-400 transition-all">{t('gifts.startGroupGiftNow')}</Link>
             </div>
           ) : (
             <div className="grid gap-8 sm:grid-cols-1 md:grid-cols-2">
@@ -516,9 +520,9 @@ export default function GiftsPage() {
                     <div className="flex-1">
                       <Link href={`/group-gift/${gift.id}`}
                         className="text-xl font-bold text-purple-800 dark:text-purple-300 hover:underline">
-                        {gift.product?.title || 'Group Gift'}
+                        {gift.product?.title || t('gifts.groupTab')}
                       </Link>
-                      <div className="mt-1 text-sm text-gray-800 dark:text-gray-300">Created on {new Date(gift.created_at).toLocaleString()}</div>
+                      <div className="mt-1 text-sm text-gray-800 dark:text-gray-300">{t('gifts.createdOn', { date: new Date(gift.created_at).toLocaleString() })}</div>
                     </div>
                   </div>
                   <div className="flex items-center gap-3 mt-2">
@@ -527,17 +531,17 @@ export default function GiftsPage() {
                     ) : (
                       <User className="w-8 h-8 text-purple-400" />
                     )}
-                    <span className="font-medium text-purple-800 dark:text-purple-300 text-lg">{gift.initiator?.name ? gift.initiator.name : 'Unknown Initiator'}</span>
-                    <span className="text-sm text-gray-800 dark:text-gray-300">started this group gift</span>
+                    <span className="font-medium text-purple-800 dark:text-purple-300 text-lg">{gift.initiator?.name ? gift.initiator.name : t('gifts.unknownInitiator')}</span>
+                    <span className="text-sm text-gray-800 dark:text-gray-300">{t('gifts.startedGroupGift')}</span>
                   </div>
                   {gift.message && (
                     <div className="py-3 px-5 mt-2 rounded-xl bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 font-medium border border-purple-200 dark:border-purple-700 shadow">
                       <span className="italic">&quot;{gift.message}&quot;</span>
                     </div>
                   )}
-                  <div className="mt-2 text-sm text-gray-800 dark:text-gray-300">Target Amount: <span className="font-bold">₹{gift.target_amount}</span></div>
-                  <div className="mt-2 text-sm text-gray-800 dark:text-gray-300">Recipient: <span className="font-bold">{gift.recipient?.name || 'Unknown Recipient'}</span></div>
-                  <Link href={`/group-gift/${gift.id}`} className="mt-4 text-white bg-gradient-to-r from-purple-500 to-pink-500 py-3 px-8 rounded-full font-bold shadow-lg hover:from-purple-600 hover:to-pink-600 transition-all text-xl text-center">View Group Gift</Link>
+                  <div className="mt-2 text-sm text-gray-800 dark:text-gray-300">{t('gifts.targetAmount')} <span className="font-bold">₹{gift.target_amount}</span></div>
+                  <div className="mt-2 text-sm text-gray-800 dark:text-gray-300">{t('gifts.recipient')} <span className="font-bold">{gift.recipient?.name || t('gifts.unknownRecipient')}</span></div>
+                  <Link href={`/group-gift/${gift.id}`} className="mt-4 text-white bg-gradient-to-r from-purple-500 to-pink-500 py-3 px-8 rounded-full font-bold shadow-lg hover:from-purple-600 hover:to-pink-600 transition-all text-xl text-center">{t('gifts.viewGroupGift')}</Link>
                 </motion.div>
               ))}
             </div>

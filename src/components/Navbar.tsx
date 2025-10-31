@@ -255,7 +255,7 @@ export default function Navbar() {
               </div>
               <span className="text-3xl font-bold heritage-title">KalaMitra</span>
             </div>
-            {/* Navigation placeholder */}
+            {/* navbar placeholder */}
             <div className="hidden md:flex items-center space-x-10">
             <Link href="/leaderboard" className="p-2 rounded-xl hover:bg-heritage-gold/50">
               <span className="block w-6 h-6">
@@ -329,7 +329,7 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* Desktop Navigation */}
+          {/* Desktop navbar */}
           <div className="hidden md:flex items-center space-x-10">
                       {/* ...existing code... */}
             <Link 
@@ -338,7 +338,7 @@ export default function Navbar() {
               title="Reels"
             >
               <Video className="w-6 h-6 mr-2" />
-              <span className="text-base">{t('navigation.reels')}</span>
+              <span className="text-base">{t('navbar.reels')}</span>
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-heritage-gold to-heritage-red transition-all duration-300 group-hover:w-full"></span>
             </Link>
 
@@ -346,7 +346,7 @@ export default function Navbar() {
               href="/marketplace" 
               className="text-[var(--text)] hover:text-heritage-gold transition-all duration-300 font-medium hover:scale-105 transform hover:translate-y-[-2px] relative group"
             >
-              <span className="relative z-10">{t('navigation.marketplace')}</span>
+              <span className="relative z-10">{t('navbar.marketplace')}</span>
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-heritage-gold to-heritage-red transition-all duration-300 group-hover:w-full"></span>
             </Link>
             <Link href="/leaderboard" className="p-2 rounded-xl hover:bg-heritage-gold/50">
@@ -370,9 +370,9 @@ export default function Navbar() {
               href="/auctions" 
               className="text-[var(--text)] hover:text-heritage-gold transition-all duration-300 font-medium hover:scale-105 transform hover:translate-y-[-2px] relative group"
             >
-                <span className="relative z-10">{t('navigation.auctions') || 'Auctions'}</span>
+                <span className="relative z-10">{t('navbar.auctions') || 'Auctions'}</span>
                 {hasLiveAuctions && (
-                  <span className="ml-2 inline-flex items-center px-2 py-0.5 bg-red-600 text-white text-xs font-semibold rounded-full">{t('navigation.live') || 'LIVE'}</span>
+                  <span className="ml-2 inline-flex items-center px-2 py-0.5 bg-red-600 text-white text-xs font-semibold rounded-full">{t('navbar.live') || 'LIVE'}</span>
                 )}
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-heritage-gold to-heritage-red transition-all duration-300 group-hover:w-full"></span>
             </Link>
@@ -389,7 +389,7 @@ export default function Navbar() {
                     href="/dashboard" 
                     className="text-[var(--text)] hover:text-heritage-gold transition-all duration-300 font-medium hover:scale-105 transform hover:translate-y-[-2px] relative group"
                   >
-                    <span className="relative z-10">{t('navigation.dashboard')}</span>
+                    <span className="relative z-10">{t('navbar.dashboard')}</span>
                     <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-heritage-gold to-heritage-red transition-all duration-300 group-hover:w-full"></span>
                   </Link>
                 )}
@@ -406,7 +406,7 @@ export default function Navbar() {
                 <Link 
                   href="/gifts" 
                   className="text-[var(--text)] hover:text-pink-600 transition-all duration-300 font-medium relative hover:scale-105 transform hover:translate-y-[-2px] group"
-                  title="Gifts"
+                  title={t('navbar.gifts')}
                 >
                   <Gift className="w-6 h-6" />
                 </Link>
@@ -472,7 +472,7 @@ export default function Navbar() {
                         <div className="flex items-center space-x-2">
                           <div className="text-sm font-medium text-[var(--text)]">{translatedName || profile?.name}</div>
                           {mitraPoints != null && (
-                            <div title="MitraPoints" className="text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full font-semibold">{mitraPoints} MP</div>
+                            <div title="MitraPoints" className="text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full font-semibold">{mitraPoints} {t('navbar.mitraPoints')}</div>
                           )}
                         </div>
                         <div className="text-xs text-[var(--muted)]">{profile?.role || ''}</div>
@@ -505,8 +505,23 @@ export default function Navbar() {
                               className="flex items-center space-x-3 w-full px-4 py-3 rounded-xl hover:bg-[var(--bg-2)] transition-all duration-200 group"
                             >
                               <User className="w-5 h-5 text-[var(--muted)] group-hover:text-heritage-gold" />
-                              <span className="text-[var(--text)] font-medium">View Profile</span>
+                              <span className="text-[var(--text)] font-medium">{t('navbar.viewProfile')}</span>
                             </Link>
+                            {/* Language Selector Dropdown */}
+                            <div className="flex items-center space-x-3 w-full px-4 py-3">
+                              <Palette className="w-5 h-5 text-[var(--muted)]" />
+                              <select
+                                value={currentLanguage}
+                                onChange={handleLanguageChange}
+                                className="w-full px-3 py-2 rounded-xl border border-gray-300 bg-[var(--bg-2)] text-[var(--text)] focus:outline-none focus:ring-2 focus:ring-heritage-gold"
+                              >
+                                {languages.map(lang => (
+                                  <option key={lang.code} value={lang.code}>
+                                    {lang.flag} {lang.label}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
                             
                             <button 
                               onClick={async () => { 
@@ -516,7 +531,7 @@ export default function Navbar() {
                               className="flex items-center space-x-3 w-full px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-200 group"
                             >
                               <LogOut className="w-5 h-5 text-red-500 group-hover:text-red-600" />
-                              <span className="text-red-600 font-medium">Sign Out</span>
+                              <span className="text-red-600 font-medium">{t('navbar.signOut')}</span>
                             </button>
                           </div>
                         </div>
@@ -531,7 +546,7 @@ export default function Navbar() {
                   href="/auth/signin"
                   className="text-[var(--text)] hover:text-heritage-gold transition-all duration-300 font-medium hover:scale-105 transform hover:translate-y-[-2px] px-4 py-2 rounded-xl hover:bg-heritage-gold/50"
                 >
-                  {t('navigation.signin')}
+                  {t('navbar.signin')}
                 </Link>
                 <Link 
                   href="/auth/signup"
@@ -612,7 +627,7 @@ export default function Navbar() {
   {/* Leaderboard modal removed: always use /leaderboard page */}
         </div>
 
-        {/* Mobile Navigation */}
+        {/* Mobile navbar */}
         {isMenuOpen && (
           <div className="md:hidden py-6 border-t border-heritage-gold/50 bg-[var(--bg-2)]/95 backdrop-blur-md rounded-3xl mt-4 shadow-medium animate-slide-in-up text-[var(--text)]">
             <div className="flex flex-col space-y-4">
@@ -621,7 +636,7 @@ export default function Navbar() {
                 className="text-[var(--text)] hover:text-heritage-gold transition-all duration-300 font-medium px-6 py-3 hover:bg-heritage-gold/50 rounded-2xl hover:translate-x-2 transform"
                 onClick={() => setIsMenuOpen(false)}
               >
-                {t('navigation.marketplace')}
+                {t('navbar.marketplace')}
               </Link>
               {/* DM Chat Option (mobile menu) */}
               {user && (
@@ -629,10 +644,10 @@ export default function Navbar() {
                   href="/dm" 
                   className="text-[var(--text)] hover:text-heritage-gold transition-all duration-300 font-medium px-6 py-3 hover:bg-heritage-gold/50 rounded-2xl hover:translate-x-2 transform flex items-center gap-2 relative"
                   onClick={() => setIsMenuOpen(false)}
-                  title="Messages"
+                  title={t('navbar.messages')}
                 >
                   <MessageCircle className="w-5 h-5" />
-                  <span>Messages</span>
+                  <span>{t('navbar.messages')}</span>
                   {dmUnreadCount > 0 && (
                     <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">{dmUnreadCount}</span>
                   )}
@@ -644,16 +659,16 @@ export default function Navbar() {
                 onClick={() => setIsMenuOpen(false)}
               >
                 <span className="inline-flex items-center">
-                  {t('navigation.auctions') || 'Auctions'}
+                  {t('navbar.auctions') || 'Auctions'}
                   {hasLiveAuctions && (
-                    <span className="ml-2 inline-flex items-center px-2 py-0.5 bg-red-600 text-white text-xs font-semibold rounded-full">{t('navigation.live') || 'LIVE'}</span>
+                    <span className="ml-2 inline-flex items-center px-2 py-0.5 bg-red-600 text-white text-xs font-semibold rounded-full">{t('navbar.live') || 'LIVE'}</span>
                   )}
                 </span>
               </Link>
               {/* Reels/Ads icon - enabled, no background, always black icon */}
               <Link href="/reels" className="flex items-center px-6 py-3" onClick={() => setIsMenuOpen(false)}>
                 <Video className="w-6 h-6 text-black mr-3" />
-                <span className="font-medium text-black">{t('navigation.reels')}/{t('navigation.ads')}</span>
+                <span className="font-medium text-black">{t('navbar.reels')}/{t('navbar.ads')}</span>
               </Link>
           {loading ? (
                 <div className="space-y-4">
@@ -668,7 +683,7 @@ export default function Navbar() {
                       className="text-[var(--text)] hover:text-heritage-gold transition-all duration-300 font-medium px-6 py-3 hover:bg-heritage-gold/50 rounded-2xl hover:translate-x-2 transform"
                       onClick={() => setIsMenuOpen(false)}
                     >
-                      {t('navigation.dashboard')}
+                      {t('navbar.dashboard')}
                     </Link>
                   )}
                   <Link 
@@ -679,7 +694,7 @@ export default function Navbar() {
                       setHasNewNotif(false); // Clear orange dot when notifications opened
                     }}
                   >
-                    {t('navigation.notifications') || 'Notifications'}
+                    {t('navbar.notifications') || 'Notifications'}
                     {/* Orange dot for new notification in menu */}
                     {hasNewNotif && (
                       <span className="ml-2 w-3 h-3 bg-orange-500 rounded-full border-2 border-white animate-pulse" />
@@ -690,7 +705,7 @@ export default function Navbar() {
                     className="text-[var(--text)] hover:text-heritage-gold transition-all duration-300 font-medium px-6 py-3 hover:bg-heritage-gold/50 rounded-2xl hover:translate-x-2 transform"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    {t('navigation.cart')}
+                    {t('navbar.cart')}
                   </Link>
                   <Link 
                     href="/gifts" 
@@ -698,7 +713,7 @@ export default function Navbar() {
                     onClick={() => setIsMenuOpen(false)}
                   >
                     <Gift className="w-5 h-5" />
-                    Gifts
+                    {t('navbar.gifts')}
                   </Link>
                     <div className="pt-4 border-t border-heritage-gold/50 px-6">
                     <span className="text-[var(--text)] font-medium block mb-3 px-4 py-2 bg-[var(--bg-2)] rounded-xl backdrop-blur-sm">
@@ -709,7 +724,7 @@ export default function Navbar() {
                       className="flex items-center space-x-2 text-[var(--text)] hover:text-heritage-gold transition-all duration-300 px-6 py-3 hover:bg-heritage-gold/50 rounded-2xl w-full hover:translate-x-2 transform"
                     >
                       <LogOut className="w-4 h-4" />
-                      <span>{t('navigation.signout')}</span>
+                      <span>{t('navbar.signout')}</span>
                     </button>
                   </div>
                 </>
@@ -720,7 +735,7 @@ export default function Navbar() {
                     className="text-gray-700 hover:text-heritage-gold transition-all duration-300 font-medium px-6 py-3 hover:bg-heritage-gold/50 rounded-2xl hover:translate-x-2 transform"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    {t('navigation.signin')}
+                    {t('navbar.signin')}
                   </Link>
                   <Link 
                     href="/auth/signup"
@@ -735,7 +750,7 @@ export default function Navbar() {
               {/* Mobile Language Selector removed from Navbar */}
               {/* Mobile Theme Toggle */}
               <div className="pt-4 px-6">
-                <label className="block text-sm text-gray-600 mb-2">{t('navigation.theme') || 'Theme'}</label>
+                <label className="block text-sm text-gray-600 mb-2">{t('navbar.theme') || 'Theme'}</label>
                 <div>
                   <button
                     onClick={() => { toggle(); }}
@@ -745,7 +760,7 @@ export default function Navbar() {
                     aria-label="Toggle theme"
                   >
                     <div className="knob" />
-                    <div className="text-xs font-medium ml-2">{theme === 'dark' ? (t('navigation.dark') || 'Dark') : (t('navigation.light') || 'Light')}</div>
+                    <div className="text-xs font-medium ml-2">{theme === 'dark' ? (t('navbar.dark') || 'Dark') : (t('navbar.light') || 'Light')}</div>
                   </button>
                 </div>
               </div>

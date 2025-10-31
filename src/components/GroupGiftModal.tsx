@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Gift, Users, DollarSign, User, Heart } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
@@ -39,6 +40,7 @@ export default function GroupGiftModal({
   productImage 
 }: GroupGiftModalProps) {
   const { user } = useAuth()
+  const { t } = useTranslation()
   
   // Debug logging
   console.log('GroupGiftModal props:', { isOpen, productId, productTitle, productPrice, productImage })
@@ -197,8 +199,8 @@ export default function GroupGiftModal({
                 <Users className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Group Gift</h2>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Multiple people contribute to one gift</p>
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{t('groupGiftModal.title')}</h2>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{t('groupGiftModal.subtitle')}</p>
               </div>
             </div>
             <button
@@ -218,8 +220,9 @@ export default function GroupGiftModal({
                 exit={{ opacity: 0, scale: 0.95 }}
                 className="space-y-6 flex flex-col items-center justify-center min-h-[300px]"
               >
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Group Gift Created!</h3>
-                <p className="text-gray-700 dark:text-gray-300 mb-4 text-center">Share this link with friends to contribute:</p>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">{t('groupGiftModal.createdTitle')}</h3>
+          
+                  <p className="text-gray-700 dark:text-gray-300 mb-4 text-center">{t('groupGiftModal.shareLink')}</p>
                 <div className="flex items-center gap-2 w-full justify-center">
                   <input
                     type="text"
@@ -230,8 +233,8 @@ export default function GroupGiftModal({
                   <button
                     onClick={() => navigator.clipboard.writeText(groupGiftUrl)}
                     className="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg font-semibold hover:from-purple-600 hover:to-pink-600 transition-all"
-                  >
-                    Copy
+                    >
+                      {t('groupGiftModal.copy')}
                   </button>
                 </div>
                 <button
@@ -240,12 +243,11 @@ export default function GroupGiftModal({
                     onClose();
                   }}
                   className="mt-6 px-6 py-2 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-all"
-                >
-                  Close
+                  >
+                    {t('groupGiftModal.close')}
                 </button>
               </motion.div>
             ) : (
-              // ...existing code for steps: select, amount, recipient, invite, confirm...
               <>
                 {step === 'select' && (
                   <motion.div
@@ -254,8 +256,8 @@ export default function GroupGiftModal({
                     className="space-y-6"
                   >
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Select Product</h3>
-                      {productId ? (
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{t('groupGiftModal.selectProduct')}</h3>
+                        {productId ? (
                         <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-4">
                           <div className="flex items-center gap-4">
                             {productImage && (
@@ -268,22 +270,22 @@ export default function GroupGiftModal({
                           </div>
                         </div>
                       ) : (
-                        <p className="text-gray-500 dark:text-gray-400">Please select a product from the marketplace first.</p>
+                  <p className="text-gray-500 dark:text-gray-400">{t('groupGiftModal.selectProductEmpty')}</p>
                       )}
                     </div>
                     <div className="flex justify-end gap-3">
                       <button
                         onClick={onClose}
                         className="px-6 py-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-                      >
-                        Cancel
+                        >
+                          {t('groupGiftModal.cancel')}
                       </button>
                       <button
                         onClick={() => setStep('amount')}
                         disabled={!productId}
                         className="px-6 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg font-semibold hover:from-purple-600 hover:to-pink-600 transition-all disabled:opacity-50"
-                      >
-                        Next
+                        >
+                          {t('groupGiftModal.next')}
                       </button>
                     </div>
                   </motion.div>
@@ -295,16 +297,16 @@ export default function GroupGiftModal({
                     className="space-y-6"
                   >
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Select Recipient</h3>
-                      <div className="mb-4">
-                        <input
-                          type="text"
-                          value={searchTerm}
-                          onChange={(e) => setSearchTerm(e.target.value)}
-                          className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                          placeholder="Search recipient..."
-                        />
-                      </div>
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{t('groupGiftModal.selectRecipient')}</h3>
+                        <div className="mb-4">
+                          <input
+                            type="text"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                            placeholder={t('groupGiftModal.searchRecipient')}
+                          />
+                        </div>
                       <div className="max-h-60 overflow-y-auto space-y-2">
                         {filteredFriends.map(friend => (
                           <div
@@ -336,15 +338,15 @@ export default function GroupGiftModal({
                       <button
                         onClick={() => setStep('amount')}
                         className="px-6 py-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-                      >
-                        Back
+                        >
+                          {t('groupGiftModal.back')}
                       </button>
                       <button
                         onClick={() => setStep('invite')}
                         disabled={!selectedRecipient}
                         className="px-6 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg font-semibold hover:from-purple-600 hover:to-pink-600 transition-all disabled:opacity-50"
-                      >
-                        Next
+                        >
+                          {t('groupGiftModal.next')}
                       </button>
                     </div>
                   </motion.div>
@@ -357,11 +359,11 @@ export default function GroupGiftModal({
                     className="space-y-6"
                   >
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Set Target Amount</h3>
-                      <div className="space-y-4">
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{t('groupGiftModal.setTargetAmount')}</h3>
+                        <div className="space-y-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Target Amount (₹)
+                              {t('groupGiftModal.targetAmountLabel')}
                           </label>
                           <div className="relative">
                             <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5">₹</span>
@@ -370,7 +372,7 @@ export default function GroupGiftModal({
                               value={targetAmount}
                               onChange={(e) => setTargetAmount(Number(e.target.value))}
                               className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                              placeholder="Enter target amount"
+                                placeholder={t('groupGiftModal.targetAmountPlaceholder')}
                               min={productPrice || 1}
                               disabled={!!productPrice}
                             />
@@ -379,14 +381,14 @@ export default function GroupGiftModal({
                         
                         <div>
                           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Message (Optional)
+                              {t('groupGiftModal.messageLabel')}
                           </label>
                           <textarea
                             value={message}
                             onChange={(e) => setMessage(e.target.value)}
                             className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                             rows={3}
-                            placeholder="Add a personal message..."
+                              placeholder={t('groupGiftModal.messagePlaceholder')}
                           />
                         </div>
                       </div>
@@ -396,15 +398,15 @@ export default function GroupGiftModal({
                       <button
                         onClick={() => setStep('select')}
                         className="px-6 py-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-                      >
-                        Back
+                        >
+                          {t('groupGiftModal.back')}
                       </button>
                       <button
                         onClick={() => setStep('recipient')}
                         disabled={Number(targetAmount) <= 0}
                         className="px-6 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg font-semibold hover:from-purple-600 hover:to-pink-600 transition-all disabled:opacity-50"
-                      >
-                        Next
+                        >
+                          {t('groupGiftModal.next')}
                       </button>
                     </div>
                   </motion.div>
@@ -417,7 +419,7 @@ export default function GroupGiftModal({
                     className="space-y-6"
                   >
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Invite Friends</h3>
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{t('groupGiftModal.inviteFriends')}</h3>
                       
                       <div className="mb-4">
                         <input
@@ -425,7 +427,7 @@ export default function GroupGiftModal({
                           value={searchTerm}
                           onChange={(e) => setSearchTerm(e.target.value)}
                           className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                          placeholder="Search friends..."
+                          placeholder={t('groupGiftModal.searchFriends')}
                         />
                       </div>
 
@@ -491,7 +493,7 @@ export default function GroupGiftModal({
                     className="space-y-6"
                   >
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Confirm Group Gift</h3>
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{t('groupGiftModal.confirmTitle')}</h3>
                       <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-4 space-y-4">
                         <div className="flex items-center gap-4">
                           {productImage && (
@@ -499,7 +501,7 @@ export default function GroupGiftModal({
                           )}
                           <div>
                             <h4 className="font-semibold text-gray-900 dark:text-white">{productTitle}</h4>
-                            <p className="text-gray-500 dark:text-gray-400">Target: ₹{targetAmount}</p>
+                            <p className="text-gray-500 dark:text-gray-400">{t('groupGiftModal.target', { amount: targetAmount })}</p>
                           </div>
                         </div>
                         {message && (
@@ -509,7 +511,7 @@ export default function GroupGiftModal({
                         )}
                         <div>
                           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Your Contribution (optional)
+                            {t('groupGiftModal.yourContributionLabel')}
                           </label>
                           <input
                             type="number"
@@ -517,12 +519,12 @@ export default function GroupGiftModal({
                             value={creatorContribution}
                             onChange={e => setCreatorContribution(e.target.value === '' ? '' : Math.max(0, Number(e.target.value)))}
                             className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                            placeholder="Enter amount you want to contribute (optional)"
+                            placeholder={t('groupGiftModal.yourContributionPlaceholder')}
                           />
                         </div>
                         <div>
                           <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Invited Friends ({selectedFriends.length})
+                            {t('groupGiftModal.invitedFriends', { count: selectedFriends.length })}
                           </p>
                           <div className="flex flex-wrap gap-2">
                             {selectedFriends.map(friend => (

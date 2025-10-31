@@ -246,7 +246,7 @@ export default function StallPage() {
     if (typeof window === 'undefined' || !params.id) return '';
     return `https://kalaaamitra.vercel.app/stall/${params.id}`;
   };
-  const getShareTitle = () => (stallProfile?.name ? `${stallProfile.name}'s ${t('navigation.profile')}` : t('navigation.profile'));
+  const getShareTitle = () => (stallProfile?.name ? `${stallProfile.name}'s ${t('navbar.profile')}` : t('navbar.profile'));
 
   const handleCopyLink = async () => {
     try {
@@ -369,7 +369,7 @@ export default function StallPage() {
             )}
           </div>
           <h1 className="text-4xl font-bold text-[var(--text)] mb-4">
-            {stallProfile.name}&apos;s {t('navigation.profile')}
+            {stallProfile.name}&apos;s {t('navbar.profile')}
           </h1>
           <div className="flex flex-col md:flex-row justify-center items-center gap-3 mb-4">
             <div className="flex items-center gap-2">
@@ -401,7 +401,7 @@ export default function StallPage() {
           <div className="flex justify-center space-x-8 text-sm text-[var(--muted)] mb-6">
             <div className="flex items-center">
               <MapPin className="w-4 h-4 mr-2" />
-              <span>{t('navigation.dashboard')}</span>
+              <span>{t('navbar.dashboard')}</span>
             </div>
             <div className="flex items-center">
               <Calendar className="w-4 h-4 mr-2" />
@@ -416,7 +416,7 @@ export default function StallPage() {
               onClick={() => setShow3DModal(true)}
             >
               <Palette className="w-5 h-5 text-white drop-shadow" />
-              Open 3D Stall
+              {t('stallCustomizationModal.title')}
             </button>
             <button
               type="button"
@@ -433,14 +433,14 @@ export default function StallPage() {
               <a
                 href={`/dm?userId=${stallProfile.id}`}
                 className="inline-flex items-center gap-2 rounded-lg px-5 py-3 font-semibold bg-gradient-to-r from-blue-500 via-green-500 to-teal-500 text-white shadow hover:scale-105 transition"
-                title="Message"
+                title={t('dm.messages')}
                 onClick={e => {
                   e.preventDefault();
                   window.location.href = `/dm?userId=${stallProfile.id}`;
                 }}
               >
                 <MessageCircle className="w-5 h-5" />
-                Message
+                {t('dm.messages')}
               </a>
             )}
           </div>
@@ -627,14 +627,14 @@ export default function StallPage() {
             <div className="flex justify-between items-center mb-6">
               <div>
                 <h2 className="text-2xl font-semibold text-[var(--text)] flex items-center gap-2">
-                  🧩 Virtual Products
+                  🧩 {t('product.virtualBadge')}
                 </h2>
                 <p className="text-sm text-[var(--muted)] mt-1">
-                  Explore digital, downloadable, or template-based products offered by this artisan.
+                  {t('product.virtualProductManagement', { defaultValue: 'Explore digital, downloadable, or template-based products offered by this artisan.' })}
                 </p>
               </div>
               <span className="text-[var(--muted)]">
-                {products.filter(p => p.is_virtual).length} {products.filter(p => p.is_virtual).length !== 1 ? 'products' : 'product'}
+                {products.filter(p => p.is_virtual).length} {products.filter(p => p.is_virtual).length !== 1 ? t('product.relatedProducts').toLowerCase() : t('product.item', { defaultValue: 'item' })}
               </span>
             </div>
 
@@ -651,7 +651,7 @@ export default function StallPage() {
                     <div className="relative h-48 bg-[var(--bg-2)] flex items-center justify-center overflow-hidden">
                       {/* Virtual Product Badge */}
                       <div className="absolute top-2 left-2 z-10 bg-gradient-to-r from-cyan-400 to-teal-500 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg flex items-center gap-1">
-                        🧩 Virtual
+                        🧩 {t('product.virtualBadge')}
                       </div>
                       {product.image_url ? (
                         <Image

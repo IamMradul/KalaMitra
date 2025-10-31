@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { useTranslation } from 'next-i18next';
 import { Shapes } from 'lucide-react';
 import MarketplaceStalls3D, { SellerGroup } from './MarketplaceStalls3D';
 import { Product } from '../types/product';
@@ -13,6 +14,7 @@ interface Market3DButtonProps {
 }
 
 export default function Market3DButton({ products, onAddToCart, onViewDetails }: Market3DButtonProps) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
 
   // Group products by a seller key. Adjust mapping to your actual data.
@@ -68,8 +70,8 @@ export default function Market3DButton({ products, onAddToCart, onViewDetails }:
         className="inline-flex items-center gap-2 rounded-lg px-5 py-3 font-semibold text-white bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 dark:from-indigo-700 dark:via-purple-700 dark:to-pink-700 shadow-lg hover:scale-105 hover:shadow-xl transition-all duration-200"
         style={{ minWidth: 180 }}
       >
-  <Shapes className="w-5 h-5 text-white drop-shadow" />
-        Explore 3D Bazaar
+        <Shapes className="w-5 h-5 text-white drop-shadow" />
+        {t('home.explore3dBazaar')}
       </button>
 
       <MarketplaceStalls3D

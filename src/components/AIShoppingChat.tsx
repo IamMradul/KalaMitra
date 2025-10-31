@@ -175,24 +175,20 @@ export default function AIShoppingChat() {
 
   // Show initial greeting for logged-in users
   const showInitialGreeting = () => {
-    const greeting = `👋 Hi! I'm your AI shopping assistant. I can help you find the perfect products based on your preferences!\n\n💾 Your conversations are saved and will be here when you return.\n\nTry asking me:\n• 'Show me diwali decorations under 1000'\n• 'Find traditional handicrafts'\n• 'I need a gift for my friend'`
-    
     setMessages([{
       id: '1',
       type: 'ai',
-      text: greeting,
+      text: t('aiChat.greetingLoggedIn'),
       timestamp: new Date(),
     }])
   }
 
   // Show greeting for anonymous users with login warning
   const showAnonymousGreeting = () => {
-    const greeting = `👋 Hi! I'm your AI shopping assistant. I can help you find the perfect products!\n\n⚠️ Note: You're not logged in, so your chat history won't be saved. Please login to save your conversations!\n\nTry asking me:\n• 'Show me diwali decorations under 1000'\n• 'Find traditional handicrafts'\n• 'I need a gift for my friend'`
-    
     setMessages([{
       id: '1',
       type: 'ai',
-      text: greeting,
+      text: t('aiChat.greetingAnonymous'),
       timestamp: new Date(),
     }])
   }
@@ -397,8 +393,8 @@ export default function AIShoppingChat() {
                   <Sparkles className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-lg">AI Shopping Assistant</h3>
-                  <p className="text-xs text-white/80">Always here to help</p>
+                  <h3 className="font-semibold text-lg">{t('aiChat.headerTitle')}</h3>
+                  <p className="text-xs text-white/80">{t('aiChat.headerSubtitle')}</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
@@ -426,7 +422,7 @@ export default function AIShoppingChat() {
               <div className="bg-yellow-50 dark:bg-yellow-900/20 border-b border-yellow-200 dark:border-yellow-800 px-4 py-2 flex items-center justify-between">
                 <div className="flex items-center gap-2 text-xs text-yellow-800 dark:text-yellow-200">
                   <span>⚠️</span>
-                  <span>Chat not saved. Login to save conversations!</span>
+                  <span>{t('aiChat.notSavedBanner')}</span>
                 </div>
                 <Link 
                   href="/auth/signin"
@@ -443,7 +439,7 @@ export default function AIShoppingChat() {
               {isLoadingHistory ? (
                 <div className="flex flex-col items-center justify-center h-full space-y-3">
                   <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Loading your chat history...</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{t('aiChat.loadingHistory')}</p>
                 </div>
               ) : (
                 <>
@@ -491,7 +487,7 @@ export default function AIShoppingChat() {
                         ))}
                         {message.products.length > 3 && (
                           <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                            +{message.products.length - 3} more products
+                            {t('aiChat.moreProducts', { count: message.products.length - 3 })}
                           </p>
                         )}
                       </div>
@@ -509,7 +505,7 @@ export default function AIShoppingChat() {
                   <div className="bg-white dark:bg-gray-700 rounded-2xl px-4 py-3 shadow-md flex items-center space-x-2">
                     <Loader2 className="w-4 h-4 animate-spin text-orange-500" />
                     <span className="text-sm text-gray-600 dark:text-gray-300">
-                      AI is analyzing products...
+                      {t('aiChat.analyzingProducts')}
                     </span>
                   </div>
                 </motion.div>
@@ -530,7 +526,7 @@ export default function AIShoppingChat() {
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyPress={handleKeyPress}
-                    placeholder="Ask me anything..."
+                    placeholder={t('aiChat.inputPlaceholder')}
                     disabled={isLoading}
                     className="w-full px-4 py-2.5 pr-10 bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white rounded-full focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all text-sm"
                   />

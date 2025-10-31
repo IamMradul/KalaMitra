@@ -3,6 +3,7 @@
 import DMChat from '@/components/DMChat';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 // Utility hook for mobile detection
 function useIsMobile(breakpoint = 768) {
   const [isMobile, setIsMobile] = useState(false);
@@ -20,6 +21,7 @@ import { useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 
 export default function DMPage() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   // Group chat creation modal state
   const [showGroupModal, setShowGroupModal] = useState(false);
@@ -221,17 +223,17 @@ export default function DMPage() {
             className="px-4 py-2 rounded-lg bg-blue-500 text-white font-semibold shadow hover:bg-blue-600"
             onClick={() => setShowGroupModal(true)}
           >
-            + New Group Chat
+            {t('dm.newGroupChat')}
           </button>
         </div>
         {showGroupModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 w-screen h-screen overflow-y-auto">
             <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-sm mx-auto" style={{ minHeight: 'auto', maxHeight: '95vh', overflowY: 'auto' }}>
-              <h3 className="text-xl font-bold mb-4">Create Group Chat</h3>
+              <h3 className="text-xl font-bold mb-4">{t('dm.createGroupChat')}</h3>
               <input
                 type="text"
                 className="w-full mb-3 p-2 border rounded"
-                placeholder="Group Title"
+                placeholder={t('dm.groupTitle')}
                 value={groupTitle}
                 onChange={e => setGroupTitle(e.target.value)}
               />
@@ -239,12 +241,12 @@ export default function DMPage() {
               <input
                 type="text"
                 className="w-full mb-2 p-2 border rounded"
-                placeholder="Search people..."
+                placeholder={t('dm.searchPeople')}
                 value={userSearch}
                 onChange={e => setUserSearch(e.target.value)}
               />
               <div className="mb-3">
-                <div className="font-semibold mb-1">Add Participants:</div>
+                <div className="font-semibold mb-1">{t('dm.addParticipants')}</div>
                 <div className="max-h-40 overflow-y-auto">
                   {allUsers
                     .filter(u => u.name && u.name.toLowerCase() !== 'sus')
@@ -276,7 +278,7 @@ export default function DMPage() {
                 </div>
               </div>
               <div className="flex gap-2 justify-end mt-4">
-                <button className="px-4 py-2 rounded bg-gray-200" onClick={() => setShowGroupModal(false)}>Cancel</button>
+                <button className="px-4 py-2 rounded bg-gray-200" onClick={() => setShowGroupModal(false)}>{t('dm.cancel')}</button>
                 <button
                   className="px-4 py-2 rounded bg-blue-500 text-white font-bold"
                   disabled={groupParticipants.length < 2 || !groupTitle}
@@ -295,7 +297,7 @@ export default function DMPage() {
                       fetchThreads();
                     }
                   }}
-                >Create</button>
+                >{t('dm.create')}</button>
               </div>
             </div>
           </div>
@@ -307,9 +309,9 @@ export default function DMPage() {
             style={{ minHeight: '100%', minWidth: '100%' }}
           >
             <aside className="w-full border-b bg-white p-4  flex-1">
-              <h2 className="font-bold text-lg mb-4">Chats</h2>
+              <h2 className="font-bold text-lg mb-4">{t('dm.chats')}</h2>
               {threads.length === 0 ? (
-                <div className="text-gray-400">No chats yet.</div>
+                <div className="text-gray-400">{t('dm.noChats')}</div>
               ) : (
                 threads.map(thread => {
                   if (thread.type === 'dm') {
@@ -330,8 +332,8 @@ export default function DMPage() {
                           <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center text-xl font-bold text-gray-500 border border-gray-300">{other?.name?.[0] || '?'}</div>
                         )}
                         <div className="flex-1 text-left">
-                          <div className="font-semibold text-base">{other?.name || 'Unknown User'}</div>
-                          <div className="text-xs text-gray-500 truncate max-w-[180px]">{thread.lastMessage?.content || 'No messages yet.'}</div>
+                          <div className="font-semibold text-base">{other?.name || t('dm.unknownUser')}</div>
+                          <div className="text-xs text-gray-500 truncate max-w-[180px]">{thread.lastMessage?.content || t('dm.noMessages')}</div>
                         </div>
                         {/* Unread dot */}
                         {thread.isUnread && (
@@ -364,8 +366,8 @@ export default function DMPage() {
                           )}
                         </div>
                         <div className="flex-1 text-left">
-                          <div className="font-semibold text-base">{thread.title || 'Group Chat'}</div>
-                          <div className="text-xs text-gray-500 truncate max-w-[180px]">{thread.lastMessage?.content || 'No messages yet.'}</div>
+                          <div className="font-semibold text-base">{thread.title || t('dm.groupChat')}</div>
+                          <div className="text-xs text-gray-500 truncate max-w-[180px]">{thread.lastMessage?.content || t('dm.noMessages')}</div>
                         </div>
                         {/* Unread dot */}
                         {thread.isUnread && (
@@ -387,7 +389,7 @@ export default function DMPage() {
                 className="self-start m-4 px-4 py-2 rounded-lg bg-gray-200 text-gray-700 font-semibold shadow hover:bg-gray-300 transition-all"
                 onClick={() => setShowThreadListMobile(true)}
               >
-                ← Back to Chats
+                {t('dm.backToChats')}
               </button>
               {selectedThread ? (
                 (() => {
@@ -421,22 +423,22 @@ export default function DMPage() {
       {/* Thread list */}
       <aside className="w-80 border-r bg-white p-4 ">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-bold text-lg">Chats</h2>
+          <h2 className="font-bold text-lg">{t('dm.chats')}</h2>
           <button
             className="px-3 py-1 rounded-lg bg-blue-500 text-white font-semibold shadow hover:bg-blue-600"
             onClick={() => setShowGroupModal(true)}
           >
-            + New Group Chat
+            {t('dm.newGroupChat')}
           </button>
         </div>
         {showGroupModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
             <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-md">
-              <h3 className="text-xl font-bold mb-4">Create Group Chat</h3>
+              <h3 className="text-xl font-bold mb-4">{t('dm.createGroupChat')}</h3>
               <input
                 type="text"
                 className="w-full mb-3 p-2 border rounded"
-                placeholder="Group Title"
+                placeholder={t('dm.groupTitle')}
                 value={groupTitle}
                 onChange={e => setGroupTitle(e.target.value)}
               />
@@ -444,12 +446,12 @@ export default function DMPage() {
               <input
                 type="text"
                 className="w-full mb-2 p-2 border rounded"
-                placeholder="Search people..."
+                placeholder={t('dm.searchPeople')}
                 value={userSearch}
                 onChange={e => setUserSearch(e.target.value)}
               />
               <div className="mb-3">
-                <div className="font-semibold mb-1">Add Participants:</div>
+                <div className="font-semibold mb-1">{t('dm.addParticipants')}</div>
                 <div className="max-h-40 overflow-y-auto">
                   {allUsers
                     .filter(u => u.name && u.name.toLowerCase() !== 'sus')
@@ -481,7 +483,7 @@ export default function DMPage() {
                 </div>
               </div>
               <div className="flex gap-2 justify-end mt-4">
-                <button className="px-4 py-2 rounded bg-gray-200" onClick={() => setShowGroupModal(false)}>Cancel</button>
+                <button className="px-4 py-2 rounded bg-gray-200" onClick={() => setShowGroupModal(false)}>{t('dm.cancel')}</button>
                 <button
                   className="px-4 py-2 rounded bg-blue-500 text-white font-bold"
                   disabled={groupParticipants.length < 2 || !groupTitle}
@@ -500,13 +502,13 @@ export default function DMPage() {
                       fetchThreads();
                     }
                   }}
-                >Create</button>
+                >{t('dm.create')}</button>
               </div>
             </div>
           </div>
         )}
         {threads.length === 0 ? (
-          <div className="text-gray-400">No chats yet.</div>
+          <div className="text-gray-400">{t('dm.noChats')}</div>
         ) : (
           threads.map(thread => {
             if (thread.type === 'dm') {
@@ -524,8 +526,8 @@ export default function DMPage() {
                     <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center text-xl font-bold text-gray-500 border border-gray-300">{other?.name?.[0] || '?'}</div>
                   )}
                   <div className="flex-1 text-left">
-                    <div className="font-semibold text-base">{other?.name || 'Unknown User'}</div>
-                    <div className="text-xs text-gray-500 truncate max-w-[180px]">{thread.lastMessage?.content || 'No messages yet.'}</div>
+                    <div className="font-semibold text-base">{other?.name || t('dm.unknownUser')}</div>
+                    <div className="text-xs text-gray-500 truncate max-w-[180px]">{thread.lastMessage?.content || t('dm.noMessages')}</div>
                   </div>
                   {/* Unread dot */}
                   {thread.isUnread && (
@@ -555,8 +557,8 @@ export default function DMPage() {
                     )}
                   </div>
                   <div className="flex-1 text-left">
-                    <div className="font-semibold text-base">{thread.title || 'Group Chat'}</div>
-                    <div className="text-xs text-gray-500 truncate max-w-[180px]">{thread.lastMessage?.content || 'No messages yet.'}</div>
+                    <div className="font-semibold text-base">{thread.title || t('dm.groupChat')}</div>
+                    <div className="text-xs text-gray-500 truncate max-w-[180px]">{thread.lastMessage?.content || t('dm.noMessages')}</div>
                   </div>
                   {/* Unread dot */}
                   {thread.isUnread && (
@@ -587,7 +589,7 @@ export default function DMPage() {
             );
           })()
         ) : (
-          <div className="text-gray-400 text-xl">Select a chat to start messaging.</div>
+          <div className="text-gray-400 text-xl">{t('dm.selectChatToMessage', 'Select a chat to start messaging.')}</div>
         )}
       </main>
     </div>

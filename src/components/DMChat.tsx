@@ -80,7 +80,7 @@ export default function DMChat({ threadId, otherUser }: DMChatProps) {
 
   // Guard: if user is not loaded, don't render chat
   if (!user) {
-    return <div className="flex items-center justify-center h-full text-gray-400">Sign in to use chat.</div>;
+    return <div className="flex items-center justify-center h-full text-gray-400">{t('dm.signInToChat', 'Sign in to use chat.')}</div>;
   }
 
   async function fetchMessages(isInitial = false) {
@@ -212,9 +212,9 @@ export default function DMChat({ threadId, otherUser }: DMChatProps) {
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-2 bg-[#232946]" style={{ minHeight: 0 }}>
         {loading ? (
-          <div className="text-center text-gray-400">Loading...</div>
+          <div className="text-center text-gray-400">{t('common.loading')}</div>
         ) : messages.length === 0 ? (
-          <div className="text-center text-gray-400">No messages yet.</div>
+          <div className="text-center text-gray-400">{t('dm.noMessages')}</div>
         ) : (
           messages.map(msg => {
             // ...existing code...
@@ -260,7 +260,7 @@ export default function DMChat({ threadId, otherUser }: DMChatProps) {
                     ) : (
                       <span className="w-6 h-6 rounded-full bg-gray-400 flex items-center justify-center text-xs font-bold border border-white">{senderProfile.name?.[0] || '?'}</span>
                     )}
-                    <span className="text-xs font-semibold text-white">{isMine ? 'Me' : senderProfile.name}</span>
+                    <span className="text-xs font-semibold text-white">{isMine ? t('dm.me', 'Me') : senderProfile.name}</span>
                   </div>
                 )}
                 <span className="break-words">
@@ -287,14 +287,14 @@ export default function DMChat({ threadId, otherUser }: DMChatProps) {
           type="button"
           onClick={handleMicClick}
           className={`p-2 rounded-full border-2 ${isListening ? 'bg-orange-100 text-orange-600 border-orange-400' : 'bg-[#232946] text-[#eebd6d] border-[#eebd6d]'}`}
-          title={isListening ? 'Listening...' : 'Speak message'}
+          title={isListening ? t('dm.listening', 'Listening...') : t('dm.speakMessage', 'Speak message')}
         >
           <Mic className="w-5 h-5" />
         </button>
         <input
           type="text"
           className="flex-1 border-none rounded-lg px-3 py-2 bg-[#121629] text-white placeholder-gray-400 focus:outline-none"
-          placeholder="Type a message..."
+          placeholder={t('dm.typeMessage', 'Type a message...')}
           value={input}
           onChange={e => setInput(e.target.value)}
           disabled={sending}

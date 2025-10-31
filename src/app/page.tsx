@@ -24,46 +24,26 @@ export default function Home() {
     <div className="min-h-screen">
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden heritage-bg">
-        {/* Animated Background Elements */}
-        <div className="absolute inset-0 pointer-events-none">
-          {/* Floating Mandala Patterns */}
-          <div className="absolute top-20 left-10 w-32 h-32 opacity-5 animate-float">
-            <div className="w-full h-full bg-gradient-to-br from-[var(--heritage-gold)] to-[var(--heritage-red)] rounded-full blur-xl"></div>
-          </div>
-          <div className="absolute top-40 right-20 w-24 h-24 opacity-8 animate-float-slow">
-            <div className="w-full h-full bg-gradient-to-br from-[var(--heritage-green)] to-[var(--heritage-blue)] rounded-full blur-lg"></div>
-          </div>
-          <div className="absolute bottom-32 left-1/4 w-40 h-40 opacity-6 animate-float">
-            <div className="w-full h-full bg-gradient-to-br from-[var(--heritage-accent)] to-[var(--heritage-gold)] rounded-full blur-2xl"></div>
-          </div>
-          <div className="absolute bottom-20 right-1/3 w-28 h-28 opacity-7 animate-float-slow">
-            <div className="w-full h-full bg-gradient-to-br from-[var(--heritage-red)] to-[var(--heritage-green)] rounded-full blur-xl"></div>
-          </div>
-        </div>
-
-        {/* Glassmorphism-Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-white/5 backdrop-blur-sm"></div>
-
+        {/* ...existing background and overlay code... */}
         <div className="container-custom relative z-10">
           <div className="text-center max-w-6xl mx-auto">
             {/* Badge */}
             <div className="inline-flex items-center px-8 py-4 glass-card rounded-full border border-[var(--heritage-gold)]/30 shadow-soft mb-12 animate-slide-in-up">
               <Sparkles className="w-6 h-6 text-[var(--heritage-gold)] mr-3 animate-pulse" />
-              <span className="text-lg font-semibold text-[var(--heritage-brown)]">Authentic Indian Heritage</span>
+              <span className="text-lg font-semibold text-[var(--heritage-brown)]">{t('home.badgeHeritage')}</span>
             </div>
 
             {/* Main Title */}
             <h1 className="text-7xl md:text-9xl font-bold heritage-title mb-8 leading-tight animate-slide-in-up animate-delay-100 hero-title">
-              Discover <span className="gradient-text-animated">KalaMitra</span>
+              {t('home.mainTitle')}
             </h1>
             
             {/* Subtitle */}
             <p className="text-2xl md:text-3xl text-[var(--heritage-brown)] mb-6 font-light animate-slide-in-up animate-delay-200 hero-subtitle">
-              Where Tradition Meets Modernity
+              {t('home.subtitleMain')}
             </p>
             <p className="text-xl text-[var(--heritage-brown)]/80 mb-12 max-w-4xl mx-auto leading-relaxed animate-slide-in-up animate-delay-300">
-              Explore our curated collection of authentic Indian traditional items, handcrafted by skilled artisans 
-              and brought to you through our innovative e-commerce platform.
+              {t('home.subtitleExplore')}
             </p>
 
             {/* CTA Buttons */}
@@ -71,21 +51,21 @@ export default function Home() {
               <Link href="/marketplace" className="btn-primary bg-gradient-to-r from-[var(--heritage-gold)] to-[var(--heritage-red)] text-white hover:scale-105 group flex items-center px-8 py-4 rounded-2xl shadow-glow">
                 <span className="flex items-center justify-center space-x-3 text-center w-full">
                   <ShoppingBag className="w-6 h-6" />
-                  <span className="text-lg font-semibold">Explore Collection</span>
+                  <span className="text-lg font-semibold">{t('home.exploreCollection')}</span>
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform duration-300" />
                 </span>
               </Link>
               <Link href="/auth/signup?role=seller" className="btn-secondary border-2 border-[var(--heritage-gold)] text-[var(--heritage-gold)] hover:bg-[var(--heritage-gold)] hover:text-white group flex items-center px-8 py-4 rounded-2xl backdrop-blur-sm">
                 <span className="flex items-center justify-center space-x-3 text-center w-full">
                   <Users className="w-6 h-6" />
-                  <span className="text-lg font-semibold">Join as Artisan</span>
+                  <span className="text-lg font-semibold">{t('home.joinAsArtisan')}</span>
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform duration-300" />
                 </span>
               </Link>
               <Link href="/marketplace?view=3d" className="btn-3d-bazaar bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 text-white shadow-lg hover:scale-105 transition-transform duration-300 group flex items-center justify-center px-8 py-4 rounded-2xl border-2 border-white/30 backdrop-blur-sm">
                 <span className="flex items-center justify-center space-x-3">
                   <Palette className="w-6 h-6 text-white drop-shadow-md animate-pulse" />
-                  <span className="font-semibold text-lg">3D Bazaar</span>
+                  <span className="font-semibold text-lg">{t('home.bazaar3d')}</span>
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform duration-300" />
                 </span>
               </Link>
@@ -95,15 +75,15 @@ export default function Home() {
             <div className="grid grid-cols-3 gap-12 max-w-4xl mx-auto animate-slide-in-up animate-delay-500 stats-grid">
               <div className="text-center group">
                 <div className="text-5xl font-bold text-gradient-primary mb-3 group-hover:scale-110 transition-transform duration-300">500+</div>
-                <div className="text-[var(--heritage-brown)] font-semibold text-lg">Skilled Artisans</div>
+                <div className="text-[var(--heritage-brown)] font-semibold text-lg">{t('home.statsArtisans')}</div>
               </div>
               <div className="text-center group">
                 <div className="text-5xl font-bold text-gradient-primary mb-3 group-hover:scale-110 transition-transform duration-300">1000+</div>
-                <div className="text-[var(--heritage-brown)] font-semibold text-lg">Unique Products</div>
+                <div className="text-[var(--heritage-brown)] font-semibold text-lg">{t('home.statsProducts')}</div>
               </div>
               <div className="text-center group">
                 <div className="text-5xl font-bold text-gradient-primary mb-3 group-hover:scale-110 transition-transform duration-300">50+</div>
-                <div className="text-[var(--heritage-brown)] font-semibold text-lg">Categories</div>
+                <div className="text-[var(--heritage-brown)] font-semibold text-lg">{t('home.statsCategories')}</div>
               </div>
             </div>
           </div>
@@ -121,10 +101,10 @@ export default function Home() {
         <div className="container-custom relative">
           <div className="text-center mb-12 md:mb-16">
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-[var(--text)] mb-6 md:mb-8 animate-slide-in-up">
-              Discover Our <span className="gradient-text-animated">Unique Craftsmanship</span>
+              {t('home.videoSectionTitle')}
             </h2>
             <p className="text-lg md:text-xl text-[var(--muted)] max-w-3xl mx-auto animate-slide-in-up animate-delay-100">
-              Watch our artisans create beautiful traditional items using centuries-old techniques passed down through generations.
+              {t('home.videoSectionDesc')}
             </p>
           </div>
 
@@ -136,8 +116,8 @@ export default function Home() {
                 <VideoPlayer
                   src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
                   poster="/api/placeholder?width=800&height=450&text=KalaMitra+Craftsmanship"
-                  title="KalaMitra Craftsmanship"
-                  description="Experience traditional artistry"
+                  title={t('home.videoPlayerTitle')}
+                  description={t('home.videoPlayerDesc')}
                   className="aspect-video rounded-lg md:rounded-2xl overflow-hidden shadow-2xl"
                 />
               </div>
@@ -146,10 +126,9 @@ export default function Home() {
             
           {/* Video Description */}
           <div className="text-center animate-slide-in-up animate-delay-300">
-            <h3 className="text-xl md:text-2xl font-bold text-[var(--text)] mb-4">Discover Our Artisan Stories</h3>
+            <h3 className="text-xl md:text-2xl font-bold text-[var(--text)] mb-4">{t('home.videoStoriesTitle')}</h3>
             <p className="text-base md:text-lg text-[var(--muted)] max-w-3xl mx-auto leading-relaxed mb-8">
-              Watch our skilled artisans create beautiful traditional items using centuries-old techniques. 
-              Each piece tells a story of cultural heritage, passed down through generations of master craftsmen.
+              {t('home.videoStoriesDesc')}
             </p>
             
             {/* Video Features */}
@@ -158,22 +137,22 @@ export default function Home() {
                 <div className="w-12 h-12 bg-gradient-to-br from-[var(--heritage-gold)] to-[var(--heritage-red)] rounded-full flex items-center justify-center mx-auto mb-3">
                   <Heart className="w-6 h-6 text-white" />
                 </div>
-                <h4 className="font-semibold text-[var(--text)] mb-2">Authentic Craftsmanship</h4>
-                <p className="text-sm text-[var(--muted)]">Watch traditional techniques in action</p>
+                <h4 className="font-semibold text-[var(--text)] mb-2">{t('home.videoFeature1Title')}</h4>
+                <p className="text-sm text-[var(--muted)]">{t('home.videoFeature1Desc')}</p>
               </div>
               <div className="text-center">
                 <div className="w-12 h-12 bg-gradient-to-br from-[var(--heritage-green)] to-[var(--heritage-blue)] rounded-full flex items-center justify-center mx-auto mb-3">
                   <Award className="w-6 h-6 text-white" />
                 </div>
-                <h4 className="font-semibold text-[var(--text)] mb-2">Master Artisans</h4>
-                <p className="text-sm text-[var(--muted)]">Meet the skilled craftsmen behind each piece</p>
+                <h4 className="font-semibold text-[var(--text)] mb-2">{t('home.videoFeature2Title')}</h4>
+                <p className="text-sm text-[var(--muted)]">{t('home.videoFeature2Desc')}</p>
               </div>
               <div className="text-center">
                 <div className="w-12 h-12 bg-gradient-to-br from-[var(--heritage-red)] to-[var(--heritage-accent)] rounded-full flex items-center justify-center mx-auto mb-3">
                   <Sparkles className="w-6 h-6 text-white" />
                 </div>
-                <h4 className="font-semibold text-[var(--text)] mb-2">Cultural Heritage</h4>
-                <p className="text-sm text-[var(--muted)]">Preserving traditions for future generations</p>
+                <h4 className="font-semibold text-[var(--text)] mb-2">{t('home.videoFeature3Title')}</h4>
+                <p className="text-sm text-[var(--muted)]">{t('home.videoFeature3Desc')}</p>
               </div>
             </div>
           </div>
@@ -191,10 +170,10 @@ export default function Home() {
         <div className="container-custom relative">
           <div className="text-center mb-20">
             <h2 className="text-5xl md:text-6xl font-bold text-[var(--text)] mb-8 animate-slide-in-up">
-              Featured <span className="gradient-text-animated">Collections</span>
+              {t('home.featuredCollectionsTitle')}
             </h2>
             <p className="text-xl text-[var(--muted)] max-w-3xl mx-auto animate-slide-in-up animate-delay-100">
-              Handpicked traditional items that showcase the rich heritage and exquisite craftsmanship of India.
+              {t('home.featuredCollectionsDesc')}
             </p>
           </div>
 
@@ -207,21 +186,20 @@ export default function Home() {
                     <div className="w-20 h-20 bg-gradient-to-br from-[var(--heritage-gold)] to-[var(--heritage-red)] rounded-full flex items-center justify-center mx-auto mb-4 shadow-glow">
                       <Heart className="w-10 h-10 text-white" />
                     </div>
-                    <h3 className="text-xl font-bold text-[var(--heritage-brown)]">Handwoven Textiles</h3>
+                    <h3 className="text-xl font-bold text-[var(--heritage-brown)]">{t('home.featuredCard1Title')}</h3>
                   </div>
                 </div>
                 <div className="absolute -top-2 -right-2 w-8 h-8 bg-gradient-to-br from-[var(--heritage-gold)] to-[var(--heritage-red)] rounded-full flex items-center justify-center">
                   <Star className="w-5 h-5 text-white" />
                 </div>
               </div>
-              <h3 className="text-2xl font-semibold text-[var(--text)] mb-4">Traditional Sarees</h3>
-              <p className="text-[var(--muted)] leading-relaxed mb-6">
-                Exquisite handwoven sarees from different regions of India, each telling a unique story of tradition and craftsmanship.
-              </p>
+              <h3 className="text-2xl font-semibold text-[var(--text)] mb-4">{t('home.featuredCard1Subtitle')}</h3>
+              <h3 className="text-2xl font-semibold text-[var(--text)] mb-4">{t('home.featuredCard1Subtitle')}</h3>
+              <p className="text-[var(--muted)] leading-relaxed mb-6">{t('home.featuredCard1Desc')}</p>
               <div className="flex items-center justify-between">
-                <span className="text-2xl font-bold text-[var(--heritage-gold)]">₹2,999</span>
+                <span className="text-2xl font-bold text-[var(--heritage-gold)]">{t('home.featuredCard1Price')}</span>
                 <Link href="/marketplace" className="btn-primary bg-gradient-to-r from-[var(--heritage-gold)] to-[var(--heritage-red)] text-white px-6 py-2 rounded-xl hover:scale-105 transition-transform duration-300">
-                  View Collection
+                  {t('home.viewCollection')}
                 </Link>
               </div>
             </div>
@@ -234,21 +212,20 @@ export default function Home() {
                     <div className="w-20 h-20 bg-gradient-to-br from-[var(--heritage-green)] to-[var(--heritage-blue)] rounded-full flex items-center justify-center mx-auto mb-4 shadow-glow">
                       <Award className="w-10 h-10 text-white" />
                     </div>
-                    <h3 className="text-xl font-bold text-[var(--heritage-brown)]">Artisan Jewelry</h3>
+                    <h3 className="text-xl font-bold text-[var(--heritage-brown)]">{t('home.featuredCard2Title')}</h3>
                   </div>
                 </div>
                 <div className="absolute -top-2 -right-2 w-8 h-8 bg-gradient-to-br from-[var(--heritage-green)] to-[var(--heritage-blue)] rounded-full flex items-center justify-center">
                   <Star className="w-5 h-5 text-white" />
                 </div>
               </div>
-              <h3 className="text-2xl font-semibold text-[var(--text)] mb-4">Gold & Silver Jewelry</h3>
-              <p className="text-[var(--muted)] leading-relaxed mb-6">
-                Beautifully crafted traditional jewelry pieces that reflect the rich cultural heritage and skilled artistry of Indian craftsmen.
-              </p>
+              <h3 className="text-2xl font-semibold text-[var(--text)] mb-4">{t('home.featuredCard2Subtitle')}</h3>
+              <h3 className="text-2xl font-semibold text-[var(--text)] mb-4">{t('home.featuredCard2Subtitle')}</h3>
+              <p className="text-[var(--muted)] leading-relaxed mb-6">{t('home.featuredCard2Desc')}</p>
               <div className="flex items-center justify-between">
-                <span className="text-2xl font-bold text-[var(--heritage-gold)]">₹5,999</span>
+                <span className="text-2xl font-bold text-[var(--heritage-gold)]">{t('home.featuredCard2Price')}</span>
                 <Link href="/marketplace" className="btn-primary bg-gradient-to-r from-[var(--heritage-green)] to-[var(--heritage-blue)] text-white px-6 py-2 rounded-xl hover:scale-105 transition-transform duration-300">
-                  View Collection
+                  {t('home.viewCollection')}
                 </Link>
               </div>
             </div>
@@ -261,21 +238,20 @@ export default function Home() {
                     <div className="w-20 h-20 bg-gradient-to-br from-[var(--heritage-red)] to-[var(--heritage-accent)] rounded-full flex items-center justify-center mx-auto mb-4 shadow-glow">
                       <Sparkles className="w-10 h-10 text-white" />
                     </div>
-                    <h3 className="text-xl font-bold text-[var(--heritage-brown)]">Home Decor</h3>
+                    <h3 className="text-xl font-bold text-[var(--heritage-brown)]">{t('home.featuredCard3Title')}</h3>
                   </div>
                 </div>
                 <div className="absolute -top-2 -right-2 w-8 h-8 bg-gradient-to-br from-[var(--heritage-red)] to-[var(--heritage-accent)] rounded-full flex items-center justify-center">
                   <Star className="w-5 h-5 text-white" />
                 </div>
               </div>
-              <h3 className="text-2xl font-semibold text-[var(--text)] mb-4">Traditional Pottery</h3>
-              <p className="text-[var(--muted)] leading-relaxed mb-6">
-                Handcrafted pottery and home decor items that bring the essence of Indian tradition into your modern living spaces.
-              </p>
+              <h3 className="text-2xl font-semibold text-[var(--text)] mb-4">{t('home.featuredCard3Subtitle')}</h3>
+              <h3 className="text-2xl font-semibold text-[var(--text)] mb-4">{t('home.featuredCard3Subtitle')}</h3>
+              <p className="text-[var(--muted)] leading-relaxed mb-6">{t('home.featuredCard3Desc')}</p>
               <div className="flex items-center justify-between">
-                <span className="text-2xl font-bold text-[var(--heritage-gold)]">₹1,999</span>
+                <span className="text-2xl font-bold text-[var(--heritage-gold)]">{t('home.featuredCard3Price')}</span>
                 <Link href="/marketplace" className="btn-primary bg-gradient-to-r from-[var(--heritage-red)] to-[var(--heritage-accent)] text-white px-6 py-2 rounded-xl hover:scale-105 transition-transform duration-300">
-                  View Collection
+                  {t('home.viewCollection')}
                 </Link>
               </div>
             </div>
@@ -294,11 +270,10 @@ export default function Home() {
         <div className="container-custom relative">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-[var(--text)] mb-8 animate-slide-in-up">
-              Experience Our <span className="gradient-text-animated">3D Bazaar</span>
+              {t('home.bazaarFeatureTitle')}
             </h2>
             <p className="text-xl text-[var(--muted)] max-w-3xl mx-auto animate-slide-in-up animate-delay-100">
-              Step into a virtual marketplace where you can explore traditional items in an immersive 3D environment, 
-              bringing the authentic shopping experience right to your screen.
+              {t('home.bazaarFeatureDesc')}
             </p>
           </div>
 
@@ -311,8 +286,8 @@ export default function Home() {
                     <Palette className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-semibold text-[var(--text)] mb-2">Immersive Shopping</h3>
-                    <p className="text-[var(--muted)]">Walk through virtual stalls and interact with products in a realistic 3D environment.</p>
+                    <h3 className="text-xl font-semibold text-[var(--text)] mb-2">{t('home.bazaarFeature1Title')}</h3>
+                    <p className="text-[var(--muted)]">{t('home.bazaarFeature1Desc')}</p>
                   </div>
                 </div>
 
@@ -321,8 +296,8 @@ export default function Home() {
                     <Sparkles className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-semibold text-[var(--text)] mb-2">Interactive Experience</h3>
-                    <p className="text-[var(--muted)]">Rotate, zoom, and examine products from every angle before making a purchase.</p>
+                    <h3 className="text-xl font-semibold text-[var(--text)] mb-2">{t('home.bazaarFeature2Title')}</h3>
+                    <p className="text-[var(--muted)]">{t('home.bazaarFeature2Desc')}</p>
                   </div>
                 </div>
 
@@ -331,8 +306,8 @@ export default function Home() {
                     <Heart className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-semibold text-[var(--text)] mb-2">Authentic Atmosphere</h3>
-                    <p className="text-[var(--muted)]">Experience the vibrant atmosphere of traditional Indian markets from anywhere in the world.</p>
+                    <h3 className="text-xl font-semibold text-[var(--text)] mb-2">{t('home.bazaarFeature3Title')}</h3>
+                    <p className="text-[var(--muted)]">{t('home.bazaarFeature3Desc')}</p>
                   </div>
                 </div>
               </div>
@@ -340,7 +315,7 @@ export default function Home() {
               <div className="mt-12">
                 <Link href="/marketplace?view=3d" className="btn-3d-bazaar inline-flex items-center space-x-3 px-8 py-4 rounded-2xl">
                   <Palette className="w-6 h-6 animate-pulse" />
-                  <span className="text-lg font-semibold">Enter 3D Bazaar</span>
+                  <span className="text-lg font-semibold">{t('home.enter3dBazaar')}</span>
                   <ArrowRight className="w-5 h-5" />
                 </Link>
               </div>
@@ -384,10 +359,10 @@ export default function Home() {
         <div className="container-custom relative">
           <div className="text-center mb-20">
             <h2 className="text-5xl md:text-6xl font-bold text-[var(--text)] mb-8 animate-slide-in-up">
-              Why Choose <span className="gradient-text-animated">KalaMitra</span>?
+              {t('home.uspTitle')}
             </h2>
             <p className="text-xl text-[var(--muted)] max-w-3xl mx-auto animate-slide-in-up animate-delay-100">
-              We bridge the gap between traditional craftsmanship and modern convenience, ensuring authentic quality and cultural preservation.
+              {t('home.uspDesc')}
             </p>
           </div>
 
@@ -402,10 +377,8 @@ export default function Home() {
                 <div className="absolute -top-2 -right-2 w-6 h-6 bg-gradient-to-br from-[var(--heritage-gold)] to-[var(--heritage-red)] rounded-full opacity-60"></div>
                 <div className="absolute -bottom-2 -left-2 w-4 h-4 bg-gradient-to-br from-[var(--heritage-red)] to-[var(--heritage-gold)] rounded-full opacity-40"></div>
               </div>
-              <h3 className="text-2xl font-semibold text-[var(--text)] mb-6">100% Authentic</h3>
-              <p className="text-[var(--muted)] leading-relaxed text-lg">
-                Every item is verified for authenticity and sourced directly from skilled artisans, ensuring genuine traditional craftsmanship.
-              </p>
+              <h3 className="text-2xl font-semibold text-[var(--text)] mb-6">{t('home.usp1Title')}</h3>
+              <p className="text-[var(--muted)] leading-relaxed text-lg">{t('home.usp1Desc')}</p>
             </div>
 
             {/* Handcrafted Quality Feature */}
@@ -418,10 +391,8 @@ export default function Home() {
                 <div className="absolute -top-2 -right-2 w-6 h-6 bg-gradient-to-br from-[var(--heritage-green)] to-[var(--heritage-blue)] rounded-full opacity-60"></div>
                 <div className="absolute -bottom-2 -left-2 w-4 h-4 bg-gradient-to-br from-[var(--heritage-blue)] to-[var(--heritage-green)] rounded-full opacity-40"></div>
               </div>
-              <h3 className="text-2xl font-semibold text-[var(--text)] mb-6">Handcrafted Excellence</h3>
-              <p className="text-[var(--muted)] leading-relaxed text-lg">
-                Each piece is meticulously crafted by master artisans using traditional techniques passed down through generations.
-              </p>
+              <h3 className="text-2xl font-semibold text-[var(--text)] mb-6">{t('home.usp2Title')}</h3>
+              <p className="text-[var(--muted)] leading-relaxed text-lg">{t('home.usp2Desc')}</p>
             </div>
 
             {/* Heritage Preservation Feature */}
@@ -434,10 +405,8 @@ export default function Home() {
                 <div className="absolute -top-2 -right-2 w-6 h-6 bg-gradient-to-br from-[var(--heritage-red)] to-[var(--heritage-accent)] rounded-full opacity-60"></div>
                 <div className="absolute -bottom-2 -left-2 w-4 h-4 bg-gradient-to-br from-[var(--heritage-accent)] to-[var(--heritage-red)] rounded-full opacity-40"></div>
               </div>
-              <h3 className="text-2xl font-semibold text-[var(--text)] mb-6">Cultural Heritage</h3>
-              <p className="text-[var(--muted)] leading-relaxed text-lg">
-                Supporting traditional artisans and preserving India&apos;s rich cultural heritage for future generations.
-              </p>
+              <h3 className="text-2xl font-semibold text-[var(--text)] mb-6">{t('home.usp3Title')}</h3>
+              <p className="text-[var(--muted)] leading-relaxed text-lg">{t('home.usp3Desc')}</p>
             </div>
           </div>
         </div>
@@ -454,10 +423,10 @@ export default function Home() {
         <div className="container-custom relative">
           <div className="text-center mb-20">
             <h2 className="text-5xl md:text-6xl font-bold text-[var(--text)] mb-8 animate-slide-in-up">
-              How <span className="gradient-text-animated">KalaMitra</span> Works
+              {t('home.howItWorksTitle')}
             </h2>
             <p className="text-xl text-[var(--muted)] max-w-3xl mx-auto animate-slide-in-up animate-delay-100">
-              Experience the seamless journey from discovering authentic traditional items to bringing them home.
+              {t('home.howItWorksDesc2')}
             </p>
           </div>
 
@@ -472,8 +441,8 @@ export default function Home() {
                 <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-br from-[var(--heritage-gold)] to-[var(--heritage-red)] rounded-full opacity-60"></div>
                 <div className="absolute -bottom-1 -left-1 w-3 h-3 bg-gradient-to-br from-[var(--heritage-red)] to-[var(--heritage-gold)] rounded-full opacity-40"></div>
               </div>
-              <h3 className="text-xl font-semibold text-[var(--text)] mb-3">Discover</h3>
-              <p className="text-[var(--muted)]">Browse our curated collection of authentic traditional items from skilled artisans across India.</p>
+              <h3 className="text-xl font-semibold text-[var(--text)] mb-3">{t('home.stepDiscoverTitle')}</h3>
+              <p className="text-[var(--muted)]">{t('home.stepDiscoverDesc')}</p>
             </div>
 
             {/* Step 2 */}
@@ -486,8 +455,8 @@ export default function Home() {
                 <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-br from-[var(--heritage-green)] to-[var(--heritage-blue)] rounded-full opacity-60"></div>
                 <div className="absolute -bottom-1 -left-1 w-3 h-3 bg-gradient-to-br from-[var(--heritage-blue)] to-[var(--heritage-green)] rounded-full opacity-40"></div>
               </div>
-              <h3 className="text-xl font-semibold text-[var(--text)] mb-3">Choose</h3>
-              <p className="text-[var(--muted)]">Select your favorite items and learn about their cultural significance and artisan stories.</p>
+              <h3 className="text-xl font-semibold text-[var(--text)] mb-3">{t('home.stepChooseTitle')}</h3>
+              <p className="text-[var(--muted)]">{t('home.stepChooseDesc')}</p>
             </div>
 
             {/* Step 3 */}
@@ -500,8 +469,8 @@ export default function Home() {
                 <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-br from-[var(--heritage-red)] to-[var(--heritage-accent)] rounded-full opacity-60"></div>
                 <div className="absolute -bottom-1 -left-1 w-3 h-3 bg-gradient-to-br from-[var(--heritage-accent)] to-[var(--heritage-red)] rounded-full opacity-40"></div>
               </div>
-              <h3 className="text-xl font-semibold text-[var(--text)] mb-3">Order</h3>
-              <p className="text-[var(--muted)]">Place your order with secure payment and enjoy our premium packaging and delivery service.</p>
+              <h3 className="text-xl font-semibold text-[var(--text)] mb-3">{t('home.stepOrderTitle')}</h3>
+              <p className="text-[var(--muted)]">{t('home.stepOrderDesc')}</p>
             </div>
 
             {/* Step 4 */}
@@ -514,8 +483,8 @@ export default function Home() {
                 <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-br from-[var(--heritage-blue)] to-[var(--heritage-green)] rounded-full opacity-60"></div>
                 <div className="absolute -bottom-1 -left-1 w-3 h-3 bg-gradient-to-br from-[var(--heritage-green)] to-[var(--heritage-blue)] rounded-full opacity-40"></div>
               </div>
-              <h3 className="text-xl font-semibold text-[var(--text)] mb-3">Enjoy</h3>
-              <p className="text-[var(--muted)]">Receive your authentic traditional items and become part of preserving India&apos;s cultural heritage.</p>
+              <h3 className="text-xl font-semibold text-[var(--text)] mb-3">{t('home.stepEnjoyTitle')}</h3>
+              <p className="text-[var(--muted)]">{t('home.stepEnjoyDesc')}</p>
             </div>
           </div>
         </div>
@@ -532,30 +501,30 @@ export default function Home() {
         <div className="container-custom relative">
           <div className="text-center max-w-4xl mx-auto">
             <h2 className="text-5xl md:text-6xl font-bold text-white mb-8 animate-slide-in-up">
-              Ready to Start Your Journey?
+              {t('home.ctaTitle')}
             </h2>
             <p className="text-xl text-white/90 mb-12 leading-relaxed animate-slide-in-up animate-delay-100">
-              Join thousands of customers who have discovered the beauty of authentic Indian traditional items through KalaMitra.
+              {t('home.ctaDesc')}
             </p>
             <div className="flex flex-col sm:flex-row gap-6 justify-center animate-slide-in-up animate-delay-200">
               <Link href="/marketplace" className="btn-primary bg-white text-[var(--heritage-gold)] hover:bg-gray-100 group px-8 py-4 rounded-2xl shadow-glow">
                 <span className="flex items-center justify-center space-x-3">
                   <ShoppingBag className="w-6 h-6" />
-                  <span className="text-lg font-semibold">Start Shopping</span>
+                  <span className="text-lg font-semibold">{t('home.startShopping')}</span>
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform duration-300" />
                 </span>
               </Link>
               <Link href="/auth/signup?role=seller" className="btn-secondary border-2 border-white text-white hover:bg-white hover:text-[var(--heritage-gold)] group px-8 py-4 rounded-2xl backdrop-blur-sm">
                 <span className="flex items-center justify-center space-x-3">
                   <Users className="w-6 h-6" />
-                  <span className="text-lg font-semibold">Become an Artisan</span>
+                  <span className="text-lg font-semibold">{t('home.becomeArtisan')}</span>
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform duration-300" />
                 </span>
               </Link>
               <Link href="/marketplace?view=3d" className="btn-3d-bazaar bg-gradient-to-br from-blue-400 via-purple-400 to-pink-400 text-white shadow-lg hover:scale-105 transition-transform duration-300 group flex items-center justify-center px-8 py-4 rounded-2xl border-2 border-white/30 backdrop-blur-sm">
                 <span className="flex items-center justify-center space-x-3">
                   <Palette className="w-6 h-6 text-white drop-shadow-md animate-pulse" />
-                  <span className="font-semibold text-lg">Explore 3D Bazaar</span>
+                  <span className="font-semibold text-lg">{t('home.explore3dBazaar')}</span>
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform duration-300" />
                 </span>
               </Link>
@@ -574,10 +543,10 @@ export default function Home() {
         <div className="container-custom relative">
           <div className="mb-8 text-center">
             <h2 className="text-4xl sm:text-5xl font-extrabold mb-4 gradient-text-animated animate-slide-in-up">
-              Top Artisan Supporters
+              {t('home.leaderboardTitle')}
             </h2>
             <p className="text-xl text-[var(--muted)] max-w-3xl mx-auto animate-slide-in-up animate-delay-100">
-              Recognizing our most dedicated customers who support traditional artisans through their purchases.
+              {t('home.leaderboardDesc')}
             </p>
           </div>
           <div className="animate-slide-in-up animate-delay-200">

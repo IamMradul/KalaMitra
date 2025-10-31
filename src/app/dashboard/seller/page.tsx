@@ -848,7 +848,7 @@ const handleMicRespond = () => {
               }`}
             >
               <Sparkles className="w-3 h-3 sm:w-4 sm:h-4" />
-              <span>Custom Requests</span>
+              <span>{t('seller.customRequestsTab')}</span>
             </button>
           </div>
           {/* On mobile, show Custom Requests tab below, centered */}
@@ -862,7 +862,7 @@ const handleMicRespond = () => {
               }`}
             >
               <Sparkles className="w-3 h-3" />
-              <span>Custom Requests</span>
+              <span>{t('seller.customRequestsTabMobile')}</span>
             </button>
           </div>
         </motion.div>
@@ -876,7 +876,7 @@ const handleMicRespond = () => {
           >
             <h2 className="text-2xl font-semibold text-[var(--text)] mb-4 flex items-center gap-2">
               <Sparkles className="w-6 h-6 text-teal-500 dark:text-cyan-400" />
-              Custom Craft Requests
+              {t('seller.customRequestsSectionTitle')}
             </h2>
             {customRequestsLoading ? (
               <div className="text-center py-8">
@@ -885,13 +885,13 @@ const handleMicRespond = () => {
                   transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
                   className="w-12 h-12 border-4 border-teal-200 border-t-teal-600 rounded-full mx-auto mb-4"
                 />
-                <p className="text-[var(--muted)] text-lg">Loading custom requests...</p>
+                <p className="text-[var(--muted)] text-lg">{t('seller.customRequestsLoading')}</p>
               </div>
             ) : customRequests.length === 0 ? (
               <div className="text-center py-8">
                 <Sparkles className="w-12 h-12 sm:w-16 sm:h-16 text-[var(--muted)] mx-auto mb-4" />
-                <p className="text-[var(--muted)] text-base sm:text-lg">No custom requests yet.</p>
-                <p className="text-[var(--muted)] text-sm">Buyers can request personalized crafts for your products.</p>
+                <p className="text-[var(--muted)] text-base sm:text-lg">{t('seller.customRequestsNone')}</p>
+                <p className="text-[var(--muted)] text-sm">{t('seller.customRequestsBuyerHint')}</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
@@ -902,30 +902,29 @@ const handleMicRespond = () => {
                   >
                     <div className="p-4 flex flex-col gap-2">
                       <h3 className="font-semibold text-base text-[var(--text)] mb-1">{req.description}</h3>
-                      <p className="text-xs text-[var(--muted)]">Status: <span className="font-bold">{req.status}</span></p>
+                      <p className="text-xs text-[var(--muted)]">{t('seller.customRequestsStatus')} <span className="font-bold">{req.status}</span></p>
                       {req.ai_draft_url && (
-                        <a href={req.ai_draft_url} target="_blank" rel="noopener noreferrer" className="text-xs text-teal-600 dark:text-cyan-400 underline">View AI Draft</a>
+                        <a href={req.ai_draft_url} target="_blank" rel="noopener noreferrer" className="text-xs text-teal-600 dark:text-cyan-400 underline">{t('seller.customRequestsViewAIDraft')}</a>
                       )}
-                        <p className="text-xs text-[var(--muted)]">Requested by: <span className="font-bold">{buyerNames[req.buyer_id] || req.buyer_id}</span></p>
-                        <p className="text-xs text-[var(--muted)]">Product: <span className="font-bold">{productNames[req.product_id] || req.product_id}</span></p>
+                      <p className="text-xs text-[var(--muted)]">{t('seller.customRequestsRequestedBy')} <span className="font-bold">{buyerNames[req.buyer_id] || req.buyer_id}</span></p>
+                      <p className="text-xs text-[var(--muted)]">{t('seller.customRequestsProduct')} <span className="font-bold">{productNames[req.product_id] || req.product_id}</span></p>
                       <div className="flex gap-2 mt-2">
                         {req.status === 'Completed' ? (
-                          <span className="w-full px-3 py-2 text-xs rounded-md bg-green-100 text-green-700 font-semibold shadow border border-green-300 text-center cursor-default select-none">Completed</span>
+                          <span className="w-full px-3 py-2 text-xs rounded-md bg-green-100 text-green-700 font-semibold shadow border border-green-300 text-center cursor-default select-none">{t('seller.customRequestsCompleted')}</span>
                         ) : (
                           <>
                             <button
                               className="flex-1 px-3 py-2 text-xs rounded-md bg-gradient-to-r from-teal-500 to-cyan-600 text-white font-semibold shadow hover:from-teal-600 hover:to-cyan-700 transition-all"
                               onClick={() => handleRespond(req)}
                               disabled={customRequestsLoading}
-                            >Respond</button>
+                            >{t('seller.customRequestsRespond')}</button>
                             <button
                               className="flex-1 px-3 py-2 text-xs rounded-md bg-gradient-to-r from-gray-300 to-gray-400 dark:from-gray-700 dark:to-gray-800 text-gray-900 dark:text-white font-semibold shadow hover:from-gray-400 hover:to-gray-500 dark:hover:from-gray-800 dark:hover:to-gray-900 transition-all"
                               onClick={() => handleMarkCompleted(req.id)}
                               disabled={customRequestsLoading}
-                            >Mark Completed</button>
+                            >{t('seller.customRequestsMarkCompleted')}</button>
                           </>
                         )}
-
                       </div>
                     </div>
                   </div>
@@ -1015,16 +1014,16 @@ const handleMicRespond = () => {
                     <div className="p-2 sm:p-3 rounded-xl bg-gradient-to-br from-teal-500 to-cyan-600 shadow-lg">
                       <Palette className="w-5 h-5 text-white animate-spin-slow" />
                     </div>
-                    <h3 className="text-lg sm:text-xl font-semibold text-gray-900">Customize 3D Stall</h3>
+                      <h3 className="text-lg sm:text-xl font-semibold text-gray-900">{t('seller.customize3DStallTitle')}</h3>
                   </div>
-                  <button
-                    onClick={() => setShowStallCustomization(true)}
-                    className="w-full flex items-center justify-center px-5 py-3 text-base font-bold bg-gradient-to-r from-teal-500 via-cyan-500 to-blue-500 text-white rounded-lg hover:from-teal-600 hover:via-cyan-600 hover:to-blue-600 shadow-lg transition-all duration-200"
-                  >
-                    <Palette className="text-xl mr-2 animate-spin-slow" />
-                    Customize 3D Stall
-                  </button>
-                  <div className="text-xs text-gray-600 text-center mt-2">Personalize your public stall&apos;s look, welcome message, and featured products.</div>
+                    <button
+                      onClick={() => setShowStallCustomization(true)}
+                      className="w-full flex items-center justify-center px-5 py-3 text-base font-bold bg-gradient-to-r from-teal-500 via-cyan-500 to-blue-500 text-white rounded-lg hover:from-teal-600 hover:via-cyan-600 hover:to-blue-600 shadow-lg transition-all duration-200"
+                    >
+                      <Palette className="text-xl mr-2 animate-spin-slow" />
+                      {t('seller.customize3DStallButton')}
+                    </button>
+                    <div className="text-xs text-gray-600 text-center mt-2">{t('seller.customize3DStallDesc')}</div>
                 </div>
               </div>
 
@@ -1118,8 +1117,8 @@ const handleMicRespond = () => {
                     <span className="text-2xl sm:text-3xl">🔨</span>
                   </div>
                   <div>
-                    <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-[var(--text)]">Create New Auction</h3>
-                    <p className="text-xs sm:text-sm text-gray-600 dark:text-[var(--muted)]">Start bidding for your products</p>
+                    <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-[var(--text)]">{t('seller.auctionCreateTitle')}</h3>
+                      <p className="text-xs sm:text-sm text-gray-600 dark:text-[var(--muted)]">{t('seller.auctionCreateDesc')}</p>
                   </div>
                 </div>
 
@@ -1149,7 +1148,7 @@ const handleMicRespond = () => {
                     <div className="lg:col-span-2">
                       <label className="block text-sm sm:text-base font-semibold text-gray-900 dark:text-[var(--text)] mb-2">
                         <span className="inline-flex items-center gap-2">
-                          🎨 Select Product
+                          🎨 {t('seller.auctionSelectProduct')}
                         </span>
                       </label>
                       <select 
@@ -1157,7 +1156,7 @@ const handleMicRespond = () => {
                         className="w-full px-4 py-3 sm:py-3.5 text-sm sm:text-base rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-[var(--text)] border-2 border-purple-300 dark:border-purple-700 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all outline-none shadow-sm"
                         required
                       >
-                        <option value="">Choose a product to auction...</option>
+                        <option value="">{t('seller.auctionSelectProductOption')}</option>
                         {products.map(p => (
                           <option key={p.id} value={p.id}>{p.title}</option>
                         ))}
@@ -1168,7 +1167,7 @@ const handleMicRespond = () => {
                     <div>
                       <label className="block text-sm sm:text-base font-semibold text-gray-900 dark:text-[var(--text)] mb-2">
                         <span className="inline-flex items-center gap-2">
-                          💰 Starting Price
+                          💰 {t('seller.auctionStartingPrice')}
                         </span>
                       </label>
                       <div className="relative">
@@ -1176,7 +1175,7 @@ const handleMicRespond = () => {
                         <input 
                           name="starting_price" 
                           type="number" 
-                          placeholder="Enter starting bid" 
+                          placeholder={t('seller.auctionStartingPricePlaceholder')}
                           className="w-full pl-10 pr-4 py-3 sm:py-3.5 text-sm sm:text-base rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-[var(--text)] border-2 border-purple-300 dark:border-purple-700 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all outline-none shadow-sm"
                           required 
                         />
@@ -1187,12 +1186,12 @@ const handleMicRespond = () => {
                     <div>
                       <label className="block text-sm sm:text-base font-semibold text-gray-900 dark:text-[var(--text)] mb-2">
                         <span className="inline-flex items-center gap-2">
-                          📅 Schedule (Optional)
+                          📅 {t('seller.auctionSchedule')}
                         </span>
                       </label>
                       <div className="grid grid-cols-2 gap-3">
                         <div>
-                          <label className="block text-xs text-gray-600 dark:text-[var(--muted)] mb-1">Start</label>
+                          <label className="block text-xs text-gray-600 dark:text-[var(--muted)] mb-1">{t('seller.auctionStartLabel')}</label>
                           <input 
                             name="starts_at" 
                             type="datetime-local" 
@@ -1200,7 +1199,7 @@ const handleMicRespond = () => {
                           />
                         </div>
                         <div>
-                          <label className="block text-xs text-gray-600 dark:text-[var(--muted)] mb-1">End</label>
+                          <label className="block text-xs text-gray-600 dark:text-[var(--muted)] mb-1">{t('seller.auctionEndLabel')}</label>
                           <input 
                             name="ends_at" 
                             type="datetime-local" 
@@ -1219,7 +1218,7 @@ const handleMicRespond = () => {
                     >
                       <span className="inline-flex items-center gap-2">
                         <span>🚀</span>
-                        <span>Launch Auction</span>
+                        <span>{t('seller.auctionLaunchButton')}</span>
                       </span>
                     </button>
                   </div>
@@ -1236,8 +1235,8 @@ const handleMicRespond = () => {
                     <span className="text-2xl sm:text-3xl">⚡</span>
                   </div>
                   <div>
-                    <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-[var(--text)]">Your Active Auctions</h3>
-                    <p className="text-xs sm:text-sm text-gray-600 dark:text-[var(--muted)]">Manage your ongoing auctions</p>
+                    <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-[var(--text)]">{t('seller.auctionActiveTitle')}</h3>
+                    <p className="text-xs sm:text-sm text-gray-600 dark:text-[var(--muted)]">{t('seller.auctionActiveDesc')}</p>
                   </div>
                 </div>
                 <SellerAuctionsList sellerId={user.id} />
@@ -1253,15 +1252,15 @@ const handleMicRespond = () => {
               >
                 <Eye className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                 <span className="hidden sm:inline">{t('seller.manageReels')}</span>
-                <span className="sm:hidden">Reels</span>
+                <span className="sm:hidden">{t('seller.productsReelsMobile')}</span>
               </Link>
               <button
                 onClick={() => setShowAIProductForm(true)}
                 className="flex items-center px-3 sm:px-4 py-2 text-sm sm:text-base bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-lg hover:from-orange-600 hover:to-red-700 transition-all duration-200"
               >
                 <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-        <span className="hidden sm:inline">{t('seller.addProductWithAI')}</span>
-                <span className="sm:hidden">Add</span>
+  <span className="hidden sm:inline">{t('seller.addProductWithAI')}</span>
+    <span className="sm:hidden">{t('seller.productsAddMobile')}</span>
               </button>
               {/* Sign out button removed as requested */}
             </div>
@@ -1468,8 +1467,8 @@ const handleMicRespond = () => {
           <Sparkles className="w-7 h-7" />
         </span>
         <div>
-          <h3 className="text-2xl font-extrabold text-teal-700 dark:text-cyan-300 mb-1 transition-colors">Respond to Request</h3>
-          <p className="text-sm text-[var(--muted)] dark:text-cyan-200/80 transition-colors">Craft a personalized response for the buyer below.</p>
+          <h3 className="text-2xl font-extrabold text-teal-700 dark:text-cyan-300 mb-1 transition-colors">{t('seller.respondModalTitle')}</h3>
+          <p className="text-sm text-[var(--muted)] dark:text-cyan-200/80 transition-colors">{t('seller.respondModalSubtitle')}</p>
         </div>
       </div>
       {/* Request Description */}
@@ -1487,15 +1486,15 @@ const handleMicRespond = () => {
                 <Sparkles className="w-7 h-7" />
               </span>
             </div>
-            <div className="text-xl font-bold text-teal-700 dark:text-cyan-300 mb-2">Response sent!</div>
-            <div className="text-base text-[var(--muted)] dark:text-cyan-200/80">Your reply has been delivered to the buyer as a DM.</div>
+            <div className="text-xl font-bold text-teal-700 dark:text-cyan-300 mb-2">{t('seller.respondModalSuccessTitle')}</div>
+            <div className="text-base text-[var(--muted)] dark:text-cyan-200/80">{t('seller.respondModalSuccessDesc')}</div>
           </div>
         ) : (
           <>
             <textarea
               className="w-full p-4 rounded-xl border-2 border-teal-200 dark:border-cyan-700 bg-teal-50 dark:bg-gray-800 text-[var(--text)] dark:text-cyan-100 resize-none pr-14 text-base font-medium focus:outline-none focus:ring-2 focus:ring-teal-300 dark:focus:ring-cyan-700 transition-all shadow"
               rows={5}
-              placeholder="Type your response..."
+              placeholder={t('seller.respondModalTextareaPlaceholder')}
               value={respondMessage}
               onChange={e => setRespondMessage(e.target.value)}
               disabled={respondLoading}
@@ -1503,7 +1502,7 @@ const handleMicRespond = () => {
             <button
               type="button"
               className="absolute top-4 right-8 bg-gradient-to-br from-teal-200 to-cyan-200 dark:from-cyan-800 dark:to-blue-900 text-teal-700 dark:text-cyan-200 rounded-full p-2 shadow-lg hover:bg-teal-300 dark:hover:bg-cyan-900 focus:outline-none border border-teal-300 dark:border-cyan-700 transition-colors"
-              title="Speak your response"
+              title={t('seller.respondModalMicTooltip')}
               disabled={respondLoading}
               onClick={handleMicRespond}
             >
@@ -1521,12 +1520,12 @@ const handleMicRespond = () => {
             className="px-5 py-2.5 rounded-lg bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-800 dark:to-gray-700 text-gray-900 dark:text-cyan-100 font-semibold shadow hover:from-gray-300 hover:to-gray-400 dark:hover:from-gray-700 dark:hover:to-gray-800 transition-all"
             onClick={() => setRespondModalOpen(false)}
             disabled={respondLoading}
-          >Cancel</button>
+          >{t('seller.respondModalCancel')}</button>
           <button
             className="px-5 py-2.5 rounded-lg bg-gradient-to-r from-teal-500 to-cyan-600 dark:from-cyan-700 dark:to-blue-700 text-white font-bold shadow-lg hover:from-teal-600 hover:to-cyan-700 dark:hover:from-cyan-800 dark:hover:to-blue-800 transition-all disabled:opacity-60"
             onClick={handleSendResponse}
             disabled={respondLoading || !respondMessage}
-          >Send</button>
+          >{t('seller.respondModalSend')}</button>
         </div>
       )}
     </div>

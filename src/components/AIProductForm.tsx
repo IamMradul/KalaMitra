@@ -726,7 +726,7 @@ export default function AIProductForm({
                   {isStoryGenerating ? <Loader2 className="w-5 h-5 animate-spin" /> : <Sparkles className="w-5 h-5" />}
                 </button>
               </div>
-              <div className="text-xs text-orange-500 mt-1">Let buyers experience the story behind your product. You can speak, type, or enhance with AI (local Ollama).</div>
+              <div className="text-xs text-orange-500 mt-1">{t('ai.form.fields.story.helper')}</div>
             </div>
           </div>
 
@@ -760,7 +760,7 @@ export default function AIProductForm({
           {/* Product Type for AR */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              AR Display Type
+              {t('ai.form.arDisplayType')}
             </label>
             <div className="relative">
               <select
@@ -769,19 +769,19 @@ export default function AIProductForm({
                 onChange={e => setProductType(e.target.value as 'vertical' | 'horizontal')}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
               >
-                <option value="vertical">Vertical (Wall/Standing) - Paintings, Pottery, Sculptures</option>
-                <option value="horizontal">Horizontal (Floor/Table) - Rangoli, Carpets, Mats</option>
+                <option value="vertical">{t('ai.form.arDisplayTypeOptions.vertical')}</option>
+                <option value="horizontal">{t('ai.form.arDisplayTypeOptions.horizontal')}</option>
               </select>
             </div>
             <div className="text-xs text-gray-500 mt-1">
-              This determines how the product will be displayed in AR. AI analysis will suggest the best option.
+              {t('ai.form.arDisplayTypeHelper')}
             </div>
           </div>
 
           {/* CTA and Website fields for ad generation */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              CTA Text
+              {t('ai.form.ctaTextLabel')}
             </label>
             <div className="relative">
               <input
@@ -790,13 +790,13 @@ export default function AIProductForm({
                 value={ctaText}
                 onChange={e => setCtaText(e.target.value)}
                 className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-                placeholder={"Enter call-to-action text"}
+                placeholder={t('ai.form.ctaTextPlaceholder')}
               />
               <button
                 type="button"
                 onClick={listeningField === 'ctaText' ? handleStopListening : () => handleStartListening('ctaText')}
                 className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-full bg-white hover:bg-gray-100"
-                title={listeningField === 'ctaText' ? 'Listening...' : 'Speak CTA Text'}
+                title={listeningField === 'ctaText' ? t('common.listening', 'Listening...') : t('ai.form.ctaTextSpeak')}
               >
                 <Mic className={`w-5 h-5 ${listeningField === 'ctaText' ? 'animate-pulse text-red-500' : 'text-blue-500'}`} />
               </button>
@@ -804,7 +804,7 @@ export default function AIProductForm({
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Website
+              {t('ai.form.websiteLabel')}
             </label>
             <div className="relative">
               <input
@@ -813,13 +813,13 @@ export default function AIProductForm({
                 value={website}
                 onChange={e => setWebsite(e.target.value)}
                 className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-                placeholder={"Enter website URL"}
+                placeholder={t('ai.form.websitePlaceholder')}
               />
               <button
                 type="button"
                 onClick={listeningField === 'website' ? handleStopListening : () => handleStartListening('website')}
                 className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-full bg-white hover:bg-gray-100"
-                title={listeningField === 'website' ? 'Listening...' : 'Speak Website'}
+                title={listeningField === 'website' ? t('common.listening', 'Listening...') : t('ai.form.websiteSpeak')}
               >
                 <Mic className={`w-5 h-5 ${listeningField === 'website' ? 'animate-pulse text-red-500' : 'text-blue-500'}`} />
               </button>
@@ -856,7 +856,7 @@ export default function AIProductForm({
 
         {/* AI Tips */}
         <div className="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
-          <h4 className="text-sm font-medium text-amber-800 mb-2">💡 {t('ai.tips.title')}</h4>
+          <h4 className="text-sm font-medium text-amber-800 mb-2">{t('ai.form.tipsEmoji')} {t('ai.tips.title')}</h4>
           <ul className="text-xs text-amber-700 space-y-1">
             <li>• {t('ai.tips.items.uploadClearImage')}</li>
             <li>• {t('ai.tips.items.avoidUnderpricing')}</li>
