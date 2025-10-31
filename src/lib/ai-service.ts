@@ -23,6 +23,145 @@ export interface SellerAnalyticsSnapshot {
 }
 
 export class AIService {
+  /**
+   * Analyze a PDF file as a virtual product and generate product description and pricing
+   */
+  async analyzeProductPdf(file: File, context: {
+    title?: string;
+    category?: string;
+    description?: string;
+    price?: string;
+    virtualFileUrl?: string;
+    isVirtual?: boolean;
+  }): Promise<AIAnalysisResult> {
+    try {
+      // Convert PDF file to base64
+      const base64Pdf = await this.fileToBase64(file);
+
+      // Prepare the prompt for the AI
+      const prompt = `
+        Analyze this product as a virtual/digital copy (PDF) for sale. There is no physical product, only a digital PDF will be provided to the buyer.
+        Return ONLY a JSON response with no additional text, markdown, or formatting.
+
+        Product Details:
+        Title: ${context.title || ''}
+        Category: ${context.category || ''}
+        Description: ${context.description || ''}
+        Price: ${context.price || ''}
+        Virtual PDF URL: ${context.virtualFileUrl || ''}
+
+        Return exactly this JSON structure (all prices in INR - Indian Rupees, ₹):
+        {
+          "title": "unique descriptive title here",
+          "description": "detailed description here",
+          "pricingSuggestion": {
+            "minPrice": 500,
+            "maxPrice": 1500,
+            "reasoning": "pricing reasoning here"
+          },
+          "category": "category name",
+          "tags": ["tag1", "tag2", "tag3"],
+          "productType": "vertical"
+        }
+
+        Requirements:
+        1. A unique, descriptive product title (3-6 words) that captures:
+           - The specific type/style of the item
+           - Key features of the PDF (tutorial, recipe, template, etc.)
+           - Cultural or regional elements if present
+           - Avoid generic words like "Beautiful" or "Amazing"
+           - Be specific and memorable
+
+        2. A detailed, engaging product description (2-3 sentences) that highlights:
+           - What the PDF contains (steps, instructions, templates, etc.)
+           - Value for the buyer
+           - Unique features
+
+        3. A pricing suggestion in Indian Rupees (₹) with reasoning based on:
+           - Content quality
+           - Usefulness
+           - Market value for similar digital products
+           - Uniqueness
+
+        4. Product category (e.g., Tutorial, Recipe, Template, Digital Art)
+
+        5. Relevant tags for searchability
+
+        6. Product type for AR placement:
+           - "vertical" for items typically displayed vertically (tutorials, wall art, etc.)
+           - "horizontal" for items typically displayed horizontally (floor art, templates, etc.)
+
+        IMPORTANT:
+        - Currency must be INR (₹) suitable for Indian online marketplace buyers
+        - Use realistic rupee values (do not output dollars)
+        - Return ONLY the JSON object, no markdown, no code blocks, no additional text.
+        Focus on helping sellers understand the true value of their digital work and avoid underpricing.
+      `;
+
+      // Create the PDF part for the API
+      const pdfPart = {
+        inlineData: {
+          data: base64Pdf,
+          mimeType: file.type || 'application/pdf'
+        }
+      };
+
+      // Generate content using Gemini
+      const result = await this.model.generateContent([prompt, pdfPart]);
+      const response_text = result.response.text();
+
+      // Extract JSON from the response (AI might return markdown with code blocks)
+      let jsonText = response_text;
+
+      if (response_text.includes('```json')) {
+        const jsonMatch = response_text.match(/```json\s*([\s\S]*?)\s*```/);
+        if (jsonMatch) {
+          jsonText = jsonMatch[1].trim();
+        }
+      } else if (response_text.includes('```')) {
+        const codeMatch = response_text.match(/```\s*([\s\S]*?)\s*```/);
+        if (codeMatch) {
+          jsonText = codeMatch[1].trim();
+        }
+      }
+
+      jsonText = jsonText.replace(/^[^{]*/, '').replace(/[^}]*$/, '');
+
+      let aiResult;
+      try {
+        aiResult = JSON.parse(jsonText);
+      } catch (parseError) {
+        console.error('JSON parsing failed:', parseError);
+        console.error('Raw response:', response_text);
+        console.error('Extracted JSON text:', jsonText);
+        throw new Error('AI response format is invalid. Please try again with a different PDF.');
+      }
+
+      if (!aiResult.title || !aiResult.description || !aiResult.pricingSuggestion || !aiResult.category || !aiResult.tags || !aiResult.productType) {
+        console.error('Invalid AI response structure:', aiResult);
+        throw new Error('AI response is incomplete. Please try again.');
+      }
+
+      return {
+        title: aiResult.title,
+        description: aiResult.description,
+        pricingSuggestion: {
+          minPrice: parseFloat(aiResult.pricingSuggestion.minPrice),
+          maxPrice: parseFloat(aiResult.pricingSuggestion.maxPrice),
+          reasoning: aiResult.pricingSuggestion.reasoning
+        },
+        category: aiResult.category,
+        tags: aiResult.tags,
+        productType: aiResult.productType
+      };
+    } catch (error) {
+      console.error('AI PDF analysis failed:', error);
+      if (error instanceof Error) {
+        throw error;
+      }
+      throw new Error('Failed to analyze PDF. Please try again.');
+    }
+  }
   private static instance: AIService;
   private model: ReturnType<typeof genAI.getGenerativeModel>;
 
@@ -99,64 +238,121 @@ Answer as a pragmatic marketplace strategist. Give specific, short recommendatio
   /**
    * Analyze an image from a File object and generate product description and pricing
    */
-  async analyzeProductImageFromFile(file: File): Promise<AIAnalysisResult> {
+  async analyzeProductImageFromFile(file: File, options?: { isVirtual?: boolean }): Promise<AIAnalysisResult> {
     try {
       // Convert file to base64
       const base64Image = await this.fileToBase64(file);
-      
+
       // Prepare the prompt for the AI
-      const prompt = `
-        Analyze this image of an artisanal product and provide ONLY a JSON response with no additional text, markdown, or formatting.
-        
-        Return exactly this JSON structure (all prices in INR - Indian Rupees, ₹):
-        {
-          "title": "unique descriptive title here",
-          "description": "detailed description here",
-          "pricingSuggestion": {
-            "minPrice": 500,
-            "maxPrice": 1500,
-            "reasoning": "pricing reasoning here"
-          },
-          "category": "category name",
-          "tags": ["tag1", "tag2", "tag3"],
-          "productType": "vertical"
-        }
-        
-        Requirements:
-        1. A unique, descriptive product title (3-6 words) that captures:
-           - The specific type/style of the item
-           - Key visual characteristics
-           - Cultural or regional elements if present
-           - Avoid generic words like "Beautiful" or "Amazing"
-           - Be specific and memorable
-        
-        2. A detailed, engaging product description (2-3 sentences) that highlights:
-           - Materials used
-           - Craftsmanship quality
-           - Cultural significance
-           - Unique features
-        
-        3. A pricing suggestion in Indian Rupees (₹) with reasoning based on:
-           - Materials quality
-           - Craftsmanship complexity
-           - Market value for similar items
-           - Cultural significance
-           - Uniqueness
-        
-        4. Product category (e.g., Pottery, Textiles, Jewelry, Woodwork, Metalwork)
-        
-        5. Relevant tags for searchability
-        
-        6. Product type for AR placement:
-           - "vertical" for items typically displayed vertically (paintings, wall hangings, pottery, sculptures, artwork, canvas, frames)
-           - "horizontal" for items typically displayed horizontally (rangoli, kolam, floor art, carpets, mats, rugs, table runners)
-        
-        IMPORTANT:
-        - Currency must be INR (₹) suitable for Indian online marketplace buyers
-        - Use realistic rupee values (do not output dollars)
-        - Return ONLY the JSON object, no markdown, no code blocks, no additional text.
-        Focus on helping artisans understand the true value of their work and avoid underpricing.
-      `;
+      let prompt: string;
+      if (options?.isVirtual) {
+        prompt = `
+          Analyze this product as a virtual/digital copy of a design as image for sale. There is no physical product, only a digital PDF or image will be provided to the buyer. Return ONLY a JSON response with no additional text, markdown, or formatting.
+
+          Product Details:
+          (This is a virtual product, not a physical item)
+
+          Return exactly this JSON structure (all prices in INR - Indian Rupees, ₹):
+          {
+            "title": "unique descriptive title here",
+            "description": "detailed description here",
+            "pricingSuggestion": {
+              "minPrice": 500,
+              "maxPrice": 1500,
+              "reasoning": "pricing reasoning here"
+            },
+            "category": "category name",
+            "tags": ["tag1", "tag2", "tag3"],
+            "productType": "vertical"
+          }
+
+          Requirements:
+          1. A unique, descriptive product title (3-6 words) that captures:
+             - The specific type/style of the item
+             - Key features of the design (tutorial, recipe, template, etc.)
+             - Cultural or regional elements if present
+             - Avoid generic words like "Beautiful" or "Amazing"
+             - Be specific and memorable
+
+          2. A detailed, engaging product description (2-3 sentences) that highlights:
+             - What the design contains (steps, instructions, templates, etc.)
+             - Value for the buyer
+             - Unique features
+
+          3. A pricing suggestion in Indian Rupees (₹) with reasoning based on:
+             - Content quality
+             - Usefulness
+             - Market value for similar digital products
+             - Uniqueness
+
+          4. Product category (e.g., Tutorial, Recipe, Template, Digital Art)
+
+          5. Relevant tags for searchability
+
+          6. Product type for AR placement:
+             - "vertical" for items typically displayed vertically (tutorials, wall art, etc.)
+             - "horizontal" for items typically displayed horizontally (floor art, templates, etc.)
+
+          IMPORTANT:
+          - Currency must be INR (₹) suitable for Indian online marketplace buyers
+          - Use realistic rupee values (do not output dollars)
+          - Return ONLY the JSON object, no markdown, no code blocks, no additional text.
+          Focus on helping sellers understand the true value of their digital work and avoid underpricing.
+        `;
+      } else {
+        prompt = `
+          Analyze this image of an artisanal product and provide ONLY a JSON response with no additional text, markdown, or formatting.
+
+          Return exactly this JSON structure (all prices in INR - Indian Rupees, ₹):
+          {
+            "title": "unique descriptive title here",
+            "description": "detailed description here",
+            "pricingSuggestion": {
+              "minPrice": 500,
+              "maxPrice": 1500,
+              "reasoning": "pricing reasoning here"
+            },
+            "category": "category name",
+            "tags": ["tag1", "tag2", "tag3"],
+            "productType": "vertical"
+          }
+
+          Requirements:
+          1. A unique, descriptive product title (3-6 words) that captures:
+             - The specific type/style of the item
+             - Key visual characteristics
+             - Cultural or regional elements if present
+             - Avoid generic words like "Beautiful" or "Amazing"
+             - Be specific and memorable
+
+          2. A detailed, engaging product description (2-3 sentences) that highlights:
+             - Materials used
+             - Craftsmanship quality
+             - Cultural significance
+             - Unique features
+
+          3. A pricing suggestion in Indian Rupees (₹) with reasoning based on:
+             - Materials quality
+             - Craftsmanship complexity
+             - Market value for similar items
+             - Cultural significance
+             - Uniqueness
+
+          4. Product category (e.g., Pottery, Textiles, Jewelry, Woodwork, Metalwork)
+
+          5. Relevant tags for searchability
+
+          6. Product type for AR placement:
+             - "vertical" for items typically displayed vertically (paintings, wall hangings, pottery, sculptures, artwork, canvas, frames)
+             - "horizontal" for items typically displayed horizontally (rangoli, kolam, floor art, carpets, mats, rugs, table runners)
+
+          IMPORTANT:
+          - Currency must be INR (₹) suitable for Indian online marketplace buyers
+          - Use realistic rupee values (do not output dollars)
+          - Return ONLY the JSON object, no markdown, no code blocks, no additional text.
+          Focus on helping artisans understand the true value of their work and avoid underpricing.
+        `;
+      }
 
       // Create the image part for the API
       const imagePart = {
@@ -169,10 +365,10 @@ Answer as a pragmatic marketplace strategist. Give specific, short recommendatio
       // Generate content using Gemini 1.5 Flash
       const result = await this.model.generateContent([prompt, imagePart]);
       const response_text = result.response.text();
-      
+
       // Extract JSON from the response (AI might return markdown with code blocks)
       let jsonText = response_text;
-      
+
       // Remove markdown code blocks if present
       if (response_text.includes('```json')) {
         const jsonMatch = response_text.match(/```json\s*([\s\S]*?)\s*```/);
@@ -186,10 +382,10 @@ Answer as a pragmatic marketplace strategist. Give specific, short recommendatio
           jsonText = codeMatch[1].trim();
         }
       }
-      
+
       // Clean up any remaining markdown or extra text
       jsonText = jsonText.replace(/^[^{]*/, '').replace(/[^}]*$/, '');
-      
+
       // Parse the JSON response
       let aiResult;
       try {
@@ -200,13 +396,13 @@ Answer as a pragmatic marketplace strategist. Give specific, short recommendatio
         console.error('Extracted JSON text:', jsonText);
         throw new Error('AI response format is invalid. Please try again with a different image.');
       }
-      
+
       // Validate the response structure
       if (!aiResult.title || !aiResult.description || !aiResult.pricingSuggestion || !aiResult.category || !aiResult.tags || !aiResult.productType) {
         console.error('Invalid AI response structure:', aiResult);
         throw new Error('AI response is incomplete. Please try again.');
       }
-      
+
       return {
         title: aiResult.title,
         description: aiResult.description,

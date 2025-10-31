@@ -12,6 +12,7 @@ import { supabase } from '@/lib/supabase'
 import { Database } from '@/lib/supabase'
 import { extractImageFeatures } from '@/lib/image-similarity'
 import AIProductForm from '@/components/AIProductForm'
+import VirtualProductForm from '@/components/VirtualProductForm'
 import SellerAnalytics from './SellerAnalytics'
 import ProfileManager from './ProfileManager'
 import SellerAuctionsList from './SellerAuctionsList'
@@ -89,6 +90,7 @@ export default function SellerDashboard() {
   const [customRequestsLoading, setCustomRequestsLoading] = useState(false);
   const [respondModalOpen, setRespondModalOpen] = useState(false);
   const [respondingRequest, setRespondingRequest] = useState<CustomRequest | null>(null);
+  const [showVirtualProductForm, setShowVirtualProductForm] = useState(false);
   const [respondMessage, setRespondMessage] = useState('');
   const [respondLoading, setRespondLoading] = useState(false);
   const [respondSuccess, setRespondSuccess] = useState(false);
@@ -561,6 +563,8 @@ const handleMicRespond = () => {
         console.log('Column test error:', testErr)
       }
       
+
+
       // Add timeout to prevent hanging
       const insertPromise = supabase
         .from('products')
@@ -574,7 +578,9 @@ const handleMicRespond = () => {
             image_url: imageUrl || null,
             product_story: product_story || null,
             product_type: finalProductType,
-            // New optional columns if present in DB
+            is_virtual: formData.get('is_virtual') === 'true',
+            virtual_type: formData.get('virtual_type') ,
+            virtual_file_url: formData.get('virtual_file_url') || null,
             image_avg_r: features?.avgColor.r ?? null,
             image_avg_g: features?.avgColor.g ?? null,
             image_avg_b: features?.avgColor.b ?? null,
@@ -582,11 +588,11 @@ const handleMicRespond = () => {
           },
         ])
         .select()
-      
+
       const timeoutPromise = new Promise<never>((_, reject) => {
         setTimeout(() => reject(new Error('Database insert timeout after 10 seconds')), 10000)
       })
-      
+
       const raced = await Promise.race([insertPromise, timeoutPromise])
       const { data, error } = raced as { data: Product[] | null; error: { message: string; details?: string; hint?: string; code?: string } | null }
 
@@ -622,6 +628,13 @@ const handleMicRespond = () => {
         formElement.reset()
       }
       fetchProducts()
+      // Trigger embedding backfill for all products (including new one)
+      try {
+        await fetch('/api/backfill-embeddings', { method: 'GET' });
+        console.log('Triggered /api/backfill-embeddings after product creation');
+      } catch (err) {
+        console.error('Failed to trigger /api/backfill-embeddings:', err);
+      }
       // Return new product ID for AIProductForm
       return data && data[0] && data[0].id ? data[0].id : null;
     } catch (error) {
@@ -665,6 +678,8 @@ const handleMicRespond = () => {
   const imageUrl = formData.get('imageUrl') as string
   const product_story = formData.get('product_story') as string | null
   const product_type = formData.get('product_type') as 'vertical' | 'horizontal' | null
+  const virtual_type = formData.get('virtual_type') as string | null
+  const virtual_file_url = formData.get('virtual_file_url') as string | null
 
     // Basic validation
     if (!title || !category || !description || isNaN(price) || price <= 0) {
@@ -674,18 +689,32 @@ const handleMicRespond = () => {
     }
 
     try {
-      console.log('Updating product:', { productId, title, category, description, price, imageUrl, product_story, product_type })
+      console.log('Updating product:', { productId, title, category, description, price, imageUrl, product_story, product_type, virtual_type, virtual_file_url })
+      const updateObj: {
+        title: string;
+        category: string;
+        description: string;
+        price: number;
+        image_url: string | null;
+        product_story: string | null;
+        product_type: 'vertical' | 'horizontal';
+        virtual_type?: string | null;
+        virtual_file_url?: string | null;
+      } = {
+        title,
+        category,
+        description,
+        price,
+        image_url: imageUrl || null,
+        product_story: product_story || null,
+        product_type: product_type || 'vertical',
+      };
+      // Only update virtual fields if present in formData
+      if (virtual_type !== undefined) updateObj.virtual_type = virtual_type;
+      if (virtual_file_url !== undefined) updateObj.virtual_file_url = virtual_file_url;
       const { error } = await supabase
         .from('products')
-        .update({
-          title,
-          category,
-          description,
-          price,
-          image_url: imageUrl || null,
-          product_story: product_story || null,
-          product_type: product_type || 'vertical',
-        })
+        .update(updateObj)
         .eq('id', productId)
 
       if (error) {
@@ -927,6 +956,7 @@ const handleMicRespond = () => {
                 {t('seller.quickActions')}
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Product Management Card */}
                 <div className="rounded-xl bg-transparent p-5 shadow-md flex flex-col gap-3">
                   <div className="flex items-center gap-3 mb-1">
                     <div className="p-2 sm:p-3 rounded-xl bg-gradient-to-br from-teal-500 to-cyan-600 shadow-lg">
@@ -943,6 +973,24 @@ const handleMicRespond = () => {
                   </button>
                   <div className="text-xs text-gray-600 text-center mt-2">{t('seller.addProductHint')}</div>
                 </div>
+                {/* Virtual Product Management Card */}
+                <div className="rounded-xl bg-transparent p-5 shadow-md flex flex-col gap-3">
+                  <div className="flex items-center gap-3 mb-1">
+                    <div className="p-2 sm:p-3 rounded-xl bg-gradient-to-br from-cyan-500 to-teal-500 shadow-lg">
+                      <span className="text-2xl">🧩</span>
+                    </div>
+                    <h3 className="text-lg sm:text-xl font-semibold text-gray-900">{t('seller.virtualProductManagement')}</h3>
+                  </div>
+                  <button
+                    onClick={() => setShowVirtualProductForm(true)}
+                    className="w-full flex items-center justify-center px-5 py-3 text-base font-bold bg-gradient-to-r from-cyan-500 via-teal-500 to-blue-500 text-white rounded-lg hover:from-cyan-600 hover:via-teal-600 hover:to-blue-600 shadow-lg transition-all duration-200"
+                  >
+                    <span className="text-xl mr-2 animate-pulse">🧩</span>
+                    {t('seller.addVirtualProduct')}
+                  </button>
+                  <div className="text-xs text-gray-600 text-center mt-2">{t('seller.virtualProductHint')}</div>
+                </div>
+                {/* View Stall Card */}
                 <div className="rounded-xl bg-transparent p-5 shadow-md flex flex-col gap-3">
                   <div className="flex items-center gap-3 mb-1">
                     <div className="p-2 sm:p-3 rounded-xl bg-gradient-to-br from-teal-500 to-cyan-600 shadow-lg">
@@ -959,11 +1007,11 @@ const handleMicRespond = () => {
                   </Link>
                   <div className="text-xs text-gray-600 text-center mt-2">{t('seller.viewStallHint')}</div>
                 </div>
-              </div>
+
               {/* Centered Customize 3D Stall card below the grid */}
-              <div className="flex justify-center mt-6">
-                <div className="rounded-xl bg-transparent p-5 shadow-md flex flex-col gap-3 w-full max-w-md">
-                  <div className="flex items-center gap-3 mb-1 justify-center">
+
+                <div className="rounded-xl bg-transparent p-5 shadow-md flex flex-col gap-3">
+                  <div className="flex items-center gap-3 mb-1 ">
                     <div className="p-2 sm:p-3 rounded-xl bg-gradient-to-br from-teal-500 to-cyan-600 shadow-lg">
                       <Palette className="w-5 h-5 text-white animate-spin-slow" />
                     </div>
@@ -973,13 +1021,14 @@ const handleMicRespond = () => {
                     onClick={() => setShowStallCustomization(true)}
                     className="w-full flex items-center justify-center px-5 py-3 text-base font-bold bg-gradient-to-r from-teal-500 via-cyan-500 to-blue-500 text-white rounded-lg hover:from-teal-600 hover:via-cyan-600 hover:to-blue-600 shadow-lg transition-all duration-200"
                   >
-                    <Palette className="w-5 h-5 mr-2 animate-spin-slow" />
+                    <Palette className="text-xl mr-2 animate-spin-slow" />
                     Customize 3D Stall
                   </button>
                   <div className="text-xs text-gray-600 text-center mt-2">Personalize your public stall&apos;s look, welcome message, and featured products.</div>
                 </div>
               </div>
-            </div>
+
+                            </div>
           </motion.div>
         )}
 
@@ -1287,31 +1336,57 @@ const handleMicRespond = () => {
 
         {/* Edit Product Modal (AI Unified) */}
         {editingProduct && (
-          <AIProductForm
-            initialData={{
-              title: editingProduct.title || undefined,
-              category: editingProduct.category || undefined,
-              description: editingProduct.description || undefined,
-              price: editingProduct.price || undefined,
-              imageUrl: editingProduct.image_url || undefined,
-              product_story: editingProduct.product_story || undefined,
-              product_type: (editingProduct?.product_type as 'vertical' | 'horizontal' | undefined) || 'vertical',
-            }}
-            onSubmit={async (formData) => {
-              try {
-                await handleEditProduct(editingProduct.id, formData);
-                setEditingProduct(null);
-                // Return the product ID so AIProductForm can use it for reel creation
-                return editingProduct.id;
-              } catch (error) {
-                console.error('Error saving edited product:', error);
-                // keep modal open on error
-                return null;
-              }
-            }}
-            onCancel={() => setEditingProduct(null)}
-            loading={editProductLoading}
-          />
+          editingProduct.is_virtual ? (
+            <VirtualProductForm
+              initialData={{
+                title: editingProduct.title || undefined,
+                category: editingProduct.category || undefined,
+                description: editingProduct.description || undefined,
+                price: editingProduct.price || undefined,
+                imageUrl: editingProduct.image_url || undefined,
+                product_story: editingProduct.product_story || undefined,
+                product_type: (editingProduct?.product_type as 'vertical' | 'horizontal' | undefined) || 'vertical',
+                virtual_type: editingProduct.virtual_type || undefined,
+                virtual_file_url: editingProduct.virtual_file_url || undefined,
+              }}
+              onSubmit={async (formData) => {
+                try {
+                  await handleEditProduct(editingProduct.id, formData);
+                  setEditingProduct(null);
+                  return editingProduct.id;
+                } catch (error) {
+                  console.error('Error saving edited product:', error);
+                  return null;
+                }
+              }}
+              onCancel={() => setEditingProduct(null)}
+              loading={editProductLoading}
+            />
+          ) : (
+            <AIProductForm
+              initialData={{
+                title: editingProduct.title || undefined,
+                category: editingProduct.category || undefined,
+                description: editingProduct.description || undefined,
+                price: editingProduct.price || undefined,
+                imageUrl: editingProduct.image_url || undefined,
+                product_story: editingProduct.product_story || undefined,
+                product_type: (editingProduct?.product_type as 'vertical' | 'horizontal' | undefined) || 'vertical',
+              }}
+              onSubmit={async (formData) => {
+                try {
+                  await handleEditProduct(editingProduct.id, formData);
+                  setEditingProduct(null);
+                  return editingProduct.id;
+                } catch (error) {
+                  console.error('Error saving edited product:', error);
+                  return null;
+                }
+              }}
+              onCancel={() => setEditingProduct(null)}
+              loading={editProductLoading}
+            />
+          )
         )}
 
         {/* AI Product Form Modal */}
@@ -1343,6 +1418,39 @@ const handleMicRespond = () => {
               }
             }}
             onCancel={() => setShowAIProductForm(false)}
+            loading={addProductLoading}
+          />
+        )}
+
+        {/* Virtual Product Form Modal */}
+        {showVirtualProductForm && (
+          <VirtualProductForm
+            onSubmit={async (formData) => {
+              try {
+                // Convert FormData to the format expected by handleAddProduct
+                const form = document.createElement('form')
+                formData.forEach((value, key) => {
+                  const input = document.createElement('input')
+                  input.name = key
+                  input.value = value as string
+                  form.appendChild(input)
+                })
+                // Create a synthetic event
+                const syntheticEvent = {
+                  preventDefault: () => {},
+                  currentTarget: form
+                } as React.FormEvent<HTMLFormElement>
+                // Call handleAddProduct and return productId
+                const productId = await handleAddProduct(syntheticEvent)
+                setShowVirtualProductForm(false)
+                return productId;
+              } catch (error) {
+                console.error('Error submitting virtual product form:', error)
+                // Don't close the form if there's an error
+                return null;
+              }
+            }}
+            onCancel={() => setShowVirtualProductForm(false)}
             loading={addProductLoading}
           />
         )}

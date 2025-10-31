@@ -5,6 +5,9 @@ export interface Product {
   image_url: string;
   description: string;
   category: 'pottery' | 'textile' | 'basket' | 'decoration';
+  is_virtual?: boolean;
+  virtual_type?: string | null;
+  virtual_file_url?: string | null;
 }
 
 export interface StallProps {

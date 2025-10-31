@@ -381,7 +381,10 @@
   "productManagement": "Product Management",
   "addProductWithAI": "Add Product with AI",
   "addProductHint": "Upload an image to get AI-generated descriptions and pricing suggestions",
+  "addVirtualProduct": "Add Virtual Product",
   "viewYourStall": "View Your Stall",
+  "virtualProductManagement": "Virtual Product Management",
+  "virtualProductHint": "Create, upload, and manage your digital products, templates, or downloads.",
   "viewPublicStall": "View Public Stall",
   "viewStallHint": "See how customers view your stall and products",
   "yourProducts": "Your Products",
@@ -596,6 +599,7 @@
       },
       "errors": {
         "noImage": "Please provide an image first",
+         "noPDF": "Please provide an image or PDF first",
         "analyzeFailed": "Failed to analyze image",
         "needAnalyzeFirst": "Please analyze an image first",
         "generateFailed": "Failed to generate ad",

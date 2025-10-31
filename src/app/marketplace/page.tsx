@@ -134,6 +134,7 @@ function MarketplaceContent() {
   const [displayRecommended, setDisplayRecommended] = useState<ProductBase[]>([])
   const [isSearching, setIsSearching] = useState(false)
   const [showCollaborativeOnly, setShowCollaborativeOnly] = useState(false)
+  const [showVirtualOnly, setShowVirtualOnly] = useState(false)
   // AR modal state
   const [arOpen, setArOpen] = useState(false)
   const [arImageUrl, setArImageUrl] = useState<string | undefined>(undefined)
@@ -250,7 +251,7 @@ function MarketplaceContent() {
     if (searchTerm.trim() === '') {
       filterProducts()
     }
-  }, [products, selectedCategory, showCollaborativeOnly])
+    }, [products, selectedCategory, showCollaborativeOnly, showVirtualOnly])
 
   // Handle search input change with immediate reset for empty search
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -402,6 +403,11 @@ function MarketplaceContent() {
             filtered = filtered.filter((product: Product) => product.isCollaborative)
           }
 
+          // Apply virtual product filter if selected
+          if (showVirtualOnly) {
+            filtered = filtered.filter((product: Product) => product.is_virtual)
+          }
+
           setFilteredProducts(filtered)
         } else {
           // Fallback to client-side filtering if API fails
@@ -423,36 +429,41 @@ function MarketplaceContent() {
   }
 
   const clientSideFilter = () => {
-    let filtered = products
+    let filtered = products;
 
     // Only apply search filter if searchTerm is not empty
     if (searchTerm && searchTerm.trim().length > 0) {
       filtered = filtered.filter(product =>
-        product.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.category.toLowerCase().includes(searchTerm.toLowerCase())
-      )
+        (product.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.category?.toLowerCase().includes(searchTerm.toLowerCase()))
+      );
     }
 
     // Apply category filter if selected
     if (selectedCategory) {
-      filtered = filtered.filter(product => product.category === selectedCategory)
+      filtered = filtered.filter(product => product.category === selectedCategory);
     }
 
     // Apply collaborative filter if selected
     if (showCollaborativeOnly) {
-      filtered = filtered.filter(product => product.isCollaborative)
+      filtered = filtered.filter(product => product.isCollaborative);
     }
 
-    console.log('Client-side filter:', { 
-      searchTerm, 
+    // Apply virtual product filter if selected
+    if (showVirtualOnly) {
+      filtered = filtered.filter(product => product.is_virtual === true);
+    }
+
+    console.log('Client-side filter:', {
+      searchTerm,
       selectedCategory,
-      showCollaborativeOnly, 
-      totalProducts: products.length, 
-      filteredCount: filtered.length 
-    })
-    
-    setFilteredProducts(filtered)
+      showCollaborativeOnly,
+      showVirtualOnly,
+      totalProducts: products.length,
+      filteredCount: filtered.length
+    });
+    setFilteredProducts(filtered);
   }
   // Translate product titles/categories and category list for display when language changes
   useEffect(() => {
@@ -844,6 +855,17 @@ function MarketplaceContent() {
             >
               🤝 {showCollaborativeOnly ? 'Showing Collaborative Only' : 'Show Collaborative Products'}
             </button>
+            <button
+              onClick={() => setShowVirtualOnly(!showVirtualOnly)}
+              className={`px-4 py-2 rounded-lg font-medium transition-transform duration-200 ease-out transform will-change-transform flex items-center gap-2 shadow-sm hover:-translate-y-3.5 hover:scale-[1.02] hover:shadow-md focus:outline-none focus:ring-2 focus:ring-cyan-200 ${
+                showVirtualOnly
+                  ? 'bg-gradient-to-r from-cyan-400 to-teal-500 text-white shadow-md border-cyan-500'
+                  : 'bg-white hover:border-gray-400 dark:hover:border-gray-500'
+              }`}
+              aria-pressed={showVirtualOnly}
+            >
+              🧩 {showVirtualOnly ? 'Showing Virtual Only' : 'Show Virtual Products'}
+            </button>
           </div>
         </motion.div>
 
@@ -873,12 +895,25 @@ function MarketplaceContent() {
                 >
                   <Link href={`/product/${product.id}`}>
                     <div className="relative h-48 bg-gray-200 flex items-center justify-center overflow-hidden">
-                      {/* Collaboration Badge */}
-                      {product.isCollaborative && (
+                      {/* Badges: Collab + Virtual, visually balanced */}
+                      {product.isCollaborative && product.is_virtual ? (
+                        <>
+                          <div className="absolute top-2 left-2 z-10 bg-gradient-to-r from-cyan-400 to-teal-500 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg flex items-center gap-1">
+                            🧩 Virtual
+                          </div>
+                          <div className="absolute top-10 left-2 z-10 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg">
+                            🤝 Collab
+                          </div>
+                        </>
+                      ) : product.isCollaborative ? (
                         <div className="absolute top-2 right-2 z-10 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg">
                           🤝 Collab
                         </div>
-                      )}
+                      ) : product.is_virtual ? (
+                        <div className="absolute top-2 left-2 z-10 bg-gradient-to-r from-cyan-400 to-teal-500 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg flex items-center gap-1">
+                          🧩 Virtual
+                        </div>
+                      ) : null}
                       {product.image_url ? (
                         <img
                           src={product.image_url}
