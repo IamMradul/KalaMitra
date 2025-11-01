@@ -7,13 +7,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "export": "next export",
-    "postinstall": "npm install react-joyride --force"
+    "export": "next export"
   },
   "dependencies": {
     "@google/genai": "^1.16.0",
     "@google/generative-ai": "^0.24.1",
-    "@reactour/tour": "^3.8.0",
     "@supabase/supabase-js": "^2.56.0",
     "@types/pdfkit": "^0.17.3",
     "@xenova/transformers": "^2.17.2",
@@ -22,7 +20,7 @@
     "gpt4all": "^4.0.0",
     "i18next": "^25.4.2",
     "i18next-browser-languagedetector": "^8.2.0",
-    "intro.js": "^8.3.2",
+    "intro.js": "^7.2.0",
     "lucide-react": "^0.541.0",
     "next": "15.5.0",
     "next-i18next": "^15.4.2",
