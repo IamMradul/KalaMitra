@@ -65,6 +65,7 @@ export default function Market3DButton({ products, onAddToCart, onViewDetails }:
   return (
     <>
       <button
+        id="joyride-3d-bazaar-btn"
         type="button"
         onClick={() => setOpen(true)}
         className="inline-flex items-center gap-2 rounded-lg px-5 py-3 font-semibold text-white bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 dark:from-indigo-700 dark:via-purple-700 dark:to-pink-700 shadow-lg hover:scale-105 hover:shadow-xl transition-all duration-200"

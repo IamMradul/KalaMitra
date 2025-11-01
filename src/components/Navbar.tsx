@@ -18,6 +18,126 @@ import { translateText } from '@/lib/translate';
 import '@/lib/i18n';
 
 export default function Navbar() {
+  // Navbar onboarding tour steps (responsive)
+  const getNavbarTourSteps = () => {
+    const isMobile = typeof window !== 'undefined' ? window.innerWidth < 768 : false;
+    if (isMobile) {
+      return [
+        {
+          element: '#navbar-brand-mobile',
+          intro: '<span style="font-size:1.2em">💜 <b>Welcome to KalaMitra!</b></span><br/>This is your <b>main navigation bar</b> to explore features.'
+        },
+        {
+          element: '#navbar-mobile-theme-toggle',
+          intro: '<span style="font-size:1.1em">🌗 <b>Theme</b></span><br/>Switch between light and dark mode.'
+        },
+        {
+          element: '#navbar-leaderboard',
+          intro: '<span style="font-size:1.1em">🥇 <b>Leaderboard</b></span><br/>See top contributors and winners.'
+        },
+        {
+          element: '#navbar-mobile-reels',
+          intro: '<span style="font-size:1.1em">🎬 <b>Reels</b></span><br/>Watch creative reels and ads.'
+        },
+        {
+          element: 'a[href="/profile"]',
+          intro: '<span style="font-size:1.1em">👤 <b>Profile</b></span><br/>View and edit your profile.'
+        },
+        {
+          element: 'button.p-3.rounded-2xl',
+          intro: '<span style="font-size:1.1em">☰ <b>Menu</b></span><br/>Open the menu to access more features.'
+        },
+      ];
+    } else {
+      return [
+        {
+          element: '.heritage-title',
+          intro: '<span style="font-size:1.2em">💜 <b>Welcome to KalaMitra!</b></span><br/>This is your <b>main navigation bar</b> to explore features.'
+        },
+        {
+          element: 'a[href="/marketplace"]',
+          intro: '<span style="font-size:1.1em">🛍️ <b>Marketplace</b></span><br/>Browse and shop unique products.'
+        },
+        {
+          element: 'a[href="/reels"]',
+          intro: '<span style="font-size:1.1em">🎬 <b>Reels</b></span><br/>Watch creative reels and ads.'
+        },
+        {
+          element: 'a[href="/auctions"]',
+          intro: '<span style="font-size:1.1em">🏆 <b>Auctions</b></span><br/>Participate in live auctions.'
+        },
+        {
+          element: '#navbar-leaderboard',
+          intro: '<span style="font-size:1.1em">🥇 <b>Leaderboard</b></span><br/>See top contributors and winners.'
+        },
+        {
+          element: 'a[href="/cart"]',
+          intro: '<span style="font-size:1.1em">🛒 <b>Cart</b></span><br/>View your shopping cart.'
+        },
+        {
+          element: 'a[href="/gifts"]',
+          intro: '<span style="font-size:1.1em">🎁 <b>Gifts</b></span><br/>Send and receive gifts.'
+        },
+        {
+          element: 'a[href="/dm"]',
+          intro: '<span style="font-size:1.1em">💬 <b>Messages</b></span><br/>Chat with other users.'
+        },
+        {
+          element: 'button[aria-label="Toggle theme"]',
+          intro: '<span style="font-size:1.1em">🌗 <b>Theme</b></span><br/>Switch between light and dark mode.'
+        },
+        {
+          element: '#navbar-mobile-profile',
+          intro: '<span style="font-size:1.1em">👤 <b>Profile</b></span><br/>View and edit your profile.'
+        },
+      ];
+    }
+  };
+
+  // Auto-start Navbar Intro.js tour for new users (client-only)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const seen = localStorage.getItem('hasSeenKalaMitraNavbarIntro');
+    if (!seen) {
+      Promise.all([
+        import('intro.js'),
+      ]).then(([introJsModule]) => {
+        const introJs = introJsModule.default;
+        const steps = getNavbarTourSteps();
+        // Wait for all step targets to exist
+        const checkAllTargets = () => {
+          const allExist = steps.every(step => step.element && document.querySelector(step.element));
+          if (allExist) {
+            introJs().setOptions({
+              steps,
+              showProgress: true,
+              showBullets: false,
+              exitOnOverlayClick: true,
+              exitOnEsc: false,
+              scrollToElement: true,
+              overlayOpacity: 0.7,
+              tooltipClass: 'kalamitra-intro-theme kalamitra-intro-theme-mobile',
+              highlightClass: 'kalamitra-intro-highlight',
+              nextLabel: 'Next →',
+              prevLabel: '← Back',
+              doneLabel: '✨ Done',
+              skipLabel: 'Skip',
+            })
+            .oncomplete(() => {
+              localStorage.setItem('hasSeenKalaMitraNavbarIntro', 'true');
+            })
+            .onexit(() => {
+              localStorage.setItem('hasSeenKalaMitraNavbarIntro', 'true');
+            })
+            .start();
+          } else {
+            setTimeout(checkAllTargets, 100);
+          }
+        };
+        checkAllTargets();
+      });
+    }
+  }, []);
 
   const { user, profile, signOut, loading } = useAuth();
   const { currentLanguage, changeLanguage, isLoading: languageLoading } = useLanguage();
@@ -346,7 +466,7 @@ export default function Navbar() {
                 <Palette className="w-7 h-7 text-white" />
               </div>
               <span className="text-3xl font-bold heritage-title hidden md:inline" key={`brand-${currentLanguage}`}>{t('brand.name')}</span>
-              <span className="text-3xl font-bold heritage-title md:hidden" key={`brand-short-${currentLanguage}`}>KM</span>
+              <span id="navbar-brand-mobile" className="text-3xl font-bold heritage-title md:hidden" key={`brand-short-${currentLanguage}`}>KM</span>
             </Link>
           </div>
 
@@ -480,6 +600,7 @@ export default function Navbar() {
                   {/* Profile dropdown */}
                   <div className="relative" ref={profileDropdownRef}>
                     <button 
+                     id="navbar-mobile-profile" 
                       onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
                       className="flex items-center space-x-3 px-3 py-2 rounded-xl hover:bg-heritage-gold/20 transition-all duration-200"
                     >
@@ -569,7 +690,7 @@ export default function Navbar() {
                   href="/auth/signin"
                   className="text-[var(--text)] hover:text-heritage-gold transition-all duration-300 font-medium hover:scale-105 transform hover:translate-y-[-2px] px-4 py-2 rounded-xl hover:bg-heritage-gold/50"
                 >
-                  {t('navbar.signin')}
+                  {t('navbar.signIn')}
                 </Link>
                 <Link 
                   href="/auth/signup"
@@ -598,7 +719,7 @@ export default function Navbar() {
               </Link>
             )}
             {/* Leaderboard button (mobile) */}
-            <Link href="/leaderboard" className="p-2 rounded-xl hover:bg-heritage-gold/50">
+            <Link id="navbar-leaderboard" href="/leaderboard" className="p-2 rounded-xl hover:bg-heritage-gold/50">
               <span className="block w-6 h-6">
                 <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-6 h-6">
                   <defs>
@@ -616,11 +737,12 @@ export default function Navbar() {
               </span>
             </Link>
             {/* Reels button (mobile) - in menu, icon always black */}
-            <Link href="/reels" className="p-2 rounded-xl flex items-center justify-center" title="Reels">
-              <Video className="w-6 h-6 text-black" />
+            <Link  href="/reels" className="p-2 rounded-xl flex items-center justify-center" title="Reels">
+              < Video  id="navbar-mobile-reels" className="w-6 h-6 text-black" />
             </Link>
             {/* Theme toggle (mobile) */}
             <button
+            id='navbar-mobile-theme-toggle'
               onClick={() => toggle()}
               className="theme-toggle p-1"
               data-theme={theme}
@@ -655,6 +777,7 @@ export default function Navbar() {
           <div className="md:hidden py-6 border-t border-heritage-gold/50 bg-[var(--bg-2)]/95 backdrop-blur-md rounded-3xl mt-4 shadow-medium animate-slide-in-up text-[var(--text)]">
             <div className="flex flex-col space-y-4">
               <Link 
+                id="navbar-mobile-marketplace"
                 href="/marketplace" 
                 className="text-[var(--text)] hover:text-heritage-gold transition-all duration-300 font-medium px-6 py-3 hover:bg-heritage-gold/50 rounded-2xl hover:translate-x-2 transform"
                 onClick={() => setIsMenuOpen(false)}
@@ -664,6 +787,7 @@ export default function Navbar() {
               {/* DM Chat Option (mobile menu) */}
               {user && (
                 <Link 
+                  id="navbar-mobile-dm"
                   href="/dm" 
                   className="text-[var(--text)] hover:text-heritage-gold transition-all duration-300 font-medium px-6 py-3 hover:bg-heritage-gold/50 rounded-2xl hover:translate-x-2 transform flex items-center gap-2 relative"
                   onClick={() => setIsMenuOpen(false)}
@@ -677,6 +801,7 @@ export default function Navbar() {
                 </Link>
               )}
               <Link 
+                id="navbar-mobile-auctions"
                 href="/auctions" 
                 className="text-[var(--text)] hover:text-heritage-gold transition-all duration-300 font-medium px-6 py-3 hover:bg-heritage-gold/50 rounded-2xl hover:translate-x-2 transform"
                 onClick={() => setIsMenuOpen(false)}
@@ -689,7 +814,8 @@ export default function Navbar() {
                 </span>
               </Link>
               {/* Reels/Ads icon - enabled, no background, always black icon */}
-              <Link href="/reels" className="flex items-center px-6 py-3" onClick={() => setIsMenuOpen(false)}>
+              <Link  href="/reels" className="flex items-center px-6 py-3" onClick={() => setIsMenuOpen(false)}>
+                
                 <Video className="w-6 h-6 text-black mr-3" />
                 <span className="font-medium text-black">{t('navbar.reels')}/{t('navbar.ads')}</span>
               </Link>
@@ -702,6 +828,7 @@ export default function Navbar() {
                 <>
                   {profile?.role === 'seller' && (
                     <Link 
+                      id="navbar-mobile-dashboard"
                       href="/dashboard" 
                       className="text-[var(--text)] hover:text-heritage-gold transition-all duration-300 font-medium px-6 py-3 hover:bg-heritage-gold/50 rounded-2xl hover:translate-x-2 transform"
                       onClick={() => setIsMenuOpen(false)}
@@ -710,6 +837,7 @@ export default function Navbar() {
                     </Link>
                   )}
                   <Link 
+                    id="navbar-mobile-notifications"
                     href="/notifications" 
                     className="text-[var(--text)] hover:text-heritage-gold transition-all duration-300 font-medium px-6 py-3 hover:bg-heritage-gold/50 rounded-2xl hover:translate-x-2 transform flex items-center gap-2 relative"
                     onClick={() => {
@@ -724,6 +852,7 @@ export default function Navbar() {
                     )}
                   </Link>
                   <Link 
+                    id="navbar-mobile-cart"
                     href="/cart" 
                     className="text-[var(--text)] hover:text-heritage-gold transition-all duration-300 font-medium px-6 py-3 hover:bg-heritage-gold/50 rounded-2xl hover:translate-x-2 transform"
                     onClick={() => setIsMenuOpen(false)}
@@ -731,6 +860,7 @@ export default function Navbar() {
                     {t('navbar.cart')}
                   </Link>
                   <Link 
+                    id="navbar-mobile-gifts"
                     href="/gifts" 
                     className="text-[var(--text)] hover:text-pink-600 transition-all duration-300 font-medium px-6 py-3 hover:bg-pink-100 rounded-2xl hover:translate-x-2 transform flex items-center gap-2"
                     onClick={() => setIsMenuOpen(false)}
@@ -747,7 +877,7 @@ export default function Navbar() {
                       className="flex items-center space-x-2 text-[var(--text)] hover:text-heritage-gold transition-all duration-300 px-6 py-3 hover:bg-heritage-gold/50 rounded-2xl w-full hover:translate-x-2 transform"
                     >
                       <LogOut className="w-4 h-4" />
-                      <span>{t('navbar.signout')}</span>
+                      <span>{t('navbar.signOut')}</span>
                     </button>
                   </div>
                 </>
@@ -758,7 +888,7 @@ export default function Navbar() {
                     className="text-gray-700 hover:text-heritage-gold transition-all duration-300 font-medium px-6 py-3 hover:bg-heritage-gold/50 rounded-2xl hover:translate-x-2 transform"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    {t('navbar.signin')}
+                    {t('navbar.signIn')}
                   </Link>
                   <Link 
                     href="/auth/signup"
@@ -776,6 +906,7 @@ export default function Navbar() {
                 <label className="block text-sm text-gray-600 mb-2">{t('navbar.theme') || 'Theme'}</label>
                 <div>
                   <button
+                    id="navbar-mobile-theme"
                     onClick={() => { toggle(); }}
                     className="theme-toggle"
                     data-theme={theme}

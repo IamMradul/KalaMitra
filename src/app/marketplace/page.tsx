@@ -1,3 +1,5 @@
+
+
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
@@ -66,6 +68,124 @@ export default function Marketplace() {
 }
 
 function MarketplaceContent() {
+  // Onboarding tour steps
+  type TourStep = {
+    element: string;
+    intro: string;
+   
+  };
+  const getTourSteps = (): TourStep[] => {
+    const isMobile = typeof window !== 'undefined' ? window.innerWidth < 768 : false;
+    return [
+      {
+        element: isMobile ? '#navbar-brand-mobile' : 'a[href="/marketplace"]',
+        intro: '<span style="font-size:1.2em">💜 <b>Welcome to KalaMitra!</b></span><br/>This is the <b>marketplace</b> where you can explore unique products.',
+      },
+      {
+        element: 'input[aria-label]',
+        intro: '<span style="font-size:1.1em">🔍 <b>Search</b></span><br/>Use this <b>search box</b> to find products by name, category, or description.',
+      },
+      {
+        element: '#joyride-3d-bazaar-btn',
+        intro: '<span style="font-size:1.1em">🛍️ <b>3D Bazaar</b></span><br/>Click here to view the <b>immersive 3D bazaar</b> experience.',
+      },
+      {
+        element: '#joyride-add-to-cart-btn',
+        intro: '<span style="font-size:1.1em">🛒 <b>Add to Cart</b></span><br/>Add products to your cart using this button.',
+        
+      },
+      {
+        element: '#joyride-wishlist-btn',
+        intro: '<span style="font-size:1.1em">💜 <b>Wishlist</b></span><br/>Add products to your wishlist using this button.',
+      },
+      {
+        element: '#joyride-ar-btn',
+        intro: '<span style="font-size:1.1em">📱 <b>View in AR</b></span><br/>See the product in <b>Augmented Reality</b> using this button.',
+      },
+      {
+        element: '#joyride-speaker-btn',
+        intro: '<span style="font-size:1.1em">🔊 <b>Listen</b></span><br/>Hear the product story using this speaker button.',
+      },
+    ];
+  };
+
+  // Auto-start Intro.js tour for new users (client-only)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    // Wait for KalaMitra Navbar intro to finish before starting marketplace tour
+    const navbarIntroSeen = localStorage.getItem('hasSeenKalaMitraNavbarIntro');
+    const marketplaceIntroSeen = localStorage.getItem('hasSeenKalaMitraIntro');
+    if (!navbarIntroSeen) {
+      // Poll until navbar intro is complete
+      const pollNavbarIntro = () => {
+        const navbarIntroSeenNow = localStorage.getItem('hasSeenKalaMitraNavbarIntro');
+        if (navbarIntroSeenNow) {
+          startMarketplaceTour();
+        } else {
+          setTimeout(pollNavbarIntro, 200);
+        }
+      };
+      pollNavbarIntro();
+      return;
+    }
+    if (!marketplaceIntroSeen) {
+      startMarketplaceTour();
+    }
+
+    function startMarketplaceTour() {
+      Promise.all([
+        import('intro.js'),
+      ]).then(([introJsModule]) => {
+        const introJs = introJsModule.default;
+        const steps = getTourSteps();
+        // Wait for all step targets to exist
+        const checkAllTargets = () => {
+          const allExist = steps.every(step => step.element && document.querySelector(step.element));
+          if (allExist) {
+            const intro = introJs().setOptions({
+              steps,
+              showProgress: true,
+              showBullets: false,
+              exitOnOverlayClick: true,
+              exitOnEsc: false,
+              scrollToElement: true,
+              overlayOpacity: typeof window !== 'undefined' && window.innerWidth >= 768 ? 0.3 : 0.7,
+              tooltipClass: typeof window !== 'undefined' && window.innerWidth < 768
+                ? 'kalamitra-intro-theme kalamitra-intro-theme-mobile'
+                : 'kalamitra-intro-theme',
+              highlightClass: 'kalamitra-intro-highlight',
+              nextLabel: 'Next →',
+              prevLabel: '← Back',
+              doneLabel: '✨ Done',
+              skipLabel: 'Skip',
+            });
+            intro.onchange(function(targetElement) {
+              const currentStep = typeof intro.currentStep === 'function' ? intro.currentStep() : 0;
+              if (typeof currentStep === 'number' && steps[currentStep]) {
+                const step = steps[currentStep];
+                if (step.element === '#joyride-add-to-cart-btn') {
+                  const el = document.querySelector('#joyride-add-to-cart-btn');
+                  if (el) {
+                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  }
+                }
+              }
+            });
+            intro.oncomplete(() => {
+              localStorage.setItem('hasSeenKalaMitraIntro', 'true');
+            });
+            intro.onexit(() => {
+              localStorage.setItem('hasSeenKalaMitraIntro', 'true');
+            });
+            intro.start();
+          } else {
+            setTimeout(checkAllTargets, 100);
+          }
+        };
+        checkAllTargets();
+      });
+    }
+  }, []);
   // Helper: map category to AR orientation
   // Voice narration state
   const [narratingId, setNarratingId] = useState<string | null>(null)
@@ -707,10 +827,62 @@ function MarketplaceContent() {
     fetchRecs()
   }, [user])
 
+  // Cart feedback state
+  const [cartStatus, setCartStatus] = useState<'success'|'error'|null>(null);
+  const [cartMessage, setCartMessage] = useState('');
+  const [cartModalOpen, setCartModalOpen] = useState(false);
+
   const addToCart = async (productId: string) => {
-    // TODO: Implement cart functionality
-  alert(t('cart.comingSoon'))
+    if (!user) {
+      setCartStatus('error');
+      setCartMessage(t('cart.loginRequired'));
+      setCartModalOpen(true);
+      return;
+    }
+    try {
+      // Check if item already exists in cart
+      const { data: existing, error: fetchError } = await supabase
+        .from('cart')
+        .select('id, quantity')
+        .eq('buyer_id', user.id)
+        .eq('product_id', productId)
+        .single();
+
+      if (fetchError && fetchError.code !== 'PGRST116') {
+        // PGRST116: No rows found
+        throw fetchError;
+      }
+
+      let res;
+      if (existing) {
+        // Update quantity
+        res = await supabase
+          .from('cart')
+          .update({ quantity: existing.quantity + 1 })
+          .eq('id', existing.id);
+      } else {
+        // Insert new cart item
+        res = await supabase
+          .from('cart')
+          .insert({
+            buyer_id: user.id,
+            product_id: productId,
+            quantity: 1,
+          });
+      }
+      if (res.error) throw res.error;
+      setCartStatus('success');
+      setCartMessage(t('cart.addedSuccess'));
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error('Add to cart error:', err);
+      setCartStatus('error');
+      setCartMessage(t('cart.addedError'));
+    }
+    setCartModalOpen(true);
   }
+
+  
 
   if (loading) {
     return (
@@ -726,6 +898,30 @@ function MarketplaceContent() {
 
   return (
     <div className="min-h-screen heritage-bg py-8">
+      {/* Cart Modal */}
+      {cartModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-xl shadow-2xl p-8 max-w-sm w-full relative flex flex-col items-center">
+            <button className="absolute top-3 right-3 text-gray-400 hover:text-gray-700 text-2xl" onClick={() => setCartModalOpen(false)}>&times;</button>
+            {cartStatus === 'success' ? (
+              <>
+                <div className="text-6xl mb-4">🛒</div>
+                <h2 className="text-2xl font-bold text-green-600 mb-2">{t('cart.addedSuccessTitle') || 'Added to Cart!'}</h2>
+                <p className="text-gray-700 mb-6">{cartMessage}</p>
+                <Link href="/cart" className="w-full px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold rounded-xl hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-200 shadow-lg hover:shadow-xl text-center">{t('cart.viewCart')}</Link>
+              </>
+            ) : (
+              <>
+                <div className="text-6xl mb-4">⚠️</div>
+                <h2 className="text-2xl font-bold text-red-600 mb-2">{t('cart.addedErrorTitle') || 'Could not add to Cart'}</h2>
+                <p className="text-gray-700 mb-6">{cartMessage}</p>
+                <button onClick={() => setCartModalOpen(false)} className="w-full px-6 py-3 bg-gradient-to-r from-gray-300 to-gray-400 text-gray-700 font-semibold rounded-xl hover:from-gray-400 hover:to-gray-500 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-gray-200 shadow-lg hover:shadow-xl">{t('cart.close')}</button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+                  {/* Onboarding tour will be integrated with Intro.js here */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div
@@ -966,6 +1162,7 @@ function MarketplaceContent() {
                         {/* Voice narration button */}
                         {narratingId === product.id ? (
                           <button
+                            id="joyride-speaker-btn"
                             onClick={handleStopNarrate}
                             className="p-2 bg-orange-100 text-orange-600 rounded-full hover:bg-orange-200 transition-colors"
                             title={t('marketplace.stopNarration')}
@@ -974,6 +1171,7 @@ function MarketplaceContent() {
                           </button>
                         ) : (
                           <button
+                            id="joyride-speaker-btn"
                             onClick={() => handleNarrate(product)}
                             className="p-2 bg-orange-100 text-orange-600 rounded-full hover:bg-orange-200 transition-colors"
                             title={t('marketplace.listenNarration')}
@@ -982,6 +1180,7 @@ function MarketplaceContent() {
                           </button>
                         )}
                         <button
+                          id="joyride-add-to-cart-btn"
                           onClick={() => addToCart(product.id)}
                           className="p-2 bg-orange-100 text-orange-600 rounded-full hover:bg-orange-200 transition-colors"
                           title={t('product.addToCart')}
@@ -989,6 +1188,7 @@ function MarketplaceContent() {
                           <ShoppingCart className="w-4 h-4" />
                         </button>
                         <button
+                          id="joyride-wishlist-btn"
                           className="p-2 bg-gray-100 text-gray-600 rounded-full hover:bg-gray-200 transition-colors"
                           title={t('product.addToWishlist')}
                         >
@@ -996,6 +1196,7 @@ function MarketplaceContent() {
                         </button>
                         {/* AR Button */}
                         <button
+                          id="joyride-ar-btn"
                           onClick={() => {
                             setArImageUrl(product.image_url)
                             setArProductType((product.product_type as 'vertical' | 'horizontal' | undefined) || 'vertical')
@@ -1080,6 +1281,7 @@ function MarketplaceContent() {
           </motion.div>
         )}
   </div>
+  
   {/* ARViewer Modal */}
   <ARViewer open={arOpen} onClose={() => setArOpen(false)} imageUrl={arImageUrl} productType={arProductType} />
     </div>
