@@ -1,3 +1,4 @@
+
  'use client'
 
 import Image from 'next/image'
@@ -23,7 +24,118 @@ import { useLanguage } from '@/components/LanguageProvider'
 type Product = Database['public']['Tables']['products']['Row']
 type Profile = Database['public']['Tables']['profiles']['Row']
 
+// Extend window for global tour flag
+declare global {
+  interface Window {
+    __sellerDashboardTourStarted?: boolean;
+  }
+}
+
 export default function SellerDashboard() {
+  // Declare global flag for tour on window
+
+  // --- Onboarding Tour Logic ---
+  // Step definitions for seller dashboard
+  type TourStep = {
+    element: string;
+    intro: string;
+  };
+  const getTourSteps = (): TourStep[] => [
+    {
+      element: '#seller-dashboard-header',
+      intro: '<span style="font-size:1.2em">👋 <b>Welcome Seller!</b></span><br/>This is your dashboard where you manage products, analytics, and more.',
+    },
+    {
+      element: '#seller-dashboard-tabs',
+      intro: 'Navigate between <b>Products</b>, <b>Analytics</b>, <b>Collaborations</b>, and <b>Custom Requests</b> using these tabs.',
+    },
+    {
+      element: '#quick-action-add-product',
+      intro: 'Add a new product using AI assistance.',
+    },
+    {
+      element: '#quick-action-add-virtual',
+      intro: 'No Resource- No Limit! Add a virtual product to your stall.',
+    },
+    {
+      element: '#quick-action-view-stall',
+      intro: 'View your public stall as buyers see it.',
+    },
+    {
+      element: '#quick-action-customize-stall',
+      intro: 'Customize your 3D stall appearance and features.',
+    },
+    {
+      element: '#launch-auction-btn',
+      intro: 'Launch a new auction for your product here.',
+    },
+    {
+      element: '#your-active-auctions-text',
+      intro: 'This shows your <b>Active Auctions</b> and their progress.',
+    },
+    {
+      element: '#seller-products-section',
+      intro: 'Manage your products here. Edit, delete, or add new products using the buttons provided.',
+    },
+  ];
+
+  // Auto-start Intro.js tour for new sellers (client-only)
+  // Prevent multiple tours from starting (global flag)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const seen = localStorage.getItem('hasSeenSellerDashboardTour');
+    const navbarIntroDone = localStorage.getItem('hasSeenKalaMitraNavbarIntro');
+    // Wait for navbar intro to finish before starting dashboard tour
+    if (!seen && !window.__sellerDashboardTourStarted) {
+      const tryStartDashboardTour = () => {
+        const navbarIntroDoneNow = localStorage.getItem('hasSeenKalaMitraNavbarIntro');
+        if (navbarIntroDoneNow === 'true') {
+          window.__sellerDashboardTourStarted = true;
+          Promise.all([
+            import('intro.js'),
+          ]).then(([introJsModule]) => {
+            const introJs = introJsModule.default;
+            const steps = getTourSteps();
+            const checkAllTargets = () => {
+              const allExist = steps.every(step => step.element && document.querySelector(step.element));
+              if (allExist) {
+                introJs().setOptions({
+                  steps,
+                  showProgress: true,
+                  showBullets: false,
+                  exitOnOverlayClick: true,
+                  exitOnEsc: false,
+                  scrollToElement: true,
+                  overlayOpacity: 0.3,
+                  tooltipClass: 'kalamitra-intro-theme',
+                  highlightClass: 'kalamitra-intro-highlight',
+                  nextLabel: 'Next →',
+                  prevLabel: '← Back',
+                  doneLabel: '✨ Done',
+                  skipLabel: 'Skip',
+                })
+                .oncomplete(() => {
+                  localStorage.setItem('hasSeenSellerDashboardTour', 'true');
+                  window.__sellerDashboardTourStarted = false;
+                })
+                .onexit(() => {
+                  localStorage.setItem('hasSeenSellerDashboardTour', 'true');
+                  window.__sellerDashboardTourStarted = false;
+                })
+                .start();
+              } else {
+                setTimeout(checkAllTargets, 100);
+              }
+            };
+            checkAllTargets();
+          });
+        } else {
+          setTimeout(tryStartDashboardTour, 200);
+        }
+      };
+      tryStartDashboardTour();
+    }
+  }, []);
   const { user, profile, loading, signOut } = useAuth()
   const { t, i18n } = useTranslation()
   const { currentLanguage } = useLanguage()
@@ -772,7 +884,8 @@ const handleMicRespond = () => {
     <div className="min-h-screen heritage-bg py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-            <motion.div
+        <motion.div
+          id="seller-dashboard-header"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
@@ -780,7 +893,6 @@ const handleMicRespond = () => {
         >
           <h1 className="text-4xl font-bold text-[var(--text)] mb-4">{t('seller.title')}</h1>
           <p className="text-lg text-[var(--muted)]">{t('seller.subtitle')}</p>
-          
         </motion.div>
 
         {/* Profile Manager Section */}
@@ -794,6 +906,7 @@ const handleMicRespond = () => {
 
         {/* Navigation Tabs */}
         <motion.div
+          id="seller-dashboard-tabs"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.05 }}
@@ -941,7 +1054,6 @@ const handleMicRespond = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
             className="relative overflow-hidden rounded-2xl bg-[var(--bg-2)] dark:bg-[var(--bg-2)] border-2 border-teal-200 dark:border-teal-700/50 shadow-lg"
-            // Keep backdrop blur for subtle glass effect, but remove explicit light-mode background
             style={{ background: 'transparent', backdropFilter: 'blur(12px)' }}
           >
             {/* Decorative purple blob like the auction card */}
@@ -964,6 +1076,7 @@ const handleMicRespond = () => {
                     <h3 className="text-lg sm:text-xl font-semibold text-gray-900">{t('seller.productManagement')}</h3>
                   </div>
                   <button
+                    id="quick-action-add-product"
                     onClick={() => setShowAIProductForm(true)}
                     className="w-full flex items-center justify-center px-5 py-3 text-base font-bold bg-gradient-to-r from-teal-500 via-cyan-500 to-blue-500 text-white rounded-lg hover:from-teal-600 hover:via-cyan-600 hover:to-blue-600 shadow-lg transition-all duration-200"
                   >
@@ -981,6 +1094,7 @@ const handleMicRespond = () => {
                     <h3 className="text-lg sm:text-xl font-semibold text-gray-900">{t('seller.virtualProductManagement')}</h3>
                   </div>
                   <button
+                    id="quick-action-add-virtual"
                     onClick={() => setShowVirtualProductForm(true)}
                     className="w-full flex items-center justify-center px-5 py-3 text-base font-bold bg-gradient-to-r from-cyan-500 via-teal-500 to-blue-500 text-white rounded-lg hover:from-cyan-600 hover:via-teal-600 hover:to-blue-600 shadow-lg transition-all duration-200"
                   >
@@ -998,6 +1112,7 @@ const handleMicRespond = () => {
                     <h3 className="text-lg sm:text-xl font-semibold text-gray-900">{t('seller.viewYourStall')}</h3>
                   </div>
                   <Link
+                    id="quick-action-view-stall"
                     href={`/stall/${user.id}`}
                     className="inline-flex items-center justify-center w-full px-5 py-3 text-base font-bold bg-gradient-to-r from-teal-500 via-cyan-500 to-blue-500 text-white rounded-lg hover:from-teal-600 hover:via-cyan-600 hover:to-blue-600 shadow-lg transition-all duration-200"
                   >
@@ -1017,6 +1132,7 @@ const handleMicRespond = () => {
                       <h3 className="text-lg sm:text-xl font-semibold text-gray-900">{t('seller.customize3DStallTitle')}</h3>
                   </div>
                     <button
+                      id="quick-action-customize-stall"
                       onClick={() => setShowStallCustomization(true)}
                       className="w-full flex items-center justify-center px-5 py-3 text-base font-bold bg-gradient-to-r from-teal-500 via-cyan-500 to-blue-500 text-white rounded-lg hover:from-teal-600 hover:via-cyan-600 hover:to-blue-600 shadow-lg transition-all duration-200"
                     >
@@ -1107,7 +1223,7 @@ const handleMicRespond = () => {
             className="card-glass rounded-xl p-6 border border-[var(--border)]"
           >
           {/* Auction Management Section */}
-          <div className="mb-8 space-y-6">
+          <div id="seller-auction-section" className="mb-8 space-y-6">
             {/* Create Auction Card */}
             <div className="relative overflow-hidden rounded-2xl bg-[var(--bg-2)] dark:bg-[var(--bg-2)] border-2 border-purple-300 dark:border-purple-700/50 shadow-lg">
               <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-purple-200/30 to-blue-200/30 rounded-full blur-3xl"></div>
@@ -1213,6 +1329,7 @@ const handleMicRespond = () => {
                   {/* Submit Button */}
                   <div className="mt-6">
                     <button 
+                      id="launch-auction-btn"
                       type="submit" 
                       className="w-full sm:w-auto px-8 py-3.5 sm:py-4 text-sm sm:text-base font-bold text-white rounded-xl bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 hover:from-purple-700 hover:via-indigo-700 hover:to-blue-700 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
                     >
@@ -1227,7 +1344,7 @@ const handleMicRespond = () => {
             </div>
 
             {/* Active Auctions List */}
-            <div className="relative overflow-hidden rounded-2xl bg-[var(--bg-2)] dark:bg-[var(--bg-2)] border-2 border-amber-300 dark:border-amber-700/50 shadow-lg">
+            <div id="seller-active-auctions" className="relative overflow-hidden rounded-2xl bg-[var(--bg-2)] dark:bg-[var(--bg-2)] border-2 border-amber-300 dark:border-amber-700/50 shadow-lg">
               <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-amber-200/30 to-orange-200/30 rounded-full blur-3xl"></div>
               <div className="relative p-4 sm:p-6 lg:p-8">
                 <div className="flex items-center gap-3 mb-4 sm:mb-6">
@@ -1235,7 +1352,7 @@ const handleMicRespond = () => {
                     <span className="text-2xl sm:text-3xl">⚡</span>
                   </div>
                   <div>
-                    <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-[var(--text)]">{t('seller.auctionActiveTitle')}</h3>
+                    <h3 id="your-active-auctions-text" className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-[var(--text)]">{t('seller.auctionActiveTitle')}</h3>
                     <p className="text-xs sm:text-sm text-gray-600 dark:text-[var(--muted)]">{t('seller.auctionActiveDesc')}</p>
                   </div>
                 </div>
@@ -1243,8 +1360,8 @@ const handleMicRespond = () => {
               </div>
             </div>
           </div>
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
-      <h2 className="text-xl sm:text-2xl font-semibold text-[var(--text)]">{t('seller.yourProducts')}</h2>
+      <div id="seller-products-section" className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
+    <h2 className="text-xl sm:text-2xl font-semibold text-[var(--text)]">{t('seller.yourProducts')}</h2>
             <div className="flex items-center gap-2 sm:space-x-3 flex-wrap">
               <Link
                 href="/dashboard/seller/reels"

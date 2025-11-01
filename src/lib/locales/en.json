@@ -259,8 +259,9 @@
       "reels": "Reels",
       "viewProfile": "View Profile",
       "mitraPoints": "MP",
-      "gifts": "Gifts"
-      ,"messages": "Messages"
+      "gifts": "Gifts",
+      "messages": "Messages",
+      "ads": "Ads"
     },
     
     "reels": {

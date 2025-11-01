@@ -388,6 +388,7 @@ KalaMitra is powered by advanced AI capabilities: <img width="208" height="202" 
 - <b>AI Story Generation</b>: Automated product storytelling
 - <b>Smart Recommendations</b>: ML-powered suggestions for buyers and sellers
 - <b>Image Recognition</b>: Automatic product categorization
+- <b>Multi-language Support</b>: Built-in translation for Indian languages
 
 All AI features are fully implemented and ready to use!
 

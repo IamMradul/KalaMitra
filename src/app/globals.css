@@ -1,5 +1,6 @@
-@import "tailwindcss";
 
+@import "tailwindcss";
+@import 'intro.js/introjs.css';
 :root {
   /* Light theme palette (refined) */
   --bg-1: #f6f7fb; /* page background */
@@ -1148,5 +1149,113 @@ input::placeholder, textarea::placeholder {
 /* Make sure images on dark backgrounds don't disappear (slight contrast filter) */
 :root[data-theme='dark'] img {
   filter: none !important;
+}
+
+/* KalaMitra Intro.js — Modern Professional Heritage Theme */
+.kalamitra-intro-theme {
+  background: linear-gradient(145deg, #ffffffcc 0%, #f5f3ffcc 60%, #fff8e1cc 100%);
+  color: #2e1065;
+  border-radius: 20px;
+  border: 1.5px solid rgba(191, 161, 74, 0.25);
+  box-shadow: 
+    0 8px 24px rgba(76, 29, 149, 0.08),
+    0 4px 12px rgba(191, 161, 74, 0.06);
+  font-family: 'Inter', 'Poppins', 'Segoe UI', sans-serif;
+  padding: 2em 1.8em;
+  position: relative;
+  /* Removed blur for highlight clarity */
+  backdrop-filter: none;
+  z-index: 9999 !important;
+  transition: all 0.3s ease;
+}
+.kalamitra-intro-theme:hover {
+  box-shadow:
+    0 12px 36px rgba(76, 29, 149, 0.12),
+    0 6px 18px rgba(191, 161, 74, 0.1);
+  transform: translateY(-3px);
+}
+
+/* Subtle geometric background (modern minimal kolam hint) */
+.kalamitra-intro-theme::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: 
+    radial-gradient(circle at 30% 70%, rgba(192, 132, 252, 0.06) 0%, transparent 60%),
+    radial-gradient(circle at 70% 30%, rgba(191, 161, 74, 0.08) 0%, transparent 70%),
+    repeating-linear-gradient(135deg, transparent, transparent 16px, rgba(192,132,252,0.03) 17px, transparent 18px);
+  opacity: 0.7;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Tooltip Title - Clean, elegant gold accent */
+.kalamitra-intro-theme .introjs-tooltip-title {
+  font-size: 1.3em;
+  font-weight: 700;
+  color: #5b21b6;
+  letter-spacing: 0.03em;
+  margin-bottom: 0.4em;
+  font-family: 'Poppins', sans-serif;
+  text-shadow: 0 1px 4px rgba(191, 161, 74, 0.2);
+  z-index: 1;
+}
+
+/* Progress Bar - Sleek linear gradient */
+.kalamitra-intro-theme .introjs-progress {
+  background: linear-gradient(90deg, #c084fc 0%, #bfa14a 100%);
+  height: 4px;
+  border-radius: 3px;
+  margin-bottom: 0.5em;
+  opacity: 0.9;
+}
+
+/* Tooltip Text - Crisp and modern */
+.kalamitra-intro-theme .introjs-tooltiptext {
+  font-size: 1.05em;
+  color: #3b0764;
+  font-family: 'Inter', 'Poppins', sans-serif;
+  line-height: 1.6em;
+  z-index: 1;
+}
+
+/* Buttons - Premium soft-glow gradient */
+.kalamitra-intro-theme .introjs-button {
+  background: linear-gradient(90deg, #7e22ce 0%, #bfa14a 100%);
+  color: #fff;
+  border-radius: 10px;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  box-shadow: 0 2px 8px rgba(126, 34, 206, 0.25);
+  border: none;
+  padding: 0.55em 1.3em;
+  margin: 0 0.3em;
+  transition: all 0.25s ease;
+  z-index: 1;
+}
+.kalamitra-intro-theme .introjs-button:hover {
+  background: linear-gradient(90deg, #9f67e0 0%, #d1b35d 100%);
+  box-shadow: 0 4px 14px rgba(126, 34, 206, 0.3), 0 4px 12px rgba(191, 161, 74, 0.25);
+  transform: translateY(-2px);
+}
+
+/* Highlighted Elements */
+.kalamitra-intro-highlight {
+  box-shadow: 0 0 0 5px rgba(192, 132, 252, 0.45), 0 0 0 12px rgba(191, 161, 74, 0.32) !important;
+  border-radius: 16px !important;
+  transition: box-shadow 0.3s ease;
+  z-index: 10000 !important;
+}
+
+/* Overlay - Modern glassy light effect */
+.introjs-overlay {
+  /* Ensure overlay does not blur highlights */
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.7) 0%, rgba(240, 232, 255, 0.4) 100%);
+  animation: overlaySoftGlow 8s ease-in-out infinite alternate;
+  z-index: 9998 !important;
+}
+@keyframes overlaySoftGlow {
+  0% { opacity: 0.85; }
+  100% { opacity: 1; }
 }
 
