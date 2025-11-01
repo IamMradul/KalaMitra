@@ -416,7 +416,7 @@ export default function StallPage() {
               onClick={() => setShow3DModal(true)}
             >
               <Palette className="w-5 h-5 text-white drop-shadow" />
-              {t('stallCustomizationModal.title')}
+              {t('stallCustomizationModal.visit') || 'View 3D Stall'}
             </button>
             <button
               type="button"

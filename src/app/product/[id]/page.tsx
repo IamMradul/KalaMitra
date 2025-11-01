@@ -63,6 +63,9 @@ type RecipientProfile = {
 };
 
 export default function ProductDetail() {
+  const [cartModalOpen, setCartModalOpen] = useState(false);
+  const [cartModalStatus, setCartModalStatus] = useState<'success'|'error'|null>(null);
+  const [cartModalMessage, setCartModalMessage] = useState<string>('');
   // Debug: log language mapping for translation on every render
   const langMap: Record<string, string> = {
     en: 'en',
@@ -374,8 +377,53 @@ export default function ProductDetail() {
   }
 
   const addToCart = async () => {
-    // TODO: Implement cart functionality
-  alert(t('cart.comingSoon'))
+    if (!user || !product) {
+      setCartModalStatus('error');
+      setCartModalMessage(t('cart.loginRequired'));
+      setCartModalOpen(true);
+      return;
+    }
+    try {
+      // Check if item already exists in cart
+      const { data: existing, error: fetchError } = await supabase
+        .from('cart')
+        .select('id, quantity')
+        .eq('buyer_id', user.id)
+        .eq('product_id', product.id)
+        .single();
+
+      if (fetchError && fetchError.code !== 'PGRST116') {
+        // PGRST116: No rows found
+        throw fetchError;
+      }
+
+      let res;
+      if (existing) {
+        // Update quantity
+        res = await supabase
+          .from('cart')
+          .update({ quantity: existing.quantity + quantity })
+          .eq('id', existing.id);
+      } else {
+        // Insert new cart item
+        res = await supabase
+          .from('cart')
+          .insert({
+            buyer_id: user.id,
+            product_id: product.id,
+            quantity,
+          });
+      }
+      if (res.error) throw res.error;
+      setCartModalStatus('success');
+      setCartModalMessage(t('cart.addedSuccess'));
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error('Add to cart error:', err);
+      setCartModalStatus('error');
+      setCartModalMessage(t('cart.addedError'));
+    }
+    setCartModalOpen(true);
   }
 
   if (loading) {
@@ -730,6 +778,30 @@ export default function ProductDetail() {
                     </>
                   )}
                 </button>
+
+                {/* Cart Modal */}
+                {cartModalOpen && (
+                  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+                    <div className="bg-white rounded-xl shadow-2xl p-8 max-w-sm w-full relative flex flex-col items-center">
+                      <button className="absolute top-3 right-3 text-gray-400 hover:text-gray-700 text-2xl" onClick={() => setCartModalOpen(false)}>&times;</button>
+                      {cartModalStatus === 'success' ? (
+                        <>
+                          <div className="text-6xl mb-4">🛒</div>
+                          <h2 className="text-2xl font-bold text-green-600 mb-2">{t('cart.addedSuccessTitle') || 'Added to Cart!'}</h2>
+                          <p className="text-gray-700 mb-6">{cartModalMessage}</p>
+                          <Link href="/cart" className="w-full px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold rounded-xl hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-200 shadow-lg hover:shadow-xl text-center">{t('cart.viewCart')}</Link>
+                        </>
+                      ) : (
+                        <>
+                          <div className="text-6xl mb-4">⚠️</div>
+                          <h2 className="text-2xl font-bold text-red-600 mb-2">{t('cart.addedErrorTitle') || 'Could not add to Cart'}</h2>
+                          <p className="text-gray-700 mb-6">{cartModalMessage}</p>
+                          <button onClick={() => setCartModalOpen(false)} className="w-full px-6 py-3 bg-gradient-to-r from-gray-300 to-gray-400 text-gray-700 font-semibold rounded-xl hover:from-gray-400 hover:to-gray-500 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-gray-200 shadow-lg hover:shadow-xl">{t('cart.close')}</button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                )}
 
                 {/* Wishlist Button */}
                 <button 

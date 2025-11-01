@@ -23,7 +23,8 @@
     "featuredLabel": "Featured Products",
     "featuredLimitHint": "Select up to 4 products to showcase in your 3D stall.",
     "featuredLimitError": "You can select up to 4 featured products only.",
-    "saveButton": "Save Customization"
+    "saveButton": "Save Customization",
+    "visit": "View 3D Stall"
   },
   "gifts": {
     "signInTitle": "Sign in to view your Gifts",
@@ -495,11 +496,25 @@
     "saveForLater": "Save for Later",
     "moveToWishlist": "Move to Wishlist",
     "estimatedTotal": "Estimated Total",
-  "secureCheckout": "Secure Checkout",
-  "comingSoon": "Cart functionality coming soon!",
-  "reviewSelectedItems": "Review your selected items",
-  "orderSummary": "Order Summary",
-  "free": "Free"
+    "secureCheckout": "Secure Checkout",
+    "comingSoon": "Cart functionality coming soon!",
+    "reviewSelectedItems": "Review your selected items",
+    "orderSummary": "Order Summary",
+    "free": "Free",
+    "addedSuccess": "Product added to cart successfully!",
+    "addedError": "Could not add product to cart.",
+    "addedSuccessTitle": "Added to Cart!",
+    "addedErrorTitle": "Add to Cart Failed",
+    "viewCart": "View Cart",
+    "close": "Close",
+    "loginRequired": "You must be signed in to add items to your cart.",
+    "quantityUpdated": "Cart quantity updated.",
+    "updateError": "Could not update cart quantity.",
+    "removed": "Item removed from cart.",
+    "removeError": "Could not remove item from cart.",
+    "checkoutComingSoon": "Checkout coming soon!",
+    "decreaseQuantity": "Decrease quantity",
+    "increaseQuantity": "Increase quantity"
   },
   "dashboard": {
     "title": "Dashboard",

@@ -18,6 +18,7 @@ import { translateText } from '@/lib/translate';
 import '@/lib/i18n';
 
 export default function Navbar() {
+
   const { user, profile, signOut, loading } = useAuth();
   const { currentLanguage, changeLanguage, isLoading: languageLoading } = useLanguage();
   const { theme, toggle } = useTheme();
@@ -241,6 +242,26 @@ export default function Navbar() {
     }
   }
 
+    // Cart item count state
+  const [cartCount, setCartCount] = useState(0);
+  useEffect(() => {
+    async function fetchCartCount() {
+      if (!user?.id) {
+        setCartCount(0);
+        return;
+      }
+      try {
+        const { count, error } = await supabase
+          .from('cart')
+          .select('*', { count: 'exact', head: true })
+          .eq('buyer_id', user.id);
+        setCartCount(count || 0);
+      } catch {
+        setCartCount(0);
+      }
+    }
+    fetchCartCount();
+  }, [user?.id]);
 
   // Prevent hydration mismatch by showing consistent structure during loading
   if (!mounted) {
@@ -399,9 +420,11 @@ export default function Navbar() {
                   className="text-[var(--text)] hover:text-heritage-gold transition-all duration-300 font-medium relative hover:scale-105 transform hover:translate-y-[-2px] group"
                 >
                   <ShoppingCart className="w-6 h-6" />
-                  <span className="absolute -top-2 -right-2 bg-gradient-to-r from-heritage-gold to-heritage-red text-white text-xs rounded-full w-6 h-6 flex items-center justify-center shadow-medium animate-pulse-glow">
-                    0
-                  </span>
+                  {cartCount > 0 && (
+                    <span className="absolute -top-2 -right-2 bg-gradient-to-r from-heritage-gold to-heritage-red text-white text-xs rounded-full w-6 h-6 flex items-center justify-center shadow-medium animate-pulse-glow">
+                      {cartCount}
+                    </span>
+                  )}
                 </Link>
                 <Link 
                   href="/gifts" 

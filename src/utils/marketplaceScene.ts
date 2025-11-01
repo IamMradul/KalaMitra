@@ -335,28 +335,28 @@ export async function initMarketplaceScene(
   let groundW = 90, groundH = 60;
   let cols = 3, rows = 1;
   const colSpacing = 18, rowSpacing = 14;
-  if (Array.isArray(stallsInput) && stallsInput.length > 0) {
-    // Always fill a 3x3 grid first, then expand
+  // Use only currently visible stalls for ground sizing (pagination/infinite scroll)
+  const pageSize = 6;
+  const visibleStalls = Array.isArray(stallsInput) ? stallsInput.slice(0, pageSize) : [];
+  const visibleCount = visibleStalls.length;
+  if (visibleCount > 0) {
     const minCols = 3, minRows = 3;
-    if (stallsInput.length <= minCols * minRows) {
+    if (visibleCount <= minCols * minRows) {
       cols = minCols;
       rows = minRows;
     } else {
-      // After 9 stalls, expand columns/rows as needed
       cols = Math.max(minCols, Math.floor(groundW / colSpacing));
-      cols = Math.min(cols, stallsInput.length);
-      rows = Math.ceil(stallsInput.length / cols);
+      cols = Math.min(cols, visibleCount);
+      rows = Math.ceil(visibleCount / cols);
     }
-    // Adjust ground width to fit all columns
     groundW = Math.max(90, cols * (colSpacing * 0.75));
     groundH = Math.max(60, rows * rowSpacing + rowSpacing * 3.2);
   }
   // Center the ground so it covers both the front and last edge
   let groundCenterZ = 0;
-  if (Array.isArray(stallsInput) && stallsInput.length > 0) {
-    const colSpacing = 18, rowSpacing = 14;
-    const rows = Math.ceil(stallsInput.length / 3);
-    groundCenterZ = rowSpacing * 0.6; // shift ground slightly back so last edge is covered
+  if (visibleCount > 0) {
+    const rows = Math.ceil(visibleCount / 3);
+    groundCenterZ = rowSpacing * 0.6;
   }
   const plaza = new THREE.Mesh(new THREE.PlaneGeometry(groundW, groundH), new THREE.MeshStandardMaterial({ color: groundColor, roughness: 1 }));
   plaza.position.z = groundCenterZ;

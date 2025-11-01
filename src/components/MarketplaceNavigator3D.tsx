@@ -16,6 +16,42 @@ interface NavigatorProps {
 
 export default function MarketplaceNavigator3D({ sellers, onProductClick, focusSellerId }: NavigatorProps) {
 
+  // List of Indian market names (expandable)
+  const marketNames = [
+    'Chandni Chowk', 'Lal Bagh Bazaar', 'Johari Bazaar', 'Sarafa Bazaar', 'New Market',
+    'Dilli Haat', 'Crawford Market', 'Meena Bazaar', 'MG Road', 'Bapu Bazaar',
+    'Hazratganj', 'Palika Bazaar', 'Russell Market', 'Kolkata Haat', 'Sadar Bazaar',
+    'Kothi Market', 'Kashmiri Gate', 'Lakkar Bazaar', 'Bara Bazaar', 'Gandhi Market',
+    'Ranganathan Street', 'Begum Bazaar', 'Kalan Bazaar', 'Koyambedu Market', 'Bapu Market',
+    'Khar Market', 'Kavi Nagar', 'Kota Market', 'Kalan Market', 'Katra Neel',
+    'Chor Bazaar', 'Janpath', 'Sarojini Nagar', 'Lajpat Nagar', 'Connaught Place',
+    'Zaveri Bazaar', 'Manek Chowk', 'Kashmere Gate', 'Bhendi Bazaar', 'Gariahat Market',
+    'Kolkata New Market', 'Banjara Market', 'Shastri Market', 'Gole Market', 'Kothari Market',
+    'Bara Bazar', 'Mangalwari Bazaar', 'Sadar Market', 'Bada Bazaar', 'Gandhi Chowk',
+    'Bapu Haat', 'Rajwada Market', 'Bapu Chowk', 'Bada Market', 'Bapu Bazaar',
+    'Bapu Market', 'Bapu Haat', 'Bapu Chowk', 'Bada Market', 'Bapu Bazaar',
+    'Kapda Bazaar', 'Sadar Bazar', 'Naya Bazaar', 'Chandpole Bazaar', 'Johari Bazar'
+  ];
+
+
+
+  // Get market name for current page
+
+  // Pagination state for stalls
+  const STALLS_PER_PAGE = 6;
+  const [page, setPage] = useState(0);
+  const totalPages = Math.ceil(sellers.length / STALLS_PER_PAGE);
+
+  // Only show stalls for current page
+  const visibleSellers = useMemo(() => {
+    const start = page * STALLS_PER_PAGE;
+    return sellers.slice(start, start + STALLS_PER_PAGE);
+  }, [sellers, page]);
+
+    const marketName = page < marketNames.length
+    ? marketNames[page]
+    : `Bazaar ${page + 1}`;
+
 interface NavigatorProps {
   sellers: { sellerId: string; products: Product[] }[];
   onProductClick: (productId: string) => void;
@@ -92,22 +128,21 @@ interface NavigatorProps {
 
   // Add an 'addAvatar' flag to each stall for avatar rendering
   const stalls: StallInput[] = useMemo(() => {
-    return sellers.map((s) => {
+    return visibleSellers.map((s) => {
       const productImages = s.products.map((p) => ({ id: p.id, url: p.image_url || '' }));
       const customization = stallCustomizations[s.sellerId] || {};
       return {
         sellerId: s.sellerId,
         productImages,
         storeName: sellerNameMap[s.sellerId] || undefined,
-        addAvatar: true, // signal to scene to render avatar
-        // Customization fields
+        addAvatar: true,
         stallTheme: customization.stall_theme || 'default',
         welcomeMessage: customization.welcome_message || '',
         decor: customization.decor || {},
         featuredProductIds: customization.featured_product_ids || [],
       };
     });
-  }, [sellers, sellerNameMap, stallCustomizations]);
+  }, [visibleSellers, sellerNameMap, stallCustomizations]);
 
   useEffect(() => {
     let disposed = false;
@@ -122,10 +157,11 @@ interface NavigatorProps {
       const scene = await initMarketplaceScene(canvas, stalls, isLightTheme);
       if (!disposed) {
         sceneRef.current = scene;
-        // --- Camera and controls adjustment for large row counts ---
-        // Increase maxDistance and pan/zoom range for more stalls
+        // --- Camera and controls adjustment for paginated stalls ---
+        // Use only visible stalls for initial camera position
         if (scene.controls) {
-          scene.controls.maxDistance = Math.max(35, 18 * (maxRows + 2));
+          const visibleRows = Math.ceil(stalls.length / 3);
+          scene.controls.maxDistance = Math.max(35, 18 * (visibleRows + 2));
           scene.controls.minDistance = 2;
           scene.controls.enablePan = true;
           scene.controls.enableZoom = true;
@@ -135,22 +171,20 @@ interface NavigatorProps {
           scene.controls.panSpeed = 1.1;
           scene.controls.zoomSpeed = 1.1;
           scene.controls.screenSpacePanning = true;
-          // If no focusSellerId, start from last gate (behind last row)
+          // If no focusSellerId, start from last gate (behind last row of visible stalls)
           if (!focusSellerId) {
-            // Estimate gate Z position and move slightly inside
-            const rows = Math.ceil(sellers.length / 3);
             const rowSpacing = 14;
-            const gateZ = (rows - 0.5) * rowSpacing + rowSpacing * 0.7;
-            const insideOffset = -20; // Move inside by 8 units
+            const gateZ = (visibleRows - 0.5) * rowSpacing + rowSpacing * 0.7;
+            const insideOffset = -20;
             scene.controls.target.set(0, 1.2, gateZ + insideOffset);
             if (scene.camera) {
               scene.camera.position.set(8, 6, gateZ + 12 + insideOffset);
             }
           } else {
-            // Target center row by default
-            scene.controls.target.set(0, 1.2, (maxRows > 2 ? ((maxRows - 1) * 7) : 0));
+            // Target center row by default (visible stalls)
+            scene.controls.target.set(0, 1.2, (visibleRows > 2 ? ((visibleRows - 1) * 7) : 0));
             if (scene.camera) {
-              scene.camera.position.set(8, 6 + Math.max(0, maxRows - 2) * 2, 12 + Math.max(0, maxRows - 2) * 10);
+              scene.camera.position.set(8, 6 + Math.max(0, visibleRows - 2) * 2, 12 + Math.max(0, visibleRows - 2) * 10);
             }
           }
         }
@@ -467,6 +501,34 @@ interface NavigatorProps {
         onClick={onClick}
         onDoubleClick={onDoubleClick}
       />
+      {/* Market name and Pagination Controls - avoid overlap with joystick on mobile */}
+      <div
+        className={
+          `absolute left-0 right-0 flex flex-col items-center z-10 ` +
+          (isMobile ? 'bottom-28' : 'bottom-4')
+        }
+      >
+        <div className="mb-2 px-4 py-2 rounded-lg bg-gradient-to-r from-yellow-400 via-pink-300 to-indigo-300 text-yellow-900 font-bold shadow-lg text-lg tracking-wide">
+          {marketName}
+        </div>
+        <div className="flex justify-center gap-4">
+          <button
+            className="px-4 py-2 rounded bg-yellow-500 text-white font-bold disabled:opacity-50"
+            onClick={() => setPage((p) => Math.max(0, p - 1))}
+            disabled={page === 0}
+          >
+            Prev
+          </button>
+          <span className="px-3 py-2 bg-white/80 rounded text-yellow-900 font-semibold shadow">Page {page + 1} / {totalPages}</span>
+          <button
+            className="px-4 py-2 rounded bg-yellow-500 text-white font-bold disabled:opacity-50"
+            onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+            disabled={page >= totalPages - 1}
+          >
+            Next
+          </button>
+        </div>
+      </div>
       {/* Controls overlay: hidden on mobile, smaller on laptop/desktop */}
       <div
         className={`pointer-events-none absolute top-2 right-2 ${overlayBg} text-[0.65rem] px-2 py-0.5 rounded-lg shadow-lg font-semibold backdrop-blur-md hidden sm:flex sm:items-center sm:gap-1 md:text-[0.7rem] md:px-2 md:py-1 md:rounded-xl lg:text-[0.8rem] lg:px-3 lg:py-1 lg:rounded-xl`}

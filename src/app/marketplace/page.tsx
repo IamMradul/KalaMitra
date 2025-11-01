@@ -210,6 +210,7 @@ function MarketplaceContent() {
       recognition.start()
     }
 
+  // Only fetch products when searchParams changes, not on translation change
   useEffect(() => {
     // Handle Google session from OAuth callback
     const googleSession = searchParams.get('google_session')
@@ -218,7 +219,6 @@ function MarketplaceContent() {
         const googleUser = JSON.parse(decodeURIComponent(googleSession))
         localStorage.setItem('googleUserSession', JSON.stringify(googleUser))
         console.log('Google session stored:', googleUser)
-        
         // Reload the page to trigger auth context update
         window.location.href = window.location.pathname
         return
@@ -226,7 +226,6 @@ function MarketplaceContent() {
         console.error('Error parsing Google session:', error)
       }
     }
-
     fetchProducts()
   }, [searchParams])
 
@@ -851,7 +850,7 @@ function MarketplaceContent() {
               }`}
               aria-pressed={showCollaborativeOnly}
             >
-              🤝 {showCollaborativeOnly ? t('marketplace.showingCollaborativeOnly') : t('marketplace.showCollaborativeProducts')}
+               {showCollaborativeOnly ? t('marketplace.showingCollaborativeOnly') : t('marketplace.showCollaborativeProducts')}
             </button>
             <button
               onClick={() => setShowVirtualOnly(!showVirtualOnly)}
@@ -862,7 +861,7 @@ function MarketplaceContent() {
               }`}
               aria-pressed={showVirtualOnly}
             >
-              🧩 {showVirtualOnly ? t('marketplace.showingVirtualOnly') : t('marketplace.showVirtualProducts')}
+               {showVirtualOnly ? t('marketplace.showingVirtualOnly') : t('marketplace.showVirtualProducts')}
             </button>
           </div>
         </motion.div>
@@ -897,7 +896,7 @@ function MarketplaceContent() {
                       {product.isCollaborative && product.is_virtual ? (
                         <>
                           <div className="absolute top-2 left-2 z-10 bg-gradient-to-r from-cyan-400 to-teal-500 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg flex items-center gap-1">
-                            🧩 Virtual
+                            🧩 {t('marketplace.virtualBadge')}
                           </div>
                           <div className="absolute top-10 left-2 z-10 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg">
                             🤝 {t('marketplace.collabBadge')}
