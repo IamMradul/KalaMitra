@@ -134,6 +134,7 @@ function MarketplaceContent() {
   const [displayRecommended, setDisplayRecommended] = useState<ProductBase[]>([])
   const [isSearching, setIsSearching] = useState(false)
   const [showCollaborativeOnly, setShowCollaborativeOnly] = useState(false)
+  const [showVirtualOnly, setShowVirtualOnly] = useState(false)
   // AR modal state
   const [arOpen, setArOpen] = useState(false)
   const [arImageUrl, setArImageUrl] = useState<string | undefined>(undefined)
@@ -209,6 +210,7 @@ function MarketplaceContent() {
       recognition.start()
     }
 
+  // Only fetch products when searchParams changes, not on translation change
   useEffect(() => {
     // Handle Google session from OAuth callback
     const googleSession = searchParams.get('google_session')
@@ -217,7 +219,6 @@ function MarketplaceContent() {
         const googleUser = JSON.parse(decodeURIComponent(googleSession))
         localStorage.setItem('googleUserSession', JSON.stringify(googleUser))
         console.log('Google session stored:', googleUser)
-        
         // Reload the page to trigger auth context update
         window.location.href = window.location.pathname
         return
@@ -225,7 +226,6 @@ function MarketplaceContent() {
         console.error('Error parsing Google session:', error)
       }
     }
-
     fetchProducts()
   }, [searchParams])
 
@@ -250,7 +250,7 @@ function MarketplaceContent() {
     if (searchTerm.trim() === '') {
       filterProducts()
     }
-  }, [products, selectedCategory, showCollaborativeOnly])
+    }, [products, selectedCategory, showCollaborativeOnly, showVirtualOnly])
 
   // Handle search input change with immediate reset for empty search
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -402,6 +402,11 @@ function MarketplaceContent() {
             filtered = filtered.filter((product: Product) => product.isCollaborative)
           }
 
+          // Apply virtual product filter if selected
+          if (showVirtualOnly) {
+            filtered = filtered.filter((product: Product) => product.is_virtual)
+          }
+
           setFilteredProducts(filtered)
         } else {
           // Fallback to client-side filtering if API fails
@@ -423,36 +428,41 @@ function MarketplaceContent() {
   }
 
   const clientSideFilter = () => {
-    let filtered = products
+    let filtered = products;
 
     // Only apply search filter if searchTerm is not empty
     if (searchTerm && searchTerm.trim().length > 0) {
       filtered = filtered.filter(product =>
-        product.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.category.toLowerCase().includes(searchTerm.toLowerCase())
-      )
+        (product.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.category?.toLowerCase().includes(searchTerm.toLowerCase()))
+      );
     }
 
     // Apply category filter if selected
     if (selectedCategory) {
-      filtered = filtered.filter(product => product.category === selectedCategory)
+      filtered = filtered.filter(product => product.category === selectedCategory);
     }
 
     // Apply collaborative filter if selected
     if (showCollaborativeOnly) {
-      filtered = filtered.filter(product => product.isCollaborative)
+      filtered = filtered.filter(product => product.isCollaborative);
     }
 
-    console.log('Client-side filter:', { 
-      searchTerm, 
+    // Apply virtual product filter if selected
+    if (showVirtualOnly) {
+      filtered = filtered.filter(product => product.is_virtual === true);
+    }
+
+    console.log('Client-side filter:', {
+      searchTerm,
       selectedCategory,
-      showCollaborativeOnly, 
-      totalProducts: products.length, 
-      filteredCount: filtered.length 
-    })
-    
-    setFilteredProducts(filtered)
+      showCollaborativeOnly,
+      showVirtualOnly,
+      totalProducts: products.length,
+      filteredCount: filtered.length
+    });
+    setFilteredProducts(filtered);
   }
   // Translate product titles/categories and category list for display when language changes
   useEffect(() => {
@@ -763,10 +773,8 @@ function MarketplaceContent() {
           {/* AI Helper Text */}
           <div className="mb-4 flex items-center justify-center gap-2 text-sm text-gray-600">
             <Sparkles className="w-4 h-4 text-orange-500" />
-            <span>
-              Try our <span className="font-semibold text-orange-600">AI Assistant</span> for smarter recommendations!
-            </span>
-            <span className="text-gray-400">→ Click the 💬 button in bottom-right corner</span>
+            <span>{t('marketplace.aiHelperText')}</span>
+            <span className="text-gray-400">{t('marketplace.aiHelperHint')}</span>
           </div>
 
  
@@ -824,14 +832,14 @@ function MarketplaceContent() {
           <div className="mb-4 mt-4 flex flex-col md:flex-row items-center justify-center gap-4">
             <button
               type="button"
-              aria-label="Giftable Products"
+              aria-label={t('marketplace.giftableProducts')}
               className={`px-4 py-2 rounded-lg font-medium transition-transform duration-200 ease-out transform will-change-transform flex items-center gap-2 shadow-sm hover:-translate-y-3.5 hover:scale-[1.02] hover:shadow-md focus:outline-none focus:ring-2 focus:ring-orange-200  ${searchTerm === 'gift item'
                 ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-white shadow-md border-yellow-500'
                 : 'bg-white hover:border-gray-400 dark:hover:border-gray-500'}
               `}
               onClick={() => setSearchTerm(searchTerm === 'gift item' ? '' : 'gift item')}
             >
-              🎁 Giftable Products
+              🎁 {t('marketplace.giftableProducts')}
             </button>
             <button
               onClick={() => setShowCollaborativeOnly(!showCollaborativeOnly)}
@@ -842,7 +850,18 @@ function MarketplaceContent() {
               }`}
               aria-pressed={showCollaborativeOnly}
             >
-              🤝 {showCollaborativeOnly ? 'Showing Collaborative Only' : 'Show Collaborative Products'}
+               {showCollaborativeOnly ? t('marketplace.showingCollaborativeOnly') : t('marketplace.showCollaborativeProducts')}
+            </button>
+            <button
+              onClick={() => setShowVirtualOnly(!showVirtualOnly)}
+              className={`px-4 py-2 rounded-lg font-medium transition-transform duration-200 ease-out transform will-change-transform flex items-center gap-2 shadow-sm hover:-translate-y-3.5 hover:scale-[1.02] hover:shadow-md focus:outline-none focus:ring-2 focus:ring-cyan-200 ${
+                showVirtualOnly
+                  ? 'bg-gradient-to-r from-cyan-400 to-teal-500 text-white shadow-md border-cyan-500'
+                  : 'bg-white hover:border-gray-400 dark:hover:border-gray-500'
+              }`}
+              aria-pressed={showVirtualOnly}
+            >
+               {showVirtualOnly ? t('marketplace.showingVirtualOnly') : t('marketplace.showVirtualProducts')}
             </button>
           </div>
         </motion.div>
@@ -873,12 +892,25 @@ function MarketplaceContent() {
                 >
                   <Link href={`/product/${product.id}`}>
                     <div className="relative h-48 bg-gray-200 flex items-center justify-center overflow-hidden">
-                      {/* Collaboration Badge */}
-                      {product.isCollaborative && (
+                      {/* Badges: Collab + Virtual, visually balanced */}
+                      {product.isCollaborative && product.is_virtual ? (
+                        <>
+                          <div className="absolute top-2 left-2 z-10 bg-gradient-to-r from-cyan-400 to-teal-500 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg flex items-center gap-1">
+                            🧩 {t('marketplace.virtualBadge')}
+                          </div>
+                          <div className="absolute top-10 left-2 z-10 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg">
+                            🤝 {t('marketplace.collabBadge')}
+                          </div>
+                        </>
+                      ) : product.isCollaborative ? (
                         <div className="absolute top-2 right-2 z-10 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg">
-                          🤝 Collab
+                          🤝 {t('marketplace.collabBadge')}
                         </div>
-                      )}
+                      ) : product.is_virtual ? (
+                        <div className="absolute top-2 left-2 z-10 bg-gradient-to-r from-cyan-400 to-teal-500 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg flex items-center gap-1">
+                          🧩 {t('marketplace.virtualBadge')}
+                        </div>
+                      ) : null}
                       {product.image_url ? (
                         <img
                           src={product.image_url}
@@ -936,7 +968,7 @@ function MarketplaceContent() {
                           <button
                             onClick={handleStopNarrate}
                             className="p-2 bg-orange-100 text-orange-600 rounded-full hover:bg-orange-200 transition-colors"
-                            title={t('product.stopNarration', { defaultValue: 'Stop Narration' })}
+                            title={t('marketplace.stopNarration')}
                           >
                             <StopCircle className="w-4 h-4 animate-pulse" />
                           </button>
@@ -944,7 +976,7 @@ function MarketplaceContent() {
                           <button
                             onClick={() => handleNarrate(product)}
                             className="p-2 bg-orange-100 text-orange-600 rounded-full hover:bg-orange-200 transition-colors"
-                            title={t('product.listenNarration', { defaultValue: 'Listen to Product' })}
+                            title={t('marketplace.listenNarration')}
                           >
                             <Volume2 className="w-4 h-4" />
                           </button>
@@ -970,12 +1002,12 @@ function MarketplaceContent() {
                             setArOpen(true)
                           }}
                           className="group relative p-2 bg-gradient-to-r from-green-100 to-emerald-100 text-green-700 rounded-full hover:from-green-200 hover:to-emerald-200 transition-all duration-200 shadow-sm hover:shadow-md"
-                          title="View in Augmented Reality - Place this product in your space"
+                          title={t('marketplace.viewInAR')}
                         >
                           <span role="img" aria-label="AR" className="text-lg">📱</span>
                           {/* Tooltip */}
                           <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-10">
-                            View in AR
+                            {t('marketplace.viewInAR')}
                             <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
                           </div>
                         </button>

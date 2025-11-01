@@ -246,7 +246,7 @@ export default function StallPage() {
     if (typeof window === 'undefined' || !params.id) return '';
     return `https://kalaaamitra.vercel.app/stall/${params.id}`;
   };
-  const getShareTitle = () => (stallProfile?.name ? `${stallProfile.name}'s ${t('navigation.profile')}` : t('navigation.profile'));
+  const getShareTitle = () => (stallProfile?.name ? `${stallProfile.name}'s ${t('navbar.profile')}` : t('navbar.profile'));
 
   const handleCopyLink = async () => {
     try {
@@ -369,7 +369,7 @@ export default function StallPage() {
             )}
           </div>
           <h1 className="text-4xl font-bold text-[var(--text)] mb-4">
-            {stallProfile.name}&apos;s {t('navigation.profile')}
+            {stallProfile.name}&apos;s {t('navbar.profile')}
           </h1>
           <div className="flex flex-col md:flex-row justify-center items-center gap-3 mb-4">
             <div className="flex items-center gap-2">
@@ -401,7 +401,7 @@ export default function StallPage() {
           <div className="flex justify-center space-x-8 text-sm text-[var(--muted)] mb-6">
             <div className="flex items-center">
               <MapPin className="w-4 h-4 mr-2" />
-              <span>{t('navigation.dashboard')}</span>
+              <span>{t('navbar.dashboard')}</span>
             </div>
             <div className="flex items-center">
               <Calendar className="w-4 h-4 mr-2" />
@@ -416,7 +416,7 @@ export default function StallPage() {
               onClick={() => setShow3DModal(true)}
             >
               <Palette className="w-5 h-5 text-white drop-shadow" />
-              Open 3D Stall
+              {t('stallCustomizationModal.visit') || 'View 3D Stall'}
             </button>
             <button
               type="button"
@@ -433,14 +433,14 @@ export default function StallPage() {
               <a
                 href={`/dm?userId=${stallProfile.id}`}
                 className="inline-flex items-center gap-2 rounded-lg px-5 py-3 font-semibold bg-gradient-to-r from-blue-500 via-green-500 to-teal-500 text-white shadow hover:scale-105 transition"
-                title="Message"
+                title={t('dm.messages')}
                 onClick={e => {
                   e.preventDefault();
                   window.location.href = `/dm?userId=${stallProfile.id}`;
                 }}
               >
                 <MessageCircle className="w-5 h-5" />
-                Message
+                {t('dm.messages')}
               </a>
             )}
           </div>
@@ -609,6 +609,72 @@ export default function StallPage() {
                     )}
                     
                     <p className="text-lg font-bold text-orange-600">₹{collabProduct.product.price}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+
+        {/* Virtual Products Section */}
+        {products.filter(p => p.is_virtual).length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="mt-12"
+          >
+            <div className="flex justify-between items-center mb-6">
+              <div>
+                <h2 className="text-2xl font-semibold text-[var(--text)] flex items-center gap-2">
+                  🧩 {t('product.virtualBadge')}
+                </h2>
+                <p className="text-sm text-[var(--muted)] mt-1">
+                  {t('product.virtualProductManagement', { defaultValue: 'Explore digital, downloadable, or template-based products offered by this artisan.' })}
+                </p>
+              </div>
+              <span className="text-[var(--muted)]">
+                {products.filter(p => p.is_virtual).length} {products.filter(p => p.is_virtual).length !== 1 ? t('product.relatedProducts').toLowerCase() : t('product.item', { defaultValue: 'item' })}
+              </span>
+            </div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {products.filter(p => p.is_virtual).map((product, index) => (
+                <motion.div
+                  key={product.id}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.3, delay: index * 0.1 }}
+                  className="card rounded-lg overflow-hidden hover:shadow-lg transition-all duration-200 hover:scale-105 border-2 border-cyan-400/30"
+                >
+                  <Link href={`/product/${product.id}`}>
+                    <div className="relative h-48 bg-[var(--bg-2)] flex items-center justify-center overflow-hidden">
+                      {/* Virtual Product Badge */}
+                      <div className="absolute top-2 left-2 z-10 bg-gradient-to-r from-cyan-400 to-teal-500 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg flex items-center gap-1">
+                        🧩 {t('product.virtualBadge')}
+                      </div>
+                      {product.image_url ? (
+                        <Image
+                          src={product.image_url}
+                          alt={product.title}
+                          fill
+                          className="object-cover hover:scale-110 transition-transform duration-300"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-cyan-100 to-teal-100 flex items-center justify-center">
+                          <span className="text-cyan-500 text-4xl">🧩</span>
+                        </div>
+                      )}
+                    </div>
+                  </Link>
+                  <div className="p-4">
+                    <Link href={`/product/${product.id}`}>
+                      <h3 className="font-semibold text-[var(--text)] mb-2 hover:text-orange-600 transition-colors">
+                        {product.title}
+                      </h3>
+                    </Link>
+                    <p className="text-sm text-[var(--muted)] mb-2">{product.category}</p>
+                    <p className="text-lg font-bold text-orange-600">₹{product.price}</p>
                   </div>
                 </motion.div>
               ))}

@@ -63,6 +63,9 @@ type RecipientProfile = {
 };
 
 export default function ProductDetail() {
+  const [cartModalOpen, setCartModalOpen] = useState(false);
+  const [cartModalStatus, setCartModalStatus] = useState<'success'|'error'|null>(null);
+  const [cartModalMessage, setCartModalMessage] = useState<string>('');
   // Debug: log language mapping for translation on every render
   const langMap: Record<string, string> = {
     en: 'en',
@@ -374,8 +377,53 @@ export default function ProductDetail() {
   }
 
   const addToCart = async () => {
-    // TODO: Implement cart functionality
-  alert(t('cart.comingSoon'))
+    if (!user || !product) {
+      setCartModalStatus('error');
+      setCartModalMessage(t('cart.loginRequired'));
+      setCartModalOpen(true);
+      return;
+    }
+    try {
+      // Check if item already exists in cart
+      const { data: existing, error: fetchError } = await supabase
+        .from('cart')
+        .select('id, quantity')
+        .eq('buyer_id', user.id)
+        .eq('product_id', product.id)
+        .single();
+
+      if (fetchError && fetchError.code !== 'PGRST116') {
+        // PGRST116: No rows found
+        throw fetchError;
+      }
+
+      let res;
+      if (existing) {
+        // Update quantity
+        res = await supabase
+          .from('cart')
+          .update({ quantity: existing.quantity + quantity })
+          .eq('id', existing.id);
+      } else {
+        // Insert new cart item
+        res = await supabase
+          .from('cart')
+          .insert({
+            buyer_id: user.id,
+            product_id: product.id,
+            quantity,
+          });
+      }
+      if (res.error) throw res.error;
+      setCartModalStatus('success');
+      setCartModalMessage(t('cart.addedSuccess'));
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error('Add to cart error:', err);
+      setCartModalStatus('error');
+      setCartModalMessage(t('cart.addedError'));
+    }
+    setCartModalOpen(true);
   }
 
   if (loading) {
@@ -438,7 +486,13 @@ export default function ProductDetail() {
               {/* Collaboration Badge */}
               {product.isCollaborative && (
                 <div className="absolute top-4 right-4 z-10 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-4 py-2 rounded-full text-sm font-semibold shadow-lg">
-                  🤝 Collaborative Product
+                  🤝 {t('product.collaborativeBadge')}
+                </div>
+              )}
+              {/* Virtual Product Badge */}
+              {product.is_virtual && (
+                <div className="absolute bottom-4 right-4 z-10 bg-gradient-to-r from-cyan-400 to-teal-500 text-white px-4 py-2 rounded-full text-sm font-semibold shadow-lg flex items-center gap-1">
+                  🧩 {t('product.virtualBadge')}
                 </div>
               )}
               
@@ -471,12 +525,12 @@ export default function ProductDetail() {
                       setArOpen(true)
                     }}
                     className="group relative p-3 bg-gradient-to-r from-green-100 to-emerald-100 text-green-700 rounded-full hover:from-green-200 hover:to-emerald-200 transition-all duration-200 shadow-lg hover:shadow-xl"
-                    title="View in Augmented Reality - Place this product in your space"
+                    title={t('product.viewInAR')}
                   >
                     <span role="img" aria-label="AR" className="text-xl">📱</span>
                     {/* Tooltip */}
                     <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-20">
-                      View in AR
+                      {t('product.arTooltip')}
                       <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
                     </div>
                   </button>
@@ -545,7 +599,7 @@ export default function ProductDetail() {
                       </svg>
                     </span>
                     <span className="text-xl font-bold text-orange-700">
-                      {t('ai.form.fields.story.label', { defaultValue: 'Product Story (Heritage)' })}
+                      {t('product.storyLabel')}
                     </span>
                   </div>
                   <p className="text-[var(--muted)] leading-relaxed whitespace-pre-line text-base sm:text-lg font-medium" style={{ wordBreak: 'break-word' }}>
@@ -666,7 +720,7 @@ export default function ProductDetail() {
                       </svg>
                     )}
                   </button>
-                  <div className="text-xs text-orange-500 mt-2 italic">{t('ai.form.fields.story.narrateHint', { defaultValue: 'Listen to the heritage story.' })}</div>
+                  <div className="text-xs text-orange-500 mt-2 italic">{t('product.storyNarrateHint')}</div>
                 </div>
               </motion.div>
             )}
@@ -725,6 +779,30 @@ export default function ProductDetail() {
                   )}
                 </button>
 
+                {/* Cart Modal */}
+                {cartModalOpen && (
+                  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+                    <div className="bg-white rounded-xl shadow-2xl p-8 max-w-sm w-full relative flex flex-col items-center">
+                      <button className="absolute top-3 right-3 text-gray-400 hover:text-gray-700 text-2xl" onClick={() => setCartModalOpen(false)}>&times;</button>
+                      {cartModalStatus === 'success' ? (
+                        <>
+                          <div className="text-6xl mb-4">🛒</div>
+                          <h2 className="text-2xl font-bold text-green-600 mb-2">{t('cart.addedSuccessTitle') || 'Added to Cart!'}</h2>
+                          <p className="text-gray-700 mb-6">{cartModalMessage}</p>
+                          <Link href="/cart" className="w-full px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold rounded-xl hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-200 shadow-lg hover:shadow-xl text-center">{t('cart.viewCart')}</Link>
+                        </>
+                      ) : (
+                        <>
+                          <div className="text-6xl mb-4">⚠️</div>
+                          <h2 className="text-2xl font-bold text-red-600 mb-2">{t('cart.addedErrorTitle') || 'Could not add to Cart'}</h2>
+                          <p className="text-gray-700 mb-6">{cartModalMessage}</p>
+                          <button onClick={() => setCartModalOpen(false)} className="w-full px-6 py-3 bg-gradient-to-r from-gray-300 to-gray-400 text-gray-700 font-semibold rounded-xl hover:from-gray-400 hover:to-gray-500 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-gray-200 shadow-lg hover:shadow-xl">{t('cart.close')}</button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                )}
+
                 {/* Wishlist Button */}
                 <button 
                   className="group relative px-4 py-2.5 border-2 border-gray-300/50 text-gray-700 font-semibold rounded-xl hover:border-red-400/60 hover:bg-gradient-to-br hover:from-red-50 hover:to-pink-50 hover:text-red-600 transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-4 focus:ring-red-100/50 shadow-sm hover:shadow-md backdrop-blur-sm bg-white/50 [data-theme='dark']:border-gray-600/50 [data-theme='dark']:text-gray-300 [data-theme='dark']:hover:border-red-500/70 [data-theme='dark']:hover:from-red-900/20 [data-theme='dark']:hover:to-pink-900/20 [data-theme='dark']:hover:text-red-400 [data-theme='dark']:focus:ring-red-900/30 [data-theme='dark']:shadow-none [data-theme='dark']:hover:shadow-lg [data-theme='dark']:bg-gray-800/50" 
@@ -741,14 +819,14 @@ export default function ProductDetail() {
                 {/* Gift Button */}
                 <button
                   className="group relative flex-1 flex items-center justify-center px-4 py-2.5 bg-gradient-to-br from-purple-500 via-purple-600 to-violet-600 text-white font-semibold rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-4 focus:ring-purple-200/50 overflow-hidden [data-theme='dark']:from-purple-600 [data-theme='dark']:via-purple-700 [data-theme='dark']:to-violet-700 [data-theme='dark']:shadow-purple-900/30 [data-theme='dark']:hover:shadow-purple-900/50 [data-theme='dark']:focus:ring-purple-900/30"
-                  title="Gift this item"
+                  title={t('product.giftButtonTooltip')}
                   onClick={() => setGiftModalOpen(true)}
                 >
                   <div className="flex items-center gap-1.5 relative z-10">
                     <div className="p-1.5 rounded-lg bg-white/20 backdrop-blur-sm transition-transform duration-300 group-hover:scale-110 group-hover:rotate-12 [data-theme='dark']:bg-white/10">
                       <span role="img" aria-label="gift" className="text-base">🎁</span>
                     </div>
-                    <span className="text-xs md:text-sm font-bold tracking-wide">Send as Gift</span>
+                    <span className="text-xs md:text-sm font-bold tracking-wide">{t('product.sendAsGift')}</span>
                   </div>
                   <div className="absolute inset-0 bg-gradient-to-r from-purple-300 to-violet-400 rounded-xl opacity-0 group-hover:opacity-30 transition-opacity duration-500 [data-theme='dark']:from-purple-400 [data-theme='dark']:to-violet-500"></div>
                   <div className="absolute inset-0 rounded-xl bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300 [data-theme='dark']:bg-white/10"></div>
@@ -758,14 +836,14 @@ export default function ProductDetail() {
                 {/* Custom Request Button */}
                 <button
                   className="group relative flex-1 flex items-center justify-center px-4 py-2.5 bg-gradient-to-br from-teal-500 via-teal-600 to-emerald-600 text-white font-semibold rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-4 focus:ring-teal-200/50 overflow-hidden [data-theme='dark']:from-teal-600 [data-theme='dark']:via-teal-700 [data-theme='dark']:to-emerald-700 [data-theme='dark']:shadow-emerald-900/30 [data-theme='dark']:hover:shadow-emerald-900/50 [data-theme='dark']:focus:ring-teal-900/30"
-                  title="Request a Custom Craft"
+                  title={t('product.customRequestButtonTooltip')}
                   onClick={() => setCustomRequestModalOpen(true)}
                 >
                   <div className="flex items-center gap-1.5 relative z-10">
                     <div className="p-1.5 rounded-lg bg-white/20 backdrop-blur-sm transition-all duration-300 group-hover:scale-110 group-hover:rotate-12 [data-theme='dark']:bg-white/10">
                       <Sparkles className="w-3.5 h-3.5 group-hover:animate-pulse" />
                     </div>
-                    <span className="text-xs md:text-sm font-bold tracking-wide">Custom Request</span>
+                    <span className="text-xs md:text-sm font-bold tracking-wide">{t('product.customRequest')}</span>
                   </div>
                   <div className="absolute inset-0 bg-gradient-to-r from-teal-300 to-emerald-400 rounded-xl opacity-0 group-hover:opacity-30 transition-opacity duration-500 [data-theme='dark']:from-teal-400 [data-theme='dark']:to-emerald-500"></div>
                   <div className="absolute inset-0 rounded-xl bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300 [data-theme='dark']:bg-white/10"></div>
@@ -783,7 +861,7 @@ export default function ProductDetail() {
             >
               <h3 className="text-lg font-semibold text-[var(--text)] mb-4">
                 {product.isCollaborative 
-                  ? '🤝 Meet the Collaborative Artisans' 
+                  ? `🤝 ${t('product.meetCollaborativeArtisans')}`
                   : t('product.meetTheArtisan')
                 }
               </h3>
@@ -811,13 +889,13 @@ export default function ProductDetail() {
                           {collaborator.name}
                         </h4>
                         <p className="text-[var(--muted)] text-sm line-clamp-2">
-                          {collaborator.store_description || collaborator.bio || 'Passionate artisan creating unique pieces'}
+                          {collaborator.store_description || collaborator.bio || t('product.artisanBioFallback')}
                         </p>
                         <Link
                           href={`/stall/${collaborator.id}`}
                           className="text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 text-sm font-medium mt-1 inline-block"
                         >
-                          View their products →
+                          {t('product.viewCollaboratorProducts')}
                         </Link>
                       </div>
                     </div>
@@ -844,7 +922,7 @@ export default function ProductDetail() {
                       {product.seller?.name}
                     </h4>
                     <p className="text-[var(--muted)] text-sm">
-                      {product.seller?.store_description || product.seller?.bio || 'Passionate artisan creating unique pieces'}
+                      {product.seller?.store_description || product.seller?.bio || t('product.artisanBioFallback')}
                     </p>
                     <Link
                       href={`/stall/${product.seller_id}`}
@@ -876,11 +954,11 @@ export default function ProductDetail() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
           <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full relative">
             <button className="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-xl" onClick={() => {setGiftModalOpen(false); setGiftSuccess(false);}}>&times;</button>
-            <h2 className="text-2xl font-bold mb-4">Send as a Gift 🎁</h2>
+            <h2 className="text-2xl font-bold mb-4">{t('product.giftModalTitle')}</h2>
             
             {/* Gift Type Selection */}
             <div className="mb-6">
-              <label className="block mb-3 font-semibold">Choose Gift Type:</label>
+              <label className="block mb-3 font-semibold">{t('product.chooseGiftType')}</label>
               <div className="flex gap-3">
                 <button
                   onClick={() => setGiftType('individual')}
@@ -892,8 +970,8 @@ export default function ProductDetail() {
                 >
                   <div className="text-center">
                     <div className="text-2xl mb-1">🎁</div>
-                    <div className="font-semibold">Individual Gift</div>
-                    <div className="text-xs text-gray-500">Send directly to someone</div>
+                    <div className="font-semibold">{t('product.individualGift')}</div>
+                    <div className="text-xs text-gray-500">{t('product.individualGiftDesc')}</div>
                   </div>
                 </button>
                 <button
@@ -906,8 +984,8 @@ export default function ProductDetail() {
                 >
                   <div className="text-center">
                     <div className="text-2xl mb-1">👥</div>
-                    <div className="font-semibold">Group Gift</div>
-                    <div className="text-xs text-gray-500">Multiple people contribute</div>
+                    <div className="font-semibold">{t('product.groupGift')}</div>
+                    <div className="text-xs text-gray-500">{t('product.groupGiftDesc')}</div>
                   </div>
                 </button>
               </div>
@@ -919,8 +997,8 @@ export default function ProductDetail() {
                 {giftSuccess ? (
                   <div className="text-center py-8">
                     <div className="text-6xl mb-4">🎉</div>
-                    <h3 className="text-2xl font-bold text-green-600 mb-2">Gift Sent Successfully!</h3>
-                    <p className="text-gray-600 mb-6">Your gift has been sent to {selectedRecipient?.name}!</p>
+                    <h3 className="text-2xl font-bold text-green-600 mb-2">{t('product.giftSuccessTitle')}</h3>
+                    <p className="text-gray-600 mb-6">{t('product.giftSuccessDesc', { name: selectedRecipient?.name })}</p>
                     <button
                       onClick={() => {
                         setGiftModalOpen(false);
@@ -932,14 +1010,14 @@ export default function ProductDetail() {
                       }}
                       className="w-full px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-green-200 shadow-lg hover:shadow-xl"
                     >
-                      Close
+                      {t('product.close')}
                     </button>
                   </div>
                 ) : (
                   <>
                     {!selectedRecipient ? (
                       <>
-                        <label className="block mb-2 font-semibold">Recipient&apos;s Username or Email</label>
+                        <label className="block mb-2 font-semibold">{t('product.recipientLabel')}</label>
                         <input
                           type="text"
                           value={recipientQuery}
@@ -948,10 +1026,10 @@ export default function ProductDetail() {
                             setGiftRecipient("");
                           }}
                           className="w-full mb-1 p-2 border rounded-lg"
-                          placeholder="Start typing username or email..."
+                          placeholder={t('product.recipientPlaceholder')}
                           disabled={gifting}
                         />
-                        {recipientLoading && <div className="text-xs text-gray-400 mb-2">Searching...</div>}
+                        {recipientLoading && <div className="text-xs text-gray-400 mb-2">{t('product.recipientSearching')}</div>}
                         {recipientResults.length > 0 && (
                           <ul className="bg-white border rounded-lg shadow max-h-48 overflow-auto mb-2">
                             {recipientResults.map(profile => (
@@ -984,17 +1062,17 @@ export default function ProductDetail() {
                         <span className="text-xs text-gray-500">{selectedRecipient.email}</span>
                         <button className="ml-2 px-2 text-sm text-pink-500 underline" onClick={() => {
                           setSelectedRecipient(null); setGiftRecipient(""); setRecipientQuery("");
-                        }}>Change</button>
+                        }}>{t('product.changeRecipient')}</button>
                       </div>
                     )}
-                    <label className="block mb-2 font-semibold">Personal Message (optional)</label>
-                    <textarea value={giftMessage} onChange={e => setGiftMessage(e.target.value)} className="w-full mb-4 p-2 border rounded-lg" placeholder="Write a message..." />
+                    <label className="block mb-2 font-semibold">{t('product.personalMessageLabel')}</label>
+                    <textarea value={giftMessage} onChange={e => setGiftMessage(e.target.value)} className="w-full mb-4 p-2 border rounded-lg" placeholder={t('product.personalMessagePlaceholder')} />
                     <button
                       className="w-full px-6 py-3 bg-gradient-to-r from-pink-500 to-rose-600 text-white font-semibold rounded-xl hover:from-pink-600 hover:to-rose-700 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-pink-200 shadow-lg hover:shadow-xl disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
                       onClick={handleSendGift}
                       disabled={gifting || !giftRecipient}
                     >
-                      {gifting ? 'Sending...' : 'Send Individual Gift'}
+                      {gifting ? t('product.sending') : t('product.sendIndividualGift')}
                     </button>
                   </>
                 )}
@@ -1002,8 +1080,8 @@ export default function ProductDetail() {
             ) : (
               <div className="text-center py-8">
                 <div className="text-6xl mb-4">👥</div>
-                <h3 className="text-xl font-bold text-purple-700 mb-2">Start a Group Gift</h3>
-                <p className="text-gray-600 mb-6">Let multiple people contribute to this gift for your friend!</p>
+                <h3 className="text-xl font-bold text-purple-700 mb-2">{t('product.groupGiftTitle')}</h3>
+                <p className="text-gray-600 mb-6">{t('product.groupGiftDesc')}</p>
                 <button
                   onClick={() => {
                     console.log('Opening group gift modal...');
@@ -1012,7 +1090,7 @@ export default function ProductDetail() {
                   }}
                   className="w-full px-6 py-3 bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-semibold rounded-xl hover:from-purple-600 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-purple-200 shadow-lg hover:shadow-xl"
                 >
-                  Create Group Gift
+                  {t('product.createGroupGift')}
                 </button>
               </div>
             )}
@@ -1035,7 +1113,7 @@ export default function ProductDetail() {
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
             <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full relative">
               <button className="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-xl" onClick={() => {setCustomRequestModalOpen(false); setCustomRequestSuccess(false); setCustomRequestMessage(""); setCustomRequestError(null);}}>&times;</button>
-              <h2 className="text-2xl font-bold mb-4">Request a Custom Craft ✨</h2>
+              <h2 className="text-2xl font-bold mb-4">{t('product.customRequestModalTitle')}</h2>
               {customRequestError && <div className="mb-2 text-teal-700 bg-teal-100 border border-teal-300 rounded px-3 py-2 text-sm">{customRequestError}</div>}
               {customRequestSuccess ? (
                 <div className="text-center py-8">
@@ -1057,20 +1135,20 @@ export default function ProductDetail() {
                 </div>
               ) : (
                 <>
-                  <label className="block mb-2 font-semibold">Describe your custom craft request</label>
+                  <label className="block mb-2 font-semibold">{t('product.customRequestLabel')}</label>
                   <div className="relative mb-4">
                     <textarea
                       value={customRequestMessage}
                       onChange={e => setCustomRequestMessage(e.target.value)}
                       className="w-full p-2 border rounded-lg pr-12"
-                      placeholder="Describe what you want..."
+                      placeholder={t('product.customRequestPlaceholder')}
                       disabled={customRequestLoading}
                       rows={4}
                     />
                     <button
                       type="button"
                       className="absolute top-2 right-2 bg-teal-100 hover:bg-teal-200 text-teal-700 rounded-full p-2 shadow focus:outline-none"
-                      title="Speak your request"
+                      title={t('product.speakYourRequest')}
                       onClick={() => {
                         if (typeof window !== 'undefined' && ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
                           const win = window as typeof window & {
@@ -1153,7 +1231,7 @@ export default function ProductDetail() {
                     }}
                     disabled={customRequestLoading || !customRequestMessage.trim()}
                   >
-                    {customRequestLoading ? 'Sending...' : 'Send Custom Request'}
+                    {customRequestLoading ? t('product.sending') : t('product.sendCustomRequest')}
                   </button>
                 </>
               )}

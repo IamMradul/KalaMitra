@@ -52,6 +52,9 @@ export type Database = {
           created_at: string
           product_story?: string | null
           product_type?: 'vertical' | 'horizontal' | null
+            is_virtual?: boolean
+            virtual_type?: string | null
+            virtual_file_url?: string | null
         }
         Insert: {
           id?: string
@@ -64,6 +67,9 @@ export type Database = {
           created_at?: string
           product_story?: string | null
           product_type?: 'vertical' | 'horizontal' | null
+            is_virtual?: boolean
+            virtual_type?: string | null
+            virtual_file_url?: string | null
         }
         Update: {
           id?: string
@@ -76,6 +82,9 @@ export type Database = {
           created_at?: string
           product_story?: string | null
           product_type?: 'vertical' | 'horizontal' | null
+            is_virtual?: boolean
+            virtual_type?: string | null
+            virtual_file_url?: string | null
         }
       }
       auctions: {
