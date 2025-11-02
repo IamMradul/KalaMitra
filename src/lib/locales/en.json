@@ -261,7 +261,9 @@
       "mitraPoints": "MP",
       "gifts": "Gifts",
       "messages": "Messages",
-      "ads": "Ads"
+      "ads": "Ads",
+      "light": "Light",
+      "dark": "Dark"
     },
     
     "reels": {

@@ -388,9 +388,20 @@
 }
 
 /* Glass nav uses background variable */
-.glass-nav { background: linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,255,255,0.45)); }
-:root[data-theme='dark'] .glass-nav { background: linear-gradient(180deg, rgba(9,18,38,0.6), rgba(9,18,38,0.5)); }
+/* Utility for dark glass nav */
 
+.glass-nav {
+  background: linear-gradient(180deg, rgba(255,255,255,0.55), rgba(255,255,255,0.25));
+  backdrop-filter: blur(18px);
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.10);
+}
+:root[data-theme='dark'] .glass-nav {
+  background: linear-gradient(180deg, rgba(9,18,38,0.55), rgba(9,18,38,0.25));
+  backdrop-filter: blur(18px);
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.18);
+}
 
 /* Utility for dark glass nav */
 .heritage-bg[data-theme='dark'] { background-color: var(--background); }
