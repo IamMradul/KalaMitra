@@ -8,9 +8,23 @@ import { useLanguage } from '@/components/LanguageProvider'
 import { useEffect, useState } from 'react'
 
 export default function Home() {
+
   const { t } = useTranslation();
   const { currentLanguage } = useLanguage();
   const [mounted, setMounted] = useState(false);
+
+  // Video playlist logic (fixes hook order error)
+  const videoSources = [
+     "https://videos.pexels.com/video-files/7205821/7205821-sd_960_540_24fps.mp4",
+    "https://videos.pexels.com/video-files/4683406/4683406-hd_720_1298_50fps.mp4",
+    "https://videos.pexels.com/video-files/6720710/6720710-hd_1920_1080_25fps.mp4",
+    "https://dejyoyoctsfyjixfhfgd.supabase.co/storage/v1/object/public/videos/close-up-cinematic-shot-of-skilled-india-5420c79a-20250820084136.mp4"
+   
+  ];
+  const [currentVideo, setCurrentVideo] = useState(0);
+  const handleEnded = () => {
+    setCurrentVideo((prev) => (prev + 1) % videoSources.length);
+  };
 
   useEffect(() => {
     setMounted(true);
@@ -24,67 +38,77 @@ export default function Home() {
     <div className="min-h-screen">
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden heritage-bg">
+        {/* Background Video */}
+        {/* Video Playlist: plays 4 videos one by one, loops the playlist */}
+        <video
+          key={videoSources[currentVideo]}
+          src={videoSources[currentVideo]}
+          autoPlay
+          muted
+          playsInline
+          onEnded={handleEnded}
+          className="absolute inset-0 w-full h-full object-cover z-0 transition-opacity duration-1000"
+        />
+        {/* Overlay for better contrast */}
+  <div className="absolute inset-0 bg-black/60 z-0" />
         {/* ...existing background and overlay code... */}
-        <div className="container-custom relative z-10">
-          <div className="text-center max-w-6xl mx-auto">
+        <div className="container mx-auto relative z-30 flex items-center justify-center min-h-screen">
+          <div className="flex flex-col items-center text-center space-y-8 max-w-3xl w-full mx-auto px-4 py-8 md:py-16">
             {/* Badge */}
-            <div className="inline-flex items-center px-8 py-4 glass-card rounded-full border border-[var(--heritage-gold)]/30 shadow-soft mb-12 animate-slide-in-up">
-              <Sparkles className="w-6 h-6 text-[var(--heritage-gold)] mr-3 animate-pulse" />
-              <span className="text-lg font-semibold text-[var(--heritage-brown)]">{t('home.badgeHeritage')}</span>
+            <div className="inline-flex items-center px-6 py-2 bg-white/10 border border-white/30 rounded-full shadow-xl mb-6 animate-slide-in-up text-base md:text-lg">
+              <Sparkles className="w-5 h-5 md:w-6 md:h-6 text-orange-400 mr-2 animate-pulse" />
+              <span className="font-semibold text-white">{t('home.badgeHeritage')}</span>
             </div>
 
             {/* Main Title */}
-            <h1 className="text-7xl md:text-9xl font-bold heritage-title mb-8 leading-tight animate-slide-in-up animate-delay-100 hero-title">
-              {t('home.mainTitle')}
+            <h1 className="text-pretty text-3xl md:text-5xl xl:text-6xl font-bold font-display text-white animate-slide-in-up animate-delay-100 hero-title leading-tight mb-2">
+              <span className="text-primary font-bold whitespace-pre-line lg:whitespace-nowrap break-words">{t('home.mainTitle')}</span>
             </h1>
-            
+
             {/* Subtitle */}
-            <p className="text-2xl md:text-3xl text-[var(--heritage-brown)] mb-6 font-light animate-slide-in-up animate-delay-200 hero-subtitle">
+            <p className="text-white/90 max-w-lg md:text-xl leading-relaxed animate-slide-in-up animate-delay-200 hero-subtitle mb-2 bg-gradient-to-r from-orange-500/30 via-orange-400/20 to-yellow-300/20 rounded-xl px-4 py-2 shadow-sm">
               {t('home.subtitleMain')}
             </p>
-            <p className="text-xl text-[var(--heritage-brown)]/80 mb-12 max-w-4xl mx-auto leading-relaxed animate-slide-in-up animate-delay-300">
+            <p className="text-white/80 mb-6 max-w-lg mx-auto leading-relaxed animate-slide-in-up animate-delay-300">
               {t('home.subtitleExplore')}
             </p>
 
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-6 justify-center mb-20 animate-slide-in-up animate-delay-400">
-              <Link href="/marketplace" className="btn-primary bg-gradient-to-r from-[var(--heritage-gold)] to-[var(--heritage-red)] text-white hover:scale-105 group flex items-center px-8 py-4 rounded-2xl shadow-glow">
-                <span className="flex items-center justify-center space-x-3 text-center w-full">
-                  <ShoppingBag className="w-6 h-6" />
-                  <span className="text-lg font-semibold">{t('home.exploreCollection')}</span>
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform duration-300" />
+            <div className="flex w-full flex-col justify-center gap-4 sm:flex-row pt-2 animate-slide-in-up animate-delay-400">
+              <Link href="/marketplace" className="inline-flex flex-col items-center justify-center gap-1 whitespace-nowrap text-base font-medium h-16 w-full sm:w-auto group bg-gradient-to-r from-orange-500 via-orange-400 to-yellow-400 text-white border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 rounded-full px-8 py-2">
+                <span className="block flex flex-col sm:flex-row items-center justify-center w-full">
+                  <span>{t('home.exploreCollection')}</span>
+                  <ArrowRight className="mx-auto size-5 group-hover:translate-y-1 transition-transform sm:ml-2 sm:static sm:translate-y-0 mt-1 sm:mt-0" />
                 </span>
               </Link>
-              <Link href="/auth/signup?role=seller" className="btn-secondary border-2 border-[var(--heritage-gold)] text-[var(--heritage-gold)] hover:bg-[var(--heritage-gold)] hover:text-white group flex items-center px-8 py-4 rounded-2xl backdrop-blur-sm">
-                <span className="flex items-center justify-center space-x-3 text-center w-full">
-                  <Users className="w-6 h-6" />
-                  <span className="text-lg font-semibold">{t('home.joinAsArtisan')}</span>
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform duration-300" />
+              <Link href="/auth/signup?role=seller" className="inline-flex flex-col items-center justify-center gap-1 whitespace-nowrap text-base font-medium h-16 w-full sm:w-auto group bg-white/10 hover:bg-white/20 text-white border border-white/20 rounded-full px-8 py-2 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 backdrop-blur-sm">
+                <span className="block flex flex-col sm:flex-row items-center justify-center w-full">
+                  <span>{t('home.joinAsArtisan')}</span>
+                  <ArrowRight className="mx-auto size-5 group-hover:translate-y-1 transition-transform sm:ml-2 sm:static sm:translate-y-0 mt-1 sm:mt-0" />
                 </span>
               </Link>
-              <Link href="/marketplace?view=3d" className="btn-3d-bazaar bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 text-white shadow-lg hover:scale-105 transition-transform duration-300 group flex items-center justify-center px-8 py-4 rounded-2xl border-2 border-white/30 backdrop-blur-sm">
-                <span className="flex items-center justify-center space-x-3">
-                  <Palette className="w-6 h-6 text-white drop-shadow-md animate-pulse" />
-                  <span className="font-semibold text-lg">{t('home.bazaar3d')}</span>
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform duration-300" />
+              <Link href="/marketplace?view=3d" className="inline-flex flex-col items-center justify-center gap-1 whitespace-nowrap text-base font-medium h-16 w-full sm:w-auto group bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 text-white border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 rounded-full px-8 py-2">
+                <span className="block flex flex-col sm:flex-row items-center justify-center w-full">
+                  <span>{t('home.bazaar3d')}</span>
+                  <ArrowRight className="mx-auto size-5 group-hover:translate-y-1 transition-transform sm:ml-2 sm:static sm:translate-y-0 mt-1 sm:mt-0" />
                 </span>
               </Link>
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-3 gap-12 max-w-4xl mx-auto animate-slide-in-up animate-delay-500 stats-grid">
-              <div className="text-center group">
-                <div className="text-5xl font-bold text-gradient-primary mb-3 group-hover:scale-110 transition-transform duration-300">500+</div>
-                <div className="text-[var(--heritage-brown)] font-semibold text-lg">{t('home.statsArtisans')}</div>
-              </div>
-              <div className="text-center group">
-                <div className="text-5xl font-bold text-gradient-primary mb-3 group-hover:scale-110 transition-transform duration-300">1000+</div>
-                <div className="text-[var(--heritage-brown)] font-semibold text-lg">{t('home.statsProducts')}</div>
-              </div>
-              <div className="text-center group">
-                <div className="text-5xl font-bold text-gradient-primary mb-3 group-hover:scale-110 transition-transform duration-300">50+</div>
-                <div className="text-[var(--heritage-brown)] font-semibold text-lg">{t('home.statsCategories')}</div>
-              </div>
+            {/* Video Playlist Dots - uniform small size */}
+            <div className="flex justify-center gap-2 mt-10 animate-slide-in-up animate-delay-500">
+              {videoSources.map((src, idx) => (
+                <button
+                  key={idx}
+                  aria-label={`Video ${idx + 1}`}
+                  className={`h-2 w-2 rounded-full transition-all duration-300 ${
+                    currentVideo === idx ? "bg-white/80" : "bg-white/40 hover:bg-white/60"
+                  }`}
+                  onClick={() => setCurrentVideo(idx)}
+                  style={{ outline: currentVideo === idx ? "2px solid #fff" : "none" }}
+                />
+              ))}
             </div>
           </div>
         </div>

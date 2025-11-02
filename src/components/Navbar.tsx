@@ -67,7 +67,7 @@ export default function Navbar() {
           intro: '<span style="font-size:1.1em">🏆 <b>Auctions</b></span><br/>Participate in live auctions.'
         },
         {
-          element: '#navbar-leaderboard',
+          element: 'a[href="/leaderboard"]',
           intro: '<span style="font-size:1.1em">🥇 <b>Leaderboard</b></span><br/>See top contributors and winners.'
         },
         {
@@ -456,8 +456,8 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="glass-nav border-b border-heritage-gold/40 shadow-soft sticky top-0 z-50 heritage-bg">
-      <div className="container-custom">
+  <nav className="glass-nav border-b border-heritage-gold/40 shadow-soft sticky top-0 z-50 font-display">
+  <div className="container-custom font-display">
         <div className="flex justify-between items-center py-6">
           {/* Logo - Short brand for mobile, full for desktop */}
           <div className="flex items-center space-x-4 group">
