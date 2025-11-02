@@ -388,11 +388,11 @@ export default function Navbar() {
     return (
       <nav className="glass-nav border-b border-heritage-gold/40 shadow-soft sticky top-0 z-50 heritage-bg">
         <div className="container-custom">
-          <div className="flex justify-between items-center py-6">
+          <div className="flex justify-between items-center py-4">
             {/* Logo placeholder */}
             <div className="flex items-center space-x-4 group">
-              <div className="w-14 h-14 bg-gradient-to-br from-[var(--heritage-gold)] to-[var(--heritage-gold)] rounded-2xl flex items-center justify-center">
-                <Palette className="w-7 h-7 text-white" />
+              <div className="w-12 h-12 bg-gradient-to-br from-[var(--heritage-gold)] to-[var(--heritage-gold)] rounded-2xl flex items-center justify-center">
+                <Palette className="w-6 h-6 text-white" />
               </div>
               <span className="text-3xl font-bold heritage-title">KalaMitra</span>
             </div>
@@ -458,12 +458,12 @@ export default function Navbar() {
   return (
   <nav className="glass-nav border-b border-heritage-gold/40 shadow-soft sticky top-0 z-50 font-display">
   <div className="container-custom font-display">
-        <div className="flex justify-between items-center py-6">
+  <div className="flex justify-between items-center py-3">
           {/* Logo - Short brand for mobile, full for desktop */}
           <div className="flex items-center space-x-4 group">
             <Link href="/" className="flex items-center space-x-4 group">
-              <div className="w-14 h-14 bg-gradient-to-br from-[var(--heritage-gold)] to-[var(--heritage-red)] rounded-2xl flex items-center justify-center group-hover:scale-110 transition-all duration-500 shadow-medium hover:shadow-glow animate-float-slow border-2 border-heritage-gold">
-                <Palette className="w-7 h-7 text-white" />
+              <div className="w-12 h-12 bg-gradient-to-br from-[var(--heritage-gold)] to-[var(--heritage-red)] rounded-2xl flex items-center justify-center group-hover:scale-110 transition-all duration-500 shadow-medium hover:shadow-glow animate-float-slow border-2 border-heritage-gold">
+                <Palette className="w-6 h-6 text-white" />
               </div>
               <span className="text-3xl font-bold heritage-title hidden md:inline" key={`brand-${currentLanguage}`}>{t('brand.name')}</span>
               <span id="navbar-brand-mobile" className="text-3xl font-bold heritage-title md:hidden" key={`brand-short-${currentLanguage}`}>KM</span>
@@ -774,7 +774,7 @@ export default function Navbar() {
 
         {/* Mobile navbar */}
         {isMenuOpen && (
-          <div className="md:hidden py-6 border-t border-heritage-gold/50 bg-[var(--bg-2)]/95 backdrop-blur-md rounded-3xl mt-4 shadow-medium animate-slide-in-up text-[var(--text)]">
+          <div className="md:hidden py-4 border-t border-heritage-gold/50 bg-[var(--bg-2)]/95 backdrop-blur-md rounded-3xl mt-4 shadow-medium animate-slide-in-up text-[var(--text)]">
             <div className="flex flex-col space-y-4">
               <Link 
                 id="navbar-mobile-marketplace"
