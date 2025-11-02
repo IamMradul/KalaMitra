@@ -2,6 +2,7 @@
 import Leaderboard from '../components/Leaderboard'
 import VideoPlayer from '../components/VideoPlayer'
 import Link from 'next/link'
+import Image from 'next/image'
 import { ArrowRight, Palette, ShoppingBag, Users, Shield, Zap, Play, Star, Award, Heart, Sparkles } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useLanguage } from '@/components/LanguageProvider'
@@ -205,19 +206,17 @@ export default function Home() {
             {/* Product Card 1 */}
             <div className="card-glass p-8 text-center group animate-slide-in-up animate-delay-100 hover-lift">
               <div className="relative mb-8">
-                <div className="w-full h-64 bg-gradient-to-br from-[var(--heritage-gold)]/20 to-[var(--heritage-red)]/20 rounded-2xl flex items-center justify-center shadow-medium">
-                  <div className="text-center">
-                    <div className="w-20 h-20 bg-gradient-to-br from-[var(--heritage-gold)] to-[var(--heritage-red)] rounded-full flex items-center justify-center mx-auto mb-4 shadow-glow">
-                      <Heart className="w-10 h-10 text-white" />
-                    </div>
-                    <h3 className="text-xl font-bold text-[var(--heritage-brown)]">{t('home.featuredCard1Title')}</h3>
-                  </div>
-                </div>
-                <div className="absolute -top-2 -right-2 w-8 h-8 bg-gradient-to-br from-[var(--heritage-gold)] to-[var(--heritage-red)] rounded-full flex items-center justify-center">
-                  <Star className="w-5 h-5 text-white" />
+                <div className="w-full h-64 rounded-2xl overflow-hidden shadow-medium relative">
+                  <Image
+                    src="/saree.jpg"
+                    alt={t('home.featuredCard1Title')}
+                    fill
+                    className="object-cover group-hover:scale-110 transition-transform duration-500"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-br from-[var(--heritage-gold)]/20 to-[var(--heritage-red)]/20"></div>
                 </div>
               </div>
-              <h3 className="text-2xl font-semibold text-[var(--text)] mb-4">{t('home.featuredCard1Subtitle')}</h3>
               <h3 className="text-2xl font-semibold text-[var(--text)] mb-4">{t('home.featuredCard1Subtitle')}</h3>
               <p className="text-[var(--muted)] leading-relaxed mb-6">{t('home.featuredCard1Desc')}</p>
               <div className="flex items-center justify-between">
@@ -231,19 +230,17 @@ export default function Home() {
             {/* Product Card 2 */}
             <div className="card-glass p-8 text-center group animate-slide-in-up animate-delay-200 hover-lift">
               <div className="relative mb-8">
-                <div className="w-full h-64 bg-gradient-to-br from-[var(--heritage-green)]/20 to-[var(--heritage-blue)]/20 rounded-2xl flex items-center justify-center shadow-medium">
-                  <div className="text-center">
-                    <div className="w-20 h-20 bg-gradient-to-br from-[var(--heritage-green)] to-[var(--heritage-blue)] rounded-full flex items-center justify-center mx-auto mb-4 shadow-glow">
-                      <Award className="w-10 h-10 text-white" />
-                    </div>
-                    <h3 className="text-xl font-bold text-[var(--heritage-brown)]">{t('home.featuredCard2Title')}</h3>
-                  </div>
-                </div>
-                <div className="absolute -top-2 -right-2 w-8 h-8 bg-gradient-to-br from-[var(--heritage-green)] to-[var(--heritage-blue)] rounded-full flex items-center justify-center">
-                  <Star className="w-5 h-5 text-white" />
+                <div className="w-full h-64 rounded-2xl overflow-hidden shadow-medium relative">
+                  <Image
+                    src="/gold&jwellery.jpg"
+                    alt={t('home.featuredCard2Title')}
+                    fill
+                    className="object-cover group-hover:scale-110 transition-transform duration-500"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-br from-[var(--heritage-green)]/20 to-[var(--heritage-blue)]/20"></div>
                 </div>
               </div>
-              <h3 className="text-2xl font-semibold text-[var(--text)] mb-4">{t('home.featuredCard2Subtitle')}</h3>
               <h3 className="text-2xl font-semibold text-[var(--text)] mb-4">{t('home.featuredCard2Subtitle')}</h3>
               <p className="text-[var(--muted)] leading-relaxed mb-6">{t('home.featuredCard2Desc')}</p>
               <div className="flex items-center justify-between">
@@ -257,19 +254,17 @@ export default function Home() {
             {/* Product Card 3 */}
             <div className="card-glass p-8 text-center group animate-slide-in-up animate-delay-300 hover-lift">
               <div className="relative mb-8">
-                <div className="w-full h-64 bg-gradient-to-br from-[var(--heritage-red)]/20 to-[var(--heritage-accent)]/20 rounded-2xl flex items-center justify-center shadow-medium">
-                  <div className="text-center">
-                    <div className="w-20 h-20 bg-gradient-to-br from-[var(--heritage-red)] to-[var(--heritage-accent)] rounded-full flex items-center justify-center mx-auto mb-4 shadow-glow">
-                      <Sparkles className="w-10 h-10 text-white" />
-                    </div>
-                    <h3 className="text-xl font-bold text-[var(--heritage-brown)]">{t('home.featuredCard3Title')}</h3>
-                  </div>
-                </div>
-                <div className="absolute -top-2 -right-2 w-8 h-8 bg-gradient-to-br from-[var(--heritage-red)] to-[var(--heritage-accent)] rounded-full flex items-center justify-center">
-                  <Star className="w-5 h-5 text-white" />
+                <div className="w-full h-64 rounded-2xl overflow-hidden shadow-medium relative">
+                  <Image
+                    src="/pottery.jpg"
+                    alt={t('home.featuredCard3Title')}
+                    fill
+                    className="object-cover group-hover:scale-110 transition-transform duration-500"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-br from-[var(--heritage-red)]/20 to-[var(--heritage-accent)]/20"></div>
                 </div>
               </div>
-              <h3 className="text-2xl font-semibold text-[var(--text)] mb-4">{t('home.featuredCard3Subtitle')}</h3>
               <h3 className="text-2xl font-semibold text-[var(--text)] mb-4">{t('home.featuredCard3Subtitle')}</h3>
               <p className="text-[var(--muted)] leading-relaxed mb-6">{t('home.featuredCard3Desc')}</p>
               <div className="flex items-center justify-between">
