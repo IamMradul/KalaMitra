@@ -99,7 +99,9 @@ export default function SellerDashboard() {
             const checkAllTargets = () => {
               const allExist = steps.every(step => step.element && document.querySelector(step.element));
               if (allExist) {
-                introJs().setOptions({
+                const isMobile = window.innerWidth <= 640;
+                const instance = introJs();
+                instance.setOptions({
                   steps,
                   showProgress: true,
                   showBullets: false,
@@ -113,8 +115,19 @@ export default function SellerDashboard() {
                   prevLabel: '← Back',
                   doneLabel: '✨ Done',
                   skipLabel: 'Skip',
-                })
-                .oncomplete(() => {
+                });
+                // Custom scroll handler for mobile
+                if (isMobile) {
+                  instance.onbeforechange(function(targetElement) {
+                    if (targetElement && typeof targetElement.scrollIntoView === 'function') {
+                      setTimeout(() => {
+                        targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                      }, 80);
+                    }
+                    return true;
+                  });
+                }
+                instance.oncomplete(() => {
                   localStorage.setItem('hasSeenSellerDashboardTour', 'true');
                   window.__sellerDashboardTourStarted = false;
                 })
