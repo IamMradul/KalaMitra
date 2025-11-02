@@ -8,6 +8,10 @@ import { supabase } from '@/lib/supabase'
 import { Database } from '@/lib/supabase'
 import Link from 'next/link'
 import { useTranslation } from 'react-i18next'
+// Native unique array helper
+function unique(arr: string[]) {
+  return Array.from(new Set(arr));
+}
 
 type CartItem = Database['public']['Tables']['cart']['Row'] & {
   product: {
@@ -15,7 +19,9 @@ type CartItem = Database['public']['Tables']['cart']['Row'] & {
     price: number
     image_url: string
     category: string
+    seller_id: string
   }
+  seller_id?: string // mapped from product.seller_id
 }
 
 export default function CartPage() {
@@ -26,6 +32,7 @@ export default function CartPage() {
   const [actionLoading, setActionLoading] = useState<string | null>(null)
   const [feedback, setFeedback] = useState<string | null>(null)
   const [checkoutLoading, setCheckoutLoading] = useState(false)
+  const [upiError, setUpiError] = useState<string | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -41,13 +48,15 @@ export default function CartPage() {
     try {
       const { data, error } = await supabase
         .from('cart')
-        .select(`
-          *,
-          product:products(title, price, image_url, category)
-        `)
+        .select(`*, product:products(title, price, image_url, category, seller_id)`) // include seller_id
         .eq('buyer_id', user.id)
       if (error) throw error
-      setCartItems(data || [])
+      // Map seller_id from product
+      const items = (data || []).map((item: any) => ({
+        ...item,
+        seller_id: item.product?.seller_id || null,
+      }));
+      setCartItems(items)
     } catch (error) {
       console.error('Error fetching cart items:', error)
     }
@@ -305,9 +314,52 @@ export default function CartPage() {
 
                 <button
                   onClick={async () => {
-                    setCheckoutLoading(true)
-                    setFeedback(t('cart.checkoutComingSoon'))
-                    setTimeout(() => setCheckoutLoading(false), 1200)
+                    setUpiError(null);
+                    if (cartItems.length === 0 || checkoutLoading) return;
+                    setCheckoutLoading(true);
+                    setFeedback(null);
+                    // 1. Get all seller IDs from cart items
+                    const sellerIds = unique(cartItems.map(item => item.seller_id).filter((id): id is string => typeof id === 'string' && !!id));
+                    // 2. Fetch UPI IDs for all sellers
+                    const { data: sellers, error } = await supabase
+                      .from('profiles')
+                      .select('id, upi_id, name')
+                      .in('id', sellerIds);
+                    if (error) {
+                      setUpiError('Failed to check seller UPI IDs');
+                      setCheckoutLoading(false);
+                      return;
+                    }
+                    const missingUpi = (sellers || []).filter(s => !s.upi_id);
+                    if (missingUpi.length > 0) {
+                      setUpiError(`Cannot proceed: Seller(s) missing UPI ID: ${missingUpi.map(s => s.name || s.id).join(', ')}`);
+                      setCheckoutLoading(false);
+                      return;
+                    }
+                    // Create Cashfree order via backend
+                    try {
+                      const res = await fetch('/api/payments/cashfree-order', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                          amount: calculateTotal(),
+                          currency: 'INR',
+                          customer_id: user?.id,
+                          customer_email: user?.email,
+                          order_id: `order_${user?.id}_${Date.now()}`,
+                          order_note: 'KalaMitra Cart Checkout',
+                        }),
+                      });
+                      const order = await res.json();
+                      if (!order.order_id || !order.payment_session_id) throw new Error('Order creation failed');
+                      // Redirect to Cashfree payment page
+                      window.location.href = order.payment_link;
+                      // After payment, you should handle payout in a webhook or after confirmation
+                      // setFeedback(t('cart.paymentSuccess'));
+                    } catch (err) {
+                      setFeedback(t('cart.paymentError'));
+                    }
+                    setCheckoutLoading(false);
                   }}
                   disabled={cartItems.length === 0 || checkoutLoading}
                   className={`w-full px-4 py-2 sm:px-6 sm:py-3 font-semibold rounded-lg transition-all duration-200 ${cartItems.length === 0 || checkoutLoading ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-gradient-to-r from-orange-500 to-red-600 text-white hover:from-orange-600 hover:to-red-700'}`}
@@ -315,6 +367,9 @@ export default function CartPage() {
                 >
                   {checkoutLoading ? t('common.loading') : t('cart.checkout')}
                 </button>
+                {upiError && (
+                  <div className="text-red-600 text-sm mt-2 text-center">{upiError}</div>
+                )}
 
                 <p className="text-xs text-gray-500 text-center mt-2 sm:mt-3">
                   {t('cart.secureCheckout')}
