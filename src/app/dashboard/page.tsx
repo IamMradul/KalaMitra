@@ -1,6 +1,4 @@
-
 'use client'
-import React from 'react';
 
 import { useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -50,63 +48,6 @@ function DashboardContent() {
     }
   }, [user, profile, loading, router, searchParams])
 
-  // Onboarding modal state
-  const [showGuide, setShowGuide] = React.useState(false);
-  const [guideStep, setGuideStep] = React.useState(0);
-  const guideSteps = [
-    {
-      title: "Welcome to KalaMitra!",
-      description: "Let's take a quick tour of the main features.",
-    },
-    {
-      title: "Marketplace",
-      description: "Browse stalls and products from various sellers.",
-    },
-    {
-      title: "Cart",
-      description: "Add products to your cart and proceed to checkout.",
-    },
-    {
-      title: "Group Gifts",
-      description: "Contribute to group gifts with friends and family.",
-    },
-    {
-      title: "Leaderboard",
-      description: "See top contributors and sellers in the leaderboard.",
-    },
-    {
-      title: "Enjoy!",
-      description: "Explore more features as you use the app.",
-    },
-  ];
-
-  // Show guide only once per user (localStorage)
-  React.useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const seen = localStorage.getItem('hasSeenKalaMitraGuide');
-      if (!seen) {
-        setShowGuide(true);
-      }
-    }
-  }, []);
-
-  const handleNext = () => {
-    if (guideStep < guideSteps.length - 1) {
-      setGuideStep(guideStep + 1);
-    } else {
-      setShowGuide(false);
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('hasSeenKalaMitraGuide', 'true');
-      }
-    }
-  };
-  const handleSkip = () => {
-    setShowGuide(false);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('hasSeenKalaMitraGuide', 'true');
-    }
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -129,29 +70,6 @@ function DashboardContent() {
         />
         <p className="text-[var(--heritage-brown)] heritage-title">Redirecting...</p>
       </div>
-      {/* Onboarding Modal */}
-      {showGuide && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white rounded-xl shadow-2xl p-8 max-w-sm w-full text-center border-2 border-yellow-400">
-            <h2 className="text-xl font-bold mb-2 text-yellow-700">{guideSteps[guideStep].title}</h2>
-            <p className="mb-6 text-gray-700">{guideSteps[guideStep].description}</p>
-            <div className="flex justify-center gap-4">
-              <button
-                className="px-4 py-2 rounded bg-yellow-500 text-white font-bold"
-                onClick={handleNext}
-              >
-                {guideStep < guideSteps.length - 1 ? 'Next' : 'Finish'}
-              </button>
-              <button
-                className="px-4 py-2 rounded bg-gray-300 text-gray-700 font-bold"
-                onClick={handleSkip}
-              >
-                Skip
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }
