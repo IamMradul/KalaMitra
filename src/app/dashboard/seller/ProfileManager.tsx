@@ -109,7 +109,8 @@ export default function ProfileManager({ profile, products, onProfileUpdate }: P
     name: profile?.name || '',
     bio: profile?.bio || '',
     store_description: profile?.store_description || '',
-    profile_image: profile?.profile_image || ''
+    profile_image: profile?.profile_image || '',
+  upi_id: profile?.upi_id || ''
   })
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(profile?.profile_image || null)
@@ -125,7 +126,8 @@ export default function ProfileManager({ profile, products, onProfileUpdate }: P
         name: profile.name || '',
         bio: profile.bio || '',
         store_description: profile.store_description || '',
-        profile_image: profile.profile_image || ''
+        profile_image: profile.profile_image || '',
+  upi_id: profile.upi_id || ''
       })
       setImagePreview(profile.profile_image)
     }
@@ -211,6 +213,17 @@ export default function ProfileManager({ profile, products, onProfileUpdate }: P
   const handleSave = async () => {
     try {
       setLoading(true)
+      // Basic UPI validation (if provided)
+      if (formData.upi_id && formData.upi_id.trim()) {
+        const upiTrim = formData.upi_id.trim()
+        if (!/^[\w.-]+@[\w.-]+$/.test(upiTrim)) {
+          alert(t('seller.profile.errors.invalidUpi') || 'Invalid UPI ID format')
+          setLoading(false)
+          return
+        }
+        // normalize into state
+        setFormData(prev => ({ ...prev, upi_id: upiTrim }))
+      }
       
       let imageUrl = formData.profile_image
       if (imageFile) {
@@ -248,7 +261,8 @@ export default function ProfileManager({ profile, products, onProfileUpdate }: P
           name: formData.name,
           bio: formData.bio,
           store_description: formData.store_description,
-          profile_image: imageUrl
+          profile_image: imageUrl,
+          upi_id: formData.upi_id || null
         })
         .eq('id', profile.id)
         .select()
@@ -435,6 +449,19 @@ export default function ProfileManager({ profile, products, onProfileUpdate }: P
                 </div>
               </div>
 
+              <div>
+                <label className="block text-sm font-medium text-[var(--muted)] mb-1">
+                  {t('seller.profile.fields.upi.label') || 'UPI ID'}
+                </label>
+                <input
+                  type="text"
+                  value={formData.upi_id}
+                  onChange={(e) => setFormData(prev => ({ ...prev, upi_id: e.target.value }))}
+                  className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 bg-[var(--bg-2)] border-[var(--border)] text-[var(--text)]"
+                  placeholder="e.g. yourname@upi"
+                />
+              </div>
+
               <button
                 onClick={handleSave}
                 disabled={loading}
@@ -465,6 +492,11 @@ export default function ProfileManager({ profile, products, onProfileUpdate }: P
                   {t('seller.profile.fields.description.label')}
                 </label>
                 <p className="text-[var(--text)]">{displayDesc || t('seller.profile.noDescription')}</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-[var(--muted)] mb-1">{t('seller.profile.fields.upi.label') || 'UPI ID'}</label>
+                <p className="text-[var(--text)]">{profile.upi_id || t('seller.profile.notSet')}</p>
               </div>
             </div>
           )}

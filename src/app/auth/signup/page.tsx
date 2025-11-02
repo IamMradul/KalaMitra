@@ -339,7 +339,7 @@ function SignUpContent() {
                 <p className="text-sm text-[var(--text-muted)]">
                   {t('auth.alreadyHaveAccount')}{' '}
                   <Link href="/auth/signin" className="font-medium text-[var(--saffron)] hover:text-[var(--maroon)] transition-colors">
-                    {t('navigation.signin')}
+                    {t('navbar.signIn')}
                   </Link>
                 </p>
               </div>

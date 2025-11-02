@@ -17,6 +17,7 @@ export type Database = {
           bio: string | null
           profile_image: string | null
           store_description: string | null
+          upi_id: string | null
           created_at: string
         }
         Insert: {
@@ -27,6 +28,7 @@ export type Database = {
           bio?: string | null
           profile_image?: string | null
           store_description?: string | null
+          upi_id?: string | null
           created_at?: string
         }
         Update: {
@@ -37,6 +39,7 @@ export type Database = {
           bio?: string | null
           profile_image?: string | null
           store_description?: string | null
+          upi_id?: string | null
           created_at?: string
         }
       }

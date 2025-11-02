@@ -228,7 +228,7 @@ export default function SignIn() {
                     </div>
                   ) : (
                     <div className="flex items-center">
-                      {t('navigation.signin')}
+                      {t('navbar.signIn')}
                       <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </div>
                   )}
@@ -272,7 +272,7 @@ export default function SignIn() {
                 <p className="text-sm text-[var(--text-muted)]">
                   {t('auth.dontHaveAccount')}{' '}
                   <Link href="/auth/signup" className="font-medium text-[var(--saffron)] hover:text-[var(--maroon)] transition-colors">
-                    {t('navigation.signup')}
+                    {t('navbar.signUp')}
                   </Link>
                 </p>
                 <p className="text-xs text-[var(--text-muted)] bg-[var(--bg-2)] p-2 rounded-lg">

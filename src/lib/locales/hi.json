@@ -534,7 +534,8 @@
       "fields": {
         "storeName": { "label": "स्टोर का नाम", "placeholder": "आपके स्टोर का नाम" },
         "bio": { "label": "बायो", "placeholder": "अपने बारे में और अपने शिल्प के बारे में बताएं..." },
-        "description": { "label": "स्टोर विवरण", "placeholder": "आपके स्टॉल पेज पर दिखने वाला आकर्षक विवरण..." }
+        "description": { "label": "स्टोर विवरण", "placeholder": "आपके स्टॉल पेज पर दिखने वाला आकर्षक विवरण..." },
+        "upi": { "label": "UPI ID", "placeholder": "आपका UPI ID" }
       },
       "aiGenerate": "एआई जनरेट",
       "generating": "जनरेट हो रहा है...",

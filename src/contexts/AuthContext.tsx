@@ -36,6 +36,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true)
   const [isSigningOut, setIsSigningOut] = useState(false)
   const [isClient, setIsClient] = useState(false)
+  const [showUpiModal, setShowUpiModal] = useState(false);
+  const [upiInput, setUpiInput] = useState("");
+  const [upiError, setUpiError] = useState("");
 
   useEffect(() => {
     // Mark that we're on the client side
@@ -106,24 +109,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const fetchProfile = async (userId: string) => {
     try {
       console.log('Fetching profile for user:', userId)
-      
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
         .single()
-
       if (error) {
         console.error('Error fetching profile:', error)
         setProfile(null)
-        return
+        setShowUpiModal(false);
+        return;
       }
-
-      console.log('Profile fetched successfully:', data)
-      setProfile(data)
+      setProfile(data);
+      // Prompt seller for UPI ID if missing
+      if (data && data.role === 'seller' && !data.upi_id) {
+        setShowUpiModal(true);
+      } else {
+        setShowUpiModal(false);
+      }
     } catch (error) {
       console.error('Error fetching profile:', error)
       setProfile(null)
+      setShowUpiModal(false);
     }
   }
 
@@ -297,7 +304,69 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     signOut,
   }
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+      {/* UPI ID Modal for sellers */}
+      {showUpiModal && (
+        <div role="dialog" aria-modal="true" className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(0,0,0,0.4)]">
+          <div className="p-8 rounded-xl min-w-[320px] shadow-[0_4px_32px_rgba(0,0,0,0.15)]" style={{ background: 'var(--bg-2)', color: 'var(--text)', border: '1px solid var(--border)' }}>
+            <h2 className="font-bold text-lg mb-3">Enter your UPI ID</h2>
+            <p className="mb-4 text-sm" style={{ color: 'var(--muted)' }}>To receive payments, please provide your UPI ID.</p>
+            <input
+              type="text"
+              value={upiInput}
+              onChange={e => { setUpiInput(e.target.value); setUpiError(""); }}
+              placeholder="e.g. yourname@upi"
+              className="w-full p-2 rounded-lg mb-2"
+              style={{ background: 'var(--card)', color: 'var(--text)', border: '1px solid var(--border)' }}
+            />
+            {upiError && <div className="text-red-500 mb-2">{upiError}</div>}
+            <div className="flex items-center">
+              <button
+                className="px-4 py-2 rounded-lg font-bold mr-2"
+                style={{ background: 'var(--saffron)', color: 'white' }}
+                onClick={async () => {
+                  if (!upiInput.trim()) {
+                    setUpiError('UPI ID is required');
+                    return;
+                  }
+                  // Basic UPI ID format check
+                  if (!/^[\w.-]+@[\w.-]+$/.test(upiInput.trim())) {
+                    setUpiError('Invalid UPI ID format');
+                    return;
+                  }
+                  // Save UPI ID to profile
+                  try {
+                    const { error } = await supabase
+                      .from('profiles')
+                      .update({ upi_id: upiInput.trim() })
+                      .eq('id', profile?.id)
+                    if (error) {
+                      setUpiError('Failed to save UPI ID');
+                    } else {
+                      setShowUpiModal(false);
+                      setUpiInput("");
+                      setUpiError("");
+                      // Refetch profile to update context
+                      if (profile?.id) await fetchProfile(profile.id);
+                    }
+                  } catch (err) {
+                    setUpiError('Failed to save UPI ID');
+                  }
+                }}
+              >Save</button>
+              <button
+                className="px-4 py-2 rounded-lg font-bold"
+                style={{ background: 'transparent', color: 'var(--text)', border: '1px solid var(--border)' }}
+                onClick={() => setShowUpiModal(false)}
+              >Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </AuthContext.Provider>
+  );
 }
 
 export function useAuth() {

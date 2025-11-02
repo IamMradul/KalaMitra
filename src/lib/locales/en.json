@@ -636,7 +636,8 @@
       "fields": {
         "storeName": { "label": "Store Name", "placeholder": "Your store name" },
         "bio": { "label": "Bio", "placeholder": "Tell us about yourself and your craft..." },
-        "description": { "label": "Store Description", "placeholder": "A compelling description of your store that will appear on your stall page..." }
+        "description": { "label": "Store Description", "placeholder": "A compelling description of your store that will appear on your stall page..." },
+        "upi": { "label": "UPI ID", "placeholder": "Your UPI ID" }
       },
       "aiGenerate": "AI Generate",
       "generating": "Generating...",
