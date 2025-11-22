@@ -1,3 +1,4 @@
+  
 {
   "aiChat": {
     "greetingLoggedIn": "👋 Hi! I'm your AI shopping assistant. I can help you find the perfect products based on your preferences!\n\n💾 Your conversations are saved and will be here when you return.\n\nTry asking me:\n• 'Show me diwali decorations under 1000'\n• 'Find traditional handicrafts'\n• 'I need a gift for my friend'",
@@ -9,6 +10,22 @@
     "moreProducts": "+{{count}} more products",
     "analyzingProducts": "AI is analyzing products...",
     "inputPlaceholder": "Ask me anything..."
+  },
+  "donate": {
+    "modalTitle": "Donate Item for NGO",
+    "itemName": "Item Name",
+    "itemCategory": "Category",
+    "itemDescription": "Description",
+    "images": "Images",
+    "pickupAddress": "Pickup Address",
+    "donorName": "Your Name",
+    "donorEmail": "Your Email",
+    "donorPhone": "Phone",
+    "preferredContact": "Preferred Contact",
+    "submitBtn": "Donate Now",
+    "submitting": "Submitting...",
+    "successMsg": "Thank you for your donation! We appreciate your support.",
+    "closeModal": "Close"
   },
   "stallCustomizationModal": {
     "title": "Customize 3D Stall",
@@ -545,6 +562,16 @@
   "schemeConnectEligibility": "Eligibility:",
   "schemeConnectDeadline": "Deadline:",
   "schemeConnectLearnMore": "Learn more / Apply",
+  "donationMarkClaimed": "Mark Claimed",
+  "donationMarkClaimedTooltip": "If you have claimed this item, mark as claimed. The product will not be available to others.",
+  "donationAlreadyClaimed": "Already Claimed",
+  "donationAlreadyClaimedTooltip": "This donation has already been claimed by a seller. The product is not available.",
+  "liveDonationsSectionTitle": "Available Donated Items",
+  "liveDonationsSectionHint": "You can claim these donated items and convert them into products for your stall.",
+  "donationDonor": "Donor",
+  "donationContact": "Contact",
+  "donationPickupAddress": "Pickup Address",
+  
     "title": "Seller Dashboard",
   "subtitle": "Manage your virtual stall and products",
     "overview": "Business Overview",
@@ -992,7 +1019,8 @@
   "becomeArtisan": "Become an Artisan",
   "explore3dBazaar": "Explore 3D Bazaar",
   "leaderboardTitle": "Top Artisan Supporters",
-  "leaderboardDesc": "Recognizing our most dedicated customers who support traditional artisans through their purchases."
+  "leaderboardDesc": "Recognizing our most dedicated customers who support traditional artisans through their purchases.",
+  "donateFloatingButtonTooltip": "Donate items for NGO or Artisans to make best out of it!"
   }
   ,
   "brand": {

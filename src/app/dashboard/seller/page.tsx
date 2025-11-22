@@ -57,7 +57,7 @@ export default function SellerDashboard() {
     },
     {
       element: '#seller-dashboard-tabs',
-      intro: 'Navigate between <b>Products</b>, <b>Analytics</b>, <b>Collaborations</b>, and <b>Custom Requests</b> using these tabs.',
+      intro: 'Navigate between <b>Products</b>, <b>Analytics</b>, <b>Collaborations</b>, <b>Scheme Connect</b>, and <b>Custom Requests</b> using these tabs.',
     },
     {
       element: '#quick-action-add-product',
@@ -222,6 +222,23 @@ export default function SellerDashboard() {
     // ...other fields as needed
   };
   const [customRequests, setCustomRequests] = useState<CustomRequest[]>([]);
+  type Donation = {
+    id: string;
+    donor_name: string;
+    donor_email: string;
+    donor_phone: string;
+    item_description: string;
+    item_category: string;
+    image_urls?: string[];
+    pickup_address: string;
+    preferred_contact: string;
+    status: string;
+    claimed_by?: string | null;
+    claimed_at?: string | null;
+    completed_at?: string | null;
+    created_at?: string | null;
+  };
+  const [donations, setDonations] = useState<Donation[]>([]);
   const [customRequestsLoading, setCustomRequestsLoading] = useState(false);
   const [respondModalOpen, setRespondModalOpen] = useState(false);
   const [respondingRequest, setRespondingRequest] = useState<CustomRequest | null>(null);
@@ -419,35 +436,50 @@ useEffect(() => {
   useEffect(() => {
     if (activeSection !== 'customRequests' || !user) return;
     setCustomRequestsLoading(true);
-  fetch(`/api/custom-request?seller_id=${user!.id}`)
+    // Fetch custom requests
+    fetch(`/api/custom-request?seller_id=${user!.id}`)
       .then(res => res.json())
       .then(({ data }) => {
         setCustomRequests(data || []);
-          const buyerIds = Array.from(new Set((data || []).map((r: CustomRequest) => r.buyer_id).filter(Boolean)));
-          const productIds = Array.from(new Set((data || []).map((r: CustomRequest) => r.product_id).filter(Boolean)));
-          if (buyerIds.length > 0) {
-            supabase.from('profiles').select('id, name').in('id', buyerIds).then(({ data }) => {
-              if (data) {
-                type BuyerProfile = { id: string; name: string };
-                const map: Record<string, string> = {};
-                (data as BuyerProfile[]).forEach((p) => { map[p.id] = p.name; });
-                setBuyerNames(map);
-              }
-            });
-          }
-          if (productIds.length > 0) {
-            supabase.from('products').select('id, title').in('id', productIds).then(({ data }) => {
-              if (data) {
-                type ProductProfile = { id: string; title: string };
-                const map: Record<string, string> = {};
-                (data as ProductProfile[]).forEach((p) => { map[p.id] = p.title; });
-                setProductNames(map);
-              }
-            });
-          }
+        const buyerIds = Array.from(new Set((data || []).map((r: CustomRequest) => r.buyer_id).filter(Boolean)));
+        const productIds = Array.from(new Set((data || []).map((r: CustomRequest) => r.product_id).filter(Boolean)));
+        if (buyerIds.length > 0) {
+          supabase.from('profiles').select('id, name').in('id', buyerIds).then(({ data }) => {
+            if (data) {
+              type BuyerProfile = { id: string; name: string };
+              const map: Record<string, string> = {};
+              (data as BuyerProfile[]).forEach((p) => { map[p.id] = p.name; });
+              setBuyerNames(map);
+            }
+          });
+        }
+        if (productIds.length > 0) {
+          supabase.from('products').select('id, title').in('id', productIds).then(({ data }) => {
+            if (data) {
+              type ProductProfile = { id: string; title: string };
+              const map: Record<string, string> = {};
+              (data as ProductProfile[]).forEach((p) => { map[p.id] = p.title; });
+              setProductNames(map);
+            }
+          });
+        }
       })
-      .catch(() => setCustomRequests([]))
-      .finally(() => setCustomRequestsLoading(false));
+      .catch(() => setCustomRequests([]));
+    // Fetch live donations (status = 'new')
+    (async () => {
+      try {
+        const { data, error } = await supabase
+          .from('donations')
+          .select('*')
+          .eq('status', 'new');
+        if (!error) setDonations(data || []);
+        else setDonations([]);
+      } catch {
+        setDonations([]);
+      } finally {
+        setCustomRequestsLoading(false);
+      }
+    })();
   }, [activeSection, user]);
   const hasInitialized = useRef(false)
   const dbTestedRef = useRef(false)
@@ -651,6 +683,28 @@ useEffect(() => {
       setProductsLoading(false)
     }
   }
+    const handleMarkClaimed = async (donationId: string) => {
+    if (!donationId) return;
+    try {
+      setCustomRequestsLoading(true);
+      // Update donation status to 'claimed' in Supabase
+      const { error } = await supabase
+        .from('donations')
+        .update({ status: 'claimed', claimed_at: new Date().toISOString(), claimed_by: user?.id })
+        .eq('id', donationId);
+      if (error) throw new Error('Failed to mark donation as claimed');
+      // Refresh donations
+      const { data, error: fetchError } = await supabase
+        .from('donations')
+        .select('*')
+        .eq('status', 'new');
+      setDonations(fetchError ? [] : data || []);
+    } catch (err) {
+      alert('Failed to mark donation as claimed');
+    } finally {
+      setCustomRequestsLoading(false);
+    }
+  };
 
   const handleProfileUpdate = (updatedProfile: Profile) => {
     setStallProfile(updatedProfile)
@@ -1143,49 +1197,124 @@ useEffect(() => {
                 />
                 <p className="text-[var(--muted)] text-lg">{t('seller.customRequestsLoading')}</p>
               </div>
-            ) : customRequests.length === 0 ? (
-              <div className="text-center py-8">
-                <Sparkles className="w-12 h-12 sm:w-16 sm:h-16 text-[var(--muted)] mx-auto mb-4" />
-                <p className="text-[var(--muted)] text-base sm:text-lg">{t('seller.customRequestsNone')}</p>
-                <p className="text-[var(--muted)] text-sm">{t('seller.customRequestsBuyerHint')}</p>
-              </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                {customRequests.map((req) => (
-                  <div
-                    key={req.id}
-                    className="card border overflow-hidden hover:shadow-lg transition-shadow duration-200 bg-[var(--bg-2)] dark:bg-[var(--bg-2)] rounded-xl"
-                  >
-                    <div className="p-4 flex flex-col gap-2">
-                      <h3 className="font-semibold text-base text-[var(--text)] mb-1">{req.description}</h3>
-                      <p className="text-xs text-[var(--muted)]">{t('seller.customRequestsStatus')} <span className="font-bold">{req.status}</span></p>
-                      {req.ai_draft_url && (
-                        <a href={req.ai_draft_url} target="_blank" rel="noopener noreferrer" className="text-xs text-teal-600 dark:text-cyan-400 underline">{t('seller.customRequestsViewAIDraft')}</a>
-                      )}
-                      <p className="text-xs text-[var(--muted)]">{t('seller.customRequestsRequestedBy')} <span className="font-bold">{buyerNames[req.buyer_id] || req.buyer_id}</span></p>
-                      <p className="text-xs text-[var(--muted)]">{t('seller.customRequestsProduct')} <span className="font-bold">{productNames[req.product_id] || req.product_id}</span></p>
-                      <div className="flex gap-2 mt-2">
-                        {req.status === 'Completed' ? (
-                          <span className="w-full px-3 py-2 text-xs rounded-md bg-green-100 text-green-700 font-semibold shadow border border-green-300 text-center cursor-default select-none">{t('seller.customRequestsCompleted')}</span>
-                        ) : (
-                          <>
-                            <button
-                              className="flex-1 px-3 py-2 text-xs rounded-md bg-gradient-to-r from-teal-500 to-cyan-600 text-white font-semibold shadow hover:from-teal-600 hover:to-cyan-700 transition-all"
-                              onClick={() => handleRespond(req)}
-                              disabled={customRequestsLoading}
-                            >{t('seller.customRequestsRespond')}</button>
-                            <button
-                              className="flex-1 px-3 py-2 text-xs rounded-md bg-gradient-to-r from-gray-300 to-gray-400 dark:from-gray-700 dark:to-gray-800 text-gray-900 dark:text-white font-semibold shadow hover:from-gray-400 hover:to-gray-500 dark:hover:from-gray-800 dark:hover:to-gray-900 transition-all"
-                              onClick={() => handleMarkCompleted(req.id)}
-                              disabled={customRequestsLoading}
-                            >{t('seller.customRequestsMarkCompleted')}</button>
-                          </>
-                        )}
-                      </div>
-                    </div>
+              <>
+                {/* Custom Requests List */}
+                {customRequests.length === 0 ? (
+                  <div className="text-center py-8">
+                    <Sparkles className="w-12 h-12 sm:w-16 sm:h-16 text-[var(--muted)] mx-auto mb-4" />
+                    <p className="text-[var(--muted)] text-base sm:text-lg">{t('seller.customRequestsNone')}</p>
+                    <p className="text-[var(--muted)] text-sm">{t('seller.customRequestsBuyerHint')}</p>
                   </div>
-                ))}
-              </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                    {customRequests.map((req) => (
+                      <div
+                        key={req.id}
+                        className="card border overflow-hidden hover:shadow-lg transition-shadow duration-200 bg-[var(--bg-2)] dark:bg-[var(--bg-2)] rounded-xl"
+                      >
+                        <div className="p-4 flex flex-col gap-2">
+                          <h3 className="font-semibold text-base text-[var(--text)] mb-1">{req.description}</h3>
+                          <p className="text-xs text-[var(--muted)]">{t('seller.customRequestsStatus')} <span className="font-bold">{req.status}</span></p>
+                          {req.ai_draft_url && (
+                            <a href={req.ai_draft_url} target="_blank" rel="noopener noreferrer" className="text-xs text-teal-600 dark:text-cyan-400 underline">{t('seller.customRequestsViewAIDraft')}</a>
+                          )}
+                          <p className="text-xs text-[var(--muted)]">{t('seller.customRequestsRequestedBy')} <span className="font-bold">{buyerNames[req.buyer_id] || req.buyer_id}</span></p>
+                          <p className="text-xs text-[var(--muted)]">{t('seller.customRequestsProduct')} <span className="font-bold">{productNames[req.product_id] || req.product_id}</span></p>
+                          <div className="flex gap-2 mt-2">
+                            {req.status === 'Completed' ? (
+                              <span className="w-full px-3 py-2 text-xs rounded-md bg-green-100 text-green-700 font-semibold shadow border border-green-300 text-center cursor-default select-none">{t('seller.customRequestsCompleted')}</span>
+                            ) : (
+                              <>
+                                <button
+                                  className="flex-1 px-3 py-2 text-xs rounded-md bg-gradient-to-r from-teal-500 to-cyan-600 text-white font-semibold shadow hover:from-teal-600 hover:to-cyan-700 transition-all"
+                                  onClick={() => handleRespond(req)}
+                                  disabled={customRequestsLoading}
+                                >{t('seller.customRequestsRespond')}</button>
+                                <button
+                                  className="flex-1 px-3 py-2 text-xs rounded-md bg-gradient-to-r from-gray-300 to-gray-400 dark:from-gray-700 dark:to-gray-800 text-gray-900 dark:text-white font-semibold shadow hover:from-gray-400 hover:to-gray-500 dark:hover:from-gray-800 dark:hover:to-gray-900 transition-all"
+                                  onClick={() => handleMarkCompleted(req.id)}
+                                  disabled={customRequestsLoading}
+                                >{t('seller.customRequestsMarkCompleted')}</button>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Live Donations Section */}
+                {donations.filter(donation => donation.status === 'new' && !donation.claimed_by).length > 0 && (
+                  <div className="mt-10">
+                    <h3 className="text-xl font-bold text-orange-600 mb-4 flex items-center gap-2">
+                      <span>🎁</span> {t('seller.liveDonationsSectionTitle', 'Available Donated Items')}
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                      {donations.filter(donation => donation.status === 'new' && !donation.claimed_by).map((donation) => (
+                        <div
+                          key={donation.id}
+                          className="card border overflow-hidden hover:shadow-lg transition-shadow duration-200 bg-[var(--bg-2)] dark:bg-[var(--bg-2)] rounded-xl"
+                        >
+                          {/* Show image if available */}
+                          {donation.image_urls && donation.image_urls.length > 0 && donation.image_urls[0] && (
+                            <div className="h-40 sm:h-48 bg-gray-100 flex items-center justify-center border-b border-[var(--border)]">
+                              <img
+                                src={donation.image_urls[0]}
+                                alt={donation.item_description}
+                                className="w-full h-full object-cover rounded-t-xl"
+                                style={{ maxHeight: '12rem' }}
+                              />
+                            </div>
+                          )}
+                          <div className="p-4 flex flex-col gap-2">
+                            <h3 className="font-semibold text-base text-[var(--text)] mb-1">{donation.item_description}</h3>
+                            <p className="text-xs text-[var(--muted)]">{t('seller.donationDonor')}: <span className="font-bold">{donation.donor_name}</span></p>
+                            <p className="text-xs text-[var(--muted)]">{t('seller.donationContact')}: <span className="font-bold">{donation.donor_phone || donation.donor_email}</span></p>
+                            <p className="text-xs text-[var(--muted)]">{t('seller.donationPickupAddress')}: <span className="font-bold">{donation.pickup_address}</span></p>
+                            <div className="flex flex-col gap-2 mt-2">
+                              {(donation.donor_phone || donation.donor_email) && (
+                                <button
+                                  className="flex items-center justify-center px-3 py-2 text-xs rounded-md bg-gradient-to-r from-green-500 to-teal-600 text-white font-semibold shadow hover:from-green-600 hover:to-teal-700 transition-all"
+                                  onClick={() => {
+                                    if (donation.donor_phone) {
+                                      window.open(`tel:${donation.donor_phone}`)
+                                    } else if (donation.donor_email) {
+                                      window.open(`mailto:${donation.donor_email}`)
+                                    }
+                                  }}
+                                >
+                                  📞 {donation.donor_phone ? donation.donor_phone : donation.donor_email}
+                                </button>
+                              )}
+                              {/* Mark Claimed button or Claimed message */}
+                              {donation.claimed_by ? (
+                                <span
+                                  className="flex items-center justify-center px-3 py-2 text-xs rounded-md bg-gray-200 text-gray-600 font-semibold shadow border border-gray-300 cursor-not-allowed select-none"
+                                  title="This donation has already been claimed by a seller. The product is not available."
+                                >
+                                  ❌ {t('seller.donationAlreadyClaimed', 'Already Claimed')}
+                                </span>
+                              ) : (
+                                <button
+                                  className="flex items-center justify-center px-3 py-2 text-xs rounded-md bg-gradient-to-r from-orange-500 to-red-600 text-white font-semibold shadow hover:from-orange-600 hover:to-red-700 transition-all"
+                                  onClick={() => handleMarkClaimed(donation.id)}
+                                  disabled={customRequestsLoading}
+                                  title="If you have claimed this item, mark as claimed. The product will not be available to others."
+                                >
+                                  ✅ {t('seller.donationMarkClaimed', 'Mark Claimed')}
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="text-xs text-[var(--muted)] mt-3">{t('seller.liveDonationsSectionHint', 'You can claim these donated items and convert them into products for your stall.')}</div>
+                  </div>
+                )}
+              </>
             )}
           </motion.div>
         )}

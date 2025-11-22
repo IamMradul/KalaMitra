@@ -1,3 +1,4 @@
+
 'use client'
 import Leaderboard from '../components/Leaderboard'
 import VideoPlayer from '../components/VideoPlayer'
@@ -7,20 +8,22 @@ import { ArrowRight, Palette, ShoppingBag, Users, Shield, Zap, Play, Star, Award
 import { useTranslation } from 'react-i18next'
 import { useLanguage } from '@/components/LanguageProvider'
 import { useEffect, useState } from 'react'
+import { HeartHandshake } from 'lucide-react'
+import DonateModal from '../components/DonateModal';
+    
 
 export default function Home() {
-
   const { t } = useTranslation();
   const { currentLanguage } = useLanguage();
   const [mounted, setMounted] = useState(false);
+  const [donateModalOpen, setDonateModalOpen] = useState(false);
 
   // Video playlist logic (fixes hook order error)
   const videoSources = [
-     "https://videos.pexels.com/video-files/7205821/7205821-sd_960_540_24fps.mp4",
+    "https://videos.pexels.com/video-files/7205821/7205821-sd_960_540_24fps.mp4",
     "https://videos.pexels.com/video-files/4683406/4683406-hd_720_1298_50fps.mp4",
     "https://videos.pexels.com/video-files/6720710/6720710-hd_1920_1080_25fps.mp4",
     "https://dejyoyoctsfyjixfhfgd.supabase.co/storage/v1/object/public/videos/close-up-cinematic-shot-of-skilled-india-5420c79a-20250820084136.mp4"
-   
   ];
   const [currentVideo, setCurrentVideo] = useState(0);
   const handleEnded = () => {
@@ -551,9 +554,11 @@ export default function Home() {
           </div>
         </div>
       </section>
-      {/* Leaderboard Section */}
-      <section className="section-padding bg-gradient-to-br from-[var(--bg-2)]/80 to-white/60 backdrop-blur-sm relative overflow-hidden">
+  {/* Leaderboard Section */}
+  <section className="section-padding bg-gradient-to-br from-[var(--bg-2)]/80 to-white/60 backdrop-blur-sm relative overflow-hidden">
         {/* Background Pattern */}
+    
+
         <div className="absolute inset-0 opacity-5">
           <div className="absolute top-20 left-10 w-64 h-64 bg-gradient-to-br from-[var(--heritage-gold)] to-[var(--heritage-red)] rounded-full mix-blend-multiply filter blur-2xl floating-element"></div>
           <div className="absolute bottom-20 right-10 w-64 h-64 bg-gradient-to-br from-[var(--heritage-green)] to-[var(--heritage-blue)] rounded-full mix-blend-multiply filter blur-2xl floating-element"></div>
@@ -573,6 +578,22 @@ export default function Home() {
           </div>
         </div>
       </section>
+            {/* Floating Donate Button (always on screen, above all content) */}
+      <button
+        type="button"
+        className="fixed bottom-6 right-6 z-50 w-14 h-14 md:w-16 md:h-16 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-full shadow-2xl hover:shadow-green-500/50 transition-all duration-300 flex items-center justify-center group hover:scale-110"
+        title={t('home.donateFloatingButtonTooltip') || 'Donate Items for NGO'}
+        tabIndex={0}
+        onClick={() => setDonateModalOpen(true)}
+        aria-label={t('home.donateFloatingButtonTooltip') || 'Donate Items for NGO'}
+      >
+        <div className="relative">
+          <HeartHandshake className="w-6 h-6 md:w-7 md:h-7 text-white" aria-hidden="true" />
+          <div className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full" />
+        </div>
+      </button>
+      <DonateModal open={donateModalOpen} onClose={() => setDonateModalOpen(false)} />
     </div>
   )
+  
 }
