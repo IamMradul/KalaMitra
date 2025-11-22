@@ -30,6 +30,16 @@ declare global {
     __sellerDashboardTourStarted?: boolean;
   }
 }
+// --- Scheme Connect State and Fetch ---
+type Scheme = {
+  id: string;
+  name: string;
+  description: string;
+  link?: string;
+  eligibility?: string;
+  deadline?: string;
+};
+
 
 export default function SellerDashboard() {
   // Declare global flag for tour on window
@@ -201,7 +211,7 @@ export default function SellerDashboard() {
   const [editProductLoading, setEditProductLoading] = useState(false)
   const [dbStatus, setDbStatus] = useState<string>('Unknown')
   const [isTestingDb, setIsTestingDb] = useState(false)
-  const [activeSection, setActiveSection] = useState<'products' | 'analytics' | 'collaborations' | 'customRequests'>('products')
+  const [activeSection, setActiveSection] = useState<'products' | 'analytics' | 'collaborations' | 'customRequests' | 'schemeConnect'>('products')
   type CustomRequest = {
     id: string;
     description: string;
@@ -366,6 +376,45 @@ const handleMicRespond = () => {
     alert('Speech recognition not supported in this browser.');
   }
 };
+const [schemes, setSchemes] = useState<Scheme[]>([]);
+const [schemesLoading, setSchemesLoading] = useState(false);
+
+
+useEffect(() => {
+  if (activeSection !== 'schemeConnect') return;
+  let cancelled = false;
+  setSchemesLoading(true);
+
+  (async () => {
+    try {
+      const { data, error } = await supabase
+        .from('schemes')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (cancelled) return;
+
+      if (error) {
+        setSchemes([]);
+        // Optionally, show error toast
+      } else {
+        setSchemes(data || []);
+      }
+    } catch (err) {
+      if (!cancelled) {
+        setSchemes([]);
+        // Optionally, log the error
+        console.error('Error fetching schemes:', err);
+      }
+    } finally {
+      if (!cancelled) setSchemesLoading(false);
+    }
+  })();
+
+  return () => {
+    cancelled = true;
+  };
+}, [activeSection]);
   // Fetch custom requests for seller
   useEffect(() => {
     if (activeSection !== 'customRequests' || !user) return;
@@ -926,12 +975,12 @@ const handleMicRespond = () => {
           className="card-glass rounded-xl p-3 sm:p-4 mb-6 sm:mb-8 border border-[var(--border)]"
         >
           {/* Desktop: All tabs in a row. Mobile: Only first 3 tabs horizontally. */}
-          <div className="flex gap-1 sm:gap-2 overflow-x-auto -mx-2 px-2 sm:mx-0 sm:px-0 pb-px"
+          <div className="flex gap-1 sm:gap-2 overflow-x-auto px-2 sm:px-0 pb-px w-full min-w-0"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
             {/* Products Tab */}
             <button
               onClick={() => setActiveSection('products')}
-              className={`px-3 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium text-xs sm:text-base transition-all whitespace-nowrap flex-shrink-0 flex items-center gap-1 sm:gap-2 ${
+              className={`flex-1 sm:flex-initial px-3 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium text-xs sm:text-base transition-all whitespace-nowrap flex-shrink-0 flex items-center gap-1 sm:gap-2 ${
                 activeSection === 'products'
                   ? 'bg-gradient-to-r from-orange-500 to-red-600 text-white shadow-lg'
                   : 'bg-[var(--bg-2)] text-[var(--muted)] hover:text-[var(--text)]'
@@ -943,7 +992,7 @@ const handleMicRespond = () => {
             {/* Analytics Tab */}
             <button
               onClick={() => setActiveSection('analytics')}
-              className={`px-3 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium text-xs sm:text-base transition-all whitespace-nowrap flex-shrink-0 flex items-center gap-1 sm:gap-2 ${
+              className={`flex-1 sm:flex-initial px-3 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium text-xs sm:text-base transition-all whitespace-nowrap flex-shrink-0 flex items-center gap-1 sm:gap-2 ${
                 activeSection === 'analytics'
                   ? 'bg-gradient-to-r from-orange-500 to-red-600 text-white shadow-lg'
                   : 'bg-[var(--bg-2)] text-[var(--muted)] hover:text-[var(--text)]'
@@ -955,7 +1004,7 @@ const handleMicRespond = () => {
             {/* Collaborations Tab */}
             <button
               onClick={() => setActiveSection('collaborations')}
-              className={`px-3 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium text-xs sm:text-base transition-all whitespace-nowrap flex-shrink-0 flex items-center gap-1 sm:gap-2 ${
+              className={`flex-1 sm:flex-initial px-3 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium text-xs sm:text-base transition-all whitespace-nowrap flex-shrink-0 flex items-center gap-1 sm:gap-2 ${
                 activeSection === 'collaborations'
                   ? 'bg-gradient-to-r from-orange-500 to-red-600 text-white shadow-lg'
                   : 'bg-[var(--bg-2)] text-[var(--muted)] hover:text-[var(--text)]'
@@ -963,6 +1012,20 @@ const handleMicRespond = () => {
             >
               <span>🤝</span>
               <span>{t('collaboration.title') || 'Collaborations'}</span>
+            </button>
+            {/* Scheme Connect Tab */}
+            <button
+              onClick={() => setActiveSection('schemeConnect')}
+              className={`px-3 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium text-xs sm:text-base transition-all whitespace-nowrap flex-shrink-0 flex items-center gap-1 sm:gap-2 ${
+                activeSection === 'schemeConnect'
+                  ? 'bg-gradient-to-r from-green-500 to-blue-600 text-white shadow-lg'
+                  : 'bg-[var(--bg-2)] text-[var(--muted)] hover:text-[var(--text)]'
+              }`}
+              // Hide on mobile, show on sm and up
+              style={{ display: 'none', ...(window.innerWidth >= 640 ? { display: 'flex' } : {}) }}
+            >
+              <span>🏛️</span>
+              <span>{t('seller.schemeConnectTab')}</span>
             </button>
             {/* Custom Requests tab: only show inline on desktop (sm and up) */}
             <button
@@ -977,8 +1040,19 @@ const handleMicRespond = () => {
               <span>{t('seller.customRequestsTab')}</span>
             </button>
           </div>
-          {/* On mobile, show Custom Requests tab below, centered */}
-          <div className="flex sm:hidden justify-center mt-3">
+          {/* On mobile, show Scheme Connect and Custom Requests tabs below, centered */}
+          <div className="flex sm:hidden justify-center items-center mt-3 gap-2">
+            <button
+              onClick={() => setActiveSection('schemeConnect')}
+              className={`px-3 py-2.5 rounded-lg font-medium text-xs transition-all whitespace-nowrap flex-shrink-0 flex items-center gap-1 ${
+                activeSection === 'schemeConnect'
+                  ? 'bg-gradient-to-r from-green-500 to-blue-600 text-white shadow-lg'
+                  : 'bg-[var(--bg-2)] text-[var(--muted)] hover:text-[var(--text)]'
+              }`}
+            >
+              <span>🏛️</span>
+              <span>{t('seller.schemeConnectTab')}</span>
+            </button>
             <button
               onClick={() => setActiveSection('customRequests')}
               className={`px-3 py-2.5 rounded-lg font-medium text-xs transition-all whitespace-nowrap flex-shrink-0 flex items-center gap-1 ${
@@ -992,6 +1066,62 @@ const handleMicRespond = () => {
             </button>
           </div>
         </motion.div>
+
+        {/* Tab Content Sections - rendered below the tab row */}
+        {activeSection === 'schemeConnect' && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="card-glass rounded-xl p-6 mb-8 border border-[var(--border)]"
+          >
+            <h2 className="text-2xl font-semibold text-[var(--text)] mb-4 flex items-center gap-2">
+              <span className="text-green-500 dark:text-blue-400 text-3xl">🏛️</span>
+              {t('seller.schemeConnectSectionTitle')}
+            </h2>
+            <div className="text-[var(--muted)] text-base mb-4">
+              {t('seller.schemeConnectDescription')}
+            </div>
+            {/* Fetch and display schemes from Supabase here */}
+            {schemesLoading ? (
+              <div className="text-center py-8">
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                  className="w-12 h-12 border-4 border-green-200 border-t-green-600 rounded-full mx-auto mb-4"
+                />
+                <p className="text-[var(--muted)] text-lg">{t('seller.schemeConnectLoading')}</p>
+              </div>
+            ) : schemes.length === 0 ? (
+              <div className="text-center text-sm text-[var(--muted)] opacity-70 py-8">
+                {t('seller.schemeConnectNone')}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                {schemes.map((scheme) => (
+                  <div
+                    key={scheme.id}
+                    className="card border overflow-hidden hover:shadow-lg transition-shadow duration-200 bg-[var(--bg-2)] dark:bg-[var(--bg-2)] rounded-xl"
+                  >
+                    <div className="p-4 flex flex-col gap-2">
+                      <h3 className="font-semibold text-base text-[var(--text)] mb-1 line-clamp-2">{scheme.name}</h3>
+                      <p className="text-xs text-[var(--muted)] mb-2 line-clamp-3">{scheme.description}</p>
+                      {scheme.link && (
+                        <a href={scheme.link} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 dark:text-blue-400 underline mb-2">{t('seller.schemeConnectLearnMore')}</a>
+                      )}
+                      {scheme.eligibility && (
+                        <p className="text-xs text-[var(--muted)]"><span className="font-bold">{t('seller.schemeConnectEligibility')}</span> {scheme.eligibility}</p>
+                      )}
+                      {scheme.deadline && (
+                        <p className="text-xs text-[var(--muted)]"><span className="font-bold">{t('seller.schemeConnectDeadline')}</span> {scheme.deadline}</p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </motion.div>
+        )}
         {/* Custom Requests Section */}
         {activeSection === 'customRequests' && (
           <motion.div

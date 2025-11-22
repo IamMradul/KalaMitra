@@ -537,6 +537,14 @@
     "recommendations": "Personalized Recommendations"
   },
   "seller": {
+  "schemeConnectTab": "Scheme Connect",
+  "schemeConnectSectionTitle": "Scheme Connect",
+  "schemeConnectDescription": "Discover and apply for government and private schemes relevant to your business. Stay updated with the latest opportunities!",
+  "schemeConnectLoading": "Loading schemes...",
+  "schemeConnectNone": "No schemes found at the moment.\nPlease check back later!",
+  "schemeConnectEligibility": "Eligibility:",
+  "schemeConnectDeadline": "Deadline:",
+  "schemeConnectLearnMore": "Learn more / Apply",
     "title": "Seller Dashboard",
   "subtitle": "Manage your virtual stall and products",
     "overview": "Business Overview",
