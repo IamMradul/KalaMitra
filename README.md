@@ -49,6 +49,7 @@
 - <b>Public Stall Pages</b>: Shareable stall URLs for customers
 - <b>Seller Analytics</b>: Track performance and sales
 - <b>Notifications</b>: Real-time updates for bids, sales, and all activity
+- <b>Scheme Connect</b>: Get access to both private and government schemes for vendors
 
 
 ### 🛍️ Buyer Features
@@ -70,6 +71,7 @@
 - <b>AI Shopping Assistant</b>: RAG chatbot for search, filters & smart follow-ups
 - <b>Story Narration</b>: Listen to stories behind products in marketplace and product page 
 - <b>3D Bazaar</b>: Immersive virtual marketplace with customizable stalls
+- <b>Donate Waste</b>: Donate Waste or Leftover Items to Ngos or Artisans so they can create something unique and earn something from it 
 
 
 ### 🎭 Cultural Theme & Design
