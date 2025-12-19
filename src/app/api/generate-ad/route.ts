@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
 
     const templates = [
       {
-        template_id: 'a6f277a9-19e1-4560-ac98-322b0362f908',
+        template_id: '13ab74a1-21b4-48ba-9d55-93be6ce1a75e',
         modifications: {
           'Background-Image.source': uploadedImageUrl,
           'Discount.text': '-30%',
@@ -57,11 +57,11 @@ export async function POST(req: NextRequest) {
         }
       },
       {
-        template_id: '927d2a07-e5ab-4a93-9ffb-3144eab20a84',
+        template_id: 'a05f170d-5571-4e9f-afe1-cefc235e1b27',
         modifications: {
           'Product-Image.source': uploadedImageUrl,
           'Product-Name.text': productName,
-          'Product-Description.text': 'Unleash your inner athlete with these high-performance running shoes.',
+          'Product-Description.text': 'Experience quality and innovation in every detail.',
           'Normal-Price.text': normalPrice,
           'Discounted-Price.text': discountedPrice,
           'CTA.text': ctaText,
@@ -69,11 +69,11 @@ export async function POST(req: NextRequest) {
         }
       },
       {
-        template_id: '293d9570-de97-4358-815a-77a0292fd8a5',
+        template_id: 'ada7c0ef-3af0-4632-b2a2-c0c5f20a1d1c',
         modifications: {
-          'Background-Image.source': uploadedImageUrl,
-          'Product-Image.source': uploadedImageUrl,
-          'CTA.text': ctaText
+          'Product Image.source': uploadedImageUrl,
+          'Caption.text':productName,
+          'Call To Action.text': ctaText
         }
       }
     ];
@@ -125,7 +125,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Error submitting render', details: data }, { status: 500 });
     }
   } catch (error) {
-    console.error('Error generating ad:', error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Internal server error' },
       { status: 500 }
