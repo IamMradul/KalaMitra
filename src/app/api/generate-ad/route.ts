@@ -1,4 +1,6 @@
+
 import { NextRequest, NextResponse } from 'next/server';
+import { supabase } from '@/lib/supabase';
 
 const apiKey = process.env.CREATOMATE_API_KEY;
 const url = 'https://api.creatomate.com/v2/renders';
@@ -90,7 +92,32 @@ export async function POST(req: NextRequest) {
     if (data.id) {
       const pollResult = await pollStatus(data.id);
       if (pollResult.status === 'succeeded') {
-        return NextResponse.json({ videoUrl: pollResult.videoUrl, snapshotUrl: pollResult.snapshotUrl });
+        // Download the video from Creatomate
+        const videoRes = await fetch(pollResult.videoUrl);
+        if (!videoRes.ok) {
+          return NextResponse.json({ error: 'Failed to download video from Creatomate' }, { status: 500 });
+        }
+        const videoBuffer = Buffer.from(await videoRes.arrayBuffer());
+        // Generate a unique filename
+        const fileName = `reel-${Date.now()}-${Math.floor(Math.random() * 10000)}.mp4`;
+        // Upload to Supabase Storage
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('videos')
+          .upload(fileName, videoBuffer, {
+            contentType: 'video/mp4',
+            upsert: false,
+          });
+        if (uploadError) {
+          return NextResponse.json({ error: 'Failed to upload video to Supabase', details: uploadError.message }, { status: 500 });
+        }
+        // Get public URL
+        const { data: publicUrlData } = supabase.storage.from('videos').getPublicUrl(fileName);
+        const supabaseVideoUrl = publicUrlData?.publicUrl;
+        if (!supabaseVideoUrl) {
+          return NextResponse.json({ error: 'Failed to get public URL from Supabase' }, { status: 500 });
+        }
+        // Only return the Supabase video URL and snapshot to the frontend
+        return NextResponse.json({ videoUrl: supabaseVideoUrl, snapshotUrl: pollResult.snapshotUrl });
       } else {
         return NextResponse.json({ error: pollResult.error }, { status: 500 });
       }
