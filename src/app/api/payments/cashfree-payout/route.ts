@@ -52,8 +52,9 @@ export async function POST(request: Request) {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
     });
-  } catch (error: any) {
-    return new Response(JSON.stringify({ error: 'Failed to process payouts', details: error?.message || error }), {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return new Response(JSON.stringify({ error: 'Failed to process payouts', details: errorMessage }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
     });

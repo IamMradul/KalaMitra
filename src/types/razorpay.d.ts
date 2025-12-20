@@ -1,3 +1,10 @@
+interface RazorpayResponse {
+  razorpay_payment_id?: string;
+  razorpay_order_id?: string;
+  razorpay_signature?: string;
+  [key: string]: unknown;
+}
+
 interface RazorpayOptions {
   key: string;
   amount: number;
@@ -5,7 +12,7 @@ interface RazorpayOptions {
   name?: string;
   description?: string;
   order_id?: string;
-  handler?: (response: any) => void;
+  handler?: (response: RazorpayResponse) => void;
   prefill?: { email?: string };
   theme?: { color?: string };
 }

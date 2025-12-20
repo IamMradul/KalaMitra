@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useState } from 'react'
 import { User, Session } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
 import { generateGoogleAuthURL } from '@/lib/google-oauth'
+import { generateMicrosoftAuthURL } from '@/lib/microsoft-oauth'
 import { Database } from '@/lib/supabase'
 
 type Profile = Database['public']['Tables']['profiles']['Row']
@@ -16,21 +17,30 @@ interface GoogleUser {
   verified_email: boolean
 }
 
+interface MicrosoftUser {
+  id: string
+  email: string
+  name: string
+  picture: string | null
+  verified_email: boolean
+}
+
 interface AuthContextType {
-  user: User | GoogleUser | null
+  user: User | GoogleUser | MicrosoftUser | null
   profile: Profile | null
   session: Session | null
   loading: boolean
   signUp: (email: string, password: string, name: string, role: 'buyer' | 'seller') => Promise<void>
   signIn: (email: string, password: string) => Promise<void>
   signInWithGoogle: (role: 'buyer' | 'seller') => Promise<void>
+  signInWithMicrosoft: (role: 'buyer' | 'seller') => Promise<void>
   signOut: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | GoogleUser | null>(null)
+  const [user, setUser] = useState<User | GoogleUser | MicrosoftUser | null>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
@@ -62,6 +72,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           }
         }
 
+        // Check for Microsoft user session in localStorage (client-side only)
+        const microsoftSession = localStorage.getItem('microsoftUserSession')
+        if (microsoftSession) {
+          try {
+            const microsoftUser = JSON.parse(microsoftSession)
+            console.log('Found Microsoft session:', microsoftUser)
+            setUser(microsoftUser)
+            await fetchProfile(microsoftUser.id)
+            setLoading(false)
+            return
+          } catch (error) {
+            console.error('Error parsing Microsoft session:', error)
+            localStorage.removeItem('microsoftUserSession')
+          }
+        }
+
         // Get initial Supabase session
         const { data: { session } } = await supabase.auth.getSession()
         console.log('Initial Supabase session check:', session?.user?.id)
@@ -86,9 +112,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth state change:', event, session?.user?.id)
       
-      // Only update if we don't have a Google user session
+      // Only update if we don't have a Google or Microsoft user session
       const googleSession = localStorage.getItem('googleUserSession')
-      if (!googleSession) {
+      const microsoftSession = localStorage.getItem('microsoftUserSession')
+      if (!googleSession && !microsoftSession) {
         setSession(session)
         setUser(session?.user ?? null)
         
@@ -246,6 +273,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  const signInWithMicrosoft = async (role: 'buyer' | 'seller') => {
+    try {
+      console.log('Starting Microsoft sign in for role:', role)
+      
+      // Create state parameter with role information
+      const state = encodeURIComponent(JSON.stringify({ role }))
+      
+      // Generate Microsoft OAuth URL
+      const authUrl = generateMicrosoftAuthURL(state)
+      
+      // Redirect to Microsoft OAuth
+      window.location.href = authUrl
+    } catch (error) {
+      console.error('Error signing in with Microsoft:', error)
+      throw new Error('Microsoft sign in failed. Please try again.')
+    }
+  }
+
   const signOut = async () => {
     if (isSigningOut) {
       console.log('Signout already in progress, ignoring duplicate call')
@@ -263,6 +308,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           localStorage.removeItem('pendingProfile')
           localStorage.removeItem('pendingGoogleRole')
           localStorage.removeItem('googleUserSession')
+          localStorage.removeItem('microsoftUserSession')
           localStorage.removeItem('km_session_json')
           localStorage.removeItem('km_session_updated_at')
           sessionStorage.clear()
@@ -301,6 +347,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     signUp,
     signIn,
     signInWithGoogle,
+    signInWithMicrosoft,
     signOut,
   }
 
@@ -309,54 +356,59 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       {children}
       {/* UPI ID Modal for sellers */}
       {showUpiModal && (
-        <div style={{position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-          <div style={{background: '#fff', padding: '2rem', borderRadius: '1rem', minWidth: 320, boxShadow: '0 4px 32px rgba(0,0,0,0.15)'}}>
-            <h2 style={{fontWeight: 'bold', fontSize: '1.25rem', marginBottom: 12}}>Enter your UPI ID</h2>
-            <p style={{marginBottom: 16}}>To receive payments, please provide your UPI ID.</p>
+        <div role="dialog" aria-modal="true" className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(0,0,0,0.4)]">
+          <div className="p-8 rounded-xl min-w-[320px] shadow-[0_4px_32px_rgba(0,0,0,0.15)]" style={{ background: 'var(--bg-2)', color: 'var(--text)', border: '1px solid var(--border)' }}>
+            <h2 className="font-bold text-lg mb-3">Enter your UPI ID</h2>
+            <p className="mb-4 text-sm" style={{ color: 'var(--muted)' }}>To receive payments, please provide your UPI ID.</p>
             <input
               type="text"
               value={upiInput}
               onChange={e => { setUpiInput(e.target.value); setUpiError(""); }}
               placeholder="e.g. yourname@upi"
-              style={{width: '100%', padding: '0.5rem', borderRadius: 8, border: '1px solid #ccc', marginBottom: 8}}
+              className="w-full p-2 rounded-lg mb-2"
+              style={{ background: 'var(--card)', color: 'var(--text)', border: '1px solid var(--border)' }}
             />
-            {upiError && <div style={{color: 'red', marginBottom: 8}}>{upiError}</div>}
-            <button
-              style={{background: '#F59E42', color: '#fff', padding: '0.5rem 1.5rem', borderRadius: 8, fontWeight: 'bold', border: 'none', marginRight: 8}}
-              onClick={async () => {
-                if (!upiInput.trim()) {
-                  setUpiError('UPI ID is required');
-                  return;
-                }
-                // Basic UPI ID format check
-                if (!/^[\w.-]+@[\w.-]+$/.test(upiInput.trim())) {
-                  setUpiError('Invalid UPI ID format');
-                  return;
-                }
-                // Save UPI ID to profile
-                try {
-                  const { error } = await supabase
-                    .from('profiles')
-                    .update({ upi_id: upiInput.trim() })
-                    .eq('id', profile?.id)
-                  if (error) {
-                    setUpiError('Failed to save UPI ID');
-                  } else {
-                    setShowUpiModal(false);
-                    setUpiInput("");
-                    setUpiError("");
-                    // Refetch profile to update context
-                    if (profile?.id) await fetchProfile(profile.id);
+            {upiError && <div className="text-red-500 mb-2">{upiError}</div>}
+            <div className="flex items-center">
+              <button
+                className="px-4 py-2 rounded-lg font-bold mr-2"
+                style={{ background: 'var(--saffron)', color: 'white' }}
+                onClick={async () => {
+                  if (!upiInput.trim()) {
+                    setUpiError('UPI ID is required');
+                    return;
                   }
-                } catch (err) {
-                  setUpiError('Failed to save UPI ID');
-                }
-              }}
-            >Save</button>
-            <button
-              style={{background: '#eee', color: '#333', padding: '0.5rem 1.5rem', borderRadius: 8, fontWeight: 'bold', border: 'none'}}
-              onClick={() => setShowUpiModal(false)}
-            >Cancel</button>
+                  // Basic UPI ID format check
+                  if (!/^[\w.-]+@[\w.-]+$/.test(upiInput.trim())) {
+                    setUpiError('Invalid UPI ID format');
+                    return;
+                  }
+                  // Save UPI ID to profile
+                  try {
+                    const { error } = await supabase
+                      .from('profiles')
+                      .update({ upi_id: upiInput.trim() })
+                      .eq('id', profile?.id)
+                    if (error) {
+                      setUpiError('Failed to save UPI ID');
+                    } else {
+                      setShowUpiModal(false);
+                      setUpiInput("");
+                      setUpiError("");
+                      // Refetch profile to update context
+                      if (profile?.id) await fetchProfile(profile.id);
+                    }
+                  } catch (err) {
+                    setUpiError('Failed to save UPI ID');
+                  }
+                }}
+              >Save</button>
+              <button
+                className="px-4 py-2 rounded-lg font-bold"
+                style={{ background: 'transparent', color: 'var(--text)', border: '1px solid var(--border)' }}
+                onClick={() => setShowUpiModal(false)}
+              >Cancel</button>
+            </div>
           </div>
         </div>
       )}

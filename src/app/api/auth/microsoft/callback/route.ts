@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { completeGoogleAuth } from '@/lib/google-oauth'
+import { completeMicrosoftAuth } from '@/lib/microsoft-oauth'
 import { createClient } from '@supabase/supabase-js'
 
 // Create a Supabase client with service role key for server-side operations
@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
 
     // Handle OAuth errors
     if (error) {
-      console.error('Google OAuth error:', error)
+      console.error('Microsoft OAuth error:', error)
       return NextResponse.redirect(new URL('/auth/signin?error=oauth_failed', request.url))
     }
 
@@ -43,39 +43,39 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Complete Google OAuth flow
-    const googleUser = await completeGoogleAuth(code)
-    console.log('Google user info:', googleUser)
+    // Complete Microsoft OAuth flow
+    const microsoftUser = await completeMicrosoftAuth(code)
+    console.log('Microsoft user info:', microsoftUser)
 
     // Check if user already exists in our database
     const { data: existingProfile } = await supabaseAdmin
       .from('profiles')
       .select('*')
-      .eq('email', googleUser.email)
+      .eq('email', microsoftUser.email)
       .single()
 
     if (existingProfile) {
       console.log('User already exists:', existingProfile)
       // Only update the profile image if it is not already set
-      if (!existingProfile.profile_image) {
+      if (!existingProfile.profile_image && microsoftUser.picture) {
         const { error: updateError } = await supabaseAdmin
           .from('profiles')
           .update({
-            profile_image: googleUser.picture // Update with Google profile picture
+            profile_image: microsoftUser.picture // Update with Microsoft profile picture
           })
           .eq('id', existingProfile.id)
         if (updateError) {
-          console.warn('Failed to update profile with Google info:', updateError)
+          console.warn('Failed to update profile with Microsoft info:', updateError)
         }
       }
       // User exists, redirect to appropriate dashboard with session data
       const redirectUrl = existingProfile.role === 'seller' ? '/dashboard' : '/marketplace'
       const sessionData = encodeURIComponent(JSON.stringify({
-        ...googleUser,
+        ...microsoftUser,
         // Use the existing profile ID (which is the Supabase Auth user ID)
         id: existingProfile.id
       }))
-      return NextResponse.redirect(new URL(`${redirectUrl}?google_session=${sessionData}`, request.url))
+      return NextResponse.redirect(new URL(`${redirectUrl}?microsoft_session=${sessionData}`, request.url))
     }
 
     // Check if user exists in Supabase Auth
@@ -83,7 +83,7 @@ export async function GET(request: NextRequest) {
     
     let authUserId = null
     if (existingAuthUsers?.users) {
-      const existingAuthUser = existingAuthUsers.users.find(user => user.email === googleUser.email)
+      const existingAuthUser = existingAuthUsers.users.find(user => user.email === microsoftUser.email)
       if (existingAuthUser) {
         authUserId = existingAuthUser.id
         console.log('Found existing Auth user:', authUserId)
@@ -93,14 +93,14 @@ export async function GET(request: NextRequest) {
     // If no existing Auth user, create one
     if (!authUserId) {
       const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
-        email: googleUser.email,
-        password: `google_${googleUser.id}_${Date.now()}`, // Generate a unique password
-        email_confirm: true, // Auto-confirm email for Google users
+        email: microsoftUser.email,
+        password: `microsoft_${microsoftUser.id}_${Date.now()}`, // Generate a unique password
+        email_confirm: true, // Auto-confirm email for Microsoft users
         user_metadata: {
-          name: googleUser.name,
+          name: microsoftUser.name,
           role: role,
-          google_id: googleUser.id,
-          picture: googleUser.picture
+          microsoft_id: microsoftUser.id,
+          picture: microsoftUser.picture
         }
       })
 
@@ -119,10 +119,10 @@ export async function GET(request: NextRequest) {
         .from('profiles')
         .insert([{
           id: authUserId, // Use the Supabase Auth user ID
-          name: googleUser.name,
-          email: googleUser.email,
+          name: microsoftUser.name,
+          email: microsoftUser.email,
           role: role,
-          profile_image: googleUser.picture,
+          profile_image: microsoftUser.picture,
           bio: null,
           store_description: null,
           created_at: new Date().toISOString()
@@ -133,22 +133,23 @@ export async function GET(request: NextRequest) {
         return NextResponse.redirect(new URL('/auth/signin?error=profile_failed', request.url))
       }
 
-      console.log('Profile created successfully for Google user:', authUserId)
+      console.log('Profile created successfully for Microsoft user:', authUserId)
 
       // Redirect to appropriate dashboard based on role with session data
       const redirectUrl = role === 'seller' ? '/dashboard' : '/marketplace'
       const sessionData = encodeURIComponent(JSON.stringify({
-        ...googleUser,
+        ...microsoftUser,
         id: authUserId // Use the Supabase Auth user ID
       }))
-      return NextResponse.redirect(new URL(`${redirectUrl}?google_session=${sessionData}`, request.url))
+      return NextResponse.redirect(new URL(`${redirectUrl}?microsoft_session=${sessionData}`, request.url))
     }
 
     // If we get here, something went wrong
     return NextResponse.redirect(new URL('/auth/signin?error=unknown_error', request.url))
 
   } catch (error) {
-    console.error('Google OAuth callback error:', error)
+    console.error('Microsoft OAuth callback error:', error)
     return NextResponse.redirect(new URL('/auth/signin?error=callback_failed', request.url))
   }
 }
+

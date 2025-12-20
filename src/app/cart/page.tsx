@@ -52,10 +52,10 @@ export default function CartPage() {
         .eq('buyer_id', user.id)
       if (error) throw error
       // Map seller_id from product
-      const items = (data || []).map((item: any) => ({
+      const items = (data || []).map((item) => ({
         ...item,
-        seller_id: item.product?.seller_id || null,
-      }));
+        seller_id: (item.product as { seller_id?: string })?.seller_id || null,
+      })) as CartItem[];
       setCartItems(items)
     } catch (error) {
       console.error('Error fetching cart items:', error)

@@ -1,3 +1,4 @@
+import { createClient } from '@supabase/supabase-js';
 
 // This endpoint receives payment success notifications from Cashfree
 export async function POST(request: Request) {
@@ -6,10 +7,9 @@ export async function POST(request: Request) {
     // Check for payment success event
     if (event.event === 'PAYMENT_SUCCESS') {
       // Extract order_id, payment_id, amount, etc.
-      const { order_id, payment_id, order_amount } = event.data || {};
+      const { order_id, payment_id } = event.data || {};
       // 1. Fetch order from DB
-      const { createClient } = require('@supabase/supabase-js');
-      const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
+      const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
       // Find order by order_reference
       const { data: order, error: orderError } = await supabase
         .from('orders')
@@ -34,7 +34,17 @@ export async function POST(request: Request) {
         });
       }
       // 3. Fetch seller UPI IDs
-      const sellerIds = [...new Set(items.map((item: any) => item.seller_id))];
+      interface OrderItem {
+        seller_id: string;
+        price: number;
+        quantity: number;
+      }
+      interface Seller {
+        id: string;
+        upi_id: string | null;
+        name: string;
+      }
+      const sellerIds = [...new Set(items.map((item: OrderItem) => item.seller_id))];
       const { data: sellers, error: sellersError } = await supabase
         .from('profiles')
         .select('id, upi_id, name')
@@ -47,9 +57,9 @@ export async function POST(request: Request) {
       }
       // 4. Calculate payouts
       const sellerMap: Record<string, { upi_id: string, name: string, amount: number }> = {};
-      items.forEach((item: any) => {
+      items.forEach((item: OrderItem) => {
         if (!sellerMap[item.seller_id]) {
-          const seller = sellers.find((s: any) => s.id === item.seller_id);
+          const seller = sellers.find((s: Seller) => s.id === item.seller_id);
           sellerMap[item.seller_id] = { upi_id: seller?.upi_id || '', name: seller?.name || '', amount: 0 };
         }
         sellerMap[item.seller_id].amount += Number(item.price) * Number(item.quantity);
@@ -79,8 +89,9 @@ export async function POST(request: Request) {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
     });
-  } catch (error: any) {
-    return new Response(JSON.stringify({ error: 'Webhook error', details: error?.message || error }), {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return new Response(JSON.stringify({ error: 'Webhook error', details: errorMessage }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
     });

@@ -346,6 +346,21 @@ function MarketplaceContent() {
         console.error('Error parsing Google session:', error)
       }
     }
+
+    // Handle Microsoft session from OAuth callback
+    const microsoftSession = searchParams.get('microsoft_session')
+    if (microsoftSession) {
+      try {
+        const microsoftUser = JSON.parse(decodeURIComponent(microsoftSession))
+        localStorage.setItem('microsoftUserSession', JSON.stringify(microsoftUser))
+        console.log('Microsoft session stored:', microsoftUser)
+        // Reload the page to trigger auth context update
+        window.location.href = window.location.pathname
+        return
+      } catch (error) {
+        console.error('Error parsing Microsoft session:', error)
+      }
+    }
     fetchProducts()
   }, [searchParams])
 
