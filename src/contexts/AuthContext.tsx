@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useState } from 'react'
 import { User, Session } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
 import { generateGoogleAuthURL } from '@/lib/google-oauth'
+import { generateMicrosoftAuthURL } from '@/lib/microsoft-oauth'
 import { Database } from '@/lib/supabase'
 
 type Profile = Database['public']['Tables']['profiles']['Row']
@@ -16,21 +17,30 @@ interface GoogleUser {
   verified_email: boolean
 }
 
+interface MicrosoftUser {
+  id: string
+  email: string
+  name: string
+  picture?: string
+  verified_email?: boolean
+}
+
 interface AuthContextType {
-  user: User | GoogleUser | null
+  user: User | GoogleUser | MicrosoftUser | null
   profile: Profile | null
   session: Session | null
   loading: boolean
   signUp: (email: string, password: string, name: string, role: 'buyer' | 'seller') => Promise<void>
   signIn: (email: string, password: string) => Promise<void>
   signInWithGoogle: (role: 'buyer' | 'seller') => Promise<void>
+  signInWithMicrosoft: (role: 'buyer' | 'seller') => Promise<void>
   signOut: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | GoogleUser | null>(null)
+  const [user, setUser] = useState<User | GoogleUser | MicrosoftUser | null>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
@@ -62,6 +72,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           }
         }
 
+        // Check for Microsoft user session in localStorage (client-side only)
+        const microsoftSession = localStorage.getItem('microsoftUserSession')
+        if (microsoftSession) {
+          try {
+            const microsoftUser = JSON.parse(microsoftSession)
+            console.log('Found Microsoft session:', microsoftUser)
+            setUser(microsoftUser)
+            await fetchProfile(microsoftUser.id)
+            setLoading(false)
+            return
+          } catch (error) {
+            console.error('Error parsing Microsoft session:', error)
+            localStorage.removeItem('microsoftUserSession')
+          }
+        }
+
         // Get initial Supabase session
         const { data: { session } } = await supabase.auth.getSession()
         console.log('Initial Supabase session check:', session?.user?.id)
@@ -86,9 +112,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth state change:', event, session?.user?.id)
       
-      // Only update if we don't have a Google user session
+      // Only update if we don't have a Google or Microsoft user session
       const googleSession = localStorage.getItem('googleUserSession')
-      if (!googleSession) {
+      const microsoftSession = localStorage.getItem('microsoftUserSession')
+      if (!googleSession && !microsoftSession) {
         setSession(session)
         setUser(session?.user ?? null)
         
@@ -246,6 +273,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  const signInWithMicrosoft = async (role: 'buyer' | 'seller') => {
+    try {
+      console.log('Starting Microsoft sign in for role:', role)
+      
+      // Create state parameter with role information
+      const state = encodeURIComponent(JSON.stringify({ role }))
+      
+      // Generate Microsoft OAuth URL
+      const authUrl = generateMicrosoftAuthURL(state)
+      
+      // Redirect to Microsoft OAuth
+      window.location.href = authUrl
+    } catch (error) {
+      console.error('Error signing in with Microsoft:', error)
+      throw new Error('Microsoft sign in failed. Please try again.')
+    }
+  }
+
   const signOut = async () => {
     if (isSigningOut) {
       console.log('Signout already in progress, ignoring duplicate call')
@@ -263,6 +308,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           localStorage.removeItem('pendingProfile')
           localStorage.removeItem('pendingGoogleRole')
           localStorage.removeItem('googleUserSession')
+          localStorage.removeItem('microsoftUserSession')
           localStorage.removeItem('km_session_json')
           localStorage.removeItem('km_session_updated_at')
           sessionStorage.clear()
@@ -301,6 +347,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     signUp,
     signIn,
     signInWithGoogle,
+    signInWithMicrosoft,
     signOut,
   }
 

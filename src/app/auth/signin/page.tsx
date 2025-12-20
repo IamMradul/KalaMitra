@@ -15,10 +15,12 @@ export default function SignIn() {
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [googleLoading, setGoogleLoading] = useState(false)
+  const [microsoftLoading, setMicrosoftLoading] = useState(false)
   const [error, setError] = useState('')
   const [showRoleModal, setShowRoleModal] = useState(false)
+  const [selectedProvider, setSelectedProvider] = useState<'google' | 'microsoft' | null>(null)
 
-  const { signIn, signInWithGoogle, user, profile } = useAuth()
+  const { signIn, signInWithGoogle, signInWithMicrosoft, user, profile } = useAuth()
   const router = useRouter()
 
   useEffect(() => {
@@ -87,6 +89,26 @@ export default function SignIn() {
       }
     } finally {
       setGoogleLoading(false)
+    }
+  }
+
+  const handleMicrosoftSignIn = async (role: 'buyer' | 'seller') => {
+    setMicrosoftLoading(true)
+    setError('')
+    setShowRoleModal(false)
+
+    try {
+      await signInWithMicrosoft(role)
+      // User will be redirected based on their role
+    } catch (error: unknown) {
+      console.error('Microsoft signin error:', error)
+      if (error instanceof Error) {
+        setError(error.message)
+      } else {
+        setError('Microsoft sign in failed. Please try again.')
+      }
+    } finally {
+      setMicrosoftLoading(false)
     }
   }
 
@@ -245,8 +267,11 @@ export default function SignIn() {
 
                 <button
                   type="button"
-                  onClick={() => setShowRoleModal(true)}
-                  disabled={googleLoading}
+                  onClick={() => {
+                    setSelectedProvider('google')
+                    setShowRoleModal(true)
+                  }}
+                  disabled={googleLoading || microsoftLoading}
                   className="w-full flex justify-center items-center px-4 py-3 border border-[var(--border)] rounded-xl text-sm font-medium text-[var(--text)] bg-[var(--bg-2)] hover:bg-[var(--bg-3)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--saffron)] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
                 >
                   {googleLoading ? (
@@ -263,6 +288,33 @@ export default function SignIn() {
                         <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
                       </svg>
                       {t('auth.signinWithGoogle')}
+                    </div>
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedProvider('microsoft')
+                    setShowRoleModal(true)
+                  }}
+                  disabled={googleLoading || microsoftLoading}
+                  className="w-full flex justify-center items-center px-4 py-3 border border-[var(--border)] rounded-xl text-sm font-medium text-[var(--text)] bg-[var(--bg-2)] hover:bg-[var(--bg-3)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--saffron)] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                >
+                  {microsoftLoading ? (
+                    <div className="flex items-center">
+                      <div className="w-5 h-5 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin mr-2"></div>
+                      {t('auth.signingIn')}
+                    </div>
+                  ) : (
+                    <div className="flex items-center">
+                      <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
+                        <path fill="#F25022" d="M1 1h10v10H1z"/>
+                        <path fill="#7FBA00" d="M13 1h10v10H13z"/>
+                        <path fill="#00A4EF" d="M1 13h10v10H1z"/>
+                        <path fill="#FFB900" d="M13 13h10v10H13z"/>
+                      </svg>
+                      Sign in with Microsoft
                     </div>
                   )}
                 </button>
@@ -304,8 +356,14 @@ export default function SignIn() {
             
             <div className="space-y-3">
               <button
-                onClick={() => handleGoogleSignIn('buyer')}
-                disabled={googleLoading}
+                onClick={() => {
+                  if (selectedProvider === 'google') {
+                    handleGoogleSignIn('buyer')
+                  } else if (selectedProvider === 'microsoft') {
+                    handleMicrosoftSignIn('buyer')
+                  }
+                }}
+                disabled={googleLoading || microsoftLoading}
                 className="w-full flex items-center justify-center px-6 py-4 border border-[var(--border)] rounded-xl text-[var(--text)] bg-[var(--bg-2)] hover:bg-[var(--bg-3)] transition-all duration-200 disabled:opacity-50 group"
               >
                 <div className="w-10 h-10 bg-gradient-to-br from-[var(--saffron)] to-[var(--turquoise)] rounded-lg flex items-center justify-center mr-3 group-hover:scale-110 transition-transform">
@@ -318,8 +376,14 @@ export default function SignIn() {
               </button>
               
               <button
-                onClick={() => handleGoogleSignIn('seller')}
-                disabled={googleLoading}
+                onClick={() => {
+                  if (selectedProvider === 'google') {
+                    handleGoogleSignIn('seller')
+                  } else if (selectedProvider === 'microsoft') {
+                    handleMicrosoftSignIn('seller')
+                  }
+                }}
+                disabled={googleLoading || microsoftLoading}
                 className="w-full flex items-center justify-center px-6 py-4 border border-[var(--border)] rounded-xl text-[var(--text)] bg-[var(--bg-2)] hover:bg-[var(--bg-3)] transition-all duration-200 disabled:opacity-50 group"
               >
                 <div className="w-10 h-10 bg-gradient-to-br from-[var(--emerald)] to-[var(--maroon)] rounded-lg flex items-center justify-center mr-3 group-hover:scale-110 transition-transform">

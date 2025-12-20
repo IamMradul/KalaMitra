@@ -32,7 +32,7 @@
 ## ✨ Features
 
 ### 🔐 Authentication & Role Management    
-- <b>Supabase Auth</b> with email/password & Google OAuth
+- <b>Supabase Auth</b> with email/password, Google OAuth & Microsoft OAuth
 - <b>Role-based access</b>: Buyers and Sellers     <img width="334" height="470" align='right' alt="Screenshot 2025-09-20 012457" src="https://github.com/user-attachments/assets/4afe14f7-1c0b-40ed-bf9d-60d577c6f955" />
 - <b>Automatic redirects</b> based on user role
 - <b>Protected routes</b> and middleware
