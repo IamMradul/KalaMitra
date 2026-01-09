@@ -404,9 +404,13 @@ useEffect(() => {
 
   (async () => {
     try {
+      // Only fetch active schemes: is_active = true and deadline is null or deadline >= today
+      const today = new Date().toISOString().slice(0, 10);
       const { data, error } = await supabase
         .from('schemes')
         .select('*')
+        .eq('is_active', true)
+        .or(`deadline.is.null,deadline.gte.${today}`)
         .order('created_at', { ascending: false });
 
       if (cancelled) return;
@@ -1166,9 +1170,9 @@ useEffect(() => {
                       {scheme.eligibility && (
                         <p className="text-xs text-[var(--muted)]"><span className="font-bold">{t('seller.schemeConnectEligibility')}</span> {scheme.eligibility}</p>
                       )}
-                      {scheme.deadline && (
-                        <p className="text-xs text-[var(--muted)]"><span className="font-bold">{t('seller.schemeConnectDeadline')}</span> {scheme.deadline}</p>
-                      )}
+                      <p className="text-xs text-[var(--muted)]">
+                        <span className="font-bold">{t('seller.schemeConnectDeadline')}</span> {scheme.deadline == null ? t('seller.schemeConnectOngoing', 'Ongoing') : scheme.deadline}
+                      </p>
                     </div>
                   </div>
                 ))}
