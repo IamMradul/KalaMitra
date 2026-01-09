@@ -562,6 +562,7 @@
   "schemeConnectNone": "No schemes found at the moment.\nPlease check back later!",
   "schemeConnectEligibility": "Eligibility:",
   "schemeConnectDeadline": "Deadline:",
+  "schemeConnectOngoing": "Ongoing",
   "schemeConnectLearnMore": "Learn more / Apply",
   "donationMarkClaimed": "Mark Claimed",
   "donationMarkClaimedTooltip": "If you have claimed this item, mark as claimed. The product will not be available to others.",
