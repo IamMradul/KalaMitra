@@ -151,6 +151,10 @@ KalaMitra/
 │   │   │   │   │   ├── callback/
 │   │   │   │   │   │   └── route.ts
 │   │   │   │   │   └── route.ts
+│   │   │   │   ├── microsoft/
+│   │   │   │   │   ├── callback/
+│   │   │   │   │   │   └── route.ts
+│   │   │   │   │   └── route.ts
 │   │   │   ├── backfill-embeddings/
 │   │   │   │   └── route.ts
 │   │   │   ├── chat/
@@ -252,7 +256,23 @@ KalaMitra/
 │   │   ├── favicon.ico
 │   │   ├── globals.css
 │   │   ├── layout.tsx
-│   │   └── page.tsx
+│   │   ├── page.tsx
+│   │   ├── about/
+│   │   │   └── page.tsx
+│   │   ├── howitworks/
+│   │   │   └── page.tsx
+│   │   ├── successstories/
+│   │   │   └── page.tsx
+│   │   ├── support/
+│   │   │   └── page.tsx
+│   │   ├── policy/
+│   │   │   └── page.tsx
+│   │   ├── terms/
+│   │   │   └── page.tsx
+│   │   ├── cookies/
+│   │   │   └── page.tsx
+│   │   ├── contact/
+│   │   │   └── page.tsx
 │   ├── components/
 │   │   ├── AIChatConditional.tsx
 │   │   ├── AIProductForm.tsx
@@ -312,6 +332,7 @@ KalaMitra/
 │   │   ├── chat-parser.ts
 │   │   ├── embedding-service.ts
 │   │   ├── google-oauth.ts
+│   │   ├── microsoft-oauth.ts
 │   │   ├── i18n.ts
 │   │   ├── image-similarity.ts
 │   │   ├── llm-generator.ts

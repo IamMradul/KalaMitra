@@ -45,18 +45,18 @@ export default function Footer() {
           <div>
   <h3 className="text-lg font-semibold text-[var(--text)] mb-6">{t('footer.quickLinks')}</h3>
             <div className="space-y-4">
-              <a href="#" className="block text-[var(--muted)] hover:text-heritage-gold transition-all duration-300 hover:translate-x-2 transform group">
-        <span className="group-hover:underline">{t('footer.about')}</span>
-              </a>
-              <a href="#" className="block text-[var(--muted)] hover:text-heritage-gold transition-all duration-300 hover:translate-x-2 transform group">
-        <span className="group-hover:underline">{t('footer.howItWorks')}</span>
-              </a>
-              <a href="#" className="block text-[var(--muted)] hover:text-heritage-gold transition-all duration-300 hover:translate-x-2 transform group">
-        <span className="group-hover:underline">{t('footer.successStories')}</span>
-              </a>
-              <a href="#" className="block text-[var(--muted)] hover:text-heritage-gold transition-all duration-300 hover:translate-x-2 transform group">
-        <span className="group-hover:underline">{t('footer.support')}</span>
-              </a>
+                <a href="/about" className="block text-[var(--muted)] hover:text-heritage-gold transition-all duration-300 hover:translate-x-2 transform group">
+              <span className="group-hover:underline">{t('footer.about')}</span>
+                </a>
+                <a href="/howitworks" className="block text-[var(--muted)] hover:text-heritage-gold transition-all duration-300 hover:translate-x-2 transform group">
+              <span className="group-hover:underline">{t('footer.howItWorks')}</span>
+                </a>
+                <a href="/successstories" className="block text-[var(--muted)] hover:text-heritage-gold transition-all duration-300 hover:translate-x-2 transform group">
+              <span className="group-hover:underline">{t('footer.successStories')}</span>
+                </a>
+                <a href="/support" className="block text-[var(--muted)] hover:text-heritage-gold transition-all duration-300 hover:translate-x-2 transform group">
+              <span className="group-hover:underline">{t('footer.support')}</span>
+                </a>
             </div>
           </div>
 
@@ -64,16 +64,16 @@ export default function Footer() {
           <div>
             <h3 className="text-lg font-semibold text-[var(--text)] mb-6">{t('footer.legal')}</h3>
             <div className="space-y-4">
-              <a href="#" className="block text-[var(--muted)] hover:text-heritage-gold transition-all duration-300 hover:translate-x-2 transform group">
+              <a href="/policy" className="block text-[var(--muted)] hover:text-heritage-gold transition-all duration-300 hover:translate-x-2 transform group">
                 <span className="group-hover:underline">{t('footer.privacy')}</span>
               </a>
-              <a href="#" className="block text-[var(--muted)] hover:text-heritage-gold transition-all duration-300 hover:translate-x-2 transform group">
+              <a href="/terms" className="block text-[var(--muted)] hover:text-heritage-gold transition-all duration-300 hover:translate-x-2 transform group">
                 <span className="group-hover:underline">{t('footer.terms')}</span>
               </a>
-              <a href="#" className="block text-[var(--muted)] hover:text-heritage-gold transition-all duration-300 hover:translate-x-2 transform group">
+              <a href="/cookies" className="block text-[var(--muted)] hover:text-heritage-gold transition-all duration-300 hover:translate-x-2 transform group">
                 <span className="group-hover:underline">{t('footer.cookies')}</span>
               </a>
-              <a href="#" className="block text-[var(--muted)] hover:text-heritage-gold transition-all duration-300 hover:translate-x-2 transform group">
+              <a href="/contact" className="block text-[var(--muted)] hover:text-heritage-gold transition-all duration-300 hover:translate-x-2 transform group">
                 <span className="group-hover:underline">{t('footer.contact')}</span>
               </a>
             </div>

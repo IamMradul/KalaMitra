@@ -261,21 +261,21 @@ export default function CollaborativeProductsManager({
               className="mb-6 bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 border border-gray-200 dark:border-gray-600"
             >
               <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">
-                {t('collaboration.selectProduct') || 'Select a Product'}
+                {t('collaboration.selectProduct')}
               </h3>
               
               <div className="space-y-4">
                 {/* Product Selector */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    {t('common.product') || 'Product'}
+                    {t('common.product')}
                   </label>
                   <select
                     value={selectedProduct}
                     onChange={(e) => setSelectedProduct(e.target.value)}
                     className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
                   >
-                    <option value="">-- Select a product --</option>
+                    <option value="">{t('collaboration.selectProduct')}</option>
                     {availableProducts.map((product) => (
                       <option key={product.id} value={product.id}>
                         {product.title} (₹{product.price})
@@ -287,7 +287,7 @@ export default function CollaborativeProductsManager({
                 {/* Contribution Details */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    {t('collaboration.contributionDetails') || 'Contribution Details (Optional)'}
+                    {t('collaboration.contributionDetails') }
                   </label>
                   <textarea
                     value={contributionDetails}
