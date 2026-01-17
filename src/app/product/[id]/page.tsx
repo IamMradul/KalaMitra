@@ -377,13 +377,25 @@ export default function ProductDetail() {
   }
 
   const addToCart = async () => {
-    if (!user || !product) {
+    if (!product) {
       setCartModalStatus('error');
-      setCartModalMessage(t('cart.loginRequired'));
+      setCartModalMessage(t('cart.addedError'));
       setCartModalOpen(true);
       return;
     }
+
     try {
+      if (!user) {
+        // Add to localStorage for anonymous users
+        const { addToAnonymousCart } = await import('@/utils/cart')
+        addToAnonymousCart(product.id, quantity)
+        setCartModalStatus('success');
+        setCartModalMessage(t('cart.addedSuccess'));
+        setCartModalOpen(true);
+        return;
+      }
+
+      // For logged-in users, add to database
       // Check if item already exists in cart
       const { data: existing, error: fetchError } = await supabase
         .from('cart')

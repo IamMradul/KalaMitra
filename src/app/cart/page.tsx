@@ -8,14 +8,36 @@ import { supabase } from '@/lib/supabase'
 import { Database } from '@/lib/supabase'
 import Link from 'next/link'
 import { useTranslation } from 'react-i18next'
+import { 
+  getAnonymousCart, 
+  updateAnonymousCartQuantity, 
+  removeFromAnonymousCart,
+  clearAnonymousCart 
+} from '@/utils/cart'
 
-type CartItem = Database['public']['Tables']['cart']['Row'] & {
+type DatabaseCartItem = Database['public']['Tables']['cart']['Row'] & {
   product: {
     title: string
     price: number
     image_url: string
     category: string
   }
+  product_id: string // Explicitly include product_id for type narrowing
+}
+
+type AnonymousCartItem = {
+  product_id: string
+  quantity: number
+  product: {
+    title: string
+    price: number
+    image_url: string
+    category: string
+  }
+}
+
+type CartItem = (DatabaseCartItem | AnonymousCartItem) & { 
+  isAnonymous?: boolean 
 }
 
 export default function CartPage() {
@@ -28,63 +50,110 @@ export default function CartPage() {
   const [checkoutLoading, setCheckoutLoading] = useState(false)
 
   useEffect(() => {
-    if (user) {
-      fetchCartItems()
-    }
+    fetchCartItems()
   }, [user, profile])
 
   const fetchCartItems = async () => {
-    if (!user) {
-      setLoading(false)
-      return
-    }
-    try {
-      const { data, error } = await supabase
-        .from('cart')
-        .select(`
-          *,
-          product:products(title, price, image_url, category)
-        `)
-        .eq('buyer_id', user.id)
-      if (error) throw error
-      setCartItems(data || [])
-    } catch (error) {
-      console.error('Error fetching cart items:', error)
+    if (user) {
+      // Fetch from database for logged-in users
+      try {
+        const { data, error } = await supabase
+          .from('cart')
+          .select(`
+            *,
+            product:products(title, price, image_url, category)
+          `)
+          .eq('buyer_id', user.id)
+        if (error) throw error
+        setCartItems((data || []) as CartItem[])
+      } catch (error) {
+        console.error('Error fetching cart items:', error)
+      }
+    } else {
+      // Fetch from localStorage for anonymous users
+      const anonymousCart = getAnonymousCart()
+      // Fetch product details for each cart item
+      const itemsWithProducts = await Promise.all(
+        anonymousCart.map(async (item): Promise<CartItem | null> => {
+          try {
+            const { data: product, error } = await supabase
+              .from('products')
+              .select('title, price, image_url, category')
+              .eq('id', item.product_id)
+              .single()
+            
+            if (error || !product) {
+              console.error('Error fetching product:', error)
+              return null
+            }
+            
+            return {
+              ...item,
+              product,
+              isAnonymous: true
+            } as CartItem
+          } catch (error) {
+            console.error('Error fetching product details:', error)
+            return null
+          }
+        })
+      )
+      
+      // Filter out null items (products that couldn't be fetched)
+      setCartItems(itemsWithProducts.filter((item): item is CartItem => item !== null))
     }
     setLoading(false)
   }
 
-  const updateQuantity = async (cartId: string, newQuantity: number) => {
-    setActionLoading(cartId)
+  const updateQuantity = async (item: CartItem, newQuantity: number) => {
+    const itemId = 'id' in item ? item.id : item.product_id
+    setActionLoading(itemId)
+    
     if (newQuantity <= 0) {
-      await removeFromCart(cartId)
+      await removeFromCart(item)
       setActionLoading(null)
       return
     }
+    
     try {
-      const { error } = await supabase
-        .from('cart')
-        .update({ quantity: newQuantity })
-        .eq('id', cartId)
-      if (error) throw error
+      if (user && !item.isAnonymous && 'id' in item) {
+        // Update in database for logged-in users
+        const { error } = await supabase
+          .from('cart')
+          .update({ quantity: newQuantity })
+          .eq('id', item.id)
+        if (error) throw error
+      } else {
+        // Update in localStorage for anonymous users
+        const productId = item.product_id
+        updateAnonymousCartQuantity(productId, newQuantity)
+      }
       setFeedback(t('cart.quantityUpdated'))
       await fetchCartItems()
     } catch (error) {
       setFeedback(t('cart.updateError'))
-      // eslint-disable-next-line no-console
       console.error('Error updating quantity:', error)
     }
     setActionLoading(null)
   }
 
-  const removeFromCart = async (cartId: string) => {
-    setActionLoading(cartId)
+  const removeFromCart = async (item: CartItem) => {
+    const itemId = 'id' in item ? item.id : item.product_id
+    setActionLoading(itemId)
+    
     try {
-      const { error } = await supabase
-        .from('cart')
-        .delete()
-        .eq('id', cartId)
-      if (error) throw error
+      if (user && !item.isAnonymous && 'id' in item) {
+        // Remove from database for logged-in users
+        const { error } = await supabase
+          .from('cart')
+          .delete()
+          .eq('id', item.id)
+        if (error) throw error
+      } else {
+        // Remove from localStorage for anonymous users
+        const productId = item.product_id
+        removeFromAnonymousCart(productId)
+      }
       setFeedback(t('cart.removed'))
       await fetchCartItems()
     } catch (error) {
@@ -101,21 +170,6 @@ export default function CartPage() {
     }, 0)
   }
 
-  if (!user) {
-      return (
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="text-center">
-            <p className="text-gray-600 mb-4">{t('errors.forbidden')}</p>
-            <Link
-              href="/marketplace"
-              className="text-orange-600 hover:text-orange-700 font-medium"
-            >
-              {t('navbar.marketplace')}
-            </Link>
-          </div>
-        </div>
-      )
-    }
 
   if (loading) {
     return (
@@ -201,74 +255,77 @@ export default function CartPage() {
                   {t('cart.items')} ({cartItems.length})
                 </h2>
                 <div className="space-y-3 sm:space-y-4">
-                  {cartItems.map((item) => (
-                    <motion.div
-                      key={item.id}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      className="flex flex-col sm:flex-row items-center sm:items-start gap-3 sm:gap-4 p-3 sm:p-4 border border-gray-200 rounded-lg"
-                    >
-                      {/* Product Image */}
-                      <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0">
-                        {item.product.image_url ? (
-                          <img
-                            src={item.product.image_url}
-                            alt={item.product.title}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full bg-gradient-to-br from-orange-100 to-red-100 flex items-center justify-center">
-                            <span className="text-orange-400 text-xl sm:text-2xl">🎨</span>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Product Details */}
-                      <div className="flex-1 min-w-0 w-full sm:w-auto">
-                        <h3 className="font-semibold text-gray-900 truncate">
-                          {item.product.title}
-                        </h3>
-                        <p className="text-xs sm:text-sm text-gray-600">{item.product.category}</p>
-                        <p className="text-base sm:text-lg font-bold text-orange-600">
-                          ₹{item.product.price}
-                        </p>
-                      </div>
-
-                      {/* Quantity Controls */}
-                      <div className="flex items-center gap-1 sm:gap-2 mt-2 sm:mt-0">
-                        <button
-                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                          className={`w-7 h-7 sm:w-8 sm:h-8 border border-gray-300 rounded-lg flex items-center justify-center hover:bg-gray-50 transition-colors ${actionLoading === item.id ? 'opacity-60 cursor-wait' : ''}`}
-                          aria-label={t('cart.decreaseQuantity')}
-                          disabled={actionLoading === item.id}
-                        >
-                          -
-                        </button>
-                        <span className="w-10 sm:w-12 text-center font-medium">
-                          {item.quantity}
-                        </span>
-                        <button
-                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                          className={`w-7 h-7 sm:w-8 sm:h-8 border border-gray-300 rounded-lg flex items-center justify-center hover:bg-gray-50 transition-colors ${actionLoading === item.id ? 'opacity-60 cursor-wait' : ''}`}
-                          aria-label={t('cart.increaseQuantity')}
-                          disabled={actionLoading === item.id}
-                        >
-                          +
-                        </button>
-                      </div>
-
-                      {/* Remove Button */}
-                      <button
-                        onClick={() => removeFromCart(item.id)}
-                        className={`p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors ${actionLoading === item.id ? 'opacity-60 cursor-wait' : ''}`}
-                        title={t('cart.remove')}
-                        aria-label={t('cart.remove')}
-                        disabled={actionLoading === item.id}
+                  {cartItems.map((item) => {
+                    const itemId = 'id' in item ? item.id : item.product_id
+                    return (
+                      <motion.div
+                        key={itemId}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        className="flex flex-col sm:flex-row items-center sm:items-start gap-3 sm:gap-4 p-3 sm:p-4 border border-gray-200 rounded-lg"
                       >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </motion.div>
-                  ))}
+                        {/* Product Image */}
+                        <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0">
+                          {item.product.image_url ? (
+                            <img
+                              src={item.product.image_url}
+                              alt={item.product.title}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-gradient-to-br from-orange-100 to-red-100 flex items-center justify-center">
+                              <span className="text-orange-400 text-xl sm:text-2xl">🎨</span>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Product Details */}
+                        <div className="flex-1 min-w-0 w-full sm:w-auto">
+                          <h3 className="font-semibold text-gray-900 truncate">
+                            {item.product.title}
+                          </h3>
+                          <p className="text-xs sm:text-sm text-gray-600">{item.product.category}</p>
+                          <p className="text-base sm:text-lg font-bold text-orange-600">
+                            ₹{item.product.price}
+                          </p>
+                        </div>
+
+                        {/* Quantity Controls */}
+                        <div className="flex items-center gap-1 sm:gap-2 mt-2 sm:mt-0">
+                          <button
+                            onClick={() => updateQuantity(item, item.quantity - 1)}
+                            className={`w-7 h-7 sm:w-8 sm:h-8 border border-gray-300 rounded-lg flex items-center justify-center hover:bg-gray-50 transition-colors ${actionLoading === itemId ? 'opacity-60 cursor-wait' : ''}`}
+                            aria-label={t('cart.decreaseQuantity')}
+                            disabled={actionLoading === itemId}
+                          >
+                            -
+                          </button>
+                          <span className="w-10 sm:w-12 text-center font-medium">
+                            {item.quantity}
+                          </span>
+                          <button
+                            onClick={() => updateQuantity(item, item.quantity + 1)}
+                            className={`w-7 h-7 sm:w-8 sm:h-8 border border-gray-300 rounded-lg flex items-center justify-center hover:bg-gray-50 transition-colors ${actionLoading === itemId ? 'opacity-60 cursor-wait' : ''}`}
+                            aria-label={t('cart.increaseQuantity')}
+                            disabled={actionLoading === itemId}
+                          >
+                            +
+                          </button>
+                        </div>
+
+                        {/* Remove Button */}
+                        <button
+                          onClick={() => removeFromCart(item)}
+                          className={`p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors ${actionLoading === itemId ? 'opacity-60 cursor-wait' : ''}`}
+                          title={t('cart.remove')}
+                          aria-label={t('cart.remove')}
+                          disabled={actionLoading === itemId}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </motion.div>
+                    )
+                  })}
                 </div>
               </div>
             </motion.div>
