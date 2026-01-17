@@ -848,13 +848,18 @@ function MarketplaceContent() {
   const [cartModalOpen, setCartModalOpen] = useState(false);
 
   const addToCart = async (productId: string) => {
-    if (!user) {
-      setCartStatus('error');
-      setCartMessage(t('cart.loginRequired'));
-      setCartModalOpen(true);
-      return;
-    }
     try {
+      if (!user) {
+        // Add to localStorage for anonymous users
+        const { addToAnonymousCart } = await import('@/utils/cart')
+        addToAnonymousCart(productId, 1)
+        setCartStatus('success');
+        setCartMessage(t('cart.addedSuccess'));
+        setCartModalOpen(true);
+        return;
+      }
+
+      // For logged-in users, add to database
       // Check if item already exists in cart
       const { data: existing, error: fetchError } = await supabase
         .from('cart')

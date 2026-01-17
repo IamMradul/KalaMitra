@@ -367,9 +367,16 @@ export default function Navbar() {
   useEffect(() => {
     async function fetchCartCount() {
       if (!user?.id) {
-        setCartCount(0);
+        // For anonymous users, get count from localStorage
+        try {
+          const { getAnonymousCartCount } = await import('@/utils/cart');
+          setCartCount(getAnonymousCartCount());
+        } catch {
+          setCartCount(0);
+        }
         return;
       }
+      // For logged-in users, get count from database
       try {
         const { count, error } = await supabase
           .from('cart')
@@ -381,6 +388,22 @@ export default function Navbar() {
       }
     }
     fetchCartCount();
+    
+    // Listen for cart changes (for anonymous users via storage events and periodic check)
+    let interval: NodeJS.Timeout | null = null;
+    if (!user?.id && typeof window !== 'undefined') {
+      const handleStorageChange = () => {
+        fetchCartCount();
+      };
+      window.addEventListener('storage', handleStorageChange);
+      // Also check periodically for changes (in same tab)
+      interval = setInterval(fetchCartCount, 1000);
+      
+      return () => {
+        window.removeEventListener('storage', handleStorageChange);
+        if (interval) clearInterval(interval);
+      };
+    }
   }, [user?.id]);
 
   // Prevent hydration mismatch by showing consistent structure during loading

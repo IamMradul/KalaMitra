@@ -64,6 +64,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             console.log('Found Google session:', googleUser)
             setUser(googleUser)
             await fetchProfile(googleUser.id)
+            // Sync anonymous cart if any exists
+            await syncAnonymousCartToDatabase(googleUser.id)
             setLoading(false)
             return
           } catch (error) {
@@ -80,6 +82,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             console.log('Found Microsoft session:', microsoftUser)
             setUser(microsoftUser)
             await fetchProfile(microsoftUser.id)
+            // Sync anonymous cart if any exists
+            await syncAnonymousCartToDatabase(microsoftUser.id)
             setLoading(false)
             return
           } catch (error) {
@@ -96,6 +100,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         
         if (session?.user) {
           await fetchProfile(session.user.id)
+          // Sync anonymous cart if any exists (for restored sessions)
+          await syncAnonymousCartToDatabase(session.user.id)
         }
         setLoading(false)
       } catch (error) {
@@ -121,6 +127,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         
         if (session?.user) {
           await fetchProfile(session.user.id)
+          // Sync anonymous cart to database when user logs in
+          if (event === 'SIGNED_IN') {
+            await syncAnonymousCartToDatabase(session.user.id)
+          }
         } else {
           setProfile(null)
         }
@@ -132,6 +142,57 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       subscription.unsubscribe()
     }
   }, [])
+
+  const syncAnonymousCartToDatabase = async (userId: string) => {
+    if (typeof window === 'undefined') return
+    
+    try {
+      const { getAnonymousCart, clearAnonymousCart } = await import('@/utils/cart')
+      const anonymousCart = getAnonymousCart()
+      
+      if (anonymousCart.length === 0) return
+      
+      console.log('Syncing anonymous cart to database for user:', userId)
+      
+      // For each item in anonymous cart, check if it exists in database
+      for (const item of anonymousCart) {
+        const { data: existing, error: fetchError } = await supabase
+          .from('cart')
+          .select('id, quantity')
+          .eq('buyer_id', userId)
+          .eq('product_id', item.product_id)
+          .single()
+        
+        if (fetchError && fetchError.code !== 'PGRST116') {
+          console.error('Error checking existing cart item:', fetchError)
+          continue
+        }
+        
+        if (existing) {
+          // Update quantity (add anonymous quantity to existing)
+          await supabase
+            .from('cart')
+            .update({ quantity: existing.quantity + item.quantity })
+            .eq('id', existing.id)
+        } else {
+          // Insert new cart item
+          await supabase
+            .from('cart')
+            .insert({
+              buyer_id: userId,
+              product_id: item.product_id,
+              quantity: item.quantity,
+            })
+        }
+      }
+      
+      // Clear anonymous cart after syncing
+      clearAnonymousCart()
+      console.log('Anonymous cart synced successfully')
+    } catch (error) {
+      console.error('Error syncing anonymous cart:', error)
+    }
+  }
 
   const fetchProfile = async (userId: string) => {
     try {
