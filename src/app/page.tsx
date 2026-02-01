@@ -8,9 +8,83 @@ import { ArrowRight, Palette, ShoppingBag, Users, Shield, Zap, Play, Star, Award
 import { useTranslation } from 'react-i18next'
 import { useLanguage } from '@/components/LanguageProvider'
 import { useEffect, useState } from 'react'
-import { HeartHandshake } from 'lucide-react'
+import { HeartHandshake, PlusIcon } from 'lucide-react'
 import DonateModal from '../components/DonateModal';
-    
+
+const faqData = [
+  {
+    question: "What is KalaMitra?",
+    answer: "KalaMitra is an AI-powered marketplace connecting talented artisans with buyers worldwide. We celebrate India's cultural heritage by helping artisans showcase their handcrafted products while offering buyers an immersive shopping experience with 3D virtual stalls, AR product visualization, and AI-assisted search."
+  },
+  {
+    question: "How do I buy products on KalaMitra?",
+    answer: "Simply browse our marketplace, use voice or text search in any Indian language, and explore products. You can view items in AR, read artisan stories, add products to your cart, and checkout securely. Our AI Shopping Assistant is always available to help you find exactly what you're looking for."
+  },
+  {
+    question: "How can artisans sell on KalaMitra?",
+    answer: "Sign up as a seller, create your personalized virtual stall, and start listing products. Use our AI tools to enhance photos, generate descriptions, and create compelling stories. You can also run auctions, post reels, collaborate with other artisans, and track your performance through detailed analytics—all for free."
+  },
+  {
+    question: "What makes KalaMitra different from other marketplaces?",
+    answer: "KalaMitra uniquely combines tradition with technology. We offer 3D virtual bazaars, AR product previews, voice search in multiple Indian languages, AI-powered shopping assistance, story narration for products, custom craft requests, and direct chat with artisans. Every feature is designed to preserve cultural heritage while empowering artisans."
+  },
+  {
+    question: "Is KalaMitra free to use?",
+    answer: "Yes! Creating an account, browsing products, and listing items as a seller is completely free. We support multiple Indian languages, provide AI tools for sellers at no cost, and charge no upfront fees. Our mission is to make authentic handcrafted art accessible to everyone."
+  }
+];
+
+function FaqCustomAccordion() {
+  const [openItem, setOpenItem] = useState<string | null>("item-0");
+
+  const toggleItem = (value: string) => {
+    setOpenItem(openItem === value ? null : value);
+  };
+
+  return (
+    <div className="w-full max-w-4xl mx-auto">
+      <div className="space-y-4">
+        {faqData.map(({ question, answer }, index) => {
+          const value = `item-${index}`;
+          const isOpen = openItem === value;
+
+          return (
+            <div
+              key={value}
+              className={`rounded-xl px-4 transition-colors duration-200 border ${isOpen
+                ? 'bg-[var(--bg-2)] border-[var(--heritage-gold)]/40 shadow-soft'
+                : 'bg-[var(--bg-2)]/50 border-[var(--heritage-gold)]/10 hover:bg-[var(--bg-2)] hover:border-[var(--heritage-gold)]/30'
+                }`}
+            >
+              <button
+                onClick={() => toggleItem(value)}
+                className={`flex w-full items-center justify-between py-4 text-left text-lg font-serif font-semibold tracking-tight transition-all ${isOpen ? 'text-[var(--heritage-red)]' : 'text-[var(--heritage-brown)]'
+                  }`}
+                aria-expanded={isOpen}
+              >
+                {question}
+                <PlusIcon
+                  className={`h-5 w-5 shrink-0 text-[var(--heritage-gold)] transition-transform duration-200 ${isOpen ? 'rotate-45' : ''
+                    }`}
+                />
+              </button>
+
+              <div
+                className={`overflow-hidden transition-all duration-300 ease-in-out ${isOpen ? 'max-h-96 opacity-100 pb-4' : 'max-h-0 opacity-0'
+                  }`}
+              >
+                <div className="text-[var(--muted)] text-base leading-relaxed border-t border-[var(--heritage-gold)]/10 pt-2">
+                  {answer}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 
 export default function Home() {
   const { t } = useTranslation();
@@ -54,7 +128,7 @@ export default function Home() {
           className="absolute inset-0 w-full h-full object-cover z-0 transition-opacity duration-1000"
         />
         {/* Overlay for better contrast */}
-  <div className="absolute inset-0 bg-black/60 z-0" />
+        <div className="absolute inset-0 bg-black/60 z-0" />
         {/* ...existing background and overlay code... */}
         <div className="container mx-auto relative z-30 flex items-center justify-center min-h-screen">
           <div className="flex flex-col items-center text-center space-y-8 max-w-3xl w-full mx-auto px-4 py-8 md:py-16">
@@ -106,9 +180,8 @@ export default function Home() {
                 <button
                   key={idx}
                   aria-label={`Video ${idx + 1}`}
-                  className={`h-2 w-2 rounded-full transition-all duration-300 ${
-                    currentVideo === idx ? "bg-white/80" : "bg-white/40 hover:bg-white/60"
-                  }`}
+                  className={`h-2 w-2 rounded-full transition-all duration-300 ${currentVideo === idx ? "bg-white/80" : "bg-white/40 hover:bg-white/60"
+                    }`}
                   onClick={() => setCurrentVideo(idx)}
                   style={{ outline: currentVideo === idx ? "2px solid #fff" : "none" }}
                 />
@@ -151,14 +224,14 @@ export default function Home() {
               </div>
             </div>
           </div>
-            
+
           {/* Video Description */}
           <div className="text-center animate-slide-in-up animate-delay-300">
             <h3 className="text-xl md:text-2xl font-bold text-[var(--text)] mb-4">{t('home.videoStoriesTitle')}</h3>
             <p className="text-base md:text-lg text-[var(--muted)] max-w-3xl mx-auto leading-relaxed mb-8">
               {t('home.videoStoriesDesc')}
             </p>
-            
+
             {/* Video Features */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
               <div className="text-center">
@@ -223,8 +296,7 @@ export default function Home() {
               <h3 className="text-2xl font-semibold text-[var(--text)] mb-4">{t('home.featuredCard1Subtitle')}</h3>
               <p className="text-[var(--muted)] leading-relaxed mb-6">{t('home.featuredCard1Desc')}</p>
               <div className="flex items-center justify-between">
-                <span className="text-2xl font-bold text-[var(--heritage-gold)]">{t('home.featuredCard1Price')}</span>
-                <Link href="/marketplace" className="btn-primary bg-gradient-to-r from-[var(--heritage-gold)] to-[var(--heritage-red)] text-white px-6 py-2 rounded-xl hover:scale-105 transition-transform duration-300">
+                <Link href="/marketplace?category=Textiles" className="btn-primary bg-gradient-to-r from-[var(--heritage-gold)] to-[var(--heritage-red)] text-white px-6 py-2 rounded-xl hover:scale-105 transition-transform duration-300 w-full text-center">
                   {t('home.viewCollection')}
                 </Link>
               </div>
@@ -247,8 +319,7 @@ export default function Home() {
               <h3 className="text-2xl font-semibold text-[var(--text)] mb-4">{t('home.featuredCard2Subtitle')}</h3>
               <p className="text-[var(--muted)] leading-relaxed mb-6">{t('home.featuredCard2Desc')}</p>
               <div className="flex items-center justify-between">
-                <span className="text-2xl font-bold text-[var(--heritage-gold)]">{t('home.featuredCard2Price')}</span>
-                <Link href="/marketplace" className="btn-primary bg-gradient-to-r from-[var(--heritage-green)] to-[var(--heritage-blue)] text-white px-6 py-2 rounded-xl hover:scale-105 transition-transform duration-300">
+                <Link href="/marketplace?category=Jewelry" className="btn-primary bg-gradient-to-r from-[var(--heritage-green)] to-[var(--heritage-blue)] text-white px-6 py-2 rounded-xl hover:scale-105 transition-transform duration-300 w-full text-center">
                   {t('home.viewCollection')}
                 </Link>
               </div>
@@ -271,8 +342,7 @@ export default function Home() {
               <h3 className="text-2xl font-semibold text-[var(--text)] mb-4">{t('home.featuredCard3Subtitle')}</h3>
               <p className="text-[var(--muted)] leading-relaxed mb-6">{t('home.featuredCard3Desc')}</p>
               <div className="flex items-center justify-between">
-                <span className="text-2xl font-bold text-[var(--heritage-gold)]">{t('home.featuredCard3Price')}</span>
-                <Link href="/marketplace" className="btn-primary bg-gradient-to-r from-[var(--heritage-red)] to-[var(--heritage-accent)] text-white px-6 py-2 rounded-xl hover:scale-105 transition-transform duration-300">
+                <Link href="/marketplace?category=Decor" className="btn-primary bg-gradient-to-r from-[var(--heritage-red)] to-[var(--heritage-accent)] text-white px-6 py-2 rounded-xl hover:scale-105 transition-transform duration-300 w-full text-center">
                   {t('home.viewCollection')}
                 </Link>
               </div>
@@ -346,7 +416,7 @@ export default function Home() {
             {/* Right Side - Visual */}
             <div className="animate-slide-in-up animate-delay-300">
               <div className="relative aspect-square flex items-center justify-center rounded-3xl shadow-2xl bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 dark:from-blue-900/30 dark:via-purple-900/30 dark:to-pink-900/30">
-                <div style={{position: 'absolute', inset: 0, zIndex: 0}}>
+                <div style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
                   <iframe
                     width="100%"
                     height="100%"
@@ -359,7 +429,7 @@ export default function Home() {
                     frameBorder="0"
                   ></iframe>
                 </div>
-                <div style={{position: 'absolute', inset: 0, zIndex: 1, pointerEvents: 'auto'}} className="rounded-2xl bg-transparent" />
+                <div style={{ position: 'absolute', inset: 0, zIndex: 1, pointerEvents: 'auto' }} className="rounded-2xl bg-transparent" />
                 {/* Decorative Elements */}
                 <div className="absolute -top-4 -right-4 w-8 h-8 bg-gradient-to-br from-blue-400 to-purple-400 rounded-full opacity-60"></div>
                 <div className="absolute -bottom-4 -left-4 w-6 h-6 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full opacity-60"></div>
@@ -457,7 +527,7 @@ export default function Home() {
             <div className="text-center group animate-slide-in-up animate-delay-100">
               <div className="relative mb-8">
                 <div className="w-20 h-20 bg-gradient-to-br from-[var(--heritage-gold)] to-[var(--heritage-red)] rounded-full flex items-center justify-center mx-auto text-white font-bold text-2xl group-hover:scale-110 transition-transform duration-300 shadow-glow">
-                1
+                  1
                 </div>
                 {/* Decorative Elements */}
                 <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-br from-[var(--heritage-gold)] to-[var(--heritage-red)] rounded-full opacity-60"></div>
@@ -471,7 +541,7 @@ export default function Home() {
             <div className="text-center group animate-slide-in-up animate-delay-200">
               <div className="relative mb-8">
                 <div className="w-20 h-20 bg-gradient-to-br from-[var(--heritage-green)] to-[var(--heritage-blue)] rounded-full flex items-center justify-center mx-auto text-white font-bold text-2xl group-hover:scale-110 transition-transform duration-300 shadow-glow">
-                2
+                  2
                 </div>
                 {/* Decorative Elements */}
                 <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-br from-[var(--heritage-green)] to-[var(--heritage-blue)] rounded-full opacity-60"></div>
@@ -485,7 +555,7 @@ export default function Home() {
             <div className="text-center group animate-slide-in-up animate-delay-300">
               <div className="relative mb-8">
                 <div className="w-20 h-20 bg-gradient-to-br from-[var(--heritage-red)] to-[var(--heritage-accent)] rounded-full flex items-center justify-center mx-auto text-white font-bold text-2xl group-hover:scale-110 transition-transform duration-300 shadow-glow">
-                3
+                  3
                 </div>
                 {/* Decorative Elements */}
                 <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-br from-[var(--heritage-red)] to-[var(--heritage-accent)] rounded-full opacity-60"></div>
@@ -499,7 +569,7 @@ export default function Home() {
             <div className="text-center group animate-slide-in-up animate-delay-400">
               <div className="relative mb-8">
                 <div className="w-20 h-20 bg-gradient-to-br from-[var(--heritage-blue)] to-[var(--heritage-green)] rounded-full flex items-center justify-center mx-auto text-white font-bold text-2xl group-hover:scale-110 transition-transform duration-300 shadow-glow">
-                4
+                  4
                 </div>
                 {/* Decorative Elements */}
                 <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-br from-[var(--heritage-blue)] to-[var(--heritage-green)] rounded-full opacity-60"></div>
@@ -554,10 +624,10 @@ export default function Home() {
           </div>
         </div>
       </section>
-  {/* Leaderboard Section */}
-  <section className="section-padding bg-gradient-to-br from-[var(--bg-2)]/80 to-white/60 backdrop-blur-sm relative overflow-hidden">
+      {/* Leaderboard Section */}
+      <section className="section-padding bg-gradient-to-br from-[var(--bg-2)]/80 to-white/60 backdrop-blur-sm relative overflow-hidden">
         {/* Background Pattern */}
-    
+
 
         <div className="absolute inset-0 opacity-5">
           <div className="absolute top-20 left-10 w-64 h-64 bg-gradient-to-br from-[var(--heritage-gold)] to-[var(--heritage-red)] rounded-full mix-blend-multiply filter blur-2xl floating-element"></div>
@@ -574,11 +644,27 @@ export default function Home() {
             </p>
           </div>
           <div className="animate-slide-in-up animate-delay-200">
-          <Leaderboard embedMode />
+            <Leaderboard embedMode />
           </div>
         </div>
       </section>
-            {/* Floating Donate Button (always on screen, above all content) */}
+      {/* FAQ Section */}
+      <section className="section-padding bg-[var(--bg-1)] relative overflow-hidden">
+        <div className="container-custom relative z-10">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold font-serif mb-6 text-transparent bg-clip-text bg-gradient-to-r from-[var(--heritage-gold)] to-[var(--heritage-red)] animate-slide-in-up">
+              Frequently Asked Questions
+            </h2>
+            <div className="w-24 h-1 bg-gradient-to-r from-[var(--heritage-gold)] to-[var(--heritage-red)] mx-auto rounded-full"></div>
+          </div>
+
+          <div className="max-w-4xl mx-auto">
+            <FaqCustomAccordion />
+          </div>
+        </div>
+      </section>
+
+      {/* Floating Donate Button (always on screen, above all content) */}
       <button
         type="button"
         className="fixed bottom-6 right-6 z-50 w-14 h-14 md:w-16 md:h-16 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-full shadow-2xl hover:shadow-green-500/50 transition-all duration-300 flex items-center justify-center group hover:scale-110"
@@ -595,5 +681,5 @@ export default function Home() {
       <DonateModal open={donateModalOpen} onClose={() => setDonateModalOpen(false)} />
     </div>
   )
-  
+
 }

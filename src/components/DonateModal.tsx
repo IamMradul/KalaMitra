@@ -104,28 +104,28 @@ const DonateModal: React.FC<DonateModalProps> = ({ open, onClose }) => {
         <button
           className="absolute top-4 right-4 text-gray-400 hover:text-red-500 dark:text-gray-500 dark:hover:text-red-400"
           onClick={onClose}
-          aria-label={t('donate.closeModal') }
+          aria-label={t('donate.closeModal')}
         >
           <X className="w-6 h-6" />
         </button>
         <h2 className="text-2xl font-bold mb-4 text-center bg-gradient-to-r from-green-500 to-emerald-600 bg-clip-text text-transparent dark:from-emerald-400 dark:to-green-300">
-          {t('donate.modalTitle') }
+          {t('donate.modalTitle')}
         </h2>
         {success ? (
           <div className="flex flex-col items-center justify-center py-12">
-            <div className="text-green-600 dark:text-emerald-400 text-2xl font-bold mb-4">{t('donate.successMsg') }</div>
+            <div className="text-green-600 dark:text-emerald-400 text-2xl font-bold mb-4">{t('donate.successMsg')}</div>
             <button
               className="mt-4 px-6 py-2 rounded-full bg-gradient-to-r from-green-500 to-emerald-600 dark:from-emerald-500 dark:to-green-400 text-white font-semibold text-lg shadow-lg hover:scale-105 transition-transform focus:outline-none focus:ring-2 focus:ring-green-400 dark:focus:ring-emerald-400"
               onClick={onClose}
             >
-              {t('donate.closeModal') }
+              {t('donate.closeModal')}
             </button>
           </div>
         ) : (
           <form className="space-y-4" onSubmit={handleSubmit}>
             {/* ...existing form fields... */}
             <div>
-              <label className="block font-medium mb-1 text-gray-700 dark:text-gray-200">{t('donate.itemName') }*</label>
+              <label className="block font-medium mb-1 text-gray-700 dark:text-gray-200">{t('donate.itemName')}*</label>
               <input
                 type="text"
                 name="item_name"
@@ -157,7 +157,7 @@ const DonateModal: React.FC<DonateModalProps> = ({ open, onClose }) => {
               />
             </div>
             <div>
-              <label className="block font-medium mb-1 text-gray-700 dark:text-gray-200">{t('donate.images') }</label>
+              <label className="block font-medium mb-1 text-gray-700 dark:text-gray-200">{t('donate.images')}</label>
               <input
                 type="file"
                 name="images"
@@ -204,7 +204,7 @@ const DonateModal: React.FC<DonateModalProps> = ({ open, onClose }) => {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block font-medium mb-1 text-gray-700 dark:text-gray-200">{t('donate.donorPhone') }*</label>
+                <label className="block font-medium mb-1 text-gray-700 dark:text-gray-200">{t('donate.donorPhone')}*</label>
                 <input
                   type="text"
                   name="donor_phone"
@@ -232,7 +232,7 @@ const DonateModal: React.FC<DonateModalProps> = ({ open, onClose }) => {
               className="btn-primary w-full mt-2 bg-gradient-to-r from-green-500 to-emerald-600 dark:from-emerald-500 dark:to-green-400 text-white rounded-full py-3 font-semibold text-lg shadow-lg hover:scale-105 transition-transform focus:outline-none focus:ring-2 focus:ring-green-400 dark:focus:ring-emerald-400"
               disabled={submitting}
             >
-              {submitting ? t('donate.submitting') : t('donate.submitBtn') }
+              {submitting ? t('donate.submitting') : t('donate.submitBtn')}
             </button>
           </form>
         )}

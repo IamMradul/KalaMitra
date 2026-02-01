@@ -1,5 +1,5 @@
 
- 'use client'
+'use client'
 
 import Image from 'next/image'
 import { useState, useEffect, useRef } from 'react'
@@ -128,7 +128,7 @@ export default function SellerDashboard() {
                 });
                 // Custom scroll handler for mobile
                 if (isMobile) {
-                  instance.onbeforechange(function(targetElement) {
+                  instance.onbeforechange(function (targetElement) {
                     if (targetElement && typeof targetElement.scrollIntoView === 'function') {
                       setTimeout(() => {
                         targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -141,11 +141,11 @@ export default function SellerDashboard() {
                   localStorage.setItem('hasSeenSellerDashboardTour', 'true');
                   window.__sellerDashboardTourStarted = false;
                 })
-                .onexit(() => {
-                  localStorage.setItem('hasSeenSellerDashboardTour', 'true');
-                  window.__sellerDashboardTourStarted = false;
-                })
-                .start();
+                  .onexit(() => {
+                    localStorage.setItem('hasSeenSellerDashboardTour', 'true');
+                    window.__sellerDashboardTourStarted = false;
+                  })
+                  .start();
               } else {
                 setTimeout(checkAllTargets, 100);
               }
@@ -246,8 +246,8 @@ export default function SellerDashboard() {
   const [respondMessage, setRespondMessage] = useState('');
   const [respondLoading, setRespondLoading] = useState(false);
   const [respondSuccess, setRespondSuccess] = useState(false);
-    const [buyerNames, setBuyerNames] = useState<Record<string, string>>({});
-    const [productNames, setProductNames] = useState<Record<string, string>>({});
+  const [buyerNames, setBuyerNames] = useState<Record<string, string>>({});
+  const [productNames, setProductNames] = useState<Record<string, string>>({});
 
   // Handler for marking request as completed
   const handleMarkCompleted = async (requestId: string) => {
@@ -317,7 +317,7 @@ export default function SellerDashboard() {
       // Send message
       // Add reference to custom request in message content
       const referenceText = respondingRequest?.description
-        ? `[Regarding your custom request: "${respondingRequest.description}"]` + String.fromCharCode(13,10,13,10) : '';
+        ? `[Regarding your custom request: "${respondingRequest.description}"]` + String.fromCharCode(13, 10, 13, 10) : '';
       const chatPayload = {
         threadId,
         senderId: user.id,
@@ -360,82 +360,82 @@ export default function SellerDashboard() {
       setRespondLoading(false);
     }
   };
-const handleMicRespond = () => {
-  if (typeof window !== 'undefined' && ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
-    type SpeechRecognitionType = typeof window extends { SpeechRecognition: infer T } ? T : typeof window extends { webkitSpeechRecognition: infer U } ? U : never;
-    const win = window as typeof window & {
-      SpeechRecognition?: typeof SpeechRecognition;
-      webkitSpeechRecognition?: typeof SpeechRecognition;
-    };
-    const SpeechRecognitionCtor: typeof SpeechRecognition | undefined = win.SpeechRecognition || win.webkitSpeechRecognition;
-    if (!SpeechRecognitionCtor) {
+  const handleMicRespond = () => {
+    if (typeof window !== 'undefined' && ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+      type SpeechRecognitionType = typeof window extends { SpeechRecognition: infer T } ? T : typeof window extends { webkitSpeechRecognition: infer U } ? U : never;
+      const win = window as typeof window & {
+        SpeechRecognition?: typeof SpeechRecognition;
+        webkitSpeechRecognition?: typeof SpeechRecognition;
+      };
+      const SpeechRecognitionCtor: typeof SpeechRecognition | undefined = win.SpeechRecognition || win.webkitSpeechRecognition;
+      if (!SpeechRecognitionCtor) {
+        alert('Speech recognition not supported in this browser.');
+        return;
+      }
+      const recognition = new SpeechRecognitionCtor();
+      const langMap: Record<string, string> = {
+        en: 'en-IN', hi: 'hi-IN', assamese: 'as-IN', bengali: 'bn-IN', bodo: 'brx-IN', dogri: 'doi-IN', gujarati: 'gu-IN', kannad: 'kn-IN', kannada: 'kn-IN', kashmiri: 'ks-IN', konkani: 'kok-IN', maithili: 'mai-IN', malyalam: 'ml-IN', malayalam: 'ml-IN', manipuri: 'mni-IN', marathi: 'mr-IN', nepali: 'ne-NP', oriya: 'or-IN', punjabi: 'pa-IN', sanskrit: 'sa-IN', santhali: 'sat-IN', sindhi: 'sd-IN', tamil: 'ta-IN', telgu: 'te-IN', telugu: 'te-IN', urdu: 'ur-IN', as: 'as-IN', bn: 'bn-IN', brx: 'brx-IN', doi: 'doi-IN', gu: 'gu-IN', kn: 'kn-IN', ks: 'ks-IN', kok: 'kok-IN', mai: 'mai-IN', ml: 'ml-IN', mni: 'mni-IN', mr: 'mr-IN', ne: 'ne-NP', or: 'or-IN', pa: 'pa-IN', sa: 'sa-IN', sat: 'sat-IN', sd: 'sd-IN', ta: 'ta-IN', te: 'te-IN', ur: 'ur-IN',
+      };
+      const appLang = i18n && i18n.language ? i18n.language : 'en';
+      recognition.lang = langMap[appLang] || appLang || 'en-IN';
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+      recognition.onresult = (event: SpeechRecognitionEvent) => {
+        const transcript = event.results[0][0].transcript;
+        setRespondMessage(prev => prev ? prev + ' ' + transcript : transcript);
+      };
+      recognition.onerror = (event: Event) => {
+        const error = (event as { error?: string }).error;
+        alert('Voice input error: ' + (error || 'Unknown error'));
+      };
+      recognition.start();
+    } else {
       alert('Speech recognition not supported in this browser.');
-      return;
     }
-    const recognition = new SpeechRecognitionCtor();
-    const langMap: Record<string, string> = {
-      en: 'en-IN', hi: 'hi-IN', assamese: 'as-IN', bengali: 'bn-IN', bodo: 'brx-IN', dogri: 'doi-IN', gujarati: 'gu-IN', kannad: 'kn-IN', kannada: 'kn-IN', kashmiri: 'ks-IN', konkani: 'kok-IN', maithili: 'mai-IN', malyalam: 'ml-IN', malayalam: 'ml-IN', manipuri: 'mni-IN', marathi: 'mr-IN', nepali: 'ne-NP', oriya: 'or-IN', punjabi: 'pa-IN', sanskrit: 'sa-IN', santhali: 'sat-IN', sindhi: 'sd-IN', tamil: 'ta-IN', telgu: 'te-IN', telugu: 'te-IN', urdu: 'ur-IN', as: 'as-IN', bn: 'bn-IN', brx: 'brx-IN', doi: 'doi-IN', gu: 'gu-IN', kn: 'kn-IN', ks: 'ks-IN', kok: 'kok-IN', mai: 'mai-IN', ml: 'ml-IN', mni: 'mni-IN', mr: 'mr-IN', ne: 'ne-NP', or: 'or-IN', pa: 'pa-IN', sa: 'sa-IN', sat: 'sat-IN', sd: 'sd-IN', ta: 'ta-IN', te: 'te-IN', ur: 'ur-IN',
-    };
-  const appLang = i18n && i18n.language ? i18n.language : 'en';
-    recognition.lang = langMap[appLang] || appLang || 'en-IN';
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
-    recognition.onresult = (event: SpeechRecognitionEvent) => {
-      const transcript = event.results[0][0].transcript;
-      setRespondMessage(prev => prev ? prev + ' ' + transcript : transcript);
-    };
-    recognition.onerror = (event: Event) => {
-      const error = (event as { error?: string }).error;
-      alert('Voice input error: ' + (error || 'Unknown error'));
-    };
-    recognition.start();
-  } else {
-    alert('Speech recognition not supported in this browser.');
-  }
-};
-const [schemes, setSchemes] = useState<Scheme[]>([]);
-const [schemesLoading, setSchemesLoading] = useState(false);
-
-
-useEffect(() => {
-  if (activeSection !== 'schemeConnect') return;
-  let cancelled = false;
-  setSchemesLoading(true);
-
-  (async () => {
-    try {
-      // Only fetch active schemes: is_active = true and deadline is null or deadline >= today
-      const today = new Date().toISOString().slice(0, 10);
-      const { data, error } = await supabase
-        .from('schemes')
-        .select('*')
-        .eq('is_active', true)
-        .or(`deadline.is.null,deadline.gte.${today}`)
-        .order('created_at', { ascending: false });
-
-      if (cancelled) return;
-
-      if (error) {
-        setSchemes([]);
-        // Optionally, show error toast
-      } else {
-        setSchemes(data || []);
-      }
-    } catch (err) {
-      if (!cancelled) {
-        setSchemes([]);
-        // Optionally, log the error
-        console.error('Error fetching schemes:', err);
-      }
-    } finally {
-      if (!cancelled) setSchemesLoading(false);
-    }
-  })();
-
-  return () => {
-    cancelled = true;
   };
-}, [activeSection]);
+  const [schemes, setSchemes] = useState<Scheme[]>([]);
+  const [schemesLoading, setSchemesLoading] = useState(false);
+
+
+  useEffect(() => {
+    if (activeSection !== 'schemeConnect') return;
+    let cancelled = false;
+    setSchemesLoading(true);
+
+    (async () => {
+      try {
+        // Only fetch active schemes: is_active = true and deadline is null or deadline >= today
+        const today = new Date().toISOString().slice(0, 10);
+        const { data, error } = await supabase
+          .from('schemes')
+          .select('*')
+          .eq('is_active', true)
+          .or(`deadline.is.null,deadline.gte.${today}`)
+          .order('created_at', { ascending: false });
+
+        if (cancelled) return;
+
+        if (error) {
+          setSchemes([]);
+          // Optionally, show error toast
+        } else {
+          setSchemes(data || []);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setSchemes([]);
+          // Optionally, log the error
+          console.error('Error fetching schemes:', err);
+        }
+      } finally {
+        if (!cancelled) setSchemesLoading(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [activeSection]);
   // Fetch custom requests for seller
   useEffect(() => {
     if (activeSection !== 'customRequests' || !user) return;
@@ -507,36 +507,36 @@ useEffect(() => {
         setDbStatus(localStorage.getItem('km_db_status') || 'Connected - All tables accessible')
         return
       }
-    } catch {}
+    } catch { }
 
     setIsTestingDb(true)
     try {
       console.log('Testing database connection...')
-      
+
       // Test profiles table
       const { error: profilesError } = await supabase
         .from('profiles')
         .select('count')
         .limit(1)
-      
+
       if (profilesError) {
         console.error('Profiles table error:', profilesError)
         setDbStatus(`Profiles table error: ${profilesError.message}`)
         return
       }
-      
+
       // Test products table
       const { error: productsError } = await supabase
         .from('products')
         .select('count')
         .limit(1)
-      
+
       if (productsError) {
         console.error('Products table error:', productsError)
         setDbStatus(`Products table error: ${productsError.message}`)
         return
       }
-      
+
       console.log('Database connection successful')
       setDbStatus('Connected - All tables accessible')
       dbTestedRef.current = true
@@ -547,7 +547,7 @@ useEffect(() => {
           localStorage.setItem('km_db_status', 'Connected - All tables accessible')
           localStorage.setItem('km_db_tested_at', Date.now().toString())
         }
-      } catch {}
+      } catch { }
     } catch (error) {
       console.error('Database connection test failed:', error)
       setDbStatus(`Connection failed: ${error}`)
@@ -559,7 +559,7 @@ useEffect(() => {
           localStorage.setItem('km_db_status', `Connection failed`)
           localStorage.setItem('km_db_tested_at', Date.now().toString())
         }
-      } catch {}
+      } catch { }
     } finally {
       setIsTestingDb(false)
     }
@@ -567,7 +567,7 @@ useEffect(() => {
 
   useEffect(() => {
     console.log('Dashboard useEffect - loading:', loading, 'user:', !!user, 'profile:', !!profile)
-    
+
     if (!loading) {
       if (!user) {
         console.log('No user, redirecting to signin')
@@ -584,7 +584,7 @@ useEffect(() => {
         } else {
           console.log('Products already fetched, skipping...')
         }
-        
+
         // Only test database connection once per session/user
         if (!hasInitialized.current && dbStatus === 'Unknown' && !dbTestedRef.current) {
           testDatabaseConnection()
@@ -605,7 +605,7 @@ useEffect(() => {
 
   const fetchProducts = async () => {
     if (!user) return
-    
+
     // Prevent multiple simultaneous executions
     if (productsLoading) {
       console.log('Products fetch already in progress, skipping...')
@@ -615,25 +615,25 @@ useEffect(() => {
     setProductsLoading(true)
     try {
       console.log('Fetching products for user:', user.id)
-      
+
       // Test basic Supabase connection first
       console.log('Testing basic Supabase connection...')
       try {
-        const { data: testData, error: testError } = await supabase
+        const { data: _testData, error: _testError } = await supabase
           .from('products')
           .select('count')
           .limit(1)
-        
-        if (testError) {
-          console.error('Basic connection test failed:', testError)
-          throw testError
+
+        if (_testError) {
+          console.error('Basic connection test failed:', _testError)
+          throw _testError
         }
         console.log('Basic connection test successful')
       } catch (testErr) {
         console.error('Basic connection test error:', testErr)
         throw testErr
       }
-      
+
       // Test simple query without user filter first
       console.log('Testing simple products query...')
       try {
@@ -641,7 +641,7 @@ useEffect(() => {
           .from('products')
           .select('id, title')
           .limit(5)
-        
+
         if (simpleError) {
           console.error('Simple query failed:', simpleError)
           throw simpleError
@@ -651,7 +651,7 @@ useEffect(() => {
         console.error('Simple query error:', simpleErr)
         throw simpleErr
       }
-      
+
       // Now try the actual user-specific query
       console.log('Testing user-specific query...')
       const fetchPromise = supabase
@@ -659,13 +659,13 @@ useEffect(() => {
         .select('*')
         .eq('seller_id', user.id)
         .order('created_at', { ascending: false })
-      
+
       console.log('Supabase query created, awaiting response...')
-      
+
       const timeoutPromise = new Promise<never>((_, reject) => {
         setTimeout(() => reject(new Error('Products fetch timeout after 10 seconds')), 10000)
       })
-      
+
       console.log('Starting race between fetch and timeout...')
       const raced = await Promise.race([fetchPromise, timeoutPromise])
       console.log('Race completed, processing result...')
@@ -675,7 +675,7 @@ useEffect(() => {
         console.error('Error fetching products:', error)
         throw error
       }
-      
+
       console.log('Products fetched successfully:', data?.length || 0, 'products')
       setProducts(data || [])
       productsFetchedRef.current = true
@@ -687,7 +687,7 @@ useEffect(() => {
       setProductsLoading(false)
     }
   }
-    const handleMarkClaimed = async (donationId: string) => {
+  const handleMarkClaimed = async (donationId: string) => {
     if (!donationId) return;
     try {
       setCustomRequestsLoading(true);
@@ -728,26 +728,26 @@ useEffect(() => {
     }
 
     setAddProductLoading(true)
-    
-  const formData = new FormData(e.currentTarget)
-  const title = formData.get('title') as string
-  const category = formData.get('category') as string
-  const description = formData.get('description') as string
-  const price = parseFloat(formData.get('price') as string)
-  const imageUrl = formData.get('imageUrl') as string
-  const product_story = formData.get('product_story') as string | null
-  const product_type = formData.get('product_type') as 'vertical' | 'horizontal' | null
 
-  // Debug: Log all form data
-  console.log('=== FORM DATA DEBUG ===')
-  for (const [key, value] of formData.entries()) {
-    console.log(`${key}: ${value}`)
-  }
-  console.log('Extracted product_type:', product_type)
-  
-  // Fallback if product_type is not found
-  const finalProductType = product_type || 'vertical'
-  console.log('Final product_type to save:', finalProductType)
+    const formData = new FormData(e.currentTarget)
+    const title = formData.get('title') as string
+    const category = formData.get('category') as string
+    const description = formData.get('description') as string
+    const price = parseFloat(formData.get('price') as string)
+    const imageUrl = formData.get('imageUrl') as string
+    const product_story = formData.get('product_story') as string | null
+    const product_type = formData.get('product_type') as 'vertical' | 'horizontal' | null
+
+    // Debug: Log all form data
+    console.log('=== FORM DATA DEBUG ===')
+    for (const [key, value] of formData.entries()) {
+      console.log(`${key}: ${value}`)
+    }
+    console.log('Extracted product_type:', product_type)
+
+    // Fallback if product_type is not found
+    const finalProductType = product_type || 'vertical'
+    console.log('Final product_type to save:', finalProductType)
 
     // Basic validation
     if (!title || !category || !description || isNaN(price) || price <= 0) {
@@ -763,14 +763,14 @@ useEffect(() => {
       console.log('Profile role:', profile?.role)
       console.log('User authenticated:', !!user)
       console.log('Profile exists:', !!profile)
-  console.log('Product data:', { title, category, description, price, imageUrl, product_story, product_type })
-      
+      console.log('Product data:', { title, category, description, price, imageUrl, product_story, product_type })
+
       // Extract image features (best-effort)
       let features: { avgColor: { r: number; g: number; b: number }; aHash: string } | null = null
       if (imageUrl) {
         try {
           features = await extractImageFeatures(imageUrl)
-        } catch {}
+        } catch { }
       }
       console.log('Proceeding with insert...')
       console.log('Insert data:', {
@@ -783,18 +783,18 @@ useEffect(() => {
         product_story: product_story || null,
         product_type: finalProductType,
       })
-      
+
       // Test if product_type column exists by trying a simple query first
       try {
-        const { data: testData, error: testError } = await supabase
+        const { data: _testData, error: _testError } = await supabase
           .from('products')
           .select('product_type')
           .limit(1)
-        console.log('Column test result:', { testData, testError })
+        console.log('Column test result:', { _testData, _testError })
       } catch (testErr) {
         console.log('Column test error:', testErr)
       }
-      
+
 
 
       // Add timeout to prevent hanging
@@ -811,7 +811,7 @@ useEffect(() => {
             product_story: product_story || null,
             product_type: finalProductType,
             is_virtual: formData.get('is_virtual') === 'true',
-            virtual_type: formData.get('virtual_type') ,
+            virtual_type: formData.get('virtual_type'),
             virtual_file_url: formData.get('virtual_file_url') || null,
             image_avg_r: features?.avgColor.r ?? null,
             image_avg_g: features?.avgColor.g ?? null,
@@ -836,7 +836,7 @@ useEffect(() => {
           hint: error.hint,
           code: error.code
         })
-        
+
         // Provide specific error messages based on error type
         if (error.code === '23503') {
           alert('Foreign key constraint failed. Your profile may not exist in the database.')
@@ -902,16 +902,16 @@ useEffect(() => {
     if (!user) return
 
     setEditProductLoading(true)
-    
-  const title = formData.get('title') as string
-  const category = formData.get('category') as string
-  const description = formData.get('description') as string
-  const price = parseFloat(formData.get('price') as string)
-  const imageUrl = formData.get('imageUrl') as string
-  const product_story = formData.get('product_story') as string | null
-  const product_type = formData.get('product_type') as 'vertical' | 'horizontal' | null
-  const virtual_type = formData.get('virtual_type') as string | null
-  const virtual_file_url = formData.get('virtual_file_url') as string | null
+
+    const title = formData.get('title') as string
+    const category = formData.get('category') as string
+    const description = formData.get('description') as string
+    const price = parseFloat(formData.get('price') as string)
+    const imageUrl = formData.get('imageUrl') as string
+    const product_story = formData.get('product_story') as string | null
+    const product_type = formData.get('product_type') as 'vertical' | 'horizontal' | null
+    const virtual_type = formData.get('virtual_type') as string | null
+    const virtual_file_url = formData.get('virtual_file_url') as string | null
 
     // Basic validation
     if (!title || !category || !description || isNaN(price) || price <= 0) {
@@ -1017,10 +1017,10 @@ useEffect(() => {
 
         {/* Profile Manager Section */}
         {stallProfile && (
-          <ProfileManager 
-            profile={stallProfile} 
-            products={products} 
-            onProfileUpdate={handleProfileUpdate} 
+          <ProfileManager
+            profile={stallProfile}
+            products={products}
+            onProfileUpdate={handleProfileUpdate}
           />
         )}
 
@@ -1038,11 +1038,10 @@ useEffect(() => {
             {/* Products Tab */}
             <button
               onClick={() => setActiveSection('products')}
-              className={`flex-1 sm:flex-initial px-3 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium text-xs sm:text-base transition-all whitespace-nowrap flex-shrink-0 flex items-center gap-1 sm:gap-2 ${
-                activeSection === 'products'
-                  ? 'bg-gradient-to-r from-orange-500 to-red-600 text-white shadow-lg'
-                  : 'bg-[var(--bg-2)] text-[var(--muted)] hover:text-[var(--text)]'
-              }`}
+              className={`flex-1 sm:flex-initial px-3 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium text-xs sm:text-base transition-all whitespace-nowrap flex-shrink-0 flex items-center gap-1 sm:gap-2 ${activeSection === 'products'
+                ? 'bg-gradient-to-r from-orange-500 to-red-600 text-white shadow-lg'
+                : 'bg-[var(--bg-2)] text-[var(--muted)] hover:text-[var(--text)]'
+                }`}
             >
               <Palette className="w-3 h-3 sm:w-4 sm:h-4" />
               <span>{t('seller.products') || 'Products & Auctions'}</span>
@@ -1050,11 +1049,10 @@ useEffect(() => {
             {/* Analytics Tab */}
             <button
               onClick={() => setActiveSection('analytics')}
-              className={`flex-1 sm:flex-initial px-3 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium text-xs sm:text-base transition-all whitespace-nowrap flex-shrink-0 flex items-center gap-1 sm:gap-2 ${
-                activeSection === 'analytics'
-                  ? 'bg-gradient-to-r from-orange-500 to-red-600 text-white shadow-lg'
-                  : 'bg-[var(--bg-2)] text-[var(--muted)] hover:text-[var(--text)]'
-              }`}
+              className={`flex-1 sm:flex-initial px-3 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium text-xs sm:text-base transition-all whitespace-nowrap flex-shrink-0 flex items-center gap-1 sm:gap-2 ${activeSection === 'analytics'
+                ? 'bg-gradient-to-r from-orange-500 to-red-600 text-white shadow-lg'
+                : 'bg-[var(--bg-2)] text-[var(--muted)] hover:text-[var(--text)]'
+                }`}
             >
               <span>📊</span>
               <span>{t('seller.analytics') || 'Analytics'}</span>
@@ -1062,11 +1060,10 @@ useEffect(() => {
             {/* Collaborations Tab */}
             <button
               onClick={() => setActiveSection('collaborations')}
-              className={`flex-1 sm:flex-initial px-3 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium text-xs sm:text-base transition-all whitespace-nowrap flex-shrink-0 flex items-center gap-1 sm:gap-2 ${
-                activeSection === 'collaborations'
-                  ? 'bg-gradient-to-r from-orange-500 to-red-600 text-white shadow-lg'
-                  : 'bg-[var(--bg-2)] text-[var(--muted)] hover:text-[var(--text)]'
-              }`}
+              className={`flex-1 sm:flex-initial px-3 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium text-xs sm:text-base transition-all whitespace-nowrap flex-shrink-0 flex items-center gap-1 sm:gap-2 ${activeSection === 'collaborations'
+                ? 'bg-gradient-to-r from-orange-500 to-red-600 text-white shadow-lg'
+                : 'bg-[var(--bg-2)] text-[var(--muted)] hover:text-[var(--text)]'
+                }`}
             >
               <span>🤝</span>
               <span>{t('collaboration.title') || 'Collaborations'}</span>
@@ -1074,11 +1071,10 @@ useEffect(() => {
             {/* Scheme Connect Tab */}
             <button
               onClick={() => setActiveSection('schemeConnect')}
-              className={`px-3 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium text-xs sm:text-base transition-all whitespace-nowrap flex-shrink-0 flex items-center gap-1 sm:gap-2 ${
-                activeSection === 'schemeConnect'
-                  ? 'bg-gradient-to-r from-green-500 to-blue-600 text-white shadow-lg'
-                  : 'bg-[var(--bg-2)] text-[var(--muted)] hover:text-[var(--text)]'
-              }`}
+              className={`px-3 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium text-xs sm:text-base transition-all whitespace-nowrap flex-shrink-0 flex items-center gap-1 sm:gap-2 ${activeSection === 'schemeConnect'
+                ? 'bg-gradient-to-r from-green-500 to-blue-600 text-white shadow-lg'
+                : 'bg-[var(--bg-2)] text-[var(--muted)] hover:text-[var(--text)]'
+                }`}
               // Hide on mobile, show on sm and up
               style={{ display: 'none', ...(window.innerWidth >= 640 ? { display: 'flex' } : {}) }}
             >
@@ -1088,11 +1084,10 @@ useEffect(() => {
             {/* Custom Requests tab: only show inline on desktop (sm and up) */}
             <button
               onClick={() => setActiveSection('customRequests')}
-              className={`hidden sm:flex px-3 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium text-xs sm:text-base transition-all whitespace-nowrap flex-shrink-0 flex items-center gap-1 sm:gap-2 ${
-                activeSection === 'customRequests'
-                  ? 'bg-gradient-to-r from-teal-500 to-cyan-600 text-white shadow-lg'
-                  : 'bg-[var(--bg-2)] text-[var(--muted)] hover:text-[var(--text)]'
-              }`}
+              className={`hidden sm:flex px-3 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium text-xs sm:text-base transition-all whitespace-nowrap flex-shrink-0 flex items-center gap-1 sm:gap-2 ${activeSection === 'customRequests'
+                ? 'bg-gradient-to-r from-teal-500 to-cyan-600 text-white shadow-lg'
+                : 'bg-[var(--bg-2)] text-[var(--muted)] hover:text-[var(--text)]'
+                }`}
             >
               <Sparkles className="w-3 h-3 sm:w-4 sm:h-4" />
               <span>{t('seller.customRequestsTab')}</span>
@@ -1102,22 +1097,20 @@ useEffect(() => {
           <div className="flex sm:hidden justify-center items-center mt-3 gap-2">
             <button
               onClick={() => setActiveSection('schemeConnect')}
-              className={`px-3 py-2.5 rounded-lg font-medium text-xs transition-all whitespace-nowrap flex-shrink-0 flex items-center gap-1 ${
-                activeSection === 'schemeConnect'
-                  ? 'bg-gradient-to-r from-green-500 to-blue-600 text-white shadow-lg'
-                  : 'bg-[var(--bg-2)] text-[var(--muted)] hover:text-[var(--text)]'
-              }`}
+              className={`px-3 py-2.5 rounded-lg font-medium text-xs transition-all whitespace-nowrap flex-shrink-0 flex items-center gap-1 ${activeSection === 'schemeConnect'
+                ? 'bg-gradient-to-r from-green-500 to-blue-600 text-white shadow-lg'
+                : 'bg-[var(--bg-2)] text-[var(--muted)] hover:text-[var(--text)]'
+                }`}
             >
               <span>🏛️</span>
               <span>{t('seller.schemeConnectTab')}</span>
             </button>
             <button
               onClick={() => setActiveSection('customRequests')}
-              className={`px-3 py-2.5 rounded-lg font-medium text-xs transition-all whitespace-nowrap flex-shrink-0 flex items-center gap-1 ${
-                activeSection === 'customRequests'
-                  ? 'bg-gradient-to-r from-teal-500 to-cyan-600 text-white shadow-lg'
-                  : 'bg-[var(--bg-2)] text-[var(--muted)] hover:text-[var(--text)]'
-              }`}
+              className={`px-3 py-2.5 rounded-lg font-medium text-xs transition-all whitespace-nowrap flex-shrink-0 flex items-center gap-1 ${activeSection === 'customRequests'
+                ? 'bg-gradient-to-r from-teal-500 to-cyan-600 text-white shadow-lg'
+                : 'bg-[var(--bg-2)] text-[var(--muted)] hover:text-[var(--text)]'
+                }`}
             >
               <Sparkles className="w-3 h-3" />
               <span>{t('seller.customRequestsTabMobile')}</span>
@@ -1264,11 +1257,12 @@ useEffect(() => {
                           {/* Show image if available */}
                           {donation.image_urls && donation.image_urls.length > 0 && donation.image_urls[0] && (
                             <div className="h-40 sm:h-48 bg-gray-100 flex items-center justify-center border-b border-[var(--border)]">
-                              <img
+                              <Image
                                 src={donation.image_urls[0]}
                                 alt={donation.item_description}
-                                className="w-full h-full object-cover rounded-t-xl"
-                                style={{ maxHeight: '12rem' }}
+                                fill
+                                className="object-cover rounded-t-xl"
+                                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                               />
                             </div>
                           )}
@@ -1398,72 +1392,72 @@ useEffect(() => {
                   <div className="text-xs text-gray-600 text-center mt-2">{t('seller.viewStallHint')}</div>
                 </div>
 
-              {/* Centered Customize 3D Stall card below the grid */}
+                {/* Centered Customize 3D Stall card below the grid */}
 
                 <div className="rounded-xl bg-transparent p-5 shadow-md flex flex-col gap-3">
                   <div className="flex items-center gap-3 mb-1 ">
                     <div className="p-2 sm:p-3 rounded-xl bg-gradient-to-br from-teal-500 to-cyan-600 shadow-lg">
                       <Palette className="w-5 h-5 text-white animate-spin-slow" />
                     </div>
-                      <h3 className="text-lg sm:text-xl font-semibold text-gray-900">{t('seller.customize3DStallTitle')}</h3>
+                    <h3 className="text-lg sm:text-xl font-semibold text-gray-900">{t('seller.customize3DStallTitle')}</h3>
                   </div>
-                    <button
-                      id="quick-action-customize-stall"
-                      onClick={() => setShowStallCustomization(true)}
-                      className="w-full flex items-center justify-center px-5 py-3 text-base font-bold bg-gradient-to-r from-teal-500 via-cyan-500 to-blue-500 text-white rounded-lg hover:from-teal-600 hover:via-cyan-600 hover:to-blue-600 shadow-lg transition-all duration-200"
-                    >
-                      <Palette className="text-xl mr-2 animate-spin-slow" />
-                      {t('seller.customize3DStallButton')}
-                    </button>
-                    <div className="text-xs text-gray-600 text-center mt-2">{t('seller.customize3DStallDesc')}</div>
+                  <button
+                    id="quick-action-customize-stall"
+                    onClick={() => setShowStallCustomization(true)}
+                    className="w-full flex items-center justify-center px-5 py-3 text-base font-bold bg-gradient-to-r from-teal-500 via-cyan-500 to-blue-500 text-white rounded-lg hover:from-teal-600 hover:via-cyan-600 hover:to-blue-600 shadow-lg transition-all duration-200"
+                  >
+                    <Palette className="text-xl mr-2 animate-spin-slow" />
+                    {t('seller.customize3DStallButton')}
+                  </button>
+                  <div className="text-xs text-gray-600 text-center mt-2">{t('seller.customize3DStallDesc')}</div>
                 </div>
               </div>
 
-                            </div>
+            </div>
           </motion.div>
         )}
 
-      {/* Stall Customization Modal (always at page root, overlays everything) */}
-      <StallCustomizationModal
-        open={showStallCustomization}
-        onClose={() => setShowStallCustomization(false)}
-        onSave={async (settings) => {
-          if (!user) {
-            alert('User not authenticated');
-            return;
-          }
-          setStallCustomizationLoading(true);
-          try {
-            const { error } = await supabase
-              .from('stall_customizations')
-              .upsert([
-                {
-                  seller_id: user.id,
-                  stall_theme: settings.stall_theme,
-                  welcome_message: settings.welcome_message,
-                  decor: settings.decor,
-                  featured_product_ids: settings.featured_product_ids,
-                  updated_at: new Date().toISOString(),
-                },
-              ], { onConflict: 'seller_id' });
-            if (error) {
-              alert('Failed to save customization: ' + error.message);
+        {/* Stall Customization Modal (always at page root, overlays everything) */}
+        <StallCustomizationModal
+          open={showStallCustomization}
+          onClose={() => setShowStallCustomization(false)}
+          onSave={async (settings) => {
+            if (!user) {
+              alert('User not authenticated');
               return;
             }
-            setStallCustomizationSettings(settings);
-            setShowStallCustomization(false);
-            alert('Stall customization saved!');
-          } catch (err) {
-            alert('Failed to save customization.');
-            console.error('Error saving customization:', err);
-          } finally {
-            setStallCustomizationLoading(false);
-          }
-        }}
-        initialSettings={stallCustomizationSettings}
-        loading={stallCustomizationLoading}
-        products={products.map(p => ({ id: p.id, title: p.title || '' }))}
-      />
+            setStallCustomizationLoading(true);
+            try {
+              const { error } = await supabase
+                .from('stall_customizations')
+                .upsert([
+                  {
+                    seller_id: user.id,
+                    stall_theme: settings.stall_theme,
+                    welcome_message: settings.welcome_message,
+                    decor: settings.decor,
+                    featured_product_ids: settings.featured_product_ids,
+                    updated_at: new Date().toISOString(),
+                  },
+                ], { onConflict: 'seller_id' });
+              if (error) {
+                alert('Failed to save customization: ' + error.message);
+                return;
+              }
+              setStallCustomizationSettings(settings);
+              setShowStallCustomization(false);
+              alert('Stall customization saved!');
+            } catch (err) {
+              alert('Failed to save customization.');
+              console.error('Error saving customization:', err);
+            } finally {
+              setStallCustomizationLoading(false);
+            }
+          }}
+          initialSettings={stallCustomizationSettings}
+          loading={stallCustomizationLoading}
+          products={products.map(p => ({ id: p.id, title: p.title || '' }))}
+        />
 
         {/* Analytics Section */}
         {activeSection === 'analytics' && (
@@ -1498,230 +1492,232 @@ useEffect(() => {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="card-glass rounded-xl p-6 border border-[var(--border)]"
           >
-          {/* Auction Management Section */}
-          <div id="seller-auction-section" className="mb-8 space-y-6">
-            {/* Create Auction Card */}
-            <div className="relative overflow-hidden rounded-2xl bg-[var(--bg-2)] dark:bg-[var(--bg-2)] border-2 border-purple-300 dark:border-purple-700/50 shadow-lg">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-purple-200/30 to-blue-200/30 rounded-full blur-3xl"></div>
-              <div className="relative p-4 sm:p-6 lg:p-8">
-                <div className="flex items-center gap-3 mb-4 sm:mb-6">
-                  <div className="p-2 sm:p-3 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 shadow-lg">
-                    <span className="text-2xl sm:text-3xl">🔨</span>
-                  </div>
-                  <div>
-                    <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-[var(--text)]">{t('seller.auctionCreateTitle')}</h3>
+            {/* Auction Management Section */}
+            <div id="seller-auction-section" className="mb-8 space-y-6">
+              {/* Create Auction Card */}
+              <div className="relative overflow-hidden rounded-2xl bg-[var(--bg-2)] dark:bg-[var(--bg-2)] border-2 border-purple-300 dark:border-purple-700/50 shadow-lg">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-purple-200/30 to-blue-200/30 rounded-full blur-3xl"></div>
+                <div className="relative p-4 sm:p-6 lg:p-8">
+                  <div className="flex items-center gap-3 mb-4 sm:mb-6">
+                    <div className="p-2 sm:p-3 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 shadow-lg">
+                      <span className="text-2xl sm:text-3xl">🔨</span>
+                    </div>
+                    <div>
+                      <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-[var(--text)]">{t('seller.auctionCreateTitle')}</h3>
                       <p className="text-xs sm:text-sm text-gray-600 dark:text-[var(--muted)]">{t('seller.auctionCreateDesc')}</p>
+                    </div>
                   </div>
-                </div>
 
-                <form onSubmit={async (e) => {
-                  e.preventDefault()
-                  const fd = new FormData(e.currentTarget as HTMLFormElement)
-                  const product_id = fd.get('product_id') as string
-                  const starting_price = Number(fd.get('starting_price'))
-                  const starts_at_raw = fd.get('starts_at') as string || ''
-                  const ends_at_raw = fd.get('ends_at') as string || ''
-                  const starts_at = starts_at_raw ? new Date(starts_at_raw).toISOString() : null
-                  const ends_at = ends_at_raw ? new Date(ends_at_raw).toISOString() : null
-                  if (!product_id || !starting_price) return alert(t('auction.invalidAmount'))
-                  try {
-                    const res = await fetch('/api/auction', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ product_id, starting_price, starts_at, ends_at, seller_id: user?.id }) })
-                    const j = await res.json()
-                    if (!res.ok) throw new Error(j.error || 'Failed')
-                    alert(t('auction.created'))
-                    fetchProducts()
-                  } catch (err: unknown) {
-                    const message = err instanceof Error ? err.message : String(err)
-                    alert(t('errors.general') + ': ' + message)
-                  }
-                }}>
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-                    {/* Product Selection */}
-                    <div className="lg:col-span-2">
-                      <label className="block text-sm sm:text-base font-semibold text-gray-900 dark:text-[var(--text)] mb-2">
-                        <span className="inline-flex items-center gap-2">
-                          🎨 {t('seller.auctionSelectProduct')}
-                        </span>
-                      </label>
-                      <select 
-                        name="product_id" 
-                        className="w-full px-4 py-3 sm:py-3.5 text-sm sm:text-base rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-[var(--text)] border-2 border-purple-300 dark:border-purple-700 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all outline-none shadow-sm"
-                        required
+                  <form onSubmit={async (e) => {
+                    e.preventDefault()
+                    const fd = new FormData(e.currentTarget as HTMLFormElement)
+                    const product_id = fd.get('product_id') as string
+                    const starting_price = Number(fd.get('starting_price'))
+                    const starts_at_raw = fd.get('starts_at') as string || ''
+                    const ends_at_raw = fd.get('ends_at') as string || ''
+                    const starts_at = starts_at_raw ? new Date(starts_at_raw).toISOString() : null
+                    const ends_at = ends_at_raw ? new Date(ends_at_raw).toISOString() : null
+                    if (!product_id || !starting_price) return alert(t('auction.invalidAmount'))
+                    try {
+                      const res = await fetch('/api/auction', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ product_id, starting_price, starts_at, ends_at, seller_id: user?.id }) })
+                      const j = await res.json()
+                      if (!res.ok) throw new Error(j.error || 'Failed')
+                      alert(t('auction.created'))
+                      fetchProducts()
+                    } catch (err: unknown) {
+                      const message = err instanceof Error ? err.message : String(err)
+                      alert(t('errors.general') + ': ' + message)
+                    }
+                  }}>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+                      {/* Product Selection */}
+                      <div className="lg:col-span-2">
+                        <label className="block text-sm sm:text-base font-semibold text-gray-900 dark:text-[var(--text)] mb-2">
+                          <span className="inline-flex items-center gap-2">
+                            🎨 {t('seller.auctionSelectProduct')}
+                          </span>
+                        </label>
+                        <select
+                          name="product_id"
+                          className="w-full px-4 py-3 sm:py-3.5 text-sm sm:text-base rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-[var(--text)] border-2 border-purple-300 dark:border-purple-700 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all outline-none shadow-sm"
+                          required
+                        >
+                          <option value="">{t('seller.auctionSelectProductOption')}</option>
+                          {products.map(p => (
+                            <option key={p.id} value={p.id}>{p.title}</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {/* Starting Price */}
+                      <div>
+                        <label className="block text-sm sm:text-base font-semibold text-gray-900 dark:text-[var(--text)] mb-2">
+                          <span className="inline-flex items-center gap-2">
+                            💰 {t('seller.auctionStartingPrice')}
+                          </span>
+                        </label>
+                        <div className="relative">
+                          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-lg font-bold text-purple-600 dark:text-purple-400">₹</span>
+                          <input
+                            name="starting_price"
+                            type="number"
+                            placeholder={t('seller.auctionStartingPricePlaceholder')}
+                            className="w-full pl-10 pr-4 py-3 sm:py-3.5 text-sm sm:text-base rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-[var(--text)] border-2 border-purple-300 dark:border-purple-700 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all outline-none shadow-sm"
+                            required
+                          />
+                        </div>
+                      </div>
+
+                      {/* Date/Time Inputs */}
+                      <div>
+                        <label className="block text-sm sm:text-base font-semibold text-gray-900 dark:text-[var(--text)] mb-2">
+                          <span className="inline-flex items-center gap-2">
+                            📅 {t('seller.auctionSchedule')}
+                          </span>
+                        </label>
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-xs text-gray-600 dark:text-[var(--muted)] mb-1">{t('seller.auctionStartLabel')}</label>
+                            <input
+                              name="starts_at"
+                              type="datetime-local"
+                              className="w-full px-3 py-2 sm:py-2.5 text-xs sm:text-sm rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-[var(--text)] border-2 border-purple-300 dark:border-purple-700 focus:border-purple-500 transition-all outline-none"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs text-gray-600 dark:text-[var(--muted)] mb-1">{t('seller.auctionEndLabel')}</label>
+                            <input
+                              name="ends_at"
+                              type="datetime-local"
+                              className="w-full px-3 py-2 sm:py-2.5 text-xs sm:text-sm rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-[var(--text)] border-2 border-purple-300 dark:border-purple-700 focus:border-purple-500 transition-all outline-none"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Submit Button */}
+                    <div className="mt-6">
+                      <button
+                        id="launch-auction-btn"
+                        type="submit"
+                        className="w-full sm:w-auto px-8 py-3.5 sm:py-4 text-sm sm:text-base font-bold text-white rounded-xl bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 hover:from-purple-700 hover:via-indigo-700 hover:to-blue-700 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
                       >
-                        <option value="">{t('seller.auctionSelectProductOption')}</option>
-                        {products.map(p => (
-                          <option key={p.id} value={p.id}>{p.title}</option>
-                        ))}
-                      </select>
-                    </div>
-
-                    {/* Starting Price */}
-                    <div>
-                      <label className="block text-sm sm:text-base font-semibold text-gray-900 dark:text-[var(--text)] mb-2">
                         <span className="inline-flex items-center gap-2">
-                          💰 {t('seller.auctionStartingPrice')}
+                          <span>🚀</span>
+                          <span>{t('seller.auctionLaunchButton')}</span>
                         </span>
-                      </label>
-                      <div className="relative">
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-lg font-bold text-purple-600 dark:text-purple-400">₹</span>
-                        <input 
-                          name="starting_price" 
-                          type="number" 
-                          placeholder={t('seller.auctionStartingPricePlaceholder')}
-                          className="w-full pl-10 pr-4 py-3 sm:py-3.5 text-sm sm:text-base rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-[var(--text)] border-2 border-purple-300 dark:border-purple-700 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all outline-none shadow-sm"
-                          required 
-                        />
-                      </div>
+                      </button>
                     </div>
-
-                    {/* Date/Time Inputs */}
-                    <div>
-                      <label className="block text-sm sm:text-base font-semibold text-gray-900 dark:text-[var(--text)] mb-2">
-                        <span className="inline-flex items-center gap-2">
-                          📅 {t('seller.auctionSchedule')}
-                        </span>
-                      </label>
-                      <div className="grid grid-cols-2 gap-3">
-                        <div>
-                          <label className="block text-xs text-gray-600 dark:text-[var(--muted)] mb-1">{t('seller.auctionStartLabel')}</label>
-                          <input 
-                            name="starts_at" 
-                            type="datetime-local" 
-                            className="w-full px-3 py-2 sm:py-2.5 text-xs sm:text-sm rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-[var(--text)] border-2 border-purple-300 dark:border-purple-700 focus:border-purple-500 transition-all outline-none"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-xs text-gray-600 dark:text-[var(--muted)] mb-1">{t('seller.auctionEndLabel')}</label>
-                          <input 
-                            name="ends_at" 
-                            type="datetime-local" 
-                            className="w-full px-3 py-2 sm:py-2.5 text-xs sm:text-sm rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-[var(--text)] border-2 border-purple-300 dark:border-purple-700 focus:border-purple-500 transition-all outline-none"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Submit Button */}
-                  <div className="mt-6">
-                    <button 
-                      id="launch-auction-btn"
-                      type="submit" 
-                      className="w-full sm:w-auto px-8 py-3.5 sm:py-4 text-sm sm:text-base font-bold text-white rounded-xl bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 hover:from-purple-700 hover:via-indigo-700 hover:to-blue-700 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
-                    >
-                      <span className="inline-flex items-center gap-2">
-                        <span>🚀</span>
-                        <span>{t('seller.auctionLaunchButton')}</span>
-                      </span>
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </div>
-
-            {/* Active Auctions List */}
-            <div id="seller-active-auctions" className="relative overflow-hidden rounded-2xl bg-[var(--bg-2)] dark:bg-[var(--bg-2)] border-2 border-amber-300 dark:border-amber-700/50 shadow-lg">
-              <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-amber-200/30 to-orange-200/30 rounded-full blur-3xl"></div>
-              <div className="relative p-4 sm:p-6 lg:p-8">
-                <div className="flex items-center gap-3 mb-4 sm:mb-6">
-                  <div className="p-2 sm:p-3 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 shadow-lg">
-                    <span className="text-2xl sm:text-3xl">⚡</span>
-                  </div>
-                  <div>
-                    <h3 id="your-active-auctions-text" className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-[var(--text)]">{t('seller.auctionActiveTitle')}</h3>
-                    <p className="text-xs sm:text-sm text-gray-600 dark:text-[var(--muted)]">{t('seller.auctionActiveDesc')}</p>
-                  </div>
+                  </form>
                 </div>
-                <SellerAuctionsList sellerId={user.id} />
+              </div>
+
+              {/* Active Auctions List */}
+              <div id="seller-active-auctions" className="relative overflow-hidden rounded-2xl bg-[var(--bg-2)] dark:bg-[var(--bg-2)] border-2 border-amber-300 dark:border-amber-700/50 shadow-lg">
+                <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-amber-200/30 to-orange-200/30 rounded-full blur-3xl"></div>
+                <div className="relative p-4 sm:p-6 lg:p-8">
+                  <div className="flex items-center gap-3 mb-4 sm:mb-6">
+                    <div className="p-2 sm:p-3 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 shadow-lg">
+                      <span className="text-2xl sm:text-3xl">⚡</span>
+                    </div>
+                    <div>
+                      <h3 id="your-active-auctions-text" className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-[var(--text)]">{t('seller.auctionActiveTitle')}</h3>
+                      <p className="text-xs sm:text-sm text-gray-600 dark:text-[var(--muted)]">{t('seller.auctionActiveDesc')}</p>
+                    </div>
+                  </div>
+                  <SellerAuctionsList sellerId={user.id} />
+                </div>
               </div>
             </div>
-          </div>
-      <div id="seller-products-section" className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
-    <h2 className="text-xl sm:text-2xl font-semibold text-[var(--text)]">{t('seller.yourProducts')}</h2>
-            <div className="flex items-center gap-2 sm:space-x-3 flex-wrap">
-              <Link
-                href="/dashboard/seller/reels"
-                className="flex items-center px-3 sm:px-4 py-2 text-sm sm:text-base bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-lg hover:from-purple-600 hover:to-indigo-700 transition-all duration-200"
-              >
-                <Eye className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                <span className="hidden sm:inline">{t('seller.manageReels')}</span>
-                <span className="sm:hidden">{t('seller.productsReelsMobile')}</span>
-              </Link>
-              <button
-                onClick={() => setShowAIProductForm(true)}
-                className="flex items-center px-3 sm:px-4 py-2 text-sm sm:text-base bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-lg hover:from-orange-600 hover:to-red-700 transition-all duration-200"
-              >
-                <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-  <span className="hidden sm:inline">{t('seller.addProductWithAI')}</span>
-    <span className="sm:hidden">{t('seller.productsAddMobile')}</span>
-              </button>
-              {/* Sign out button removed as requested */}
-            </div>
-          </div>
-
-          {productsLoading ? (
-            <div className="text-center py-12">
-        <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                className="w-12 h-12 border-4 border-orange-200 border-t-orange-600 rounded-full mx-auto mb-4"
-              />
-        <p className="text-[var(--muted)] text-lg">{t('seller.loadingProducts')}</p>
-            </div>
-          ) : products.length === 0 ? (
-            <div className="text-center py-8 sm:py-12">
-        <Palette className="w-12 h-12 sm:w-16 sm:h-16 text-[var(--muted)] mx-auto mb-4" />
-        <p className="text-[var(--muted)] text-base sm:text-lg">{t('seller.noProducts')}</p>
-        <p className="text-[var(--muted)] text-sm">{t('seller.startByAddingFirst')}</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-              {products.map((product) => (
-                <motion.div
-                  key={product.id}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-          className="card border overflow-hidden hover:shadow-lg transition-shadow duration-200"
+            <div id="seller-products-section" className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
+              <h2 className="text-xl sm:text-2xl font-semibold text-[var(--text)]">{t('seller.yourProducts')}</h2>
+              <div className="flex items-center gap-2 sm:space-x-3 flex-wrap">
+                <Link
+                  href="/dashboard/seller/reels"
+                  className="flex items-center px-3 sm:px-4 py-2 text-sm sm:text-base bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-lg hover:from-purple-600 hover:to-indigo-700 transition-all duration-200"
                 >
-          <div className="h-40 sm:h-48 bg-[var(--bg-2)] flex items-center justify-center">
-                    {product.image_url ? (
-                      <img
-                        src={product.image_url}
-                        alt={product.title}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <Palette className="w-10 h-10 sm:w-12 sm:h-12 text-[var(--muted)]" />
-                    )}
-                  </div>
-                  <div className="p-3 sm:p-4">
-                    <h3 className="font-semibold text-sm sm:text-base text-[var(--text)] mb-2 line-clamp-2">{product.title}</h3>
-                    <p className="text-xs sm:text-sm text-[var(--muted)] mb-2">{product.category}</p>
-                    <p className="text-base sm:text-lg font-bold text-orange-500">₹{product.price}</p>
-                    <div className="flex flex-col xs:flex-row gap-2 mt-3">
-                      <button
-                        onClick={() => {
-                          setEditingProduct(product)
-                        }}
-            className="flex-1 flex items-center justify-center px-3 py-2 text-xs sm:text-sm border border-[var(--border)] rounded-md text-[var(--text)] hover:bg-[var(--bg-2)] transition-colors"
-                      >
-                        <Edit className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-                        {t('common.edit')}
-                      </button>
-                      <button
-                        onClick={() => handleDeleteProduct(product.id)}
-                        className="flex-1 flex items-center justify-center px-3 py-2 text-xs sm:text-sm border border-red-300 rounded-md bg-red-600 text-white hover:bg-red-700 transition-colors"
-                      >
-                        <Trash2 className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-                        {t('common.delete')}
-                      </button>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
+                  <Eye className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                  <span className="hidden sm:inline">{t('seller.manageReels')}</span>
+                  <span className="sm:hidden">{t('seller.productsReelsMobile')}</span>
+                </Link>
+                <button
+                  onClick={() => setShowAIProductForm(true)}
+                  className="flex items-center px-3 sm:px-4 py-2 text-sm sm:text-base bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-lg hover:from-orange-600 hover:to-red-700 transition-all duration-200"
+                >
+                  <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                  <span className="hidden sm:inline">{t('seller.addProductWithAI')}</span>
+                  <span className="sm:hidden">{t('seller.productsAddMobile')}</span>
+                </button>
+                {/* Sign out button removed as requested */}
+              </div>
             </div>
-          )}
-        </motion.div>
+
+            {productsLoading ? (
+              <div className="text-center py-12">
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                  className="w-12 h-12 border-4 border-orange-200 border-t-orange-600 rounded-full mx-auto mb-4"
+                />
+                <p className="text-[var(--muted)] text-lg">{t('seller.loadingProducts')}</p>
+              </div>
+            ) : products.length === 0 ? (
+              <div className="text-center py-8 sm:py-12">
+                <Palette className="w-12 h-12 sm:w-16 sm:h-16 text-[var(--muted)] mx-auto mb-4" />
+                <p className="text-[var(--muted)] text-base sm:text-lg">{t('seller.noProducts')}</p>
+                <p className="text-[var(--muted)] text-sm">{t('seller.startByAddingFirst')}</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                {products.map((product) => (
+                  <motion.div
+                    key={product.id}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="card border overflow-hidden hover:shadow-lg transition-shadow duration-200"
+                  >
+                    <div className="relative h-40 sm:h-48 bg-[var(--bg-2)]">
+                      {product.image_url ? (
+                        <Image
+                          src={product.image_url}
+                          alt={product.title}
+                          fill
+                          className="object-cover"
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        />
+                      ) : (
+                        <Palette className="w-10 h-10 sm:w-12 sm:h-12 text-[var(--muted)]" />
+                      )}
+                    </div>
+                    <div className="p-3 sm:p-4">
+                      <h3 className="font-semibold text-sm sm:text-base text-[var(--text)] mb-2 line-clamp-2">{product.title}</h3>
+                      <p className="text-xs sm:text-sm text-[var(--muted)] mb-2">{product.category}</p>
+                      <p className="text-base sm:text-lg font-bold text-orange-500">₹{product.price}</p>
+                      <div className="flex flex-col xs:flex-row gap-2 mt-3">
+                        <button
+                          onClick={() => {
+                            setEditingProduct(product)
+                          }}
+                          className="flex-1 flex items-center justify-center px-3 py-2 text-xs sm:text-sm border border-[var(--border)] rounded-md text-[var(--text)] hover:bg-[var(--bg-2)] transition-colors"
+                        >
+                          <Edit className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                          {t('common.edit')}
+                        </button>
+                        <button
+                          onClick={() => handleDeleteProduct(product.id)}
+                          className="flex-1 flex items-center justify-center px-3 py-2 text-xs sm:text-sm border border-red-300 rounded-md bg-red-600 text-white hover:bg-red-700 transition-colors"
+                        >
+                          <Trash2 className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                          {t('common.delete')}
+                        </button>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            )}
+          </motion.div>
         )}
 
 
@@ -1796,7 +1792,7 @@ useEffect(() => {
                 })
                 // Create a synthetic event
                 const syntheticEvent = {
-                  preventDefault: () => {},
+                  preventDefault: () => { },
                   currentTarget: form
                 } as React.FormEvent<HTMLFormElement>
                 // Call handleAddProduct and return productId
@@ -1829,7 +1825,7 @@ useEffect(() => {
                 })
                 // Create a synthetic event
                 const syntheticEvent = {
-                  preventDefault: () => {},
+                  preventDefault: () => { },
                   currentTarget: form
                 } as React.FormEvent<HTMLFormElement>
                 // Call handleAddProduct and return productId
@@ -1846,84 +1842,84 @@ useEffect(() => {
             loading={addProductLoading}
           />
         )}
-        
 
-{/* Respond Modal (always at page root, overlays everything) */}
-{respondModalOpen && (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-teal-100/60 via-cyan-100/60 to-blue-100/60 dark:from-gray-900/80 dark:via-gray-950/80 dark:to-gray-900/80 backdrop-blur-sm transition-colors">
-    <div className="relative bg-white dark:bg-gray-900 rounded-2xl shadow-2xl p-0 w-full max-w-lg mx-auto border border-teal-200 dark:border-cyan-700/40 overflow-hidden transition-colors">
-      {/* Decorative Top Bar */}
-      <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-teal-400 via-cyan-400 to-blue-400 dark:from-cyan-700 dark:via-blue-800 dark:to-teal-700 rounded-t-2xl transition-colors" />
-      {/* Icon and Title */}
-      <div className="flex items-center gap-3 px-6 pt-6 pb-2">
-        <span className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-teal-400 to-cyan-400 dark:from-cyan-700 dark:to-blue-700 shadow text-white text-2xl transition-colors">
-          <Sparkles className="w-7 h-7" />
-        </span>
-        <div>
-          <h3 className="text-2xl font-extrabold text-teal-700 dark:text-cyan-300 mb-1 transition-colors">{t('seller.respondModalTitle')}</h3>
-          <p className="text-sm text-[var(--muted)] dark:text-cyan-200/80 transition-colors">{t('seller.respondModalSubtitle')}</p>
-        </div>
-      </div>
-      {/* Request Description */}
-      <div className="px-6 pt-2 pb-1">
-        <div className="bg-teal-50 dark:bg-gray-800 border border-teal-200 dark:border-cyan-700/30 rounded-lg p-3 text-[var(--text)] dark:text-cyan-100 text-base font-medium mb-2 shadow-sm transition-colors">
-          {respondingRequest?.description}
-        </div>
-      </div>
-      {/* Response Input or Success Message */}
-      <div className="relative px-6 pb-2 min-h-[120px] flex items-center justify-center">
-        {respondSuccess ? (
-          <div className="w-full flex flex-col items-center justify-center py-8">
-            <div className="flex items-center justify-center mb-3">
-              <span className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-teal-400 to-cyan-400 dark:from-cyan-700 dark:to-blue-700 shadow text-white text-2xl">
-                <Sparkles className="w-7 h-7" />
-              </span>
+
+        {/* Respond Modal (always at page root, overlays everything) */}
+        {respondModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-teal-100/60 via-cyan-100/60 to-blue-100/60 dark:from-gray-900/80 dark:via-gray-950/80 dark:to-gray-900/80 backdrop-blur-sm transition-colors">
+            <div className="relative bg-white dark:bg-gray-900 rounded-2xl shadow-2xl p-0 w-full max-w-lg mx-auto border border-teal-200 dark:border-cyan-700/40 overflow-hidden transition-colors">
+              {/* Decorative Top Bar */}
+              <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-teal-400 via-cyan-400 to-blue-400 dark:from-cyan-700 dark:via-blue-800 dark:to-teal-700 rounded-t-2xl transition-colors" />
+              {/* Icon and Title */}
+              <div className="flex items-center gap-3 px-6 pt-6 pb-2">
+                <span className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-teal-400 to-cyan-400 dark:from-cyan-700 dark:to-blue-700 shadow text-white text-2xl transition-colors">
+                  <Sparkles className="w-7 h-7" />
+                </span>
+                <div>
+                  <h3 className="text-2xl font-extrabold text-teal-700 dark:text-cyan-300 mb-1 transition-colors">{t('seller.respondModalTitle')}</h3>
+                  <p className="text-sm text-[var(--muted)] dark:text-cyan-200/80 transition-colors">{t('seller.respondModalSubtitle')}</p>
+                </div>
+              </div>
+              {/* Request Description */}
+              <div className="px-6 pt-2 pb-1">
+                <div className="bg-teal-50 dark:bg-gray-800 border border-teal-200 dark:border-cyan-700/30 rounded-lg p-3 text-[var(--text)] dark:text-cyan-100 text-base font-medium mb-2 shadow-sm transition-colors">
+                  {respondingRequest?.description}
+                </div>
+              </div>
+              {/* Response Input or Success Message */}
+              <div className="relative px-6 pb-2 min-h-[120px] flex items-center justify-center">
+                {respondSuccess ? (
+                  <div className="w-full flex flex-col items-center justify-center py-8">
+                    <div className="flex items-center justify-center mb-3">
+                      <span className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-teal-400 to-cyan-400 dark:from-cyan-700 dark:to-blue-700 shadow text-white text-2xl">
+                        <Sparkles className="w-7 h-7" />
+                      </span>
+                    </div>
+                    <div className="text-xl font-bold text-teal-700 dark:text-cyan-300 mb-2">{t('seller.respondModalSuccessTitle')}</div>
+                    <div className="text-base text-[var(--muted)] dark:text-cyan-200/80">{t('seller.respondModalSuccessDesc')}</div>
+                  </div>
+                ) : (
+                  <>
+                    <textarea
+                      className="w-full p-4 rounded-xl border-2 border-teal-200 dark:border-cyan-700 bg-teal-50 dark:bg-gray-800 text-[var(--text)] dark:text-cyan-100 resize-none pr-14 text-base font-medium focus:outline-none focus:ring-2 focus:ring-teal-300 dark:focus:ring-cyan-700 transition-all shadow"
+                      rows={5}
+                      placeholder={t('seller.respondModalTextareaPlaceholder')}
+                      value={respondMessage}
+                      onChange={e => setRespondMessage(e.target.value)}
+                      disabled={respondLoading}
+                    />
+                    <button
+                      type="button"
+                      className="absolute top-4 right-8 bg-gradient-to-br from-teal-200 to-cyan-200 dark:from-cyan-800 dark:to-blue-900 text-teal-700 dark:text-cyan-200 rounded-full p-2 shadow-lg hover:bg-teal-300 dark:hover:bg-cyan-900 focus:outline-none border border-teal-300 dark:border-cyan-700 transition-colors"
+                      title={t('seller.respondModalMicTooltip')}
+                      disabled={respondLoading}
+                      onClick={handleMicRespond}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 18.75v-1.5m0-13.5a3.75 3.75 0 013.75 3.75v6a3.75 3.75 0 01-7.5 0v-6A3.75 3.75 0 0112 3.75zm0 0v13.5m6-6a6 6 0 11-12 0" />
+                      </svg>
+                    </button>
+                  </>
+                )}
+              </div>
+              {/* Action Buttons */}
+              {!respondSuccess && (
+                <div className="flex gap-3 justify-end px-6 pb-6 pt-2">
+                  <button
+                    className="px-5 py-2.5 rounded-lg bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-800 dark:to-gray-700 text-gray-900 dark:text-cyan-100 font-semibold shadow hover:from-gray-300 hover:to-gray-400 dark:hover:from-gray-700 dark:hover:to-gray-800 transition-all"
+                    onClick={() => setRespondModalOpen(false)}
+                    disabled={respondLoading}
+                  >{t('seller.respondModalCancel')}</button>
+                  <button
+                    className="px-5 py-2.5 rounded-lg bg-gradient-to-r from-teal-500 to-cyan-600 dark:from-cyan-700 dark:to-blue-700 text-white font-bold shadow-lg hover:from-teal-600 hover:to-cyan-700 dark:hover:from-cyan-800 dark:hover:to-blue-800 transition-all disabled:opacity-60"
+                    onClick={handleSendResponse}
+                    disabled={respondLoading || !respondMessage}
+                  >{t('seller.respondModalSend')}</button>
+                </div>
+              )}
             </div>
-            <div className="text-xl font-bold text-teal-700 dark:text-cyan-300 mb-2">{t('seller.respondModalSuccessTitle')}</div>
-            <div className="text-base text-[var(--muted)] dark:text-cyan-200/80">{t('seller.respondModalSuccessDesc')}</div>
           </div>
-        ) : (
-          <>
-            <textarea
-              className="w-full p-4 rounded-xl border-2 border-teal-200 dark:border-cyan-700 bg-teal-50 dark:bg-gray-800 text-[var(--text)] dark:text-cyan-100 resize-none pr-14 text-base font-medium focus:outline-none focus:ring-2 focus:ring-teal-300 dark:focus:ring-cyan-700 transition-all shadow"
-              rows={5}
-              placeholder={t('seller.respondModalTextareaPlaceholder')}
-              value={respondMessage}
-              onChange={e => setRespondMessage(e.target.value)}
-              disabled={respondLoading}
-            />
-            <button
-              type="button"
-              className="absolute top-4 right-8 bg-gradient-to-br from-teal-200 to-cyan-200 dark:from-cyan-800 dark:to-blue-900 text-teal-700 dark:text-cyan-200 rounded-full p-2 shadow-lg hover:bg-teal-300 dark:hover:bg-cyan-900 focus:outline-none border border-teal-300 dark:border-cyan-700 transition-colors"
-              title={t('seller.respondModalMicTooltip')}
-              disabled={respondLoading}
-              onClick={handleMicRespond}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 18.75v-1.5m0-13.5a3.75 3.75 0 013.75 3.75v6a3.75 3.75 0 01-7.5 0v-6A3.75 3.75 0 0112 3.75zm0 0v13.5m6-6a6 6 0 11-12 0" />
-              </svg>
-            </button>
-          </>
         )}
-      </div>
-      {/* Action Buttons */}
-      {!respondSuccess && (
-        <div className="flex gap-3 justify-end px-6 pb-6 pt-2">
-          <button
-            className="px-5 py-2.5 rounded-lg bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-800 dark:to-gray-700 text-gray-900 dark:text-cyan-100 font-semibold shadow hover:from-gray-300 hover:to-gray-400 dark:hover:from-gray-700 dark:hover:to-gray-800 transition-all"
-            onClick={() => setRespondModalOpen(false)}
-            disabled={respondLoading}
-          >{t('seller.respondModalCancel')}</button>
-          <button
-            className="px-5 py-2.5 rounded-lg bg-gradient-to-r from-teal-500 to-cyan-600 dark:from-cyan-700 dark:to-blue-700 text-white font-bold shadow-lg hover:from-teal-600 hover:to-cyan-700 dark:hover:from-cyan-800 dark:hover:to-blue-800 transition-all disabled:opacity-60"
-            onClick={handleSendResponse}
-            disabled={respondLoading || !respondMessage}
-          >{t('seller.respondModalSend')}</button>
-        </div>
-      )}
-    </div>
-  </div>
-)}
       </div>
     </div>
   )
