@@ -445,8 +445,10 @@
 }
 
 /* Utility for dark glass nav */
-.heritage-bg[data-theme='dark'] {
+/* Utility for dark glass nav */
+:root[data-theme='dark'] .heritage-bg {
   background-color: var(--background);
+  background-image: none !important;
 }
 
 body {

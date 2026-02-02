@@ -351,71 +351,71 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 3D Bazaar Feature Section */}
-      <section className="py-16 md:py-24 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-blue-900/20 dark:via-purple-900/20 dark:to-pink-900/20 relative overflow-hidden">
+      {/* 3D Bazaar Feature Section (Heritage Redesign) */}
+      <section className="py-12 md:py-16 heritage-bg relative overflow-hidden border-y border-[#b08d55]/20 dark:border-white/10">
         {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-20 left-10 w-64 h-64 bg-gradient-to-br from-blue-400 to-purple-400 rounded-full mix-blend-multiply filter blur-2xl floating-element"></div>
-          <div className="absolute bottom-20 right-10 w-64 h-64 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full mix-blend-multiply filter blur-2xl floating-element"></div>
-        </div>
+        <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 50% 50%, #b08d55 1px, transparent 1px)', backgroundSize: '24px 24px' }}></div>
+        <div className="absolute top-0 left-0 w-full h-24 bg-gradient-to-b from-white to-transparent opacity-80 dark:from-[var(--bg-1)]"></div>
+        <div className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-white to-transparent opacity-80 dark:from-[var(--bg-1)]"></div>
 
         <div className="container-custom relative">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-[var(--text)] mb-8 animate-slide-in-up">
+          <div className="text-center mb-10">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-[#3d0000] dark:text-[var(--heritage-gold)] mb-6 animate-slide-in-up">
               {t('home.bazaarFeatureTitle')}
             </h2>
-            <p className="text-xl text-[var(--muted)] max-w-3xl mx-auto animate-slide-in-up animate-delay-100">
+            <div className="w-20 h-1 bg-[#b08d55] mx-auto mb-6 rounded-full"></div>
+            <p className="text-lg text-[#3d0000]/80 dark:text-[var(--text)]/90 max-w-3xl mx-auto animate-slide-in-up animate-delay-100 font-medium leading-relaxed">
               {t('home.bazaarFeatureDesc')}
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            {/* Left Side - Description */}
-            <div className="animate-slide-in-up animate-delay-200">
-              <div className="space-y-8">
+          <div className="grid md:grid-cols-12 gap-10 items-center">
+            {/* Left Side - Description (7 cols) */}
+            <div className="md:col-span-7 animate-slide-in-up animate-delay-200 order-2 md:order-1">
+              <div className="space-y-6">
                 <div className="flex items-start space-x-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
-                    <Palette className="w-6 h-6 text-white" />
+                  <div className="w-12 h-12 bg-[#3d0000] dark:bg-[var(--heritage-gold)] rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg rotate-3">
+                    <Palette className="w-6 h-6 text-[#b08d55] dark:text-[#3d0000]" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-semibold text-[var(--text)] mb-2">{t('home.bazaarFeature1Title')}</h3>
-                    <p className="text-[var(--muted)]">{t('home.bazaarFeature1Desc')}</p>
+                    <h3 className="text-xl font-bold text-[#3d0000] dark:text-[var(--heritage-gold)] mb-2 font-serif">{t('home.bazaarFeature1Title')}</h3>
+                    <p className="text-[#3d0000]/70 dark:text-[var(--muted)]">{t('home.bazaarFeature1Desc')}</p>
                   </div>
                 </div>
 
                 <div className="flex items-start space-x-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center flex-shrink-0">
-                    <Sparkles className="w-6 h-6 text-white" />
+                  <div className="w-12 h-12 bg-[#b08d55] dark:bg-[var(--heritage-red)] rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg -rotate-2">
+                    <Sparkles className="w-6 h-6 text-[#3d0000] dark:text-white" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-semibold text-[var(--text)] mb-2">{t('home.bazaarFeature2Title')}</h3>
-                    <p className="text-[var(--muted)]">{t('home.bazaarFeature2Desc')}</p>
+                    <h3 className="text-xl font-bold text-[#3d0000] dark:text-[var(--heritage-gold)] mb-2 font-serif">{t('home.bazaarFeature2Title')}</h3>
+                    <p className="text-[#3d0000]/70 dark:text-[var(--muted)]">{t('home.bazaarFeature2Desc')}</p>
                   </div>
                 </div>
 
                 <div className="flex items-start space-x-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-pink-500 to-red-500 rounded-full flex items-center justify-center flex-shrink-0">
-                    <Heart className="w-6 h-6 text-white" />
+                  <div className="w-12 h-12 bg-[#3d0000] dark:bg-[var(--heritage-gold)] rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg rotate-1">
+                    <Heart className="w-6 h-6 text-[#b08d55] dark:text-[#3d0000]" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-semibold text-[var(--text)] mb-2">{t('home.bazaarFeature3Title')}</h3>
-                    <p className="text-[var(--muted)]">{t('home.bazaarFeature3Desc')}</p>
+                    <h3 className="text-xl font-bold text-[#3d0000] dark:text-[var(--heritage-gold)] mb-2 font-serif">{t('home.bazaarFeature3Title')}</h3>
+                    <p className="text-[#3d0000]/70 dark:text-[var(--muted)]">{t('home.bazaarFeature3Desc')}</p>
                   </div>
                 </div>
               </div>
 
-              <div className="mt-12">
-                <Link href="/marketplace?view=3d" className="btn-3d-bazaar inline-flex items-center space-x-3 px-8 py-4 rounded-2xl">
-                  <Palette className="w-6 h-6 animate-pulse" />
-                  <span className="text-lg font-semibold">{t('home.enter3dBazaar')}</span>
-                  <ArrowRight className="w-5 h-5" />
+              <div className="mt-10">
+                <Link href="/marketplace?view=3d" className="inline-flex items-center space-x-3 px-8 py-4 bg-[#3d0000] dark:bg-[var(--heritage-gold)] text-[#b08d55] dark:text-[#3d0000] border-2 border-[#b08d55] dark:border-[#3d0000] rounded-xl font-serif font-bold text-base hover:bg-[#590000] dark:hover:bg-[#fff] hover:text-[#d4af37] transition-all shadow-xl hover:shadow-2xl hover:-translate-y-1">
+                  <Palette className="w-5 h-5" />
+                  <span>{t('home.enter3dBazaar')}</span>
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </div>
             </div>
 
-            {/* Right Side - Visual */}
-            <div className="animate-slide-in-up animate-delay-300">
-              <div className="relative aspect-square flex items-center justify-center rounded-3xl shadow-2xl bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 dark:from-blue-900/30 dark:via-purple-900/30 dark:to-pink-900/30">
+            {/* Right Side - Visual (5 cols) */}
+            <div className="md:col-span-5 animate-slide-in-up animate-delay-300 order-1 md:order-2 flex justify-center md:justify-end">
+              <div className="relative w-full max-w-sm aspect-square flex items-center justify-center rounded-3xl shadow-2xl bg-[#fdfbf7] dark:bg-[var(--card)] border-8 border-white dark:border-[var(--border)]">
                 <div style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
                   <iframe
                     width="100%"
@@ -424,16 +424,18 @@ export default function Home() {
                     title="KalaMitra 3D Bazaar Preview"
                     allow="autoplay; encrypted-media"
                     allowFullScreen={false}
-                    className="aspect-square rounded-2xl overflow-hidden shadow-2xl"
-                    style={{ minHeight: '320px', minWidth: '320px', border: 'none', pointerEvents: 'none' }}
+                    className="aspect-square rounded-2xl overflow-hidden"
+                    style={{ minHeight: '100%', minWidth: '100%', border: 'none', pointerEvents: 'none' }}
                     frameBorder="0"
                   ></iframe>
                 </div>
-                <div style={{ position: 'absolute', inset: 0, zIndex: 1, pointerEvents: 'auto' }} className="rounded-2xl bg-transparent" />
-                {/* Decorative Elements */}
-                <div className="absolute -top-4 -right-4 w-8 h-8 bg-gradient-to-br from-blue-400 to-purple-400 rounded-full opacity-60"></div>
-                <div className="absolute -bottom-4 -left-4 w-6 h-6 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full opacity-60"></div>
-                <div className="absolute top-1/2 -left-6 w-4 h-4 bg-gradient-to-br from-pink-400 to-red-400 rounded-full opacity-60"></div>
+                <div style={{ position: 'absolute', inset: 0, zIndex: 1, pointerEvents: 'auto' }} className="rounded-2xl bg-transparent ring-1 ring-[#b08d55]/20" />
+                {/* Decorative Frame Elements */}
+                <div className="absolute -top-6 -right-6 w-12 h-12 bg-[#b08d55] rounded-full opacity-20 blur-xl"></div>
+                <div className="absolute -bottom-6 -left-6 w-12 h-12 bg-[#3d0000] rounded-full opacity-20 blur-xl"></div>
+                {/* Corner Accents */}
+                <div className="absolute top-4 right-4 w-4 h-4 border-t-2 border-r-2 border-[#b08d55]/50 rounded-tr-md"></div>
+                <div className="absolute bottom-4 left-4 w-4 h-4 border-b-2 border-l-2 border-[#b08d55]/50 rounded-bl-md"></div>
               </div>
             </div>
           </div>
@@ -441,7 +443,7 @@ export default function Home() {
       </section>
 
       {/* USP/Features Section */}
-      <section className="section-padding bg-gradient-to-br from-[var(--bg-2)]/80 to-white/60 backdrop-blur-sm relative overflow-hidden">
+      <section className="section-padding bg-gradient-to-br from-[var(--bg-2)]/80 to-white/60 dark:from-[var(--bg-2)] dark:to-[var(--bg-1)] backdrop-blur-sm relative overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-5">
           <div className="absolute top-20 left-10 w-64 h-64 bg-gradient-to-br from-[var(--heritage-gold)] to-[var(--heritage-red)] rounded-full mix-blend-multiply filter blur-2xl floating-element"></div>
