@@ -137,10 +137,19 @@
     "no": "नङा"
   },
   "auctions": {
-    "title": "निलाम",
+    "title": "हैरिटेज निलाम",
+    "subtitle": "Bid on exclusive, handcrafted masterpieces directly from artisans. Own a piece of history.",
+    "noActive": "No active auctions at the moment. Check back soon!",
     "status": "स्टेटस",
     "view": "नुनो",
-    "noImage": "फोटो नङि"
+    "noImage": "फोटो नङि",
+    "live": "लाइभ",
+    "upcoming": "फैगौ",
+    "endedStatus": "जोबबाय",
+    "past": "Past",
+    "noAuctions": "No active auctions",
+    "bidNow": "Bid Now",
+    "viewAuction": "View Auction"
   },
   "profile": {
     "title": "प्रफाइल",
@@ -498,20 +507,20 @@
     "reviewSelectedItems": "नोंसोरनि नायनाय आइटम फोरखौ रिवियु खालाम",
     "orderSummary": "अर्डर सारांश",
     "free": "फ्री",
-  "addedSuccess": "उत्पादनखौ कार्टआव गोसोआव दाजाबदेरो!",
-  "addedError": "उत्पादनखौ कार्टआव दाजाब होयो ओंखारनो हाया।",
-  "addedSuccessTitle": "कार्टआव दाजाबदेरो!",
-  "addedErrorTitle": "कार्टआव दाजाबनाया फेलें जाबोर",
-  "viewCart": "कार्ट नुथाय",
-  "close": "बन्द खालाम",
-  "loginRequired": "आयटमफोरखौ कार्टआव दाजाबनो नोंसोर लग इन खालामनो नांगौ।",
-  "quantityUpdated": "कार्टनि परिमाण आपडेट खालामबोर।",
-  "updateError": "कार्टनि परिमाणखौ आपडेट खालामनो हाया।",
-  "removed": "आयटमखौ कार्टनिफ्राय खोख्लैबोर।",
-  "removeError": "आयटमखौ कार्टनिफ्राय खोख्लैनो हाया।",
-  "checkoutComingSoon": "चेकआउटा सुबुरै फैयो!",
-  "decreaseQuantity": "परिमाण खमाय",
-  "increaseQuantity": "परिमाण बांसाय"
+    "addedSuccess": "उत्पादनखौ कार्टआव गोसोआव दाजाबदेरो!",
+    "addedError": "उत्पादनखौ कार्टआव दाजाब होयो ओंखारनो हाया।",
+    "addedSuccessTitle": "कार्टआव दाजाबदेरो!",
+    "addedErrorTitle": "कार्टआव दाजाबनाया फेलें जाबोर",
+    "viewCart": "कार्ट नुथाय",
+    "close": "बन्द खालाम",
+    "loginRequired": "आयटमफोरखौ कार्टआव दाजाबनो नोंसोर लग इन खालामनो नांगौ।",
+    "quantityUpdated": "कार्टनि परिमाण आपडेट खालामबोर।",
+    "updateError": "कार्टनि परिमाणखौ आपडेट खालामनो हाया।",
+    "removed": "आयटमखौ कार्टनिफ्राय खोख्लैबोर।",
+    "removeError": "आयटमखौ कार्टनिफ्राय खोख्लैनो हाया।",
+    "checkoutComingSoon": "चेकआउटा सुबुरै फैयो!",
+    "decreaseQuantity": "परिमाण खमाय",
+    "increaseQuantity": "परिमाण बांसाय"
   },
   "dashboard": {
     "title": "ड्यासबर्ड",
@@ -628,9 +637,19 @@
       "chooseImage": "इमेज नाय",
       "details": "स्टर बेसेन",
       "fields": {
-        "storeName": { "label": "स्टरनि मुं", "placeholder": "नोंसोरनि स्टरनि मुं" },
-        "bio": { "label": "बाय'", "placeholder": "नोंसोरनि आरो नोंसोरनि क्राफ्टनि सोमोन्दो आंगोनो सुन...", "noBio": "जोंनो बाय'आ नङै" },
-        "description": { "label": "स्टर बेसेन", "placeholder": "नोंसोरनि स्टरनि मोनसे कम्पेलिं बेसेन जाय नोंसोरनि स्टल पेज आव दिन्थिगोन..." }
+        "storeName": {
+          "label": "स्टरनि मुं",
+          "placeholder": "नोंसोरनि स्टरनि मुं"
+        },
+        "bio": {
+          "label": "बाय'",
+          "placeholder": "नोंसोरनि आरो नोंसोरनि क्राफ्टनि सोमोन्दो आंगोनो सुन...",
+          "noBio": "जोंनो बाय'आ नङै"
+        },
+        "description": {
+          "label": "स्टर बेसेन",
+          "placeholder": "नोंसोरनि स्टरनि मोनसे कम्पेलिं बेसेन जाय नोंसोरनि स्टल पेज आव दिन्थिगोन..."
+        }
       },
       "aiGenerate": "एआइ जनरेट",
       "generating": "जनरेट खालामदों...",
@@ -708,6 +727,21 @@
     "statusEnded": "समाप्त जादों",
     "statusCancelled": "क्यान्सेल जादों"
   },
+  "home": {
+    "faq": {
+      "title": "साधारण सोंनाय सोंथि",
+      "q1": "What is KalaMitra?",
+      "a1": "KalaMitra is an AI-powered marketplace connecting talented artisans with buyers worldwide. We celebrate India's cultural heritage by helping artisans showcase their handcrafted products while offering buyers an immersive shopping experience with 3D virtual stalls, AR product visualization, and AI-assisted search.",
+      "q2": "How do I buy products on KalaMitra?",
+      "a2": "Simply browse our marketplace, use voice or text search in any Indian language, and explore products. You can view items in AR, read artisan stories, add products to your cart, and checkout securely. Our AI Shopping Assistant is always available to help you find exactly what you're looking for.",
+      "q3": "How can artisans sell on KalaMitra?",
+      "a3": "Sign up as a seller, create your personalized virtual stall, and start listing products. Use our AI tools to enhance photos, generate descriptions, and create compelling stories. You can also run auctions, post reels, collaborate with other artisans, and track your performance through detailed analytics—all for free.",
+      "q4": "What makes KalaMitra different from other marketplaces?",
+      "a4": "KalaMitra uniquely combines tradition with technology. We offer 3D virtual bazaars, AR product previews, voice search in multiple Indian languages, AI-powered shopping assistance, story narration for products, custom craft requests, and direct chat with artisans. Every feature is designed to preserve cultural heritage while empowering artisans.",
+      "q5": "Is KalaMitra free to use?",
+      "a5": "Yes! Creating an account, browsing products, and listing items as a seller is completely free. We support multiple Indian languages, provide AI tools for sellers at no cost, and charge no upfront fees. Our mission is to make authentic handcrafted art accessible to everyone."
+    }
+  },
   "footer": {
     "about": "आंगोनि सोमोन्दो",
     "contact": "कन्टाक्ट",
@@ -722,6 +756,8 @@
     "sitemap": "साइटम्याप",
     "newsletter": "निउजलेटार",
     "subscribe": "आंगोर निउजलेटारखौ सबस्क्राइब खालाम",
+    "subscribeTitle": "सबस्क्राइब",
+    "subscribeBtn": "सबस्क्राइब",
     "emailPlaceholder": "नोंसोरनि इमेल बाहाइहो",
     "followUs": "आंगोरनो फलाव",
     "copyright": "© 2025 KalaaMitra. गासै हेंथायाखौ बोसोरनाय।",
@@ -811,10 +847,22 @@
       "websiteSpeak": "वेबसाइटखौ राव",
       "tipsEmoji": "💡",
       "fields": {
-        "title": { "label": "Product टाइटल *", "placeholder": "Product टाइटल बाहाइहो" },
-        "category": { "label": "क्याटेगरि *", "placeholder": "जेरै, पटरी, टेक्सटाइल, ज्वेलरी" },
-        "description": { "label": "बेसेन *", "placeholder": "नोंसोरनि product खौ बेसेन हो (AI आ बेखौ बांहोनो साहायो हागोन!)" },
-        "price": { "label": "दाउसा (₹) *", "placeholder": "0.00" },
+        "title": {
+          "label": "Product टाइटल *",
+          "placeholder": "Product टाइटल बाहाइहो"
+        },
+        "category": {
+          "label": "क्याटेगरि *",
+          "placeholder": "जेरै, पटरी, टेक्सटाइल, ज्वेलरी"
+        },
+        "description": {
+          "label": "बेसेन *",
+          "placeholder": "नोंसोरनि product खौ बेसेन हो (AI आ बेखौ बांहोनो साहायो हागोन!)"
+        },
+        "price": {
+          "label": "दाउसा (₹) *",
+          "placeholder": "0.00"
+        },
         "story": {
           "label": "Productनि कथा (हेरिटेज)",
           "placeholder": "बे product नि हेरिटेज, उत्पत्ति, एबा सांस्कृतिक कथाखौ साइथि हो...",
@@ -975,7 +1023,19 @@
     "becomeArtisan": "आर्तिजान जा",
     "explore3dBazaar": "3D बजारखौ नाय",
     "leaderboardTitle": "टप आर्तिजान सपर्टार फोर",
-    "leaderboardDesc": "बिसोरनि किनमानायजों गोजामनि आर्तिजानफोरखौ सपर्ट खालामग्रा आंगोर सोरगिदिं डेडिकेटेड कास्टमारफोरखौ रिकगनाइज खालामदों।"
+    "leaderboardDesc": "बिसोरनि किनमानायजों गोजामनि आर्तिजानफोरखौ सपर्ट खालामग्रा आंगोर सोरगिदिं डेडिकेटेड कास्टमारफोरखौ रिकगनाइज खालामदों।",
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "p1": "Here are some common questions about KalaMitra.",
+      "q1": "What is KalaMitra?",
+      "a1": "KalaMitra is a platform connecting artisans with buyers.",
+      "q2": "How do I buy?",
+      "a2": "Browse the marketplace and click 'Buy Now'.",
+      "q3": "Is it secure?",
+      "a3": "Yes, we use secure payment gateways.",
+      "q4": "Can I return items?",
+      "a4": "Check the return policy on the product page."
+    }
   },
   "brand": {
     "name": "हारिनि गोजोन"

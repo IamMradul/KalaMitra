@@ -140,7 +140,13 @@
     "title": "निलामीहरू",
     "status": "स्थिति",
     "view": "हेर्नुहोस्",
-    "noImage": "कुनै छवि छैन"
+    "noImage": "कुनै छवि छैन",
+    "live": "Live Auctions",
+    "upcoming": "Upcoming",
+    "past": "Past Auctions",
+    "noAuctions": "No auctions found",
+    "bidNow": "Bid Now",
+    "viewAuction": "View Auction"
   },
   "profile": {
     "title": "प्रोफाइल",
@@ -498,21 +504,20 @@
     "reviewSelectedItems": "आफ्ना चयनित वस्तुहरू समीक्षा गर्नुहोस्",
     "orderSummary": "आदेश सारांश",
     "free": "निःशुल्क",
-      "addedSuccess": "उत्पादन कार्टमा सफलतापूर्वक थपियो!",
-  "addedError": "उत्पादन कार्टमा थप्न सकिएन।",
-  "addedSuccessTitle": "कार्टमा थपियो!",
-  "addedErrorTitle": "कार्टमा थप्न असफल",
-  "viewCart": "कार्ट हेर्नुहोस्",
-  "close": "बन्द गर्नुहोस्",
-  "loginRequired": "वस्तुहरू कार्टमा थप्न तपाईंले साइन इन गर्नुपर्छ।",
-  "quantityUpdated": "कार्टको मात्रा अपडेट भयो।",
-  "updateError": "कार्टको मात्रा अपडेट गर्न सकिएन।",
-  "removed": "वस्तु कार्टबाट हटाइयो।",
-  "removeError": "वस्तु कार्टबाट हटाउन सकिएन।",
-  "checkoutComingSoon": "चेकआउट चाँडै आउँदैछ!",
-  "decreaseQuantity": "मात्रा घटाउनुहोस्",
-  "increaseQuantity": "मात्रा बढाउनुहोस्"
-
+    "addedSuccess": "उत्पादन कार्टमा सफलतापूर्वक थपियो!",
+    "addedError": "उत्पादन कार्टमा थप्न सकिएन।",
+    "addedSuccessTitle": "कार्टमा थपियो!",
+    "addedErrorTitle": "कार्टमा थप्न असफल",
+    "viewCart": "कार्ट हेर्नुहोस्",
+    "close": "बन्द गर्नुहोस्",
+    "loginRequired": "वस्तुहरू कार्टमा थप्न तपाईंले साइन इन गर्नुपर्छ।",
+    "quantityUpdated": "कार्टको मात्रा अपडेट भयो।",
+    "updateError": "कार्टको मात्रा अपडेट गर्न सकिएन।",
+    "removed": "वस्तु कार्टबाट हटाइयो।",
+    "removeError": "वस्तु कार्टबाट हटाउन सकिएन।",
+    "checkoutComingSoon": "चेकआउट चाँडै आउँदैछ!",
+    "decreaseQuantity": "मात्रा घटाउनुहोस्",
+    "increaseQuantity": "मात्रा बढाउनुहोस्"
   },
   "dashboard": {
     "title": "ड्यासबोर्ड",
@@ -629,9 +634,18 @@
       "chooseImage": "छवि चयन गर्नुहोस्",
       "details": "पसल विवरणहरू",
       "fields": {
-        "storeName": { "label": "पसलको नाम", "placeholder": "तपाईंको पसलको नाम" },
-        "bio": { "label": "जीवनी", "placeholder": "आफ्नो र आफ्नो शिल्पको बारेमा हामीलाई भन्नुहोस्..." },
-        "description": { "label": "पसल विवरण", "placeholder": "तपाईंको स्टल पृष्ठमा देखिने तपाईंको पसलको एक सम्मोहक विवरण..." }
+        "storeName": {
+          "label": "पसलको नाम",
+          "placeholder": "तपाईंको पसलको नाम"
+        },
+        "bio": {
+          "label": "जीवनी",
+          "placeholder": "आफ्नो र आफ्नो शिल्पको बारेमा हामीलाई भन्नुहोस्..."
+        },
+        "description": {
+          "label": "पसल विवरण",
+          "placeholder": "तपाईंको स्टल पृष्ठमा देखिने तपाईंको पसलको एक सम्मोहक विवरण..."
+        }
       },
       "aiGenerate": "एआइ जनरेट गर्नुहोस्",
       "generating": "जनरेट हुँदैछ...",
@@ -989,7 +1003,19 @@
     "becomeArtisan": "कारीगर बन्नुहोस्",
     "explore3dBazaar": "3D बजारको अन्वेषण गर्नुहोस्",
     "leaderboardTitle": "शीर्ष कारीगर समर्थकहरू",
-    "leaderboardDesc": "आफ्नो खरिद मार्फत परम्परागत कारीगरहरूलाई समर्थन गर्ने हाम्रा सबैभन्दा समर्पित ग्राहकहरूलाई मान्यता दिँदै।"
+    "leaderboardDesc": "आफ्नो खरिद मार्फत परम्परागत कारीगरहरूलाई समर्थन गर्ने हाम्रा सबैभन्दा समर्पित ग्राहकहरूलाई मान्यता दिँदै।",
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "p1": "Here are some common questions about KalaMitra.",
+      "q1": "What is KalaMitra?",
+      "a1": "KalaMitra is a platform connecting artisans with buyers.",
+      "q2": "How do I buy?",
+      "a2": "Browse the marketplace and click 'Buy Now'.",
+      "q3": "Is it secure?",
+      "a3": "Yes, we use secure payment gateways.",
+      "q4": "Can I return items?",
+      "a4": "Check the return policy on the product page."
+    }
   },
   "brand": {
     "name": "कलामित्र"

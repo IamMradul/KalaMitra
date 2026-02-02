@@ -1,4 +1,3 @@
-
 'use client'
 import Leaderboard from '../components/Leaderboard'
 import VideoPlayer from '../components/VideoPlayer'
@@ -11,31 +10,32 @@ import { useEffect, useState } from 'react'
 import { HeartHandshake, PlusIcon } from 'lucide-react'
 import DonateModal from '../components/DonateModal';
 
-const faqData = [
-  {
-    question: "What is KalaMitra?",
-    answer: "KalaMitra is an AI-powered marketplace connecting talented artisans with buyers worldwide. We celebrate India's cultural heritage by helping artisans showcase their handcrafted products while offering buyers an immersive shopping experience with 3D virtual stalls, AR product visualization, and AI-assisted search."
-  },
-  {
-    question: "How do I buy products on KalaMitra?",
-    answer: "Simply browse our marketplace, use voice or text search in any Indian language, and explore products. You can view items in AR, read artisan stories, add products to your cart, and checkout securely. Our AI Shopping Assistant is always available to help you find exactly what you're looking for."
-  },
-  {
-    question: "How can artisans sell on KalaMitra?",
-    answer: "Sign up as a seller, create your personalized virtual stall, and start listing products. Use our AI tools to enhance photos, generate descriptions, and create compelling stories. You can also run auctions, post reels, collaborate with other artisans, and track your performance through detailed analytics—all for free."
-  },
-  {
-    question: "What makes KalaMitra different from other marketplaces?",
-    answer: "KalaMitra uniquely combines tradition with technology. We offer 3D virtual bazaars, AR product previews, voice search in multiple Indian languages, AI-powered shopping assistance, story narration for products, custom craft requests, and direct chat with artisans. Every feature is designed to preserve cultural heritage while empowering artisans."
-  },
-  {
-    question: "Is KalaMitra free to use?",
-    answer: "Yes! Creating an account, browsing products, and listing items as a seller is completely free. We support multiple Indian languages, provide AI tools for sellers at no cost, and charge no upfront fees. Our mission is to make authentic handcrafted art accessible to everyone."
-  }
-];
-
 function FaqCustomAccordion() {
   const [openItem, setOpenItem] = useState<string | null>("item-0");
+  const { t } = useTranslation();
+
+  const faqData = [
+    {
+      question: t('home.faq.q1', "What is KalaMitra?"),
+      answer: t('home.faq.a1', "KalaMitra is an AI-powered marketplace connecting talented artisans with buyers worldwide...")
+    },
+    {
+      question: t('home.faq.q2', "How do I buy products on KalaMitra?"),
+      answer: t('home.faq.a2', "Simply browse our marketplace, use voice or text search...")
+    },
+    {
+      question: t('home.faq.q3', "How can artisans sell on KalaMitra?"),
+      answer: t('home.faq.a3', "Sign up as a seller, create your personalized virtual stall...")
+    },
+    {
+      question: t('home.faq.q4', "What makes KalaMitra different from other marketplaces?"),
+      answer: t('home.faq.a4', "KalaMitra uniquely combines tradition with technology...")
+    },
+    {
+      question: t('home.faq.q5', "Is KalaMitra free to use?"),
+      answer: t('home.faq.a5', "Yes! Creating an account, browsing products...")
+    }
+  ];
 
   const toggleItem = (value: string) => {
     setOpenItem(openItem === value ? null : value);
@@ -655,7 +655,7 @@ export default function Home() {
         <div className="container-custom relative z-10">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold font-serif mb-6 text-transparent bg-clip-text bg-gradient-to-r from-[var(--heritage-gold)] to-[var(--heritage-red)] animate-slide-in-up">
-              Frequently Asked Questions
+              {t('home.faq.title', "Frequently Asked Questions")}
             </h2>
             <div className="w-24 h-1 bg-gradient-to-r from-[var(--heritage-gold)] to-[var(--heritage-red)] mx-auto rounded-full"></div>
           </div>
@@ -670,10 +670,10 @@ export default function Home() {
       <button
         type="button"
         className="fixed bottom-6 right-6 z-50 w-14 h-14 md:w-16 md:h-16 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-full shadow-2xl hover:shadow-green-500/50 transition-all duration-300 flex items-center justify-center group hover:scale-110"
-        title={t('home.donateFloatingButtonTooltip') || 'Donate Items for NGO'}
+        title={t('donate.title', 'Donate Items for NGO')}
         tabIndex={0}
         onClick={() => setDonateModalOpen(true)}
-        aria-label={t('home.donateFloatingButtonTooltip') || 'Donate Items for NGO'}
+        aria-label={t('donate.title', 'Donate Items for NGO')}
       >
         <div className="relative">
           <HeartHandshake className="w-6 h-6 md:w-7 md:h-7 text-white" aria-hidden="true" />

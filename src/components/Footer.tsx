@@ -15,7 +15,7 @@ const FooterItem = ({ text, link }: { text: string, link: string }) => {
   )
 }
 
-const FooterBlockItem = ({ title, items }: { title: string, items: Array<{id: number; link: string; text: string}> }) => {
+const FooterBlockItem = ({ title, items }: { title: string, items: Array<{ id: number; link: string; text: string }> }) => {
   return (
     <div className="space-y-6">
       <h1 className="text-lg font-semibold text-[var(--text)]">{title}</h1>
@@ -93,16 +93,16 @@ export default function Footer() {
 
         {/* Newsletter Section */}
         <div className="space-y-6 col-span-2">
-          <h1 className="text-lg font-semibold text-[var(--text)]">Subscribe</h1>
+          <h1 className="text-lg font-semibold text-[var(--text)]">{t('footer.subscribeTitle')}</h1>
           <p className="text-[var(--muted)] text-sm">{t('footer.communityBlurb')}</p>
           <form className="w-full max-w-2xl flex flex-col sm:flex-row gap-3">
             <input
               type="email"
-              placeholder="email@example.com"
+              placeholder={t('footer.emailPlaceholder')}
               className="px-5 py-2.5 rounded-xl outline-none flex-1 bg-[var(--bg-2)] border border-[var(--border)] focus:border-[var(--heritage-gold)] transition-colors"
             />
             <button className="outline-none w-full py-2.5 px-5 sm:w-max bg-gradient-to-r from-[var(--heritage-gold)] to-[var(--heritage-red)] hover:opacity-90 text-white rounded-xl flex items-center justify-center font-semibold transition-opacity">
-              Subscribe
+              {t('footer.subscribeBtn')}
             </button>
           </form>
         </div>

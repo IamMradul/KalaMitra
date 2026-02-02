@@ -24,8 +24,8 @@
     "featuredLimitHint": "अपने 3D स्टाल च दिखाउने लेई 4 प्रोडक्ट चुनो।",
     "featuredLimitError": "तुसी सिर्फ 4 फीचर्ड प्रोडक्ट ही चुन सकदे ओ।",
     "saveButton": "कस्टमाइजेशन सेव करो",
-      "visit": "3D स्टैल देखो"
-},
+    "visit": "3D स्टैल देखो"
+  },
   "gifts": {
     "signInTitle": "अपने तोहफे देखने लेई साइन इन करो",
     "signInSubtitle": "मार्केटप्लेस ते तोहफे भेजने ते लेने दा शुरू करो!",
@@ -137,10 +137,19 @@
     "no": "नेई"
   },
   "auctions": {
-    "title": "नीलामी",
-    "status": "स्थिति",
-    "view": "देखो",
-    "noImage": "कोई तस्वीर नेई"
+    "title": "ਵਿਰਾਸਤੀ ਨੀਲਾਮੀ",
+    "subtitle": "Bid on exclusive, handcrafted masterpieces directly from artisans. Own a piece of history.",
+    "noActive": "No active auctions at the moment. Check back soon!",
+    "status": "ਸਥਿਤੀ",
+    "view": "ਦੇਖੋ",
+    "noImage": "ਕੋਈ ਤਸਵੀਰ ਨਹੀਂ",
+    "live": "ਲਾਈਵ",
+    "upcoming": "ਆਉਣ ਵਾਲੇ",
+    "endedStatus": "ਖਤਮ",
+    "past": "Past",
+    "noAuctions": "No active auctions",
+    "bidNow": "Bid Now",
+    "viewAuction": "View Auction"
   },
   "profile": {
     "title": "प्रोफाइल",
@@ -499,19 +508,19 @@
     "orderSummary": "ऑर्डर सारांश",
     "free": "फ्री",
     "addedSuccess": "उत्पाद कार्ट में कामयाबी नाल शामिल कर दित्ता गेया!",
-  "addedError": "उत्पाद कार्ट में शामिल नहीं कित्ता जा सकदा।",
-  "addedSuccessTitle": "कार्ट में शामिल!",
-  "addedErrorTitle": "कार्ट में शामिल करने में नाकामी",
-  "viewCart": "कार्ट देखो",
-  "close": "बंद करो",
-  "loginRequired": "आइटम कार्ट में शामिल करने लेई तुस साइन इन करना चाहीदे ओ।",
-  "quantityUpdated": "कार्ट दी मात्रा अपडेट कर दित्ती गेई।",
-  "updateError": "कार्ट दी मात्रा अपडेट नहीं कित्ती जा सकदी।",
-  "removed": "आइटम कार्ट में चों शामिल नहीं रही।",
-  "removeError": "आइटम कार्ट में चों शामिल नहीं कित्ता जा सकदा।",
-  "checkoutComingSoon": "चेकआउट जल्दी आ रहा है!",
-  "decreaseQuantity": "मात्रा घटाओ",
-  "increaseQuantity": "मात्रा बढ़ाओ"
+    "addedError": "उत्पाद कार्ट में शामिल नहीं कित्ता जा सकदा।",
+    "addedSuccessTitle": "कार्ट में शामिल!",
+    "addedErrorTitle": "कार्ट में शामिल करने में नाकामी",
+    "viewCart": "कार्ट देखो",
+    "close": "बंद करो",
+    "loginRequired": "आइटम कार्ट में शामिल करने लेई तुस साइन इन करना चाहीदे ओ।",
+    "quantityUpdated": "कार्ट दी मात्रा अपडेट कर दित्ती गेई।",
+    "updateError": "कार्ट दी मात्रा अपडेट नहीं कित्ती जा सकदी।",
+    "removed": "आइटम कार्ट में चों शामिल नहीं रही।",
+    "removeError": "आइटम कार्ट में चों शामिल नहीं कित्ता जा सकदा।",
+    "checkoutComingSoon": "चेकआउट जल्दी आ रहा है!",
+    "decreaseQuantity": "मात्रा घटाओ",
+    "increaseQuantity": "मात्रा बढ़ाओ"
   },
   "dashboard": {
     "title": "डैशबोर्ड",
@@ -628,9 +637,18 @@
       "chooseImage": "तस्वीर चुनो",
       "details": "स्टोर डिटेल",
       "fields": {
-        "storeName": { "label": "स्टोर नाम", "placeholder": "तुहाडा स्टोर नाम" },
-        "bio": { "label": "बायो", "placeholder": "अपने बारे और अपने शिल्प बारे बताओ..." },
-        "description": { "label": "स्टोर डिस्क्रिप्शन", "placeholder": "तुहाडे स्टोर दी कंपेलिंग डिस्क्रिप्शन जे तुहाडी स्टाल पेज ते दिखेगी..." }
+        "storeName": {
+          "label": "स्टोर नाम",
+          "placeholder": "तुहाडा स्टोर नाम"
+        },
+        "bio": {
+          "label": "बायो",
+          "placeholder": "अपने बारे और अपने शिल्प बारे बताओ..."
+        },
+        "description": {
+          "label": "स्टोर डिस्क्रिप्शन",
+          "placeholder": "तुहाडे स्टोर दी कंपेलिंग डिस्क्रिप्शन जे तुहाडी स्टाल पेज ते दिखेगी..."
+        }
       },
       "aiGenerate": "एआई जनरेट",
       "generating": "जनरेट हो रहा ऐ...",
@@ -709,6 +727,21 @@
     "statusEnded": "ਖਤਮ",
     "statusCancelled": "ਰੱਦ ਕੀਤਾ ਗਿਆ"
   },
+  "home": {
+    "faq": {
+      "title": "ਆਮ ਤੌਰ 'ਤੇ ਪੁੱਛੇ ਜਾਂਦੇ ਸਵਾਲ",
+      "q1": "What is KalaMitra?",
+      "a1": "KalaMitra is an AI-powered marketplace connecting talented artisans with buyers worldwide. We celebrate India's cultural heritage by helping artisans showcase their handcrafted products while offering buyers an immersive shopping experience with 3D virtual stalls, AR product visualization, and AI-assisted search.",
+      "q2": "How do I buy products on KalaMitra?",
+      "a2": "Simply browse our marketplace, use voice or text search in any Indian language, and explore products. You can view items in AR, read artisan stories, add products to your cart, and checkout securely. Our AI Shopping Assistant is always available to help you find exactly what you're looking for.",
+      "q3": "How can artisans sell on KalaMitra?",
+      "a3": "Sign up as a seller, create your personalized virtual stall, and start listing products. Use our AI tools to enhance photos, generate descriptions, and create compelling stories. You can also run auctions, post reels, collaborate with other artisans, and track your performance through detailed analytics—all for free.",
+      "q4": "What makes KalaMitra different from other marketplaces?",
+      "a4": "KalaMitra uniquely combines tradition with technology. We offer 3D virtual bazaars, AR product previews, voice search in multiple Indian languages, AI-powered shopping assistance, story narration for products, custom craft requests, and direct chat with artisans. Every feature is designed to preserve cultural heritage while empowering artisans.",
+      "q5": "Is KalaMitra free to use?",
+      "a5": "Yes! Creating an account, browsing products, and listing items as a seller is completely free. We support multiple Indian languages, provide AI tools for sellers at no cost, and charge no upfront fees. Our mission is to make authentic handcrafted art accessible to everyone."
+    }
+  },
   "footer": {
     "about": "ਸਾਡੇ ਬਾਰੇ",
     "contact": "ਸੰਪਰਕ ਕਰੋ",
@@ -723,6 +756,8 @@
     "sitemap": "ਸਾਈਟਮੈਪ",
     "newsletter": "ਨਿਊਜ਼ਲੈਟਰ",
     "subscribe": "ਸਾਡੇ ਨਿਊਜ਼ਲੈਟਰ ਦੀ ਗਾਹਕੀ ਲਓ",
+    "subscribeTitle": "ਗਾਹਕੀ",
+    "subscribeBtn": "ਗਾਹਕ ਬਣੋ",
     "emailPlaceholder": "ਆਪਣਾ ਈਮੇਲ ਦਰਜ ਕਰੋ",
     "followUs": "ਸਾਡੇ ਨਾਲ ਜੁੜੋ",
     "copyright": "© 2025 ਕਲਾਮਿਤਰਾ। ਸਾਰੇ ਅਧਿਕਾਰ ਸੁਰੱਖਿਅਤ।",
@@ -812,10 +847,22 @@
       "websiteSpeak": "ਵੈੱਬਸਾਈਟ ਬੋਲੋ",
       "tipsEmoji": "💡",
       "fields": {
-        "title": { "label": "ਉਤਪਾਦ ਸਿਰਲੇਖ *", "placeholder": "ਉਤਪਾਦ ਸਿਰਲੇਖ ਦਰਜ ਕਰੋ" },
-        "category": { "label": "ਸ਼੍ਰੇਣੀ *", "placeholder": "ਜਿਵੇਂ, ਪਾਟਰੀ, ਟੈਕਸਟਾਈਲਜ਼, ਜਵੈਲਰੀ" },
-        "description": { "label": "ਵਰਣਨ *", "placeholder": "ਆਪਣੇ ਉਤਪਾਦ ਦਾ ਵਰਣਨ ਕਰੋ (एआई ਇਸਨੂੰ ਵਧਾਉਣ ਵਿੱਚ ਮਦਦ ਕਰ ਸਕਦਾ ਹੈ!)" },
-        "price": { "label": "ਕੀਮਤ (₹) *", "placeholder": "0.00" },
+        "title": {
+          "label": "ਉਤਪਾਦ ਸਿਰਲੇਖ *",
+          "placeholder": "ਉਤਪਾਦ ਸਿਰਲੇਖ ਦਰਜ ਕਰੋ"
+        },
+        "category": {
+          "label": "ਸ਼੍ਰੇਣੀ *",
+          "placeholder": "ਜਿਵੇਂ, ਪਾਟਰੀ, ਟੈਕਸਟਾਈਲਜ਼, ਜਵੈਲਰੀ"
+        },
+        "description": {
+          "label": "ਵਰਣਨ *",
+          "placeholder": "ਆਪਣੇ ਉਤਪਾਦ ਦਾ ਵਰਣਨ ਕਰੋ (एआई ਇਸਨੂੰ ਵਧਾਉਣ ਵਿੱਚ ਮਦਦ ਕਰ ਸਕਦਾ ਹੈ!)"
+        },
+        "price": {
+          "label": "ਕੀਮਤ (₹) *",
+          "placeholder": "0.00"
+        },
         "story": {
           "label": "ਉਤਪਾਦ ਕਹਾਣੀ (ਵਿਰਾਸਤ)",
           "placeholder": "ਇਸ ਉਤਪਾਦ ਦੀ ਵਿਰਾਸਤ, ਮੂਲ, ਜਾਂ ਸੱਭਿਆਚਾਰਕ ਕਹਾਣੀ ਸਾਂਝੀ ਕਰੋ...",
@@ -976,7 +1023,19 @@
     "becomeArtisan": "ਕਾਰੀਗਰ ਬਣੋ",
     "explore3dBazaar": "3D ਬਜ਼ਾਰ ਦੀ ਖੋਜ ਕਰੋ",
     "leaderboardTitle": "ਚੋਟੀ ਦੇ ਕਾਰੀਗਰ ਸਮਰਥਕ",
-    "leaderboardDesc": "ਸਾਡੇ ਸਭ ਤੋਂ ਸਮਰਪਿਤ ਗਾਹਕਾਂ ਨੂੰ ਮਾਨਤਾ ਦੇਣਾ ਜੋ ਆਪਣੀਆਂ ਖਰੀਦਦਾਰੀਆਂ ਦੁਆਰਾ ਪਰੰਪਰਾਗਤ ਕਾਰੀਗਰਾਂ ਦਾ ਸਮਰਥਨ ਕਰਦੇ ਹਨ।"
+    "leaderboardDesc": "ਸਾਡੇ ਸਭ ਤੋਂ ਸਮਰਪਿਤ ਗਾਹਕਾਂ ਨੂੰ ਮਾਨਤਾ ਦੇਣਾ ਜੋ ਆਪਣੀਆਂ ਖਰੀਦਦਾਰੀਆਂ ਦੁਆਰਾ ਪਰੰਪਰਾਗਤ ਕਾਰੀਗਰਾਂ ਦਾ ਸਮਰਥਨ ਕਰਦੇ ਹਨ।",
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "p1": "Here are some common questions about KalaMitra.",
+      "q1": "What is KalaMitra?",
+      "a1": "KalaMitra is a platform connecting artisans with buyers.",
+      "q2": "How do I buy?",
+      "a2": "Browse the marketplace and click 'Buy Now'.",
+      "q3": "Is it secure?",
+      "a3": "Yes, we use secure payment gateways.",
+      "q4": "Can I return items?",
+      "a4": "Check the return policy on the product page."
+    }
   },
   "brand": {
     "name": "ਕਲਾਮਿਤਰਾ"

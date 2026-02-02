@@ -140,7 +140,13 @@
     "title": "ନିଲାମ",
     "status": "ସ୍ଥିତି",
     "view": "ଦର୍ଶନ କରନ୍ତୁ",
-    "noImage": "କୌଣସି ଛବି ନାହିଁ"
+    "noImage": "କୌଣସି ଛବି ନାହିଁ",
+    "live": "Live Auctions",
+    "upcoming": "Upcoming",
+    "past": "Past Auctions",
+    "noAuctions": "No auctions found",
+    "bidNow": "Bid Now",
+    "viewAuction": "View Auction"
   },
   "profile": {
     "title": "ପ୍ରୋଫାଇଲ୍",
@@ -499,19 +505,19 @@
     "orderSummary": "ଅର୍ଡର ସାରାଂଶ",
     "free": "ମାଗଣା",
     "addedSuccess": "ଉତ୍ପାଦ କାର୍ଟରେ ସଫଳତାର ସହିତ ଯୋଡା ଗଲା!",
-  "addedError": "ଉତ୍ପାଦ କାର୍ଟରେ ଯୋଡା ଯାଇ ପାରିଲା ନାହିଁ।",
-  "addedSuccessTitle": "କାର୍ଟରେ ଯୋଡା ଗଲା!",
-  "addedErrorTitle": "କାର୍ଟରେ ଯୋଡିବା ବିଫଳ ହେଲା",
-  "viewCart": "କାର୍ଟ ଦେଖନ୍ତୁ",
-  "close": "ବନ୍ଦ କରନ୍ତୁ",
-  "loginRequired": "ଆଇଟମଗୁଡିକ କାର୍ଟରେ ଯୋଡିବା ପାଇଁ ଆପଣଙ୍କୁ ସାଇନ୍ ଇନ୍ ହୋଇଥିବା ଆବଶ୍ୟକ।",
-  "quantityUpdated": "କାର୍ଟ ପରିମାଣ ଅପଡେଟ୍ ହେଲା।",
-  "updateError": "କାର୍ଟ ପରିମାଣ ଅପଡେଟ୍ କରିହେଲା ନାହିଁ।",
-  "removed": "ଆଇଟମ କାର୍ଟରୁ ହଟାଇ ଦିଆଗଲା।",
-  "removeError": "ଆଇଟମ କାର୍ଟରୁ ହଟାଇ ହେଲା ନାହିଁ।",
-  "checkoutComingSoon": "ଚେକଆଉଟ୍ ଶୀଘ୍ର ଆସୁଛି!",
-  "decreaseQuantity": "ପରିମାଣ ହ୍ରାସ କରନ୍ତୁ",
-  "increaseQuantity": "ପରିମାଣ ବୃଦ୍ଧି କରନ୍ତୁ"
+    "addedError": "ଉତ୍ପାଦ କାର୍ଟରେ ଯୋଡା ଯାଇ ପାରିଲା ନାହିଁ।",
+    "addedSuccessTitle": "କାର୍ଟରେ ଯୋଡା ଗଲା!",
+    "addedErrorTitle": "କାର୍ଟରେ ଯୋଡିବା ବିଫଳ ହେଲା",
+    "viewCart": "କାର୍ଟ ଦେଖନ୍ତୁ",
+    "close": "ବନ୍ଦ କରନ୍ତୁ",
+    "loginRequired": "ଆଇଟମଗୁଡିକ କାର୍ଟରେ ଯୋଡିବା ପାଇଁ ଆପଣଙ୍କୁ ସାଇନ୍ ଇନ୍ ହୋଇଥିବା ଆବଶ୍ୟକ।",
+    "quantityUpdated": "କାର୍ଟ ପରିମାଣ ଅପଡେଟ୍ ହେଲା।",
+    "updateError": "କାର୍ଟ ପରିମାଣ ଅପଡେଟ୍ କରିହେଲା ନାହିଁ।",
+    "removed": "ଆଇଟମ କାର୍ଟରୁ ହଟାଇ ଦିଆଗଲା।",
+    "removeError": "ଆଇଟମ କାର୍ଟରୁ ହଟାଇ ହେଲା ନାହିଁ।",
+    "checkoutComingSoon": "ଚେକଆଉଟ୍ ଶୀଘ୍ର ଆସୁଛି!",
+    "decreaseQuantity": "ପରିମାଣ ହ୍ରାସ କରନ୍ତୁ",
+    "increaseQuantity": "ପରିମାଣ ବୃଦ୍ଧି କରନ୍ତୁ"
   },
   "dashboard": {
     "title": "ଡ୍ୟାସବୋର୍ଡ",
@@ -997,7 +1003,19 @@
     "becomeArtisan": "କାରିଗର ହୁଅନ୍ତୁ",
     "explore3dBazaar": "3D ବଜାର ଏକ୍ସପ୍ଲୋର୍ କରନ୍ତୁ",
     "leaderboardTitle": "ଶୀର୍ଷ କାରିଗର ସମର୍ଥକଗଣ",
-    "leaderboardDesc": "ଆମର ସବୁଠାରୁ ନିବୃତ୍ତ ଗ୍ରାହକଙ୍କୁ ଚିହ୍ନଟ କରିବା ଯେଉଁମାନେ ପାରମ୍ପରିକ କାରିଗରମାନଙ୍କୁ ସେମାନଙ୍କର କ୍ରୟ ମାଧ୍ୟମରେ ସମର୍ଥନ କରନ୍ତି।"
+    "leaderboardDesc": "ଆମର ସବୁଠାରୁ ନିବୃତ୍ତ ଗ୍ରାହକଙ୍କୁ ଚିହ୍ନଟ କରିବା ଯେଉଁମାନେ ପାରମ୍ପରିକ କାରିଗରମାନଙ୍କୁ ସେମାନଙ୍କର କ୍ରୟ ମାଧ୍ୟମରେ ସମର୍ଥନ କରନ୍ତି।",
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "p1": "Here are some common questions about KalaMitra.",
+      "q1": "What is KalaMitra?",
+      "a1": "KalaMitra is a platform connecting artisans with buyers.",
+      "q2": "How do I buy?",
+      "a2": "Browse the marketplace and click 'Buy Now'.",
+      "q3": "Is it secure?",
+      "a3": "Yes, we use secure payment gateways.",
+      "q4": "Can I return items?",
+      "a4": "Check the return policy on the product page."
+    }
   },
   "brand": {
     "name": "କଳାମିତ୍ର"
