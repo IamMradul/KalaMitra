@@ -1,5 +1,6 @@
 "use client"
 import Link from "next/link"
+import Image from "next/image"
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLanguage } from '@/components/LanguageProvider'
@@ -75,9 +76,11 @@ export default function Footer() {
 
         {/* Brand Section */}
         <div className="space-y-6 col-span-2">
-          <Link href="/" className="flex items-center gap-2">
-            <span className="text-transparent bg-clip-text bg-gradient-to-tr from-[var(--heritage-gold)] to-[var(--heritage-red)] font-bold text-2xl">KM</span>
-            <span className="text-xl font-bold">{t('brand.name')}</span>
+          <Link href="/" className="flex items-center gap-3">
+            <div className="relative w-24 h-24">
+              <Image src="/kalamitra-symbol.png" alt="KalaMitra Symbol" fill className="object-contain" />
+            </div>
+            <span className="text-2xl font-bold">{t('brand.name')}</span>
           </Link>
           <p className="max-w-lg text-[var(--muted)] leading-relaxed">
             {t('footer.tagline')}

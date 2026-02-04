@@ -1,4 +1,4 @@
-  {
+ {
     "aiChat": {
       "greetingLoggedIn": "👋 Hi! I'm your AI shopping assistant. I can help you find the perfect products based on your preferences!\n\n💾 Your conversations are saved and will be here when you return.\n\nTry asking me:\n• 'Show me diwali decorations under 1000'\n• 'Find traditional handicrafts'\n• 'I need a gift for my friend'",
       "greetingAnonymous": "👋 Hi! I'm your AI shopping assistant. I can help you find the perfect products!\n\n⚠️ Note: You're not logged in, so your chat history won't be saved. Please login to save your conversations!\n\nTry asking me:\n• 'Show me diwali decorations under 1000'\n• 'Find traditional handicrafts'\n• 'I need a gift for my friend'",

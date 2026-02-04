@@ -1,12 +1,14 @@
 "use client"
 
 import { useEffect, useState } from 'react'
-import { Trophy, X, Crown, Medal, Award } from 'lucide-react'
+import { Trophy, X, Crown, Medal, Award, User } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import Link from 'next/link'
 
 type Leader = {
   user_id: string
   name: string | null
+  profile_image?: string | null
   mitraPoints: number
   auctionsWon: number
 }
@@ -38,11 +40,11 @@ export default function Leaderboard({ open = true, onClose, embedMode = false }:
       console.error('leaderboard fetch failed', err)
       // Fallback data for preview if API fails
       setLeaders([
-        { user_id: '1', name: 'Priya Sharma', mitraPoints: 12500, auctionsWon: 15 },
-        { user_id: '2', name: 'Rahul Verma', mitraPoints: 9800, auctionsWon: 8 },
-        { user_id: '3', name: 'Amit Patel', mitraPoints: 8500, auctionsWon: 6 },
-        { user_id: '4', name: 'Sneha Gupta', mitraPoints: 6200, auctionsWon: 4 },
-        { user_id: '5', name: 'Vikram Singh', mitraPoints: 5400, auctionsWon: 3 },
+        { user_id: '1', name: 'Priya Sharma', mitraPoints: 12500, auctionsWon: 15, profile_image: null },
+        { user_id: '2', name: 'Rahul Verma', mitraPoints: 9800, auctionsWon: 8, profile_image: null },
+        { user_id: '3', name: 'Amit Patel', mitraPoints: 8500, auctionsWon: 6, profile_image: null },
+        { user_id: '4', name: 'Sneha Gupta', mitraPoints: 6200, auctionsWon: 4, profile_image: null },
+        { user_id: '5', name: 'Vikram Singh', mitraPoints: 5400, auctionsWon: 3, profile_image: null },
       ])
     } finally {
       setLoading(false)
@@ -119,10 +121,11 @@ export default function Leaderboard({ open = true, onClose, embedMode = false }:
               }
 
               return (
-                <div
+                <Link
+                  href={`/profile/${leader.user_id}`}
                   key={leader.user_id}
                   className={`
-                    relative flex items-center p-4 rounded-xl border transition-all duration-300 hover:scale-[1.01] hover:shadow-md
+                    relative flex items-center p-4 rounded-xl border transition-all duration-300 hover:scale-[1.01] hover:shadow-md cursor-pointer block
                     ${rankStyle}
                   `}
                 >
@@ -132,6 +135,19 @@ export default function Leaderboard({ open = true, onClose, embedMode = false }:
                     ${rankNumberStyle}
                   `}>
                     {index + 1}
+                  </div>
+
+                  {/* Profile Picture */}
+                  <div className="ml-4 flex-shrink-0 relative">
+                    <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-[var(--heritage-gold)] bg-[var(--bg-3)]">
+                      {leader.profile_image ? (
+                        <img src={leader.profile_image} alt={leader.name || 'User'} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[var(--heritage-gold)] to-[var(--heritage-red)] text-white font-bold text-lg">
+                          {leader.name ? leader.name.charAt(0).toUpperCase() : <User className="w-6 h-6" />}
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   <div className="ml-4 flex-grow min-w-0">
@@ -152,7 +168,7 @@ export default function Leaderboard({ open = true, onClose, embedMode = false }:
                     </div>
                     <div className="text-xs text-[var(--muted)] font-medium">MitraPoints</div>
                   </div>
-                </div>
+                </Link>
               );
             })}
           </div>

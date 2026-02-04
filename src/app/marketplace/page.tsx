@@ -234,7 +234,7 @@ function MarketplaceContent() {
     synthRef.current?.cancel()
     setNarratingId(null)
   }
-  const { user } = useAuth()
+  const { user, profile } = useAuth()
   const { t, i18n } = useTranslation()
   const { currentLanguage } = useLanguage()
   const searchParams = useSearchParams()
@@ -259,6 +259,51 @@ function MarketplaceContent() {
   const [arOpen, setArOpen] = useState(false)
   const [arImageUrl, setArImageUrl] = useState<string | undefined>(undefined)
   const [arProductType, setArProductType] = useState<'vertical' | 'horizontal'>('vertical')
+
+  // Wishlist state
+  const [wishlistIds, setWishlistIds] = useState<Set<string>>(new Set())
+  const [wishlistLoading, setWishlistLoading] = useState(false)
+
+  // Fetch wishlist on mount
+  useEffect(() => {
+    if (profile?.wishlist) {
+      setWishlistIds(new Set(profile.wishlist))
+    }
+  }, [profile])
+
+  const toggleWishlist = async (productId: string) => {
+    if (!user || !profile) {
+      alert(t('common.loginRequired'))
+      return
+    }
+
+    // Optimistic update
+    const isLiked = wishlistIds.has(productId)
+    const newWishlist = new Set(wishlistIds)
+    if (isLiked) {
+      newWishlist.delete(productId)
+    } else {
+      newWishlist.add(productId)
+    }
+    setWishlistIds(newWishlist)
+
+    try {
+      const updatedWishlist = Array.from(newWishlist)
+      const { error } = await supabase
+        .from('profiles')
+        .update({ wishlist: updatedWishlist })
+        .eq('id', user.id)
+
+      if (error) {
+        throw error
+      }
+    } catch (error) {
+      console.error('Error updating wishlist:', JSON.stringify(error, null, 2))
+      // Revert on error
+      setWishlistIds(wishlistIds)
+      alert('Error updating wishlist. Please try again.')
+    }
+  }
 
   // Speech recognition for search input
   const [isListening, setIsListening] = useState(false)
@@ -998,20 +1043,20 @@ function MarketplaceContent() {
           <div className="grid md:grid-cols-2 gap-4">
             {/* Search */}
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[var(--muted)] w-5 h-5" />
               <input
                 type="text"
                 placeholder={t('marketplace.searchInputPlaceholder')}
                 value={searchTerm}
                 onChange={handleSearchChange}
-                className="w-full pl-10 pr-14 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                className="w-full pl-10 pr-14 py-3 border border-[var(--border)] bg-[var(--bg-1)] text-[var(--text)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--heritage-gold)] focus:border-transparent placeholder-[var(--muted)]"
                 aria-label={t('marketplace.searchInputPlaceholder')}
               />
               {/* Mic icon for speech input */}
               <button
                 type="button"
                 onClick={handleMicClick}
-                className={`absolute right-3 top-1/2 transform -translate-y-1/2 bg-white p-2 rounded-full border border-gray-300 shadow-sm hover:bg-orange-50 focus:outline-none focus:ring-2 focus:ring-orange-500 transition-colors ${isListening ? 'text-orange-600' : 'text-gray-400'}`}
+                className={`absolute right-3 top-1/2 transform -translate-y-1/2 bg-[var(--bg-2)] p-2 rounded-full border border-[var(--border)] shadow-sm hover:bg-[var(--bg-3)] focus:outline-none focus:ring-2 focus:ring-[var(--heritage-gold)] transition-colors ${isListening ? 'text-orange-600' : 'text-[var(--muted)]'}`}
                 title={isListening ? t('marketplace.listening') : t('marketplace.speakToSearch')}
                 aria-label={t('marketplace.speakToSearch')}
               >
@@ -1028,11 +1073,11 @@ function MarketplaceContent() {
 
             {/* Category Filter */}
             <div className="relative">
-              <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[var(--muted)] w-5 h-5" />
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent appearance-none bg-white"
+                className="w-full pl-10 pr-4 py-3 border border-[var(--border)] bg-[var(--bg-1)] text-[var(--text)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--heritage-gold)] focus:border-transparent appearance-none"
               >
                 <option value="">{t('marketplace.allCategories')}</option>
                 {/* Map display labels with original values for filtering */}
@@ -1051,7 +1096,7 @@ function MarketplaceContent() {
               aria-label={t('marketplace.giftableProducts')}
               className={`px-4 py-2 rounded-lg font-medium transition-transform duration-200 ease-out transform will-change-transform flex items-center gap-2 shadow-sm hover:-translate-y-3.5 hover:scale-[1.02] hover:shadow-md focus:outline-none focus:ring-2 focus:ring-orange-200  ${searchTerm === 'gift item'
                 ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-white shadow-md border-yellow-500'
-                : 'bg-white hover:border-gray-400 dark:hover:border-gray-500'}
+                : 'bg-[var(--bg-2)] text-[var(--text)] border-[var(--border)] hover:bg-[var(--bg-3)]'}
               `}
               onClick={() => setSearchTerm(searchTerm === 'gift item' ? '' : 'gift item')}
             >
@@ -1061,7 +1106,7 @@ function MarketplaceContent() {
               onClick={() => setShowCollaborativeOnly(!showCollaborativeOnly)}
               className={`px-4 py-2 rounded-lg font-medium transition-transform duration-200 ease-out transform will-change-transform flex items-center gap-2 shadow-sm hover:-translate-y-3.5 hover:scale-[1.02] hover:shadow-md focus:outline-none focus:ring-2 focus:ring-orange-200 ${showCollaborativeOnly
                 ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-white shadow-md border-yellow-500'
-                : 'bg-white hover:border-gray-400 dark:hover:border-gray-500'
+                : 'bg-[var(--bg-2)] text-[var(--text)] border-[var(--border)] hover:bg-[var(--bg-3)]'
                 }`}
               aria-pressed={showCollaborativeOnly}
             >
@@ -1071,7 +1116,7 @@ function MarketplaceContent() {
               onClick={() => setShowVirtualOnly(!showVirtualOnly)}
               className={`px-4 py-2 rounded-lg font-medium transition-transform duration-200 ease-out transform will-change-transform flex items-center gap-2 shadow-sm hover:-translate-y-3.5 hover:scale-[1.02] hover:shadow-md focus:outline-none focus:ring-2 focus:ring-cyan-200 ${showVirtualOnly
                 ? 'bg-gradient-to-r from-cyan-400 to-teal-500 text-white shadow-md border-cyan-500'
-                : 'bg-white hover:border-gray-400 dark:hover:border-gray-500'
+                : 'bg-[var(--bg-2)] text-[var(--text)] border-[var(--border)] hover:bg-[var(--bg-3)]'
                 }`}
               aria-pressed={showVirtualOnly}
             >
@@ -1091,7 +1136,7 @@ function MarketplaceContent() {
           {filteredProducts.length === 0 ? (
             <div className="text-center py-12">
               <Search className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <p className="text-gray-500 text-lg">{t('marketplace.noProducts')}</p>
+              <p className="text-[var(--muted)] text-lg">{t('marketplace.noProducts')}</p>
               <p className="text-gray-400">{t('marketplace.noProductsDescription')}</p>
             </div>
           ) : (
@@ -1102,10 +1147,10 @@ function MarketplaceContent() {
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.3, delay: index * 0.1 }}
-                  className={`bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-200 hover:scale-105 flex flex-col h-full`}
+                  className={`bg-[var(--card)] rounded-lg border border-[var(--border)] overflow-hidden hover:shadow-lg transition-all duration-200 hover:scale-105 flex flex-col h-full`}
                 >
                   <Link href={`/product/${product.id}`}>
-                    <div className="relative h-48 bg-gray-200 flex items-center justify-center overflow-hidden">
+                    <div className="relative h-48 bg-[var(--bg-3)] flex items-center justify-center overflow-hidden">
                       {/* Badges: Collab + Virtual, visually balanced */}
                       {product.isCollaborative && product.is_virtual ? (
                         <>
@@ -1144,11 +1189,11 @@ function MarketplaceContent() {
                   </Link>
                   <div className="p-4 flex flex-col flex-grow">
                     <Link href={`/product/${product.id}`}>
-                      <h3 className="font-semibold text-gray-900 mb-2 hover:text-orange-600 transition-colors line-clamp-1">
+                      <h3 className="font-semibold text-[var(--text)] mb-2 hover:text-orange-600 transition-colors line-clamp-1">
                         {displayProducts.find(p => p.id === product.id)?.title || product.title}
                       </h3>
                     </Link>
-                    <p className="text-sm text-gray-600 mb-2 line-clamp-1">{displayProducts.find(p => p.id === product.id)?.category || product.category}</p>
+                    <p className="text-sm text-[var(--muted)] mb-2 line-clamp-1">{displayProducts.find(p => p.id === product.id)?.category || product.category}</p>
                     {/* Show collaborators or single seller */}
                     {product.isCollaborative && product.collaborators && product.collaborators.length > 0 ? (
                       <div className="text-xs mb-3 p-3 rounded-md border border-yellow-200/90 dark:border-yellow-700/30 shadow-sm">
@@ -1162,7 +1207,7 @@ function MarketplaceContent() {
                         </div>
                       </div>
                     ) : (
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-3 line-clamp-1">
+                      <p className="text-xs text-[var(--muted)] mb-3 line-clamp-1">
                         {(() => {
                           const sellerName = product.seller?.name || ''
                           const translatedName = translatedSellerNames[sellerName] || sellerName
@@ -1174,7 +1219,7 @@ function MarketplaceContent() {
                     )}
 
                     {/* Price and Actions - Anchored to bottom */}
-                    <div className="mt-auto flex items-center justify-between pt-2 border-t border-gray-100">
+                    <div className="mt-auto flex items-center justify-between pt-2 border-t border-[var(--border)]">
                       <p className="text-lg font-bold text-orange-600 dark:text-orange-400">₹{product.price}</p>
                       <div className="flex space-x-2">
                         {/* Voice narration button */}
@@ -1207,10 +1252,14 @@ function MarketplaceContent() {
                         </button>
                         <button
                           id="joyride-wishlist-btn"
-                          className="p-2 bg-gray-100 text-gray-600 rounded-full hover:bg-gray-200 transition-colors"
-                          title={t('product.addToWishlist')}
+                          onClick={() => toggleWishlist(product.id)}
+                          className={`p-2 rounded-full transition-colors ${wishlistIds.has(product.id)
+                            ? 'bg-red-50 text-red-500'
+                            : 'bg-[var(--bg-2)] text-[var(--muted)] hover:bg-[var(--bg-3)]'
+                            }`}
+                          title={wishlistIds.has(product.id) ? t('product.removeFromWishlist') : t('product.addToWishlist')}
                         >
-                          <Heart className="w-4 h-4" />
+                          <Heart className={`w-4 h-4 ${wishlistIds.has(product.id) ? 'fill-current' : ''}`} />
                         </button>
                         {/* AR Button */}
                         <button
@@ -1244,7 +1293,7 @@ function MarketplaceContent() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.3 }}
-          className="mt-8 text-center text-gray-600"
+          className="mt-8 text-center text-[var(--muted)]"
         >
           {t('marketplace.resultsCount', { count: filteredProducts.length, total: products.length })}
         </motion.div>
@@ -1257,7 +1306,7 @@ function MarketplaceContent() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="mt-12"
           >
-            <h2 className="text-2xl font-semibold text-gray-900 mb-4">
+            <h2 className="text-2xl font-semibold text-[var(--text)] mb-4">
               {t('marketplace.becauseViewedSimilar')}
             </h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 xl-grid-cols-4 gap-6">
@@ -1267,10 +1316,10 @@ function MarketplaceContent() {
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.3 }}
-                  className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-200 hover:scale-105"
+                  className="bg-[var(--card)] rounded-lg border border-[var(--border)] overflow-hidden hover:shadow-lg transition-all duration-200 hover:scale-105"
                 >
                   <Link href={`/product/${product.id}`}>
-                    <div className="h-48 bg-gray-200 flex items-center justify-center overflow-hidden">
+                    <div className="h-48 bg-[var(--bg-3)] flex items-center justify-center overflow-hidden">
                       {product.image_url ? (
                         <img
                           src={product.image_url}
@@ -1286,11 +1335,11 @@ function MarketplaceContent() {
                   </Link>
                   <div className="p-4">
                     <Link href={`/product/${product.id}`}>
-                      <h3 className="font-semibold text-gray-900 mb-2 hover:text-orange-600 transition-colors">
+                      <h3 className="font-semibold text-[var(--text)] mb-2 hover:text-orange-600 transition-colors">
                         {product.title}
                       </h3>
                     </Link>
-                    <p className="text-sm text-gray-600 mb-2">{product.category}</p>
+                    <p className="text-sm text-[var(--muted)] mb-2">{product.category}</p>
                     <p className="text-lg font-bold text-orange-600">₹{product.price}</p>
                   </div>
                 </motion.div>

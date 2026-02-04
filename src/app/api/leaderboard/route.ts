@@ -35,10 +35,10 @@ export async function GET(req: Request) {
     // Fetch profile names for top 20
     const top = winners.slice(0, 20)
     const userIds = top.map(t => t.user_id)
-  type Profile = { id: string; name: string };
-  let profiles: Profile[] = []
+    type Profile = { id: string; name: string; profile_image: string | null };
+    let profiles: Profile[] = []
     if (userIds.length) {
-      const { data: p } = await supabase.from('profiles').select('id,name').in('id', userIds)
+      const { data: p } = await supabase.from('profiles').select('id,name,profile_image').in('id', userIds)
       profiles = p || []
     }
 
@@ -48,6 +48,7 @@ export async function GET(req: Request) {
       return {
         user_id: t.user_id,
         name: profile?.name || null,
+        profile_image: profile?.profile_image || null,
         auctionsWon: t.auctionsWon,
         mitraPoints
       }

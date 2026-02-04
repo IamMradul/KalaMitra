@@ -8,6 +8,47 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 export type Database = {
   public: {
     Tables: {
+      addresses: {
+        Row: {
+          id: string
+          profile_id: string
+          name: string
+          street: string
+          city: string
+          state: string
+          zip: string
+          phone: string
+          type: 'Home' | 'Work' | 'Other'
+          is_default: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          profile_id: string
+          name: string
+          street: string
+          city: string
+          state: string
+          zip: string
+          phone: string
+          type: 'Home' | 'Work' | 'Other'
+          is_default?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          profile_id?: string
+          name?: string
+          street?: string
+          city?: string
+          state?: string
+          zip?: string
+          phone?: string
+          type?: 'Home' | 'Work' | 'Other'
+          is_default?: boolean
+          created_at?: string
+        }
+      }
       profiles: {
         Row: {
           id: string
@@ -19,6 +60,8 @@ export type Database = {
           store_description: string | null
           upi_id: string | null
           created_at: string
+          address: string | null
+          wishlist: string[] | null
         }
         Insert: {
           id: string
@@ -30,6 +73,9 @@ export type Database = {
           store_description?: string | null
           upi_id?: string | null
           created_at?: string
+          address?: string | null
+          wishlist?: string[] | null
+          preferred_theme?: string
         }
         Update: {
           id?: string
@@ -41,6 +87,9 @@ export type Database = {
           store_description?: string | null
           upi_id?: string | null
           created_at?: string
+          address?: string | null
+          wishlist?: string[] | null
+          preferred_theme?: string
         }
       }
       products: {
@@ -55,9 +104,9 @@ export type Database = {
           created_at: string
           product_story?: string | null
           product_type?: 'vertical' | 'horizontal' | null
-            is_virtual?: boolean
-            virtual_type?: string | null
-            virtual_file_url?: string | null
+          is_virtual?: boolean
+          virtual_type?: string | null
+          virtual_file_url?: string | null
         }
         Insert: {
           id?: string
@@ -70,9 +119,9 @@ export type Database = {
           created_at?: string
           product_story?: string | null
           product_type?: 'vertical' | 'horizontal' | null
-            is_virtual?: boolean
-            virtual_type?: string | null
-            virtual_file_url?: string | null
+          is_virtual?: boolean
+          virtual_type?: string | null
+          virtual_file_url?: string | null
         }
         Update: {
           id?: string
@@ -85,9 +134,9 @@ export type Database = {
           created_at?: string
           product_story?: string | null
           product_type?: 'vertical' | 'horizontal' | null
-            is_virtual?: boolean
-            virtual_type?: string | null
-            virtual_file_url?: string | null
+          is_virtual?: boolean
+          virtual_type?: string | null
+          virtual_file_url?: string | null
         }
       }
       auctions: {
@@ -397,8 +446,8 @@ export type Database = {
           id: string
           collaboration_id: string
           actor_id: string
-          activity_type: 'created' | 'accepted' | 'rejected' | 'ended' | 'cancelled' | 
-                        'product_added' | 'product_removed' | 'split_updated' | 'message_sent'
+          activity_type: 'created' | 'accepted' | 'rejected' | 'ended' | 'cancelled' |
+          'product_added' | 'product_removed' | 'split_updated' | 'message_sent'
           activity_data: Record<string, unknown> | null
           created_at: string
         }
@@ -406,8 +455,8 @@ export type Database = {
           id?: string
           collaboration_id: string
           actor_id: string
-          activity_type: 'created' | 'accepted' | 'rejected' | 'ended' | 'cancelled' | 
-                        'product_added' | 'product_removed' | 'split_updated' | 'message_sent'
+          activity_type: 'created' | 'accepted' | 'rejected' | 'ended' | 'cancelled' |
+          'product_added' | 'product_removed' | 'split_updated' | 'message_sent'
           activity_data?: Record<string, unknown> | null
           created_at?: string
         }
@@ -415,8 +464,8 @@ export type Database = {
           id?: string
           collaboration_id?: string
           actor_id?: string
-          activity_type?: 'created' | 'accepted' | 'rejected' | 'ended' | 'cancelled' | 
-                         'product_added' | 'product_removed' | 'split_updated' | 'message_sent'
+          activity_type?: 'created' | 'accepted' | 'rejected' | 'ended' | 'cancelled' |
+          'product_added' | 'product_removed' | 'split_updated' | 'message_sent'
           activity_data?: Record<string, unknown> | null
           created_at?: string
         }
@@ -472,6 +521,64 @@ export type Database = {
           created_at?: string
           updated_at?: string
           expires_at?: string
+        }
+      }
+      orders: {
+        Row: {
+          id: string
+          buyer_id: string
+          order_reference: string
+          total_amount: number
+          status: string
+          payment_id: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          buyer_id: string
+          order_reference: string
+          total_amount: number
+          status?: string
+          payment_id?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          buyer_id?: string
+          order_reference?: string
+          total_amount?: number
+          status?: string
+          payment_id?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      order_items: {
+        Row: {
+          id: string
+          order_id: string
+          product_id: string
+          seller_id: string
+          quantity: number
+          price: number
+        }
+        Insert: {
+          id?: string
+          order_id: string
+          product_id: string
+          seller_id: string
+          quantity?: number
+          price: number
+        }
+        Update: {
+          id?: string
+          order_id?: string
+          product_id?: string
+          seller_id?: string
+          quantity?: number
+          price?: number
         }
       }
     }

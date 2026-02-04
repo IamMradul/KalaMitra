@@ -1,66 +1,39 @@
-import type { Metadata } from "next";
-import { cookies } from 'next/headers'
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
-import { AuthProvider } from "@/contexts/AuthContext";
-import { LanguageProvider } from "@/components/LanguageProvider";
-import ThemeProvider from '@/components/ThemeProvider'
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import AIChatConditional from '@/components/AIChatConditional';
+import type { Metadata } from 'next'
+import { Inter } from 'next/font/google'
+import './globals.css'
+import { AuthProvider } from '@/contexts/AuthContext'
+import { ThemeProvider } from '@/components/ThemeProvider'
+import { LanguageProvider } from '@/components/LanguageProvider'
+import Navbar from '@/components/Navbar'
+import Footer from '@/components/Footer'
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: "KalaMitra - AI Marketplace Assistant for Artisans",
-  description: "Preserving Tradition, Empowering Artisans",
-};
+  title: 'KalaMitra',
+  description: 'Empowering Indian Artisans with AI',
+}
 
-// Note: Do not export generateMetadata alongside metadata to avoid Next.js build errors.
-
-export default async function RootLayout({
+export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-  // Read preferred language from cookies to keep SSR and client in sync
-  const cookieStore = await cookies()
-  const preferredLang = cookieStore.get('preferredLanguage')?.value || 'en'
-  // Add client-side path check for conditional rendering
-  // Use a wrapper component for conditional AIShoppingChat
+}: {
+  children: React.ReactNode
+}) {
   return (
-    <html lang={preferredLang}>
-      <head>
-        <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@700;900&display=swap" rel="stylesheet" />
-      </head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen heritage-bg`}
-        suppressHydrationWarning
-      >
+    <html lang="en">
+      <body className={inter.className}>
         <AuthProvider>
           <LanguageProvider>
             <ThemeProvider>
-              <div className="flex flex-col min-h-screen">
-                <Navbar />
-                <main className="flex-1">
-                  {children}
-                </main>
-                <Footer />
-              </div>
-              <AIChatConditional />
+              <Navbar />
+              <main className="min-h-screen bg-[var(--bg-1)]">
+                {children}
+              </main>
+              <Footer />
             </ThemeProvider>
           </LanguageProvider>
         </AuthProvider>
       </body>
     </html>
-  );
+  )
 }
-

@@ -3,16 +3,17 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { motion } from 'framer-motion'
-import { ShoppingCart, Trash2, ArrowLeft, Package } from 'lucide-react'
+import { ShoppingCart, Trash2, ArrowLeft, Package, Shield, Heart, Plus } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { Database } from '@/lib/supabase'
 import Link from 'next/link'
 import { useTranslation } from 'react-i18next'
-import { 
-  getAnonymousCart, 
-  updateAnonymousCartQuantity, 
+import {
+  getAnonymousCart,
+  updateAnonymousCartQuantity,
   removeFromAnonymousCart,
-  clearAnonymousCart 
+  addToAnonymousCart,
+  clearAnonymousCart
 } from '@/utils/cart'
 
 type DatabaseCartItem = Database['public']['Tables']['cart']['Row'] & {
@@ -36,14 +37,28 @@ type AnonymousCartItem = {
   }
 }
 
-type CartItem = (DatabaseCartItem | AnonymousCartItem) & { 
-  isAnonymous?: boolean 
+type CartItem = (DatabaseCartItem | AnonymousCartItem) & {
+  isAnonymous?: boolean
+}
+
+type WishlistItem = {
+  id: string
+  title: string
+  price: number
+  image_url: string
+  category: string
+  product_id: string
+  seller?: {
+    name: string
+  }
 }
 
 export default function CartPage() {
   const { user, profile } = useAuth()
   const { t } = useTranslation()
   const [cartItems, setCartItems] = useState<CartItem[]>([])
+  const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([])
+  const [wishlistLoading, setWishlistLoading] = useState(false)
   const [loading, setLoading] = useState(true)
   const [actionLoading, setActionLoading] = useState<string | null>(null)
   const [feedback, setFeedback] = useState<string | null>(null)
@@ -51,7 +66,37 @@ export default function CartPage() {
 
   useEffect(() => {
     fetchCartItems()
+    if (profile?.wishlist) {
+      fetchWishlistItems()
+    }
   }, [user, profile])
+
+  const fetchWishlistItems = async () => {
+    if (!profile?.wishlist || profile.wishlist.length === 0) {
+      setWishlistItems([])
+      return
+    }
+    setWishlistLoading(true)
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*, seller:profiles(name)')
+        .in('id', profile.wishlist)
+
+      if (error) throw error
+
+      // Filter out items already in cart
+      // We need to check both DB cart items and anonymous cart items ideally, 
+      // but cartItems state covers what's currently displayed.
+      // However, we need to wait for cartItems to be populated first or just do it in render.
+      // For now just set all and we can disable button if in cart.
+      setWishlistItems(data || [])
+    } catch (error) {
+      console.error('Error fetching wishlist for cart:', error)
+    } finally {
+      setWishlistLoading(false)
+    }
+  }
 
   const fetchCartItems = async () => {
     if (user) {
@@ -81,12 +126,12 @@ export default function CartPage() {
               .select('title, price, image_url, category')
               .eq('id', item.product_id)
               .single()
-            
+
             if (error || !product) {
               console.error('Error fetching product:', error)
               return null
             }
-            
+
             return {
               ...item,
               product,
@@ -98,7 +143,7 @@ export default function CartPage() {
           }
         })
       )
-      
+
       // Filter out null items (products that couldn't be fetched)
       setCartItems(itemsWithProducts.filter((item): item is CartItem => item !== null))
     }
@@ -108,13 +153,13 @@ export default function CartPage() {
   const updateQuantity = async (item: CartItem, newQuantity: number) => {
     const itemId = 'id' in item ? item.id : item.product_id
     setActionLoading(itemId)
-    
+
     if (newQuantity <= 0) {
       await removeFromCart(item)
       setActionLoading(null)
       return
     }
-    
+
     try {
       if (user && !item.isAnonymous && 'id' in item) {
         // Update in database for logged-in users
@@ -140,7 +185,7 @@ export default function CartPage() {
   const removeFromCart = async (item: CartItem) => {
     const itemId = 'id' in item ? item.id : item.product_id
     setActionLoading(itemId)
-    
+
     try {
       if (user && !item.isAnonymous && 'id' in item) {
         // Remove from database for logged-in users
@@ -162,6 +207,51 @@ export default function CartPage() {
       console.error('Error removing item from cart:', error)
     }
     setActionLoading(null)
+    setActionLoading(null)
+  }
+
+  const addToCartFromWishlist = async (product: CartItem | WishlistItem) => {
+    setActionLoading(product.product_id)
+    try {
+      if (user) {
+        // Check if already in cart
+        const { data: existing } = await supabase
+          .from('cart')
+          .select('id, quantity')
+          .eq('buyer_id', user.id)
+          .eq('product_id', product.product_id)
+          .single()
+
+        if (existing) {
+          // Update quantity
+          const { error } = await supabase
+            .from('cart')
+            .update({ quantity: existing.quantity + 1 })
+            .eq('id', existing.id)
+          if (error) throw error
+        } else {
+          // Insert new
+          const { error } = await supabase
+            .from('cart')
+            .insert({
+              buyer_id: user.id,
+              product_id: product.product_id,
+              quantity: 1
+            })
+          if (error) throw error
+        }
+      } else {
+        // Anonymous
+        addToAnonymousCart(product.product_id, 1)
+      }
+      setFeedback(t('cart.addedFromWishlist', { defaultValue: 'Added to cart' }))
+      await fetchCartItems()
+    } catch (error) {
+      console.error('Error adding wishlist item to cart:', error)
+      setFeedback(t('common.error'))
+    } finally {
+      setActionLoading(null)
+    }
   }
 
   const calculateTotal = () => {
@@ -185,64 +275,80 @@ export default function CartPage() {
   }
 
   return (
-    <div className="min-h-screen heritage-bg py-6 sm:py-8">
-      <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
+    <div className="min-h-screen heritage-bg py-10 relative overflow-hidden">
+      {/* Background Elements */}
+      <div className="absolute inset-0 indian-pattern opacity-5 pointer-events-none"></div>
+      <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bx from-[var(--saffron)]/10 to-transparent rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none"></div>
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-tr from-[var(--maroon)]/10 to-transparent rounded-full blur-3xl -ml-20 -mb-20 pointer-events-none"></div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="mb-6 sm:mb-8"
+          className="mb-12 border-b border-[var(--border)] pb-8"
         >
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 mb-4">
-            <Link
-              href="/marketplace"
-              className="inline-flex items-center text-[var(--heritage-gold)] hover:text-[var(--heritage-red)] font-medium"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              {t('marketplace.backToMarketplace')}
-            </Link>
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+            <div>
+              <Link
+                href="/marketplace"
+                className="inline-flex items-center text-[var(--muted)] hover:text-[var(--text)] text-xs font-medium mb-6 transition-colors group uppercase tracking-[0.2em]"
+              >
+                <ArrowLeft className="w-3 h-3 mr-2 group-hover:-translate-x-1 transition-transform" />
+                {t('marketplace.backToMarketplace')}
+              </Link>
+              <h1 className="text-5xl font-light text-[var(--text)] tracking-tight">
+                {t('cart.title')}
+              </h1>
+            </div>
+            <div className="flex items-center gap-8 text-sm font-mono text-[var(--muted)] border-t md:border-t-0 md:border-l border-[var(--border)] pt-4 md:pt-0 md:pl-8 mt-4 md:mt-0">
+              <div>
+                <span className="block text-[10px] uppercase tracking-wider mb-1">Date</span>
+                <span className="text-[var(--text)]">{new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+              </div>
+              <div>
+                <span className="block text-[10px] uppercase tracking-wider mb-1">Order ID</span>
+                <span className="text-[var(--text)]">#{Math.random().toString(36).substr(2, 9).toUpperCase()}</span>
+              </div>
+            </div>
           </div>
-          <h1 className="text-2xl sm:text-4xl font-bold heritage-title mb-2">
-            {t('cart.title')}
-          </h1>
-          <p className="text-base sm:text-lg text-[var(--heritage-brown)]">
-            {t('cart.reviewSelectedItems')}
-          </p>
         </motion.div>
 
         {/* Feedback Toast */}
         {feedback && (
-          <div className="fixed top-6 left-1/2 transform -translate-x-1/2 z-50 bg-orange-100 border border-orange-300 text-orange-800 px-6 py-3 rounded-xl shadow-lg animate-fade-in">
-            {feedback}
-            <button className="ml-4 text-orange-500 font-bold" onClick={() => setFeedback(null)} aria-label="Close">×</button>
+          <div className="fixed top-24 left-1/2 transform -translate-x-1/2 z-50 bg-[var(--bg-2)] border-l-4 border-[var(--heritage-gold)] text-[var(--text)] px-6 py-4 shadow-xl animate-fade-in flex items-center gap-4">
+            <div className="w-2 h-2 bg-[var(--heritage-gold)]"></div>
+            <span className="font-mono text-sm uppercase tracking-wide">{feedback}</span>
+            <button className="ml-2 text-[var(--muted)] hover:text-[var(--text)]" onClick={() => setFeedback(null)} aria-label="Close">×</button>
           </div>
         )}
 
         {cartItems.length === 0 ? (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-center py-12 sm:py-16 bg-white/80 backdrop-blur-sm rounded-xl border border-orange-200 flex flex-col items-center justify-center"
+            className="text-center py-24 bg-[var(--bg-2)] border border-[var(--border)] flex flex-col items-center justify-center max-w-2xl mx-auto"
           >
-            <img src="/empty-cart-illustration.svg" alt="Empty cart" className="w-24 h-24 sm:w-32 sm:h-32 mx-auto mb-4" />
-            <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-2">
+            <div className="mb-6">
+              <ShoppingCart className="w-16 h-16 text-[var(--muted)] stroke-1" />
+            </div>
+            <h2 className="text-2xl font-bold text-[var(--text)] mb-3 font-serif uppercase tracking-widest">
               {t('cart.empty')}
             </h2>
-            <p className="text-sm sm:text-base text-gray-600 mb-6">
+            <p className="text-[var(--muted)] mb-8 max-w-md mx-auto text-sm font-mono">
               {t('cart.emptyDescription')}
             </p>
             <Link
               href="/marketplace"
-              className="inline-flex items-center px-4 py-2 sm:px-6 sm:py-3 bg-gradient-to-r from-orange-500 to-red-600 text-white font-semibold rounded-lg hover:from-orange-600 hover:to-red-700 transition-all duration-200"
+              className="inline-flex items-center px-8 py-4 bg-[var(--text)] text-[var(--bg-1)] font-bold uppercase tracking-widest hover:bg-[var(--heritage-gold)] transition-colors duration-300"
             >
-              <Package className="w-5 h-5 mr-2" />
               {t('marketplace.browseProducts')}
             </Link>
           </motion.div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Cart Items */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -250,79 +356,95 @@ export default function CartPage() {
               transition={{ duration: 0.6, delay: 0.1 }}
               className="lg:col-span-2"
             >
-              <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 sm:p-6 border border-orange-200">
-                <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 sm:mb-6">
-                  {t('cart.items')} ({cartItems.length})
-                </h2>
-                <div className="space-y-3 sm:space-y-4">
-                  {cartItems.map((item) => {
+              <div className="bg-[var(--bg-2)] border border-[var(--border)]">
+                {/* Table Header */}
+                <div className="hidden sm:grid grid-cols-12 gap-4 p-6 border-b border-[var(--border)] text-xs uppercase tracking-widest text-[var(--muted)] font-medium">
+                  <div className="col-span-6">Product</div>
+                  <div className="col-span-2 text-center">Price</div>
+                  <div className="col-span-2 text-center">Quantity</div>
+                  <div className="col-span-2 text-right">Total</div>
+                </div>
+
+                <div className="divide-y divide-[var(--border)]">
+                  {cartItems.map((item, index) => {
                     const itemId = 'id' in item ? item.id : item.product_id
                     return (
                       <motion.div
                         key={itemId}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        className="flex flex-col sm:flex-row items-center sm:items-start gap-3 sm:gap-4 p-3 sm:p-4 border border-gray-200 rounded-lg"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: index * 0.1 }}
+                        className="group p-6 hover:bg-[var(--bg-1)]/50 transition-colors"
                       >
-                        {/* Product Image */}
-                        <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0">
-                          {item.product.image_url ? (
-                            <img
-                              src={item.product.image_url}
-                              alt={item.product.title}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="w-full h-full bg-gradient-to-br from-orange-100 to-red-100 flex items-center justify-center">
-                              <span className="text-orange-400 text-xl sm:text-2xl">🎨</span>
+                        <div className="flex flex-col sm:grid sm:grid-cols-12 gap-6 items-center">
+
+                          {/* Product Info (Col 6) */}
+                          <div className="w-full sm:col-span-6 flex gap-6 items-center">
+                            <div className="w-20 h-20 sm:w-24 sm:h-24 bg-[var(--bg-3)] flex-shrink-0 border border-[var(--border)] relative overflow-hidden">
+                              {item.product.image_url ? (
+                                <img
+                                  src={item.product.image_url}
+                                  alt={item.product.title}
+                                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center text-[var(--muted)] text-xs">NO IMG</div>
+                              )}
                             </div>
-                          )}
-                        </div>
+                            <div className="min-w-0">
+                              <h3 className="text-base font-medium text-[var(--text)] mb-1 truncate pr-4">
+                                {item.product.title}
+                              </h3>
+                              <p className="text-xs text-[var(--muted)] uppercase tracking-wide mb-3">
+                                {item.product.category}
+                              </p>
+                              <button
+                                onClick={() => removeFromCart(item)}
+                                disabled={!!actionLoading}
+                                className="text-xs text-[var(--muted)] hover:text-red-500 transition-colors flex items-center gap-1 group/delete"
+                              >
+                                <span className="w-4 h-px bg-[var(--muted)] group-hover/delete:bg-red-500 transition-colors"></span>
+                                Remove
+                              </button>
+                            </div>
+                          </div>
 
-                        {/* Product Details */}
-                        <div className="flex-1 min-w-0 w-full sm:w-auto">
-                          <h3 className="font-semibold text-gray-900 truncate">
-                            {item.product.title}
-                          </h3>
-                          <p className="text-xs sm:text-sm text-gray-600">{item.product.category}</p>
-                          <p className="text-base sm:text-lg font-bold text-orange-600">
-                            ₹{item.product.price}
-                          </p>
-                        </div>
+                          {/* Price (Col 2) */}
+                          <div className="w-full sm:col-span-2 text-center font-mono text-sm text-[var(--muted)]">
+                            <span className="sm:hidden mr-2 uppercase text-xs tracking-wide">Price:</span>
+                            ₹{item.product.price.toLocaleString()}
+                          </div>
 
-                        {/* Quantity Controls */}
-                        <div className="flex items-center gap-1 sm:gap-2 mt-2 sm:mt-0">
-                          <button
-                            onClick={() => updateQuantity(item, item.quantity - 1)}
-                            className={`w-7 h-7 sm:w-8 sm:h-8 border border-gray-300 rounded-lg flex items-center justify-center hover:bg-gray-50 transition-colors ${actionLoading === itemId ? 'opacity-60 cursor-wait' : ''}`}
-                            aria-label={t('cart.decreaseQuantity')}
-                            disabled={actionLoading === itemId}
-                          >
-                            -
-                          </button>
-                          <span className="w-10 sm:w-12 text-center font-medium">
-                            {item.quantity}
-                          </span>
-                          <button
-                            onClick={() => updateQuantity(item, item.quantity + 1)}
-                            className={`w-7 h-7 sm:w-8 sm:h-8 border border-gray-300 rounded-lg flex items-center justify-center hover:bg-gray-50 transition-colors ${actionLoading === itemId ? 'opacity-60 cursor-wait' : ''}`}
-                            aria-label={t('cart.increaseQuantity')}
-                            disabled={actionLoading === itemId}
-                          >
-                            +
-                          </button>
-                        </div>
+                          {/* Quantity (Col 2) */}
+                          <div className="w-full sm:col-span-2 flex justify-center">
+                            <div className="flex items-center border border-[var(--border)] bg-[var(--bg-1)] h-8">
+                              <button
+                                onClick={() => updateQuantity(item, item.quantity - 1)}
+                                disabled={actionLoading === itemId}
+                                className="w-8 h-full flex items-center justify-center hover:bg-[var(--bg-3)] transition-colors text-[var(--muted)] hover:text-[var(--text)] disabled:opacity-30"
+                              >
+                                -
+                              </button>
+                              <span className="w-8 h-full flex items-center justify-center font-mono text-sm border-x border-[var(--border)] bg-transparent">
+                                {item.quantity}
+                              </span>
+                              <button
+                                onClick={() => updateQuantity(item, item.quantity + 1)}
+                                disabled={actionLoading === itemId}
+                                className="w-8 h-full flex items-center justify-center hover:bg-[var(--bg-3)] transition-colors text-[var(--muted)] hover:text-[var(--text)] disabled:opacity-30"
+                              >
+                                +
+                              </button>
+                            </div>
+                          </div>
 
-                        {/* Remove Button */}
-                        <button
-                          onClick={() => removeFromCart(item)}
-                          className={`p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors ${actionLoading === itemId ? 'opacity-60 cursor-wait' : ''}`}
-                          title={t('cart.remove')}
-                          aria-label={t('cart.remove')}
-                          disabled={actionLoading === itemId}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                          {/* Total (Col 2) */}
+                          <div className="w-full sm:col-span-2 text-right font-medium text-[var(--text)]">
+                            <span className="sm:hidden mr-2 uppercase text-xs tracking-wide text-[var(--muted)]">Total:</span>
+                            ₹{(item.product.price * item.quantity).toLocaleString()}
+                          </div>
+
+                        </div>
                       </motion.div>
                     )
                   })}
@@ -337,26 +459,33 @@ export default function CartPage() {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="lg:col-span-1"
             >
-              <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 sm:p-6 border border-orange-200 sticky top-4 sm:top-8">
-                <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 sm:mb-6">
+              <div className="bg-[var(--bg-2)] border border-[var(--border)] p-8 sticky top-24">
+                <h2 className="text-sm font-bold text-[var(--text)] mb-8 uppercase tracking-[0.2em] flex items-center gap-2">
+                  <span className="w-2 h-2 bg-[var(--heritage-gold)]"></span>
                   {t('cart.orderSummary')}
                 </h2>
-                <div className="space-y-3 sm:space-y-4 mb-4 sm:mb-6">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">{t('cart.subtotal')}</span>
-                    <span className="font-medium">₹{calculateTotal().toFixed(2)}</span>
+
+                <div className="space-y-4 mb-8 text-sm">
+                  <div className="flex justify-between items-center text-[var(--muted)]">
+                    <span className="font-medium">Subtotal</span>
+                    <span className="text-[var(--text)] font-mono">₹{calculateTotal().toLocaleString()}</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">{t('cart.shipping')}</span>
-                    <span className="font-medium text-green-600">{t('cart.free')}</span>
+                  <div className="flex justify-between items-center text-[var(--muted)]">
+                    <span className="font-medium">Shipping</span>
+                    <span className="text-green-600 font-mono text-xs uppercase bg-green-50 dark:bg-green-900/10 px-2 py-0.5 tracking-wide">Free</span>
                   </div>
-                  <div className="border-t border-gray-200 pt-3 sm:pt-4">
-                    <div className="flex justify-between">
-                      <span className="text-base sm:text-lg font-semibold text-gray-900">{t('cart.total')}</span>
-                      <span className="text-xl sm:text-2xl font-bold text-orange-600">
-                        ₹{calculateTotal().toFixed(2)}
-                      </span>
-                    </div>
+                  <div className="flex justify-between items-center text-[var(--muted)]">
+                    <span className="font-medium">Tax</span>
+                    <span className="text-[var(--text)] font-mono">₹0</span>
+                  </div>
+
+                  <div className="h-px bg-[var(--border)] my-6"></div>
+
+                  <div className="flex justify-between items-end">
+                    <span className="text-sm font-bold text-[var(--text)] uppercase tracking-widest">{t('cart.total')}</span>
+                    <span className="text-3xl font-light text-[var(--text)] leading-none">
+                      ₹{calculateTotal().toLocaleString()}
+                    </span>
                   </div>
                 </div>
 
@@ -367,18 +496,95 @@ export default function CartPage() {
                     setTimeout(() => setCheckoutLoading(false), 1200)
                   }}
                   disabled={cartItems.length === 0 || checkoutLoading}
-                  className={`w-full px-4 py-2 sm:px-6 sm:py-3 font-semibold rounded-lg transition-all duration-200 ${cartItems.length === 0 || checkoutLoading ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-gradient-to-r from-orange-500 to-red-600 text-white hover:from-orange-600 hover:to-red-700'}`}
-                  aria-label={t('cart.checkout')}
+                  className={`
+                    w-full py-4 px-6 font-medium text-xs uppercase tracking-[0.25em] transition-all duration-300
+                    ${cartItems.length === 0 || checkoutLoading
+                      ? 'bg-[var(--bg-3)] text-[var(--muted)] cursor-not-allowed border border-[var(--border)]'
+                      : 'bg-[var(--text)] text-[var(--bg-1)] hover:bg-[var(--heritage-gold)] hover:text-white border border-[var(--text)] hover:border-[var(--heritage-gold)]'
+                    }
+                  `}
                 >
-                  {checkoutLoading ? t('common.loading') : t('cart.checkout')}
+                  {checkoutLoading ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                        className="w-3 h-3 border border-current border-t-transparent rounded-full"
+                      />
+                      Processing...
+                    </span>
+                  ) : (
+                    t('cart.checkout')
+                  )}
                 </button>
 
-                <p className="text-xs text-gray-500 text-center mt-2 sm:mt-3">
-                  {t('cart.secureCheckout')}
-                </p>
+                <div className="mt-8 pt-6 border-t border-[var(--border)] text-center">
+                  <p className="text-[10px] text-[var(--muted)] uppercase tracking-wider mb-2">We Accept</p>
+                  <div className="flex justify-center gap-3 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
+                    {/* Placeholders for payment icons */}
+                    <div className="w-8 h-5 bg-[var(--text)]/10 rounded-sm"></div>
+                    <div className="w-8 h-5 bg-[var(--text)]/10 rounded-sm"></div>
+                    <div className="w-8 h-5 bg-[var(--text)]/10 rounded-sm"></div>
+                  </div>
+                  <div className="mt-4 flex items-center justify-center gap-2 text-[10px] text-[var(--muted)] uppercase tracking-wider">
+                    <Shield className="w-3 h-3" />
+                    <span>Secure SSL Encryption</span>
+                  </div>
+                </div>
               </div>
             </motion.div>
           </div>
+        )}
+
+        {/* Wishlist Section */}
+        {wishlistItems.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="mt-16 pt-16 border-t border-[var(--border)]"
+          >
+            <div className="flex items-center gap-3 mb-8">
+              <Heart className="w-5 h-5 text-[var(--heritage-red)] fill-current" />
+              <h2 className="text-xl font-bold uppercase tracking-widest">{t('cart.savedForLater', { defaultValue: 'Saved For Later' })}</h2>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {wishlistItems.map((item) => {
+                const isInCart = cartItems.some(c => {
+                  const cId = 'id' in c ? c.product_id : c.product_id
+                  return cId === item.product_id
+                })
+
+                return (
+                  <div key={item.product_id} className="group bg-[var(--bg-2)] border border-[var(--border)] p-4 flex flex-col">
+                    <Link href={`/product/${item.product_id}`} className="block relative aspect-square bg-[var(--bg-3)] mb-4 overflow-hidden">
+                      {item.image_url ? (
+                        <img src={item.image_url} alt={item.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-[var(--muted)] text-xs">NO IMG</div>
+                      )}
+                    </Link>
+                    <Link href={`/product/${item.product_id}`} className="block">
+                      <h3 className="font-medium text-sm truncate mb-1 hover:text-[var(--heritage-gold)] transition-colors">{item.title}</h3>
+                    </Link>
+                    <p className="text-[var(--muted)] text-xs mb-3 truncate">{item.seller?.name}</p>
+                    <div className="mt-auto flex items-center justify-between">
+                      <span className="font-mono text-sm">₹{item.price.toLocaleString()}</span>
+                      <button
+                        onClick={() => addToCartFromWishlist(item)}
+                        disabled={!!actionLoading}
+                        className="p-2 border border-[var(--border)] hover:bg-[var(--text)] hover:text-[var(--bg-1)] transition-colors disabled:opacity-50"
+                        title={isInCart ? 'Add another' : 'Add to Cart'}
+                      >
+                        <Plus className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </motion.div>
         )}
       </div>
     </div>

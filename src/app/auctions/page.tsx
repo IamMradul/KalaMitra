@@ -242,9 +242,9 @@ function AuctionCard({ auction, title, currentPrice, t }: { auction: AuctionRow,
         <div className="mt-auto pt-4 border-t border-[var(--border)]">
           <Link
             href={`/product/${auction.product_id}`}
-            className={`w-full flex items-center justify-center gap-2 py-3 rounded-lg font-bold transition-colors ${isActive
+            className={`w-full flex items-center justify-center gap-2 py-3 rounded-lg font-bold transition-all shadow-md active:scale-95 ${isActive
               ? 'bg-[#3d0000] hover:bg-[#590000] text-[#b08d55] dark:bg-[var(--heritage-gold)] dark:text-[#3d0000] dark:hover:bg-white'
-              : 'bg-gray-200 text-gray-500 cursor-not-allowed dark:bg-gray-800'
+              : 'bg-white border-2 border-[var(--heritage-gold)] text-[var(--heritage-brown)] hover:bg-[var(--heritage-gold)] hover:text-white dark:bg-transparent dark:border-[var(--muted)] dark:text-[var(--muted)] dark:hover:border-[var(--text)] dark:hover:text-[var(--text)]'
               }`}
           >
             {isActive ? (

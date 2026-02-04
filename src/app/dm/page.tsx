@@ -4,6 +4,10 @@ import DMChat from '@/components/DMChat';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useSearchParams } from 'next/navigation';
+import { supabase } from '@/lib/supabase';
+import { Suspense } from 'react';
+
 // Utility hook for mobile detection
 function useIsMobile(breakpoint = 768) {
   const [isMobile, setIsMobile] = useState(false);
@@ -17,10 +21,8 @@ function useIsMobile(breakpoint = 768) {
   }, [breakpoint]);
   return isMobile;
 }
-import { useSearchParams } from 'next/navigation';
-import { supabase } from '@/lib/supabase';
 
-export default function DMPage() {
+function DMPageContent() {
   const { t } = useTranslation();
   const { user } = useAuth();
   // Group chat creation modal state
@@ -593,5 +595,13 @@ export default function DMPage() {
         )}
       </main>
     </div>
+  );
+}
+
+export default function DMPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <DMPageContent />
+    </Suspense>
   );
 }

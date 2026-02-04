@@ -383,9 +383,7 @@
 }
 
 /* Make home sections theme-aware by neutralizing hardcoded text colors */
-.card-glass {
-  background: linear-gradient(180deg, var(--card), rgba(255, 255, 255, 0.02));
-}
+
 
 :root[data-theme='dark'] .text-gray-900 {
   color: var(--text) !important;

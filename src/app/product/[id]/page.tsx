@@ -512,7 +512,7 @@ export default function ProductDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-white py-8">
+    <div className="min-h-screen bg-[var(--bg-1)] py-8 transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Navigation Breadcrumb */}
@@ -586,7 +586,7 @@ export default function ProductDetail() {
             {product.product_story && (
               <div className="relative mt-8 group perspective-1000">
                 {/* Background Parchment Effect */}
-                <div className="absolute inset-0 bg-[#fdfbf7] rounded-xl shadow-[inset_0_0_40px_rgba(176,141,85,0.1)] border border-[#e6dcc5] transform transition-transform duration-700 group-hover:rotate-x-2"></div>
+                <div className="absolute inset-0 bg-[#fdfbf7] [:root[data-theme=dark]_&]:bg-gray-900 rounded-xl shadow-[inset_0_0_40px_rgba(176,141,85,0.1)] border border-[#e6dcc5] [:root[data-theme=dark]_&]:border-gray-700 transform transition-transform duration-700 group-hover:rotate-x-2"></div>
 
                 {/* Content */}
                 <div className="relative p-8 text-center space-y-4">
@@ -594,7 +594,7 @@ export default function ProductDetail() {
                   <div className="flex items-center justify-center gap-4 mb-6">
                     <div className="h-[2px] w-12 bg-gradient-to-r from-transparent to-[#b08d55]"></div>
                     <Sparkles className="w-6 h-6 text-[#b08d55]" />
-                    <h3 className="font-serif text-2xl text-[#3d0000] tracking-wide">
+                    <h3 className="font-serif text-2xl text-[#3d0000] [:root[data-theme=dark]_&]:text-orange-100 tracking-wide">
                       Artisan&apos;s Story
                     </h3>
                     <Sparkles className="w-6 h-6 text-[#b08d55]" />
@@ -602,7 +602,7 @@ export default function ProductDetail() {
                   </div>
 
                   {/* Drop Cap Story */}
-                  <div className="prose prose-lg text-gray-700 mx-auto font-serif leading-relaxed">
+                  <div className="prose prose-lg text-gray-700 [:root[data-theme=dark]_&]:text-gray-300 mx-auto font-serif leading-relaxed">
                     <p className="first-letter:text-5xl first-letter:font-bold first-letter:text-[#b08d55] first-letter:mr-3 first-letter:float-left">
                       {product.product_story}
                     </p>
@@ -784,7 +784,7 @@ export default function ProductDetail() {
               >
                 <div className="flex items-center gap-3 mb-6">
                   <span className="w-1 h-8 bg-[#b08d55] rounded-full"></span>
-                  <h3 className="text-xl font-serif text-[#3d0000]">
+                  <h3 className="text-xl font-serif text-[#3d0000] [:root[data-theme=dark]_&]:text-orange-100">
                     {product.isCollaborative
                       ? `🤝 ${t('product.meetCollaborativeArtisans')}`
                       : t('product.meetTheArtisan')
@@ -832,7 +832,7 @@ export default function ProductDetail() {
 
                             <Link
                               href={`/stall/${collaborator.id}`}
-                              className="inline-flex items-center gap-1 text-xs font-bold text-[#3d0000] mt-2 hover:underline decoration-[#b08d55]"
+                              className="inline-flex items-center gap-1 text-xs font-bold text-[#3d0000] [:root[data-theme=dark]_&]:text-orange-200 mt-2 hover:underline decoration-[#b08d55]"
                             >
                               Visit Stall <ArrowLeft className="w-3 h-3 rotate-180" />
                             </Link>
@@ -846,7 +846,7 @@ export default function ProductDetail() {
                   <div className="group relative bg-white rounded-xl border border-gray-100 p-5 shadow-sm hover:shadow-md hover:border-[#b08d55]/30 transition-all duration-300">
                     <div className="flex items-center gap-5">
                       <div className="relative w-20 h-20 shrink-0">
-                        <div className="w-full h-full rounded-full overflow-hidden border-4 border-white shadow-lg ring-1 ring-gray-100 group-hover:ring-[#b08d55] transition-all">
+                        <div className="w-full h-full rounded-full overflow-hidden border-4 border-white [:root[data-theme=dark]_&]:border-gray-600 shadow-lg ring-1 ring-gray-100 [:root[data-theme=dark]_&]:ring-gray-700 group-hover:ring-[#b08d55] transition-all">
                           {product.seller?.profile_image ? (
                             <Image
                               src={product.seller.profile_image}
@@ -899,46 +899,7 @@ export default function ProductDetail() {
         </div>
 
         {/* Related Products */}
-        {relatedProducts.length > 0 && (
-          <div className="mt-24 border-t border-[var(--border)] pt-16">
-            <h2 className="text-3xl font-serif text-[#3d0000] mb-12 text-center flex items-center justify-center gap-4">
-              <span className="hidden md:block w-16 h-[1px] bg-[#b08d55]"></span>
-              {t('product.youMightAlsoLike') || 'People Also Bought'}
-              <span className="hidden md:block w-16 h-[1px] bg-[#b08d55]"></span>
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-              {relatedProducts.map((p) => (
-                <Link key={p.id} href={`/product/${p.id}`} className="group block">
-                  <div className="aspect-[3/4] relative overflow-hidden rounded-xl bg-gray-100 mb-4 shadow-sm group-hover:shadow-md transition-all duration-300">
-                    {p.image_url ? (
-                      <Image
-                        src={p.image_url}
-                        alt={p.title || 'Product'}
-                        fill
-                        className="object-cover object-center group-hover:scale-110 transition-transform duration-700"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-gray-100 text-gray-300 text-4xl">
-                        🛍️
-                      </div>
-                    )}
-                    {/* Hover Overlay */}
-                    <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-                    {/* Quick Add (Optional - visual only for now) */}
-                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 translate-y-full group-hover:translate-y-0 transition-transform duration-300 opacity-0 group-hover:opacity-100">
-                      <span className="bg-white/90 backdrop-blur text-[#3d0000] px-4 py-2 rounded-full text-sm font-bold shadow-lg">
-                        View Details
-                      </span>
-                    </div>
-                  </div>
-                  <h3 className="text-lg font-medium text-gray-900 group-hover:text-[#b08d55] transition-colors line-clamp-1">{p.title}</h3>
-                  <p className="text-[#3d0000] font-bold mt-1">₹{p.price}</p>
-                </Link>
-              ))}
-            </div>
-          </div>
-        )}
 
 
         {/* AR Viewer */}
@@ -1239,6 +1200,48 @@ export default function ProductDetail() {
             </div>
           )
         }
+        {/* Related Products Section */}
+        {relatedProducts.length > 0 && (
+          <div className="mt-20 border-t border-gray-100 pt-16 col-span-full">
+            <h2 className="text-3xl font-serif text-[#3d0000] [:root[data-theme=dark]_&]:text-orange-100 mb-10 text-center">
+              {t('product.youMightAlsoLike', { defaultValue: 'You Might Also Like' })}
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+              {relatedProducts.map((rp) => (
+                <Link href={`/product/${rp.id}`} key={rp.id} className="group">
+                  <div className="bg-white rounded-xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 h-full flex flex-col">
+                    <div className="relative aspect-[4/5] bg-gray-100 overflow-hidden">
+                      {rp.image_url ? (
+                        <Image
+                          src={rp.image_url}
+                          alt={rp.title || 'Product'}
+                          fill
+                          className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                        />
+                      ) : (
+                        <div className="flex items-center justify-center h-full text-gray-400 text-3xl">🖼️</div>
+                      )}
+                      {/* Overlay */}
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+                    </div>
+                    <div className="p-4 flex-1 flex flex-col">
+                      <h3 className="font-serif text-lg text-gray-900 line-clamp-2 mb-2 group-hover:text-orange-700 transition-colors">
+                        {rp.title}
+                      </h3>
+                      <div className="mt-auto flex items-center justify-between">
+                        <span className="font-medium text-[#b08d55]">₹{rp.price}</span>
+                        <div className="w-8 h-8 rounded-full bg-orange-50 flex items-center justify-center text-orange-600 opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+                          {/* Reuse ArrowLeft or similar icon */}
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="rotate-180"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
       </div >
     </div >
   )
