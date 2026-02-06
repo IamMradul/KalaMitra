@@ -185,11 +185,6 @@ export default function Navbar() {
 
     fetchUnreadNotifications();
 
-    // Poll for unread notifications every 3 seconds
-    const pollInterval = setInterval(() => {
-      fetchUnreadNotifications();
-    }, 3000);
-
     // Subscribe to real-time notifications
     const channel = supabase
       .channel(`notifications:${user.id}`)
@@ -212,15 +207,17 @@ export default function Navbar() {
             setShowMobileNotificationDot(true);
             // Auto-hide toast after 5 seconds
             setTimeout(() => setNewNotificationToast(null), 5000);
+            
+            // Immediately increment count if the new notification is unread
+            if (!payload.new.read) {
+              setUnreadNotificationsCount(prev => prev + 1);
+            }
           }
-          // Refetch count on any change
-          fetchUnreadNotifications();
         }
       )
       .subscribe();
 
     return () => {
-      clearInterval(pollInterval);
       channel.unsubscribe();
     };
   }, [user?.id]);
@@ -250,11 +247,6 @@ export default function Navbar() {
 
     fetchNotifications();
 
-    // Poll for notifications every 3 seconds
-    const pollInterval = setInterval(() => {
-      fetchNotifications();
-    }, 3000);
-
     // Subscribe to real-time notification updates
     const channel = supabase
       .channel(`notifications-popup:${user.id}`)
@@ -266,14 +258,16 @@ export default function Navbar() {
           table: 'notifications',
           filter: `user_id=eq.${user.id}`,
         },
-        () => {
-          fetchNotifications();
+        (payload: any) => {
+          // Refetch after a small delay to ensure data consistency
+          setTimeout(() => {
+            fetchNotifications();
+          }, 100);
         }
       )
       .subscribe();
 
     return () => {
-      clearInterval(pollInterval);
       channel.unsubscribe();
     };
   }, [notificationsPopupOpen, user?.id]);
@@ -694,7 +688,7 @@ export default function Navbar() {
                     >
                       <Bell className="w-5 h-5 text-[var(--text)]" />
                       {unreadNotificationsCount > 0 && (
-                        <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center z-10 shadow-lg">{unreadNotificationsCount > 99 ? '99+' : unreadNotificationsCount}</span>
+                        <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center animate-pulse z-10 shadow-lg">{unreadNotificationsCount > 99 ? '99+' : unreadNotificationsCount}</span>
                       )}
                     </button>
 
@@ -1107,7 +1101,7 @@ export default function Navbar() {
                       <motion.span
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
-                        className="ml-auto w-4 h-4 bg-red-600 rounded-full shadow-lg shadow-red-600/50"
+                        className="ml-auto w-4 h-4 bg-red-600 rounded-full animate-pulse shadow-lg shadow-red-600/50"
                       />
                     )}
                     {unreadNotificationsCount > 0 && !showMobileNotificationDot && (

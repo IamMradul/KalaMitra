@@ -17,11 +17,6 @@ export default function NotificationsList() {
     if (!user) return
     fetchNotes()
 
-    // Poll for notifications every 3 seconds
-    const pollInterval = setInterval(() => {
-      fetchNotes();
-    }, 3000);
-
     // Subscribe to real-time notifications
     const channel = supabase
       .channel(`notifications:${user.id}`)
@@ -33,15 +28,16 @@ export default function NotificationsList() {
           table: 'notifications',
           filter: `user_id=eq.${user.id}`,
         },
-        () => {
-          // Refetch notifications on any change
-          fetchNotes();
+        (payload: any) => {
+          // Refetch after a small delay to ensure data consistency
+          setTimeout(() => {
+            fetchNotes();
+          }, 100);
         }
       )
       .subscribe();
 
     return () => {
-      clearInterval(pollInterval);
       channel.unsubscribe();
     };
   }, [user])
