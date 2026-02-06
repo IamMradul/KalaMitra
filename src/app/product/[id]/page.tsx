@@ -411,6 +411,9 @@ export default function ProductDetail() {
         addToAnonymousCart(product.id, quantity)
         setCartModalStatus('success');
         setCartModalMessage(t('cart.addedSuccess'));
+        
+        // Dispatch custom event to immediately update cart count in navbar
+        window.dispatchEvent(new CustomEvent('cartUpdated'));
         setCartModalOpen(true);
         return;
       }
@@ -449,6 +452,9 @@ export default function ProductDetail() {
       if (res.error) throw res.error;
       setCartModalStatus('success');
       setCartModalMessage(t('cart.addedSuccess'));
+      
+      // Dispatch custom event to immediately update cart count in navbar
+      window.dispatchEvent(new CustomEvent('cartUpdated'));
     } catch (err) {
       // eslint-disable-next-line no-console
       console.error('Add to cart error:', err);
@@ -688,6 +694,28 @@ export default function ProductDetail() {
 
               {/* Main Actions (Moved Up) */}
               <div className="space-y-4 pt-4">
+                {/* Quantity Selector */}
+                <div className="flex items-center gap-4 bg-[var(--bg-2)] border border-[var(--border)] p-4 rounded-lg">
+                  <span className="font-medium text-[var(--text)]">Qty:</span>
+                  <div className="flex items-center border border-[var(--border)] rounded-lg">
+                    <button
+                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                      className="px-4 py-2 text-[var(--text)] hover:bg-[var(--bg-3)] transition-colors"
+                    >
+                      −
+                    </button>
+                    <span className="px-6 py-2 font-mono font-medium text-[var(--text)] border-x border-[var(--border)]">
+                      {quantity}
+                    </span>
+                    <button
+                      onClick={() => setQuantity(quantity + 1)}
+                      className="px-4 py-2 text-[var(--text)] hover:bg-[var(--bg-3)] transition-colors"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+
                 <button
                   onClick={addToCart}
                   disabled={hasActiveAuction}
@@ -1240,6 +1268,69 @@ export default function ProductDetail() {
                 </Link>
               ))}
             </div>
+          </div>
+        )}
+        
+        {/* Cart Modal */}
+        {cartModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className={`bg-[var(--bg-1)] border-2 rounded-xl shadow-2xl p-8 max-w-md w-full relative overflow-hidden ${
+                cartModalStatus === 'success'
+                  ? 'border-green-500'
+                  : 'border-red-500'
+              }`}
+            >
+              <button
+                onClick={() => setCartModalOpen(false)}
+                className="absolute top-4 right-4 text-[var(--text)]/60 hover:text-[var(--text)] text-2xl transition-colors"
+              >
+                ×
+              </button>
+
+              <div className="text-center">
+                <div className="text-6xl mb-4 animate-bounce">
+                  {cartModalStatus === 'success' ? '✅' : '❌'}
+                </div>
+                <h3 className={`text-2xl font-bold mb-2 ${
+                  cartModalStatus === 'success'
+                    ? 'text-green-600'
+                    : 'text-red-600'
+                }`}>
+                  {cartModalStatus === 'success' ? 'Added to Cart!' : 'Error'}
+                </h3>
+                <p className="text-[var(--text)] mb-6">
+                  {cartModalMessage}
+                </p>
+                <button
+                  onClick={() => {
+                    setCartModalOpen(false)
+                    if (cartModalStatus === 'success') {
+                      setQuantity(1)
+                    }
+                  }}
+                  className={`w-full px-6 py-3 font-semibold rounded-xl transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 ${
+                    cartModalStatus === 'success'
+                      ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:from-green-600 hover:to-emerald-700 focus:ring-green-200'
+                      : 'bg-gradient-to-r from-red-500 to-rose-600 text-white hover:from-red-600 hover:to-rose-700 focus:ring-red-200'
+                  } shadow-lg hover:shadow-xl`}
+                >
+                  {cartModalStatus === 'success' ? 'Continue Shopping' : 'Close'}
+                </button>
+                {cartModalStatus === 'success' && (
+                  <Link
+                    href="/cart"
+                    onClick={() => setCartModalOpen(false)}
+                    className="mt-3 block w-full px-6 py-3 bg-[var(--text)] text-[var(--bg-1)] font-semibold rounded-xl hover:bg-[#b08d55] transition-all duration-300 transform hover:scale-105"
+                  >
+                    View Cart
+                  </Link>
+                )}
+              </div>
+            </motion.div>
           </div>
         )}
       </div >

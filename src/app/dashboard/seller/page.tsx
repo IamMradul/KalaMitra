@@ -1256,7 +1256,7 @@ export default function SellerDashboard() {
                         >
                           {/* Show image if available */}
                           {donation.image_urls && donation.image_urls.length > 0 && donation.image_urls[0] && (
-                            <div className="h-40 sm:h-48 bg-gray-100 flex items-center justify-center border-b border-[var(--border)]">
+                            <div className="relative h-40 sm:h-48 bg-gray-100 flex items-center justify-center border-b border-[var(--border)]">
                               <Image
                                 src={donation.image_urls[0]}
                                 alt={donation.item_description}

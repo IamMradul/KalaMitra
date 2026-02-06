@@ -1,17 +1,14 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { MessageCircle } from 'lucide-react'
 import { AnimatePresence, motion } from 'framer-motion'
-import DMChat from './DMChat'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
+import { supabase } from '@/lib/supabase'
 import { useLanguage } from '@/components/LanguageProvider'
-import { ShoppingCart, LogOut, Menu, X, Palette, Moon, Sun, User, Video, Gift, Heart, LayoutDashboard, Package } from 'lucide-react'
+import { ShoppingCart, LogOut, Menu, X, Palette, Moon, Sun, User, Video, Gift, Heart, LayoutDashboard, Package, Bell } from 'lucide-react'
 import { useTheme } from './ThemeProvider'
 import Leaderboard from './Leaderboard'
-import { supabase } from '@/lib/supabase'
-
 
 import { useTranslation } from 'react-i18next';
 import { translateText } from '@/lib/translate';
@@ -80,10 +77,6 @@ export default function Navbar() {
           intro: '<span style="font-size:1.1em">🎁 <b>Gifts</b></span><br/>Send and receive gifts.'
         },
         {
-          element: 'a[href="/dm"]',
-          intro: '<span style="font-size:1.1em">💬 <b>Messages</b></span><br/>Chat with other users.'
-        },
-        {
           element: 'button[aria-label="Toggle theme"]',
           intro: '<span style="font-size:1.1em">🌗 <b>Theme</b></span><br/>Switch between light and dark mode.'
         },
@@ -150,73 +143,179 @@ export default function Navbar() {
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const profileDropdownRef = useRef<HTMLDivElement>(null);
   const [mitraPoints, setMitraPoints] = useState<number | null>(null);
-  // DM Drawer modal state
-  const [dmDrawerOpen, setDmDrawerOpen] = useState(false);
-  // Selected thread and user for DMChat
-  const [selectedThreadId, setSelectedThreadId] = useState<string | null>(null);
-  const [selectedOtherUser, setSelectedOtherUser] = useState<{ id: string; name: string; profile_image?: string } | null>(null);
-  // DM thread type
-  type DMThread = {
-    id: string;
-    participants: { id: string; name: string; profile_image?: string }[];
-    unreadCount?: number;
-  };
-  // Poll for unread DM count every 5s
-  useEffect(() => {
-    async function fetchUnreadDMs() {
-      if (!user?.id) {
-        setDmUnreadCount(0);
-        return;
-      }
-      try {
-        const res = await fetch('/api/chat/threads?userId=' + user.id);
-        const json = await res.json();
-        const threads: DMThread[] = json.threads || [];
-        const unread = threads.reduce((acc: number, thread) => acc + (thread.unreadCount || 0), 0);
-        setDmUnreadCount(unread);
-      } catch {
-        setDmUnreadCount(0);
-      }
-    }
-    fetchUnreadDMs();
-  }, [user?.id]);
   const [hasLiveAuctions, setHasLiveAuctions] = useState(false)
   const { i18n, t } = useTranslation();
-  // ...existing code...
-  // DM threads state for drawer
-  const [dmThreads, setDmThreads] = useState<DMThread[]>([]);
-  const [dmLoading, setDmLoading] = useState(false);
-  const [dmError, setDmError] = useState<string | null>(null);
-  // Unread DM count for badge
-  const [dmUnreadCount, setDmUnreadCount] = useState(0);
+  // Unread notifications count
+  const [unreadNotificationsCount, setUnreadNotificationsCount] = useState(0);
+  // Notifications popup state
+  const [notificationsPopupOpen, setNotificationsPopupOpen] = useState(false);
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [notificationsLoading, setNotificationsLoading] = useState(false);
+  const notificationsDropdownRef = useRef<HTMLDivElement>(null);
+  // New notification toast
+  const [newNotificationToast, setNewNotificationToast] = useState<{ title: string; body: string } | null>(null);
+  // Mobile notification indicator - red dot for new notifications
+  const [showMobileNotificationDot, setShowMobileNotificationDot] = useState(false);
 
-  // Fetch DM threads when drawer opens
+  // Fetch unread notifications count and subscribe to real-time updates
   useEffect(() => {
-    if (dmDrawerOpen && user?.id) {
-      fetchDMThreads();
-    }
-  }, [dmDrawerOpen, user?.id]);
-
-  async function fetchDMThreads() {
-    setDmLoading(true);
-    setDmError(null);
-    if (!user) {
-      setDmLoading(false);
+    if (!user?.id) {
+      setUnreadNotificationsCount(0);
       return;
     }
-    try {
-      const res = await fetch('/api/chat/threads?userId=' + user.id);
-      const json = await res.json();
-      const threads: DMThread[] = json.threads || [];
-      setDmThreads(threads);
-      // Count unread messages
-      const unread = threads.reduce((acc: number, thread) => acc + (thread.unreadCount || 0), 0);
-      setDmUnreadCount(unread);
-    } catch (err) {
-      setDmError('Failed to load chats');
+
+    const fetchUnreadNotifications = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('notifications')
+          .select('id', { count: 'exact' })
+          .eq('user_id', user.id)
+          .eq('read', false);
+        if (error) throw error;
+        const unreadCount = data?.length || 0;
+        setUnreadNotificationsCount(unreadCount);
+        // Show mobile red dot if there are unread notifications
+        if (unreadCount > 0 && !showMobileNotificationDot) {
+          setShowMobileNotificationDot(true);
+        }
+      } catch (err) {
+        console.error('Error fetching unread notifications:', err);
+      }
+    };
+
+    fetchUnreadNotifications();
+
+    // Poll for unread notifications every 3 seconds
+    const pollInterval = setInterval(() => {
+      fetchUnreadNotifications();
+    }, 3000);
+
+    // Subscribe to real-time notifications
+    const channel = supabase
+      .channel(`notifications:${user.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'notifications',
+          filter: `user_id=eq.${user.id}`,
+        },
+        (payload: any) => {
+          // Show toast for new notification
+          if (payload.new) {
+            setNewNotificationToast({
+              title: payload.new.title,
+              body: payload.new.body,
+            });
+            // Show mobile red dot indicator
+            setShowMobileNotificationDot(true);
+            // Auto-hide toast after 5 seconds
+            setTimeout(() => setNewNotificationToast(null), 5000);
+          }
+          // Refetch count on any change
+          fetchUnreadNotifications();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      clearInterval(pollInterval);
+      channel.unsubscribe();
+    };
+  }, [user?.id]);
+
+  // Fetch notifications when popup opens
+  useEffect(() => {
+    if (!notificationsPopupOpen || !user?.id) return;
+
+    const fetchNotifications = async () => {
+      setNotificationsLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('notifications')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(10);
+        if (error) throw error;
+        setNotifications(data || []);
+      } catch (err) {
+        console.error('Error fetching notifications:', err);
+        setNotifications([]);
+      } finally {
+        setNotificationsLoading(false);
+      }
+    };
+
+    fetchNotifications();
+
+    // Poll for notifications every 3 seconds
+    const pollInterval = setInterval(() => {
+      fetchNotifications();
+    }, 3000);
+
+    // Subscribe to real-time notification updates
+    const channel = supabase
+      .channel(`notifications-popup:${user.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'notifications',
+          filter: `user_id=eq.${user.id}`,
+        },
+        () => {
+          fetchNotifications();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      clearInterval(pollInterval);
+      channel.unsubscribe();
+    };
+  }, [notificationsPopupOpen, user?.id]);
+
+  // Close notifications popup when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        notificationsDropdownRef.current &&
+        !notificationsDropdownRef.current.contains(event.target as Node)
+      ) {
+        setNotificationsPopupOpen(false);
+      }
+    };
+
+    if (notificationsPopupOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
     }
-    setDmLoading(false);
-  }
+  }, [notificationsPopupOpen]);
+
+  const markNotificationRead = async (notificationId: string) => {
+    try {
+      await supabase
+        .from('notifications')
+        .update({ read: true })
+        .eq('id', notificationId);
+      // Refetch notifications
+      const { data } = await supabase
+        .from('notifications')
+        .select('*')
+        .eq('user_id', user?.id)
+        .order('created_at', { ascending: false })
+        .limit(10);
+      setNotifications(data || []);
+    } catch (err) {
+      console.error('Error marking notification as read:', err);
+    }
+  };
+
   const languages = [
     { code: 'en', label: 'English', flag: '🇬🇧' },
     { code: 'hi', label: 'हिंदी', flag: '🇮🇳' },
@@ -360,21 +459,56 @@ export default function Navbar() {
     }
     fetchCartCount();
 
-    // Listen for cart changes (for anonymous users via storage events and periodic check)
-    let interval: NodeJS.Timeout | null = null;
+    // Poll for cart changes every 2 seconds for both logged-in and anonymous users
+    const interval = setInterval(fetchCartCount, 2000);
+
+    // Listen for custom cartUpdated event for immediate updates
+    const handleCartUpdate = () => {
+      fetchCartCount();
+    };
+    if (typeof window !== 'undefined') {
+      window.addEventListener('cartUpdated', handleCartUpdate);
+    }
+
+    // Listen for storage events (for anonymous users in different tabs)
+    let handleStorageChange: (() => void) | null = null;
     if (!user?.id && typeof window !== 'undefined') {
-      const handleStorageChange = () => {
+      handleStorageChange = () => {
         fetchCartCount();
       };
       window.addEventListener('storage', handleStorageChange);
-      // Also check periodically for changes (in same tab)
-      interval = setInterval(fetchCartCount, 1000);
-
-      return () => {
-        window.removeEventListener('storage', handleStorageChange);
-        if (interval) clearInterval(interval);
-      };
     }
+
+    // Subscribe to real-time cart changes for logged-in users
+    let channel: ReturnType<typeof supabase.channel> | null = null;
+    if (user?.id) {
+      channel = supabase
+        .channel(`cart:${user.id}`)
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'cart',
+            filter: `buyer_id=eq.${user.id}`,
+          },
+          () => {
+            fetchCartCount();
+          }
+        )
+        .subscribe();
+    }
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('cartUpdated', handleCartUpdate);
+      if (handleStorageChange) {
+        window.removeEventListener('storage', handleStorageChange);
+      }
+      if (channel) {
+        channel.unsubscribe();
+      }
+    };
   }, [user?.id]);
 
   // Prevent hydration mismatch by showing consistent structure during loading
@@ -460,8 +594,10 @@ export default function Navbar() {
                 <Image src="/kalamitra-symbol.png" alt="KalaMitra Symbol" width={56} height={56} className="object-contain drop-shadow-md" priority />
               </div>
               <span className="text-3xl font-bold heritage-title hidden md:inline" key={`brand-${currentLanguage}`}>{t('brand.name')}</span>
-              {/* Mobile text hidden if logo is sufficient, or kept for clarity */}
-              <span id="navbar-brand-mobile" className="text-2xl font-bold heritage-title md:hidden" key={`brand-short-${currentLanguage}`}>KalaMitra</span>
+              {/* Mobile: Show "KM" when signed in, "KalaMitra" when not */}
+              <span id="navbar-brand-mobile" className="text-2xl font-bold heritage-title md:hidden" key={`brand-short-${currentLanguage}`}>
+                {user ? 'KM' : 'KalaMitra'}
+              </span>
             </Link>
           </div>
 
@@ -536,7 +672,7 @@ export default function Navbar() {
                 >
                   <ShoppingCart className="w-6 h-6" />
                   {cartCount > 0 && (
-                    <span className="absolute -top-2 -right-2 bg-gradient-to-r from-heritage-gold to-heritage-red text-white text-xs rounded-full w-6 h-6 flex items-center justify-center shadow-medium animate-pulse-glow">
+                    <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center shadow-lg animate-pulse-glow">
                       {cartCount}
                     </span>
                   )}
@@ -549,14 +685,110 @@ export default function Navbar() {
                   <Gift className="w-6 h-6" />
                 </Link>
                 <div className="flex items-center space-x-6">
-                  {/* DM Chat Icon (desktop) - opens /dm page directly */}
-                  <div className="relative">
-                    <Link href="/dm" className="p-2 rounded-xl hover:bg-heritage-gold/50" title="Messages">
-                      <MessageCircle className="w-5 h-5 text-[var(--text)]" />
-                      {dmUnreadCount > 0 && (
-                        <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">{dmUnreadCount}</span>
+                  {/* Notifications Icon (desktop) */}
+                  <div className="relative" ref={notificationsDropdownRef}>
+                    <button
+                      onClick={() => setNotificationsPopupOpen(!notificationsPopupOpen)}
+                      className="p-2 rounded-xl hover:bg-heritage-gold/50 transition-colors relative"
+                      title="Notifications"
+                    >
+                      <Bell className="w-5 h-5 text-[var(--text)]" />
+                      {unreadNotificationsCount > 0 && (
+                        <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center animate-pulse z-10 shadow-lg">{unreadNotificationsCount > 99 ? '99+' : unreadNotificationsCount}</span>
                       )}
-                    </Link>
+                    </button>
+
+                    {/* Notifications Popup */}
+                    <AnimatePresence>
+                      {notificationsPopupOpen && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                          transition={{ duration: 0.2 }}
+                          className="absolute right-0 mt-2 w-96 z-50 origin-top-right"
+                        >
+                          <div className="bg-[var(--bg-2)]/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-[var(--border)] overflow-hidden">
+                            {/* Header */}
+                            <div className="p-4 border-b border-[var(--border)] bg-[var(--bg-3)]/50 flex items-center justify-between">
+                              <h3 className="font-bold text-[var(--text)]">{t('navbar.notifications') || 'Notifications'}</h3>
+                              <button
+                                onClick={() => setNotificationsPopupOpen(false)}
+                                className="text-[var(--muted)] hover:text-[var(--text)] transition-colors"
+                              >
+                                ×
+                              </button>
+                            </div>
+
+                            {/* Notifications List */}
+                            <div className="max-h-96 overflow-y-auto">
+                              {notificationsLoading ? (
+                                <div className="p-6 text-center">
+                                  <motion.div
+                                    animate={{ rotate: 360 }}
+                                    transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                                    className="w-5 h-5 border-2 border-[var(--heritage-gold)] border-t-transparent rounded-full mx-auto"
+                                  />
+                                </div>
+                              ) : notifications.length === 0 ? (
+                                <div className="p-6 text-center">
+                                  <Bell className="w-8 h-8 text-[var(--muted)] mx-auto mb-2 opacity-30" />
+                                  <p className="text-xs text-[var(--muted)]">{t('common.noData') || 'No notifications'}</p>
+                                </div>
+                              ) : (
+                                <div className="divide-y divide-[var(--border)]">
+                                  {notifications.map((notif) => (
+                                    <div
+                                      key={notif.id}
+                                      className={`p-4 transition-all duration-200 border-l-4 ${
+                                        notif.read
+                                          ? 'border-l-transparent bg-[var(--bg-1)]'
+                                          : 'border-l-blue-500 bg-[var(--bg-2)]'
+                                      } hover:bg-[var(--bg-3)]`}
+                                    >
+                                      <div className="flex justify-between items-start gap-3">
+                                        <div className="flex-1 min-w-0">
+                                          <h4 className="font-semibold text-sm text-[var(--text)] mb-1">{notif.title}</h4>
+                                          <p className="text-xs text-[var(--muted)] mb-2 line-clamp-2">{notif.body}</p>
+                                          <p className="text-xs text-[var(--muted)]">
+                                            {new Date(notif.created_at).toLocaleString('en-US', {
+                                              month: 'short',
+                                              day: 'numeric',
+                                              hour: '2-digit',
+                                              minute: '2-digit'
+                                            })}
+                                          </p>
+                                        </div>
+                                        {!notif.read && (
+                                          <button
+                                            onClick={() => markNotificationRead(notif.id)}
+                                            className="flex-shrink-0 w-2 h-2 bg-blue-500 rounded-full hover:bg-blue-600 transition-colors"
+                                            title="Mark as read"
+                                          />
+                                        )}
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Footer */}
+                            {notifications.length > 0 && (
+                              <div className="p-3 border-t border-[var(--border)] bg-[var(--bg-1)]">
+                                <Link
+                                  href="/notifications"
+                                  className="text-xs font-semibold text-[var(--heritage-gold)] hover:text-[#d4af37] transition-colors block text-center py-2"
+                                  onClick={() => setNotificationsPopupOpen(false)}
+                                >
+                                  {t('common.viewAll') || 'View All Notifications'} →
+                                </Link>
+                              </div>
+                            )}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
 
                   {/* Theme Toggle (Desktop) */}
@@ -703,7 +935,7 @@ export default function Navbar() {
                               <button
                                 onClick={async () => {
                                   setProfileDropdownOpen(false);
-                                  await signOut();
+                                  await handleSignOut();
                                 }}
                                 className="flex items-center space-x-3 w-full px-3 py-2.5 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors group text-sm mt-1"
                               >
@@ -741,7 +973,7 @@ export default function Navbar() {
 
           {/* Mobile theme toggle (visible on small screens) */}
           <div className="md:hidden flex items-center space-x-2">
-            {/* DM Chat Icon (mobile) removed; now in menu below */}
+            {/* Messages moved to profile page */}
             {/* Profile image icon for mobile, always at top left of menu */}
             {user && (
               <Link href="/profile" className="mr-2 flex items-center justify-center">
@@ -786,16 +1018,26 @@ export default function Navbar() {
             >
               <div className="knob" />
             </button>
-            {/* Mobile menu button with orange dot if new notification */}
+            {/* Mobile menu button with red dot if new notification */}
             <div className="relative">
               <button
                 onClick={() => {
                   setIsMenuOpen(!isMenuOpen);
+                  if (!isMenuOpen) {
+                    setShowMobileNotificationDot(false);
+                  }
                 }}
-                className="p-3 rounded-2xl text-[var(--text)] hover:text-heritage-gold hover:bg-heritage-gold/50 transition-all duration-300 hover:scale-105"
+                className="relative p-3 rounded-2xl text-[var(--text)] hover:text-heritage-gold hover:bg-heritage-gold/50 transition-all duration-300 hover:scale-105"
               >
                 {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
               </button>
+              {showMobileNotificationDot && (
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className="absolute top-0 right-0 w-2.5 h-2.5 bg-red-600 rounded-full animate-pulse shadow-lg shadow-red-600/50 z-20"
+                />
+              )}
             </div>
           </div>
 
@@ -814,22 +1056,6 @@ export default function Navbar() {
               >
                 {t('navbar.marketplace')}
               </Link>
-              {/* DM Chat Option (mobile menu) */}
-              {user && (
-                <Link
-                  id="navbar-mobile-dm"
-                  href="/dm"
-                  className="text-[var(--text)] hover:text-heritage-gold transition-all duration-300 font-medium px-6 py-3 hover:bg-heritage-gold/50 rounded-2xl hover:translate-x-2 transform flex items-center gap-2 relative"
-                  onClick={() => setIsMenuOpen(false)}
-                  title={t('navbar.messages')}
-                >
-                  <MessageCircle className="w-5 h-5" />
-                  <span>{t('navbar.messages')}</span>
-                  {dmUnreadCount > 0 && (
-                    <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">{dmUnreadCount}</span>
-                  )}
-                </Link>
-              )}
               <Link
                 id="navbar-mobile-auctions"
                 href="/auctions"
@@ -868,21 +1094,40 @@ export default function Navbar() {
                   )}
                   <Link
                     id="navbar-mobile-notifications"
-                    href="/profile"
+                    href="/notifications"
                     className="text-[var(--text)] hover:text-heritage-gold transition-all duration-300 font-medium px-6 py-3 hover:bg-heritage-gold/50 rounded-2xl hover:translate-x-2 transform flex items-center gap-2 relative"
                     onClick={() => {
                       setIsMenuOpen(false);
+                      setShowMobileNotificationDot(false);
                     }}
                   >
-                    {t('navbar.notifications') || 'Notifications'}
+                    <Bell className="w-5 h-5" />
+                    <span>{t('navbar.notifications') || 'Notifications'}</span>
+                    {showMobileNotificationDot && (
+                      <motion.span
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        className="ml-auto w-4 h-4 bg-red-600 rounded-full animate-pulse shadow-lg shadow-red-600/50"
+                      />
+                    )}
+                    {unreadNotificationsCount > 0 && !showMobileNotificationDot && (
+                      <span className="ml-auto bg-red-600 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center z-10 shadow-lg">
+                        {unreadNotificationsCount > 99 ? '99+' : unreadNotificationsCount}
+                      </span>
+                    )}
                   </Link>
                   <Link
                     id="navbar-mobile-cart"
                     href="/cart"
-                    className="text-[var(--text)] hover:text-heritage-gold transition-all duration-300 font-medium px-6 py-3 hover:bg-heritage-gold/50 rounded-2xl hover:translate-x-2 transform"
+                    className="text-[var(--text)] hover:text-heritage-gold transition-all duration-300 font-medium px-6 py-3 hover:bg-heritage-gold/50 rounded-2xl hover:translate-x-2 transform relative"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     {t('navbar.cart')}
+                    {cartCount > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                        {cartCount}
+                      </span>
+                    )}
                   </Link>
                   <Link
                     id="navbar-mobile-gifts"
@@ -947,7 +1192,38 @@ export default function Navbar() {
           </div>
         )}
       </div>
-      {/* DM Drawer Modal removed: DM icon now opens /dm page directly */}
+      {/* Messages section moved to profile page */}
+
+      {/* New Notification Toast */}
+      <AnimatePresence>
+        {newNotificationToast && (
+          <motion.div
+            initial={{ opacity: 0, y: -20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -20, scale: 0.95 }}
+            transition={{ duration: 0.3 }}
+            className="fixed top-20 left-1/2 transform -translate-x-1/2 z-[60] max-w-sm"
+          >
+            <div className="bg-[var(--bg-2)] border-l-4 border-blue-500 rounded-xl shadow-2xl p-4 flex gap-4 items-start backdrop-blur-md">
+              <div className="flex-shrink-0">
+                <div className="flex items-center justify-center h-10 w-10 rounded-lg bg-blue-100 dark:bg-blue-900/30">
+                  <Bell className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                </div>
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-sm font-semibold text-[var(--text)]">{newNotificationToast.title}</h3>
+                <p className="text-xs text-[var(--muted)] mt-1 line-clamp-2">{newNotificationToast.body}</p>
+              </div>
+              <button
+                onClick={() => setNewNotificationToast(null)}
+                className="flex-shrink-0 text-[var(--muted)] hover:text-[var(--text)] transition-colors"
+              >
+                ×
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </nav>
   )
 }
