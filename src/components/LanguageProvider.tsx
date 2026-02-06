@@ -18,8 +18,12 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(true)
   const [currentLanguage, setCurrentLanguage] = useState('en')
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
+    // Set mounted flag to indicate client-side rendering
+    setMounted(true)
+    
     // Initialize language from various sources
     const initializeLanguage = async () => {
       try {
@@ -104,6 +108,15 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setIsLoading(false)
     }
+  }
+
+  // Only render children after mounting to prevent hydration mismatch
+  if (!mounted) {
+    return (
+      <LanguageContext.Provider value={{ currentLanguage, changeLanguage, isLoading: true }}>
+        {children}
+      </LanguageContext.Provider>
+    )
   }
 
   return (
