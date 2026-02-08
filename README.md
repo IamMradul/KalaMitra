@@ -123,6 +123,13 @@
 KalaMitra/
 │
 ├── public/
+│   ├── pdf.worker.min.js
+│   ├── kalamitra-logo.png
+│   ├── kalamitra-symbol.png
+│   ├── gold&jwellery.jpg
+│   ├── pottery.jpg
+│   ├── saree.jpg
+│   ├── notfound.png
 │   ├── file.svg
 │   ├── globe.svg
 │   ├── next.svg
@@ -272,6 +279,8 @@ KalaMitra/
 │   │   │   └── page.tsx
 │   │   ├── contact/
 │   │   │   └── page.tsx
+│   │   ├── wishlist/
+│   │   │   └── page.tsx
 │   ├── components/
 │   │   ├── AIChatConditional.tsx
 │   │   ├── AIProductForm.tsx
@@ -279,9 +288,11 @@ KalaMitra/
 │   │   ├── ARViewer.tsx
 │   │   ├── AuctionWidget.tsx
 │   │   ├── DMChat.tsx
+│   │   ├── DonateModal.tsx
 │   │   ├── Footer.tsx
 │   │   ├── GroupGiftContribution.tsx
 │   │   ├── GroupGiftModal.tsx
+│   │   ├── HideNavbar.tsx
 │   │   ├── LanguageProvider.tsx
 │   │   ├── Leaderboard.tsx
 │   │   ├── Market3DButton.tsx
