@@ -119,18 +119,27 @@ export default function NotificationsList() {
   const unreadCount = notes.filter(n => !n.read).length
 
   return (
-    <div className="space-y-4">
+    <div
+      className="space-y-4"
+      style={{
+        // Bluish overrides for this component only
+        '--primary': '#2563eb', // blue-600
+        '--primary-400': '#60a5fa', // blue-400
+      } as React.CSSProperties}
+    >
       {unreadCount > 0 && (
-        <div className="flex items-center justify-between bg-blue-100 dark:bg-blue-900/20 border border-blue-300 dark:border-blue-800 p-4 rounded-xl mb-4">
+        <div className="flex items-center justify-between border rounded-xl mb-4 p-4"
+          style={{ background: 'var(--bg-2)', borderColor: 'var(--border)' }}>
           <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold text-blue-800 dark:text-blue-100">
+            <span className="text-sm font-semibold" style={{ color: 'var(--primary)' }}>
               {unreadCount} unread notification{unreadCount !== 1 ? 's' : ''}
             </span>
           </div>
           {unreadCount > 0 && (
             <button
               onClick={markAllAsRead}
-              className="text-xs font-semibold text-blue-700 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 transition-colors"
+              className="text-xs font-semibold hover:underline transition-colors"
+              style={{ color: 'var(--primary)' }}
             >
               Mark all as read
             </button>
@@ -146,48 +155,49 @@ export default function NotificationsList() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ delay: index * 0.05 }}
-            className={`p-4 rounded-xl border transition-all duration-200 ${
-              n.read
-                ? 'bg-white dark:bg-[var(--bg-1)] border-[var(--border)] opacity-75'
-                : 'bg-blue-50 dark:bg-[var(--bg-2)] border-blue-300 dark:border-blue-600 shadow-md'
-            } hover:shadow-lg group`}
+            className={`p-4 rounded-xl border transition-all duration-200 group`}
+            style={{
+              background: n.read ? 'var(--bg-2)' : 'var(--bg)',
+              borderColor: n.read ? 'var(--border)' : 'var(--primary-400)',
+              opacity: n.read ? 0.75 : 1,
+              boxShadow: n.read ? undefined : '0 2px 8px 0 rgba(80, 80, 200, 0.08)'
+            }}
           >
             <div className="flex gap-4">
               {/* Icon/Indicator */}
-              <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${
-                n.read
-                  ? 'bg-gray-100 dark:bg-[var(--bg-3)]'
-                  : 'bg-blue-100 dark:bg-blue-900/30'
-              }`}>
-                <Bell className={`w-5 h-5 ${
-                  n.read
-                    ? 'text-gray-400 dark:text-[var(--muted)]'
-                    : 'text-blue-600 dark:text-blue-400'
-                }`} />
+              <div
+                className="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center"
+                style={{ background: n.read ? 'var(--bg-2)' : 'var(--primary-400)' }}
+              >
+                <Bell
+                  className="w-5 h-5"
+                  style={{ color: n.read ? 'var(--muted)' : 'var(--bg)' }}
+                />
               </div>
 
               {/* Content */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-start justify-between gap-4 mb-1">
-                  <h3 className={`font-semibold text-base ${
-                    n.read
-                      ? 'text-gray-500 dark:text-[var(--muted)]'
-                      : 'text-blue-900 dark:text-[var(--text)]'
-                  }`}>
+                  <h3
+                    className="font-semibold text-base"
+                    style={{ color: n.read ? 'var(--muted)' : 'var(--text)' }}
+                  >
                     {n.title}
                   </h3>
                   {!n.read && (
                     <span className="flex-shrink-0 w-2 h-2 bg-blue-500 rounded-full mt-1.5 border border-white"></span>
                   )}
                 </div>
-                <p className={`text-sm mb-2 leading-relaxed ${
-                  n.read
-                    ? 'text-gray-500 dark:text-[var(--muted)]'
-                    : 'text-gray-900 dark:text-[var(--text)]'
-                }`}>
+                <p
+                  className="text-sm mb-2 leading-relaxed"
+                  style={{ color: n.read ? 'var(--muted)' : 'var(--text)' }}
+                >
                   {n.body}
                 </p>
-                <p className="text-xs text-gray-400 dark:text-[var(--muted)] italic">
+                <p
+                  className="text-xs italic"
+                  style={{ color: 'var(--muted)' }}
+                >
                   {new Date(n.created_at).toLocaleString('en-US', {
                     year: 'numeric',
                     month: 'short',
@@ -203,7 +213,12 @@ export default function NotificationsList() {
                 {!n.read && (
                   <button
                     onClick={() => markRead(n.id)}
-                    className="p-2 rounded-lg bg-green-50 dark:bg-green-900/30 hover:bg-green-100 dark:hover:bg-green-900/50 text-green-700 dark:text-green-400 transition-colors border border-green-200 dark:border-transparent"
+                    className="p-2 rounded-lg border transition-colors"
+                    style={{
+                      background: 'var(--success)',
+                      color: 'var(--bg)',
+                      borderColor: 'var(--success)',
+                    }}
                     title="Mark as read"
                   >
                     <Check className="w-4 h-4" />
@@ -211,7 +226,12 @@ export default function NotificationsList() {
                 )}
                 <button
                   onClick={() => deleteNotification(n.id)}
-                  className="p-2 rounded-lg bg-red-50 dark:bg-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/50 text-red-700 dark:text-red-400 transition-colors border border-red-200 dark:border-transparent"
+                  className="p-2 rounded-lg border transition-colors"
+                  style={{
+                    background: 'var(--danger-red)',
+                    color: 'var(--bg)',
+                    borderColor: 'var(--danger-red)',
+                  }}
                   title="Delete notification"
                 >
                   <Trash2 className="w-4 h-4" />
