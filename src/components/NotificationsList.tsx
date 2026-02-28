@@ -121,16 +121,16 @@ export default function NotificationsList() {
   return (
     <div className="space-y-4">
       {unreadCount > 0 && (
-        <div className="flex items-center justify-between bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 p-4 rounded-xl mb-4">
+        <div className="flex items-center justify-between bg-blue-100 dark:bg-blue-900/20 border border-blue-300 dark:border-blue-800 p-4 rounded-xl mb-4">
           <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold text-blue-900 dark:text-blue-100">
+            <span className="text-sm font-semibold text-blue-800 dark:text-blue-100">
               {unreadCount} unread notification{unreadCount !== 1 ? 's' : ''}
             </span>
           </div>
           {unreadCount > 0 && (
             <button
               onClick={markAllAsRead}
-              className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
+              className="text-xs font-semibold text-blue-700 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 transition-colors"
             >
               Mark all as read
             </button>
@@ -148,20 +148,20 @@ export default function NotificationsList() {
             transition={{ delay: index * 0.05 }}
             className={`p-4 rounded-xl border transition-all duration-200 ${
               n.read
-                ? 'bg-[var(--bg-1)] border-[var(--border)] opacity-75'
-                : 'bg-[var(--bg-2)] border-blue-400 dark:border-blue-600 shadow-md'
+                ? 'bg-white dark:bg-[var(--bg-1)] border-[var(--border)] opacity-75'
+                : 'bg-blue-50 dark:bg-[var(--bg-2)] border-blue-300 dark:border-blue-600 shadow-md'
             } hover:shadow-lg group`}
           >
             <div className="flex gap-4">
               {/* Icon/Indicator */}
               <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${
                 n.read
-                  ? 'bg-[var(--bg-3)]'
+                  ? 'bg-gray-100 dark:bg-[var(--bg-3)]'
                   : 'bg-blue-100 dark:bg-blue-900/30'
               }`}>
                 <Bell className={`w-5 h-5 ${
                   n.read
-                    ? 'text-[var(--muted)]'
+                    ? 'text-gray-400 dark:text-[var(--muted)]'
                     : 'text-blue-600 dark:text-blue-400'
                 }`} />
               </div>
@@ -171,25 +171,23 @@ export default function NotificationsList() {
                 <div className="flex items-start justify-between gap-4 mb-1">
                   <h3 className={`font-semibold text-base ${
                     n.read
-                      ? 'text-[var(--muted)]'
-                      : 'text-[var(--text)]'
+                      ? 'text-gray-500 dark:text-[var(--muted)]'
+                      : 'text-blue-900 dark:text-[var(--text)]'
                   }`}>
                     {n.title}
                   </h3>
                   {!n.read && (
-                    <span className="flex-shrink-0 w-2 h-2 bg-blue-500 rounded-full mt-1.5"></span>
+                    <span className="flex-shrink-0 w-2 h-2 bg-blue-500 rounded-full mt-1.5 border border-white"></span>
                   )}
                 </div>
-                
                 <p className={`text-sm mb-2 leading-relaxed ${
                   n.read
-                    ? 'text-[var(--muted)]'
-                    : 'text-[var(--text)]'
+                    ? 'text-gray-500 dark:text-[var(--muted)]'
+                    : 'text-gray-900 dark:text-[var(--text)]'
                 }`}>
                   {n.body}
                 </p>
-                
-                <p className="text-xs text-[var(--muted)] italic">
+                <p className="text-xs text-gray-400 dark:text-[var(--muted)] italic">
                   {new Date(n.created_at).toLocaleString('en-US', {
                     year: 'numeric',
                     month: 'short',
@@ -205,7 +203,7 @@ export default function NotificationsList() {
                 {!n.read && (
                   <button
                     onClick={() => markRead(n.id)}
-                    className="p-2 rounded-lg bg-green-100 dark:bg-green-900/30 hover:bg-green-200 dark:hover:bg-green-900/50 text-green-600 dark:text-green-400 transition-colors"
+                    className="p-2 rounded-lg bg-green-50 dark:bg-green-900/30 hover:bg-green-100 dark:hover:bg-green-900/50 text-green-700 dark:text-green-400 transition-colors border border-green-200 dark:border-transparent"
                     title="Mark as read"
                   >
                     <Check className="w-4 h-4" />
@@ -213,7 +211,7 @@ export default function NotificationsList() {
                 )}
                 <button
                   onClick={() => deleteNotification(n.id)}
-                  className="p-2 rounded-lg bg-red-100 dark:bg-red-900/30 hover:bg-red-200 dark:hover:bg-red-900/50 text-red-600 dark:text-red-400 transition-colors"
+                  className="p-2 rounded-lg bg-red-50 dark:bg-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/50 text-red-700 dark:text-red-400 transition-colors border border-red-200 dark:border-transparent"
                   title="Delete notification"
                 >
                   <Trash2 className="w-4 h-4" />

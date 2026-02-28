@@ -305,6 +305,13 @@ export default function Navbar() {
         .order('created_at', { ascending: false })
         .limit(10);
       setNotifications(data || []);
+
+      // Update unread notifications count immediately
+      if (data) {
+        const unreadCount = data.filter((n) => !n.read).length;
+        setUnreadNotificationsCount(unreadCount);
+        if (unreadCount === 0) setShowMobileNotificationDot(false);
+      }
     } catch (err) {
       console.error('Error marking notification as read:', err);
     }
@@ -756,9 +763,11 @@ export default function Navbar() {
                                         {!notif.read && (
                                           <button
                                             onClick={() => markNotificationRead(notif.id)}
-                                            className="flex-shrink-0 w-2 h-2 bg-blue-500 rounded-full hover:bg-blue-600 transition-colors"
+                                            className="flex-shrink-0 px-3 py-1 ml-2 bg-blue-500 text-white text-xs rounded-full hover:bg-blue-600 transition-colors shadow"
                                             title="Mark as read"
-                                          />
+                                          >
+                                            Mark as read
+                                          </button>
                                         )}
                                       </div>
                                     </div>
