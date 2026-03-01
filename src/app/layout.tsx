@@ -5,7 +5,9 @@ import { AuthProvider } from '@/contexts/AuthContext'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import { LanguageProvider } from '@/components/LanguageProvider'
 import Navbar from '@/components/Navbar'
+
 import Footer from '@/components/Footer'
+import AIChatConditional from '@/components/AIChatConditional'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -30,6 +32,7 @@ export default function RootLayout({
                 {children}
               </main>
               <Footer />
+              <AIChatConditional />
             </ThemeProvider>
           </LanguageProvider>
         </AuthProvider>
