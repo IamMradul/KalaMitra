@@ -6,7 +6,6 @@ import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
 import { Heart, MessageCircle, User } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { FixedSizeList,FixedSizeListProps } from 'react-window';
 interface ReelProfile {
   name: string;
   profile_image: string | null;
