@@ -80,17 +80,17 @@ export default function AuctionsPage() {
   return (
     <div className="min-h-screen heritage-bg">
       {/* Heritage Banner */}
-      <div className="relative py-20 bg-[#3d0000] dark:bg-[var(--card)] text-white overflow-hidden">
+      <div className="relative py-10 bg-[#3d0000] dark:bg-[var(--card)] text-white overflow-hidden">
         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 20% 50%, #b08d55 1px, transparent 1px)', backgroundSize: '30px 30px' }}></div>
         <div className="container-custom relative z-10 text-center">
           <h1 className="text-4xl md:text-5xl font-serif font-bold text-[#b08d55] mb-4 drop-shadow-md">{t('auctions.title', 'Heritage Auctions')}</h1>
-          <p className="text-lg text-white/80 max-w-2xl mx-auto font-light">
+          <p className="text-lg text-[var(--text)] text-opacity-80 max-w-2xl mx-auto font-light">
             {t('auctions.subtitle', 'Bid on exclusive, handcrafted masterpieces directly from artisans. Own a piece of history.')}
           </p>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {auctions.map((a: AuctionRow, idx) => {
             const highestBid = a.bids && a.bids.length > 0 ? a.bids[0].amount : a.starting_price;
@@ -228,7 +228,7 @@ function AuctionCard({ auction, title, currentPrice, t }: { auction: AuctionRow,
         <div className="flex items-center justify-between mb-4">
           <div>
             <p className="text-xs text-[var(--muted)] uppercase tracking-wide">{t('auctions.currentBidLabel', 'Current Bid')}</p>
-            <p className="text-2xl font-bold text-[var(--heritage-red)] dark:text-white">₹{currentPrice.toLocaleString()}</p>
+            <p className="text-2xl font-bold text-[var(--heritage-red)] dark:text-[var(--heritage-white)]">₹{currentPrice.toLocaleString()}</p>
           </div>
           <div className="text-right">
             <p className="text-xs text-[var(--muted)] uppercase tracking-wide">{t('auctions.timeLeft', 'Time Left')}</p>

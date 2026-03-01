@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
 import { Heart, MessageCircle, User } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { FixedSizeList,FixedSizeListProps } from 'react-window';
 interface ReelProfile {
   name: string;
   profile_image: string | null;
@@ -38,7 +39,13 @@ export interface ReelComment {
 
 const ReelsPage = () => {
   const [reels, setReels] = useState<Reel[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [hasMore, setHasMore] = useState(true);
+  const [cursor, setCursor] = useState<string | null>(null); // last reel's created_at
+  const [fetchError, setFetchError] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
+  const sentinelRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
   // Upload modal state
   const [showUploadModal, setShowUploadModal] = useState(false);
@@ -71,17 +78,74 @@ const ReelsPage = () => {
   const [commentLoading, setCommentLoading] = useState(false);
   const [comments, setComments] = useState<Record<number, ReelComment[]>>({});
 
-  useEffect(() => {
-    const fetchReels = async () => {
-      const { data, error } = await supabase
-        .from('reel')
-        .select('*, profiles(name, profile_image), products(title)')
-        .order('created_at', { ascending: false });
-      if (!error && data) setReels(data);
+
+  // Fetch reels with cursor-based pagination
+  const fetchReels = async (cursorValue: string | null, isInitial = false, retryAttempt = 0) => {
+    if (loading) return;
+    if (!isInitial && !hasMore) return;
+    if (isInitial) setInitialLoading(true);
+    setLoading(true);
+    setFetchError(null);
+    let query = supabase
+      .from('reel')
+      .select('*, profiles(name, profile_image), products(title)')
+      .order('created_at', { ascending: false })
+      .limit(6);
+    if (cursorValue) query = query.lt('created_at', cursorValue);
+    try {
+      const { data, error } = await query;
+      if (!error && data) {
+        if (isInitial) {
+          setReels(data);
+          setCursor(data.length ? data[data.length - 1].created_at : cursorValue);
+          setHasMore(data.length === 6 || data.length > 0);
+        } else if (data.length > 0) {
+          setReels(prev => [...prev, ...data]);
+          setCursor(data.length ? data[data.length - 1].created_at : cursorValue);
+          setHasMore(data.length === 6);
+        } else {
+          // No more new reels, repeat the current reels to simulate endless scroll
+          setReels(prev => {
+            if (prev.length === 0) return prev;
+            // Shuffle the repeated reels for variety
+            const shuffled = [...prev].sort(() => Math.random() - 0.5);
+            return [...prev, ...shuffled];
+          });
+          setHasMore(true); // Keep infinite scroll going
+        }
+      } else {
+        throw error || new Error('Unknown error');
+      }
+    } catch (err: any) {
+      setFetchError(t('reels.fetchError', { defaultValue: 'Failed to load reels. Please check your connection and try again.' }));
+      // Retry automatically up to 2 times with exponential backoff
+      if (retryAttempt < 2) {
+        setTimeout(() => {
+          fetchReels(cursorValue, isInitial, retryAttempt + 1);
+        }, 1000 * Math.pow(2, retryAttempt));
+      }
+    } finally {
       setLoading(false);
-    };
-    fetchReels();
+      if (isInitial) setInitialLoading(false);
+    }
+  };
+
+  // Initial load
+  useEffect(() => {
+    fetchReels(null, true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Infinite scroll: fetch more when sentinel is visible
+  useEffect(() => {
+    if (!hasMore || loading) return;
+    const observer = new window.IntersectionObserver(entries => {
+      if (entries[0].isIntersecting) fetchReels(cursor);
+    }, { threshold: 1 });
+    if (sentinelRef.current) observer.observe(sentinelRef.current);
+    return () => observer.disconnect();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cursor, hasMore, loading]);
 
   // Fetch comments for a reel
   const fetchComments = async (reelId: number) => {
@@ -333,17 +397,28 @@ const ReelsPage = () => {
             )}
       </div>
       <div className="w-full max-w-md md:max-w-2xl flex flex-col gap-8">
-        {loading ? (
+        {initialLoading ? (
           <div className="flex justify-center items-center h-96">
             <span className="text-[var(--muted)]">{t('common.loading', { defaultValue: 'Loading...' })}</span>
+          </div>
+        ) : fetchError ? (
+          <div className="flex flex-col justify-center items-center h-96 gap-4">
+            <span className="text-red-600 text-center">{fetchError}</span>
+            <button
+              className="px-4 py-2 rounded-lg bg-orange-600 text-white font-semibold disabled:opacity-60"
+              onClick={() => { setFetchError(null); setRetryCount(c => c + 1); fetchReels(cursor, false); }}
+            >
+              {t('reels.retry', { defaultValue: 'Retry' })}
+            </button>
           </div>
         ) : reels.length === 0 ? (
           <div className="flex justify-center items-center h-96">
             <span className="text-[var(--muted)]">{t('reels.noReels', { defaultValue: 'No reels yet.' })}</span>
           </div>
         ) : (
-          reels.map(reel => (
-            <div key={reel.id} className="rounded-xl shadow-lg bg-[var(--bg)] border border-[var(--border)] overflow-hidden flex flex-col">
+          <>
+            {reels.map((reel, idx) => (
+              <div key={reel.id + '-' + idx} className="rounded-xl shadow-lg bg-[var(--bg)] border border-[var(--border)] overflow-hidden flex flex-col">
               <div className="flex items-center gap-3 p-4">
                 {reel.profiles?.profile_image ? (
                   <img src={reel.profiles.profile_image} alt={reel.profiles.name} className="w-10 h-10 rounded-full object-cover" />
@@ -480,7 +555,20 @@ const ReelsPage = () => {
                 )}
               </div>
             </div>
-          ))
+            ))}
+            {/* Sentinel for infinite scroll */}
+            <div ref={sentinelRef} />
+            {loading && (
+              <div className="flex justify-center items-center py-8">
+                <span className="text-[var(--muted)]">{t('common.loading', { defaultValue: 'Loading...' })}</span>
+              </div>
+            )}
+            {!hasMore && reels.length > 0 && (
+              <div className="flex justify-center items-center py-8">
+                <span className="text-[var(--muted)]">{t('reels.endOfList', { defaultValue: 'No more reels.' })}</span>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
