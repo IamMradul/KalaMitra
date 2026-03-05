@@ -1112,19 +1112,67 @@
       "livingHubBody": "Unlike traditional marketplaces, KalaMitra is not static. It’s a living cultural hub — with AI, 3D bazaars, auctions, collaborations, and community features — all in one place.",
       "featuresTitle": "Features",
       "sellerFeaturesTitle": "Seller Features",
+      "sellerFeaturesDesc": "Empowering artisans to manage, grow, and showcase their craft online.",
       "sellerFeatures": {
-        "f1": "Virtual Stall Management",
-        "f2": "Product Management & AI Tools",
-        "f3": "Virtual Products & Auctions",
-        "f4": "Seller Analytics & Schemes"
+        "f1": "Showcase Your Craft in 3D",
+        "f2": "Manage Products & Digital Creations",
+        "f3": "Host Auctions & Reels",
+        "f4": "Collaborate with Artisans",
+        "f5": "Share Your Public Stall",
+        "f6": "Access Vendor Schemes",
+        "f7": "Customize Your Stall Design",
+        "f8": "Enhance Photos & Stories with AI",
+        "f9": "Track Sales & Insights",
+        "f10": "Receive Real-Time Notifications",
+        "f11": "Schedule Product Launches"
       },
+      "sellerFeatureGroups": {
+        "coreTools": "Core Tools",
+        "growthCommunity": "Growth & Community",
+        "smartFeatures": "Smart Features"
+      },
+
       "buyerFeaturesTitle": "Buyer Features",
+        "buyerFeaturesDesc": "A seamless, immersive, and smart shopping experience for every buyer.",
       "buyerFeatures": {
-        "f1": "Marketplace Browsing & Search",
-        "f2": "AR Visualization & 3D Bazaar",
-        "f3": "Gifting & Custom Requests",
-        "f4": "Story Narration & AI Chatbot"
+        "f1": "Browse & Discover Products",
+        "f2": "Smart Search & Filters",
+        "f3": "Easy Shopping Cart",
+        "f4": "Multi-language Support",
+        "f5": "Voice Search & Auctions",
+        "f6": "Leaderboard & Recommendations",
+        "f7": "Gifting & Custom Requests",
+        "f8": "Community & Chat",
+        "f9": "AR & 3D Experiences",
+        "f10": "AI Shopping Assistant",
+        "f11": "Donate Waste"
       },
+      "buyerFeatureGroups": {
+        "coreExperience": "Core Experience",
+        "socialCommunity": "Social & Community",
+        "immersiveAI": "Immersive & AI Features"
+      },
+    "ngoFeaturesTitle": "NGO Features",
+      "ngoFeaturesDesc": "Empowering NGOs to maximize impact, connect with donors, and support artisans at scale.",
+    "ngoFeatures": {
+      "f1": "Access to all Seller Features",
+      "f2": "Prominent Donated Items",
+      "f3": "Connect with Donors & Artisans",
+      "f4": "Fundraising & Awareness Tools",
+      "f5": "Impact Tracking & Analytics",
+      "f6": "Community Projects",
+      "f7": "Manage Volunteer Programs",
+      "f8": "Guidance for Donors & NGOs",
+      "f9": "Collaboration Opportunities",
+      "f10": "Share Success Stories"
+    },
+    
+    "ngoFeatureGroups": {
+      "allSellerTools": "All Seller Tools",
+      "ngoSpecific": "NGO-Specific",
+      "supportGrowth": "Support & Growth"
+
+    },
       "contactLegalTitle": "Contact & Legal",
       "contactBody": "For support or queries, contact: talkto.kalamitra@gmail.com",
       "founderLabel": "Founder",

@@ -1,0 +1,9 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://kalamitra.store
+
+# Sitemaps
+Sitemap: https://kalamitra.store/sitemap.xml
