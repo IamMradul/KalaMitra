@@ -43,28 +43,110 @@ export default function AboutPage() {
 
           <section>
             <h2 className="text-2xl font-serif font-semibold text-[var(--heritage-brown)] border-l-4 border-[var(--heritage-gold)] pl-4 mb-8">{t('aboutUs.featuresTitle')}</h2>
-            <div className="grid md:grid-cols-2 gap-8">
-              <div className="space-y-4 bg-[var(--bg-1)]/50 p-6 rounded-2xl border border-[var(--border)]">
-                <h3 className="text-lg font-bold text-[var(--heritage-red)] uppercase tracking-wider text-sm flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-[var(--heritage-red)]"></span> {t('aboutUs.sellerFeaturesTitle')}
-                </h3>
-                <ul className="space-y-3 text-[var(--muted)]">
-                  <li className="flex items-start"><span className="mr-2 text-[var(--heritage-gold)]">✓</span> {t('aboutUs.sellerFeatures.f1')}</li>
-                  <li className="flex items-start"><span className="mr-2 text-[var(--heritage-gold)]">✓</span> {t('aboutUs.sellerFeatures.f2')}</li>
-                  <li className="flex items-start"><span className="mr-2 text-[var(--heritage-gold)]">✓</span> {t('aboutUs.sellerFeatures.f3')}</li>
-                  <li className="flex items-start"><span className="mr-2 text-[var(--heritage-gold)]">✓</span> {t('aboutUs.sellerFeatures.f4')}</li>
-                </ul>
+            <div className="grid md:grid-cols-3 gap-8">
+              {/* Seller Features */}
+              <div className="space-y-6 bg-[var(--bg-1)]/50 p-6 rounded-2xl border border-[var(--border)] flex flex-col">
+                <div>
+                  <h3 className="text-lg font-bold text-[var(--heritage-red)] uppercase tracking-wider text-sm flex items-center gap-2 mb-2">
+                    <span className="w-2 h-2 rounded-full bg-[var(--heritage-red)]"></span> {t('aboutUs.sellerFeaturesTitle')}
+                  </h3>
+                  <p className="font-semibold text-[var(--heritage-brown)] mb-3">{t('aboutUs.sellerFeaturesDesc')}</p>
+                </div>
+                <div>
+                  <h4 className="font-bold text-[var(--heritage-gold)] mb-1">{t('aboutUs.sellerFeatureGroups.coreTools')}</h4>
+                  <ul className="space-y-2 text-[var(--muted)] list-inside">
+                    <li><span className="mr-2 text-[var(--heritage-gold)]">✓</span>{t('aboutUs.sellerFeatures.f1')}</li>
+                    <li><span className="mr-2 text-[var(--heritage-gold)]">✓</span>{t('aboutUs.sellerFeatures.f2')}</li>
+                    <li><span className="mr-2 text-[var(--heritage-gold)]">✓</span>{t('aboutUs.sellerFeatures.f3')}</li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="font-bold text-[var(--heritage-gold)] mb-1">{t('aboutUs.sellerFeatureGroups.growthCommunity')}</h4>
+                  <ul className="space-y-2 text-[var(--muted)] list-inside">
+                    <li><span className="mr-2 text-[var(--heritage-gold)]">✓</span>{t('aboutUs.sellerFeatures.f4')}</li>
+                    <li><span className="mr-2 text-[var(--heritage-gold)]">✓</span>{t('aboutUs.sellerFeatures.f5')}</li>
+                    <li><span className="mr-2 text-[var(--heritage-gold)]">✓</span>{t('aboutUs.sellerFeatures.f6')}</li>
+                    <li><span className="mr-2 text-[var(--heritage-gold)]">✓</span>{t('aboutUs.sellerFeatures.f7')}</li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="font-bold text-[var(--heritage-gold)] mb-1">{t('aboutUs.sellerFeatureGroups.smartFeatures')}</h4>
+                  <ul className="space-y-2 text-[var(--muted)] list-inside">
+                    <li><span className="mr-2 text-[var(--heritage-gold)]">✓</span>{t('aboutUs.sellerFeatures.f8')}</li>
+                    <li><span className="mr-2 text-[var(--heritage-gold)]">✓</span>{t('aboutUs.sellerFeatures.f9')}</li>
+                    <li><span className="mr-2 text-[var(--heritage-gold)]">✓</span>{t('aboutUs.sellerFeatures.f10')}</li>
+                    <li><span className="mr-2 text-[var(--heritage-gold)]">✓</span>{t('aboutUs.sellerFeatures.f11')}</li>
+                  </ul>
+                </div>
               </div>
-              <div className="space-y-4 bg-[var(--bg-1)]/50 p-6 rounded-2xl border border-[var(--border)]">
-                <h3 className="text-lg font-bold text-[var(--heritage-green)] uppercase tracking-wider text-sm flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-[var(--heritage-green)]"></span> {t('aboutUs.buyerFeaturesTitle')}
-                </h3>
-                <ul className="space-y-3 text-[var(--muted)]">
-                  <li className="flex items-start"><span className="mr-2 text-[var(--heritage-gold)]">✓</span> {t('aboutUs.buyerFeatures.f1')}</li>
-                  <li className="flex items-start"><span className="mr-2 text-[var(--heritage-gold)]">✓</span> {t('aboutUs.buyerFeatures.f2')}</li>
-                  <li className="flex items-start"><span className="mr-2 text-[var(--heritage-gold)]">✓</span> {t('aboutUs.buyerFeatures.f3')}</li>
-                  <li className="flex items-start"><span className="mr-2 text-[var(--heritage-gold)]">✓</span> {t('aboutUs.buyerFeatures.f4')}</li>
-                </ul>
+              {/* Buyer Features */}
+              <div className="space-y-6 bg-[var(--bg-1)]/50 p-6 rounded-2xl border border-[var(--border)] flex flex-col">
+                <div>
+                  <h3 className="text-lg font-bold text-[var(--heritage-green)] uppercase tracking-wider text-sm flex items-center gap-2 mb-2">
+                    <span className="w-2 h-2 rounded-full bg-[var(--heritage-green)]"></span> {t('aboutUs.buyerFeaturesTitle')}
+                  </h3>
+                  <p className="font-semibold text-[var(--heritage-brown)] mb-3">{t('aboutUs.buyerFeaturesDesc')}</p>
+                </div>
+                <div>
+                  <h4 className="font-bold text-[var(--heritage-gold)] mb-1">{t('aboutUs.buyerFeatureGroups.coreExperience')}</h4>
+                  <ul className="space-y-2 text-[var(--muted)] list-inside">
+                    <li><span className="mr-2 text-[var(--heritage-gold)]">✓</span>{t('aboutUs.buyerFeatures.f1')}</li>
+                    <li><span className="mr-2 text-[var(--heritage-gold)]">✓</span>{t('aboutUs.buyerFeatures.f2')}</li>
+                    <li><span className="mr-2 text-[var(--heritage-gold)]">✓</span>{t('aboutUs.buyerFeatures.f3')}</li>
+                    <li><span className="mr-2 text-[var(--heritage-gold)]">✓</span>{t('aboutUs.buyerFeatures.f4')}</li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="font-bold text-[var(--heritage-gold)] mb-1">{t('aboutUs.buyerFeatureGroups.socialCommunity')}</h4>
+                  <ul className="space-y-2 text-[var(--muted)] list-inside">
+                    <li><span className="mr-2 text-[var(--heritage-gold)]">✓</span>{t('aboutUs.buyerFeatures.f5')}</li>
+                    <li><span className="mr-2 text-[var(--heritage-gold)]">✓</span>{t('aboutUs.buyerFeatures.f6')}</li>
+                    <li><span className="mr-2 text-[var(--heritage-gold)]">✓</span>{t('aboutUs.buyerFeatures.f7')}</li>
+                    <li><span className="mr-2 text-[var(--heritage-gold)]">✓</span>{t('aboutUs.buyerFeatures.f8')}</li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="font-bold text-[var(--heritage-gold)] mb-1">{t('aboutUs.buyerFeatureGroups.immersiveAI')}</h4>
+                  <ul className="space-y-2 text-[var(--muted)] list-inside">
+                    <li><span className="mr-2 text-[var(--heritage-gold)]">✓</span>{t('aboutUs.buyerFeatures.f9')}</li>
+                    <li><span className="mr-2 text-[var(--heritage-gold)]">✓</span>{t('aboutUs.buyerFeatures.f10')}</li>
+                    <li><span className="mr-2 text-[var(--heritage-gold)]">✓</span>{t('aboutUs.buyerFeatures.f11')}</li>
+                  </ul>
+                </div>
+              </div>
+              {/* NGO Features */}
+              <div className="space-y-6 bg-[var(--bg-1)]/50 p-6 rounded-2xl border border-[var(--border)] flex flex-col">
+                <div>
+                  <h3 className="text-lg font-bold text-[var(--heritage-blue)] uppercase tracking-wider text-sm flex items-center gap-2 mb-2">
+                    <span className="w-2 h-2 rounded-full bg-[var(--heritage-blue)]"></span> {t('aboutUs.ngoFeaturesTitle')}
+                  </h3>
+                  <p className="font-semibold text-[var(--heritage-brown)] mb-3">{t('aboutUs.ngoFeaturesDesc')}</p>
+                </div>
+                <div>
+                  <h4 className="font-bold text-[var(--heritage-gold)] mb-1">{t('aboutUs.ngoFeatureGroups.allSellerTools')}</h4>
+                  <ul className="space-y-2 text-[var(--muted)] list-inside">
+                    <li><span className="mr-2 text-[var(--heritage-gold)]">✓</span>{t('aboutUs.ngoFeatures.f1')}</li>
+                    <li><span className="mr-2 text-[var(--heritage-gold)]">✓</span>{t('aboutUs.ngoFeatures.f2')}</li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="font-bold text-[var(--heritage-gold)] mb-1">{t('aboutUs.ngoFeatureGroups.ngoSpecific')}</h4>
+                  <ul className="space-y-2 text-[var(--muted)] list-inside">
+                    <li><span className="mr-2 text-[var(--heritage-gold)]">✓</span>{t('aboutUs.ngoFeatures.f3')}</li>
+                    <li><span className="mr-2 text-[var(--heritage-gold)]">✓</span>{t('aboutUs.ngoFeatures.f4')}</li>
+                    <li><span className="mr-2 text-[var(--heritage-gold)]">✓</span>{t('aboutUs.ngoFeatures.f5')}</li>
+                    <li><span className="mr-2 text-[var(--heritage-gold)]">✓</span>{t('aboutUs.ngoFeatures.f6')}</li>
+                    <li><span className="mr-2 text-[var(--heritage-gold)]">✓</span>{t('aboutUs.ngoFeatures.f7')}</li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="font-bold text-[var(--heritage-gold)] mb-1">{t('aboutUs.ngoFeatureGroups.supportGrowth')}</h4>
+                  <ul className="space-y-2 text-[var(--muted)] list-inside">
+                    <li><span className="mr-2 text-[var(--heritage-gold)]">✓</span>{t('aboutUs.ngoFeatures.f8')}</li>
+                    <li><span className="mr-2 text-[var(--heritage-gold)]">✓</span>{t('aboutUs.ngoFeatures.f9')}</li>
+                    <li><span className="mr-2 text-[var(--heritage-gold)]">✓</span>{t('aboutUs.ngoFeatures.f10')}</li>
+                  </ul>
+                </div>
               </div>
             </div>
           </section>

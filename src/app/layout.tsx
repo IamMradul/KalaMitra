@@ -23,6 +23,30 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <link rel="icon" type="image/png" href="/favicon.png" />
+        <link rel="apple-touch-icon" href="/favicon.png" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>KalaMitra | Empowering Indian Artisans with AI</title>
+        <meta name="description" content="KalaMitra: Empowering Indian Artisans with AI. Discover, shop, and support authentic Indian art and craft. Join the KalaMitra community!" />
+        <meta name="keywords" content="KalaMitra, Indian Artisans, AI, Handicrafts, Marketplace, Indian Art, Buy Art, Support Artisans, kalamitra.store, Culture, Heritage,3D Bazaar" />
+        <meta name="robots" content="index, follow" />
+        <meta property="og:title" content="KalaMitra | Empowering Indian Artisans with AI" />
+        <meta property="og:description" content="KalaMitra: Empowering Indian Artisans with AI. Discover, shop, and support authentic Indian art and craft." />
+        <meta property="og:url" content="https://kalamitra.store" />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://kalamitra.store/kalamitra-logo.png" />
+        <meta property="og:locale" content="en_US" />
+        <meta property="og:site_name" content="KalaMitra" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="KalaMitra | Empowering Indian Artisans with AI" />
+        <meta name="twitter:description" content="KalaMitra: Empowering Indian Artisans with AI. Discover, shop, and support authentic Indian art and craft." />
+        <meta name="twitter:image" content="https://kalamitra.store/kalamitra-logo.png" />
+        <meta name="author" content="Apoorv" />
+        <meta property="profile:username" content="-apoorv-" />
+        <meta property="profile:profile_link" content="https://www.linkedin.com/in/-apoorv-/" />
+        <link rel="canonical" href="https://kalamitra.store" />
+      </head>
       <body className={inter.className} suppressHydrationWarning>
         <AuthProvider>
           <LanguageProvider>
