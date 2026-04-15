@@ -144,6 +144,7 @@
       "filter": "Filter",
       "sort": "Sort",
       "view": "View",
+      "viewAll": "View All",
       "close": "Close",
       "back": "Back",
       "next": "Next",
@@ -414,7 +415,13 @@
       "virtualBadge": "Virtual",
       "viewInAR": "View in Augmented Reality - Place this product in your space",
       "stopNarration": "Stop Narration",
-      "listenNarration": "Listen to Product"
+      "listenNarration": "Listen to Product",
+      "recsTitle": "Personalized Recommendations",
+      "recsSubtitle": "Treasures handpicked for your unique taste",
+      "recsSignInPrompt": "Sign in to see products picked just for you based on your interests.",
+      "recsEmptyTitle": "No recommendations yet",
+      "recsEmptyDescription": "Start browsing the marketplace to help us find things you'll love!",
+      "exploreMarketplace": "Explore Marketplace"
     },
     "product": {
       "addToCart": "Add to Cart",

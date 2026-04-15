@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
 import { useLanguage } from '@/components/LanguageProvider'
-import { ShoppingCart, LogOut, Menu, X, Palette, Moon, Sun, User, Video, Gift, Heart, LayoutDashboard, Package, Bell } from 'lucide-react'
+import { ShoppingCart, LogOut, Menu, X, Palette, Moon, Sun, User, Video, Gift, Heart, LayoutDashboard, Package, Bell, ChevronRight } from 'lucide-react'
 import { useTheme } from './ThemeProvider'
 import Leaderboard from './Leaderboard'
 
@@ -664,7 +664,7 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="glass-nav border-b border-heritage-gold/40 shadow-soft sticky top-0 z-50 font-display">
+    <nav className="glass-nav border-b border-heritage-gold/20 shadow-soft sticky top-0 z-50 font-display">
       <div className="container-custom font-display">
         <div className="flex justify-between items-center py-3">
           {/* Logo - Short brand for mobile, full for desktop */}
@@ -1132,164 +1132,232 @@ export default function Navbar() {
         </div>
 
         {/* Mobile navbar */}
-        {isMenuOpen && (
-          <div className="md:hidden py-4 border-t border-heritage-gold/50 bg-[var(--bg-2)]/95 backdrop-blur-md rounded-3xl mt-4 shadow-medium animate-slide-in-up text-[var(--text)]">
-            <div className="flex flex-col space-y-4">
-              <Link
-                id="navbar-mobile-marketplace"
-                href="/marketplace"
-                className="text-[var(--text)] hover:text-heritage-gold transition-all duration-300 font-medium px-6 py-3 hover:bg-heritage-gold/50 rounded-2xl hover:translate-x-2 transform"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                {t('navbar.marketplace')}
-              </Link>
-              <Link
-                id="navbar-mobile-auctions"
-                href="/auctions"
-                className="text-[var(--text)] hover:text-heritage-gold transition-all duration-300 font-medium px-6 py-3 hover:bg-heritage-gold/50 rounded-2xl hover:translate-x-2 transform"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                <span className="inline-flex items-center">
-                  {t('navbar.auctions') || 'Auctions'}
-                  {hasLiveAuctions && (
-                    <span className="ml-2 inline-flex items-center px-2 py-0.5 bg-red-600 text-white text-xs font-semibold rounded-full">{t('navbar.live') || 'LIVE'}</span>
-                  )}
-                </span>
-              </Link>
-              {/* Reels/Ads icon - enabled, no background, always adaptive icon */}
-              <Link href="/reels" className="flex items-center px-6 py-3" onClick={() => setIsMenuOpen(false)}>
-
-                <Video className="w-6 h-6 text-[var(--text)] mr-3" />
-                <span className="font-medium text-[var(--text)]">{t('navbar.reels')}/{t('navbar.ads')}</span>
-              </Link>
-              {loading ? (
-                <div className="space-y-4">
-                  <div className="w-32 h-8 bg-[var(--bg-2)] rounded animate-pulse mx-6"></div>
-                  <div className="w-32 h-8 bg-[var(--bg-2)] rounded animate-pulse mx-6"></div>
-                </div>
-              ) : user ? (
-                <>
-                  {profile?.role === 'seller' && (
-                    <Link
-                      id="navbar-mobile-dashboard"
-                      href="/dashboard"
-                      className="text-[var(--text)] hover:text-heritage-gold transition-all duration-300 font-medium px-6 py-3 hover:bg-heritage-gold/50 rounded-2xl hover:translate-x-2 transform"
+        <AnimatePresence>
+          {isMenuOpen && (
+            <motion.div 
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="md:hidden overflow-hidden bg-[var(--bg-2)]/95 backdrop-blur-xl rounded-b-[2rem] shadow-2xl"
+            >
+              <div className="p-4 space-y-2 max-h-[85vh] overflow-y-auto pb-10 scrollbar-hide">
+                <style jsx global>{`
+                  .scrollbar-hide::-webkit-scrollbar {
+                    display: none;
+                  }
+                  .scrollbar-hide {
+                    -ms-overflow-style: none;
+                    scrollbar-width: none;
+                  }
+                `}</style>
+                {/* User Context Header (if logged in) */}
+                {user && (
+                  <div className="px-4 py-4 mb-4 bg-gradient-to-br from-[var(--bg-3)] to-[var(--bg-1)] rounded-3xl border border-heritage-gold/10 shadow-sm flex items-center justify-between relative group">
+                    <Link 
+                      href="/profile" 
                       onClick={() => setIsMenuOpen(false)}
+                      className="flex items-center space-x-3 flex-1"
                     >
-                      {t('navbar.dashboard')}
+                      {profile?.profile_image ? (
+                        <img src={profile.profile_image} alt="avatar" className="w-12 h-12 rounded-full object-cover border-2 border-heritage-gold" />
+                      ) : (
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-heritage-gold to-heritage-red text-white flex items-center justify-center font-bold text-lg">
+                          {profile?.name ? profile.name.split(' ').map(s => s[0]).slice(0, 2).join('') : <User className="w-6 h-6" />}
+                        </div>
+                      )}
+                      <div className="min-w-0">
+                        <div className="font-bold text-[var(--text)] truncate">{translatedName || profile?.name}</div>
+                        <div className="text-xs text-[var(--muted)] capitalize flex items-center gap-1">
+                          {profile?.role || 'Guest'}
+                          <ChevronRight className="w-3 h-3 text-orange-500" />
+                        </div>
+                      </div>
                     </Link>
-                  )}
-                  <Link
-                    id="navbar-mobile-notifications"
-                    href="/notifications"
-                    className="text-[var(--text)] hover:text-heritage-gold transition-all duration-300 font-medium px-6 py-3 hover:bg-heritage-gold/50 rounded-2xl hover:translate-x-2 transform flex items-center gap-2 relative"
-                    onClick={() => {
-                      setIsMenuOpen(false);
-                      setShowMobileNotificationDot(false);
-                    }}
-                  >
-                    <Bell className="w-5 h-5" />
-                    <span>{t('navbar.notifications') || 'Notifications'}</span>
-                    {showMobileNotificationDot && (
-                      <motion.span
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        className="ml-auto w-4 h-4 bg-red-600 rounded-full animate-pulse shadow-lg shadow-red-600/50"
-                      />
-                    )}
-                    {unreadNotificationsCount > 0 && !showMobileNotificationDot && (
-                      <span className="ml-auto bg-red-600 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center z-10 shadow-lg">
-                        {unreadNotificationsCount > 99 ? '99+' : unreadNotificationsCount}
-                      </span>
-                    )}
-                  </Link>
-                  <Link
-                    id="navbar-mobile-cart"
-                    href="/cart"
-                    className="text-[var(--text)] hover:text-heritage-gold transition-all duration-300 font-medium px-6 py-3 hover:bg-heritage-gold/50 rounded-2xl hover:translate-x-2 transform relative"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    {t('navbar.cart')}
-                    {cartCount > 0 && (
-                      <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                        {cartCount}
-                      </span>
-                    )}
-                  </Link>
-                  <Link
-                    id="navbar-mobile-gifts"
-                    href="/gifts"
-                    className="text-[var(--text)] hover:text-pink-600 transition-all duration-300 font-medium px-6 py-3 hover:bg-pink-100 rounded-2xl hover:translate-x-2 transform flex items-center gap-2 relative"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    <Gift className="w-5 h-5" />
-                    {t('navbar.gifts')}
-                    {showMobileGiftDot && (
-                      <motion.span
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        className="ml-2 w-4 h-4 bg-pink-600 rounded-full animate-pulse shadow-lg shadow-pink-600/50"
-                      />
-                    )}
-                    {unwrappedGiftsCount > 0 && !showMobileGiftDot && (
-                      <span className="ml-2 bg-pink-600 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center z-10">
-                        {unwrappedGiftsCount > 99 ? '99+' : unwrappedGiftsCount}
-                      </span>
-                    )}
-                  </Link>
-                  <div className="pt-4 border-t border-heritage-gold/50 px-6">
-                    <span className="text-[var(--text)] font-medium block mb-3 px-4 py-2 bg-[var(--bg-2)] rounded-xl backdrop-blur-sm">
-                      {translatedName || profile?.name}
-                    </span>
-                    <button
-                      onClick={handleSignOut}
-                      className="flex items-center space-x-2 text-[var(--text)] hover:text-heritage-gold transition-all duration-300 px-6 py-3 hover:bg-heritage-gold/50 rounded-2xl w-full hover:translate-x-2 transform"
-                    >
-                      <LogOut className="w-4 h-4" />
-                      <span>{t('navbar.signOut')}</span>
-                    </button>
+                    <div className="flex flex-col items-end gap-2">
+                      {mitraPoints !== null && (
+                        <div className="bg-amber-100 dark:bg-amber-900/30 px-3 py-1 rounded-full border border-amber-200 dark:border-amber-800">
+                          <span className="text-[10px] font-bold text-amber-600 block leading-tight">POINTS</span>
+                          <span className="text-sm font-bold text-amber-700 dark:text-amber-400 leading-none">{mitraPoints}</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </>
-              ) : (
-                <div className="flex flex-col space-y-4 pt-4 border-t border-heritage-gold/50 px-6">
-                  <Link
-                    href="/auth/signin"
-                    className="text-[var(--text)] hover:text-heritage-gold transition-all duration-300 font-medium px-6 py-3 hover:bg-heritage-gold/50 rounded-2xl hover:translate-x-2 transform"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    {t('navbar.signIn')}
-                  </Link>
-                  <Link
-                    href="/auth/signup"
-                    className="btn-primary text-center"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    {t('auth.signupTitle')}
-                  </Link>
-                </div>
-              )}
+                )}
 
-              {/* Mobile Language Selector removed from Navbar */}
-              {/* Mobile Theme Toggle */}
-              <div className="pt-4 px-6">
-                <label className="block text-sm text-[var(--muted)] mb-2">{t('navbar.theme') || 'Theme'}</label>
-                <div>
-                  <button
-                    id="navbar-mobile-theme"
-                    onClick={() => { toggle(); }}
-                    className="theme-toggle"
-                    data-theme={theme}
-                    aria-pressed={theme === 'dark'}
-                    aria-label="Toggle theme"
+                <div className="grid grid-cols-1 gap-2">
+                  <Link
+                    href="/marketplace"
+                    className="flex items-center space-x-3 px-5 py-4 bg-[var(--bg-1)] rounded-2xl hover:bg-[var(--bg-3)] transition-all border border-transparent active:scale-95"
+                    onClick={() => setIsMenuOpen(false)}
                   >
-                    <div className="knob" />
-                    <div className="text-xs font-medium ml-2 text-[var(--text)]">{theme === 'dark' ? (t('navbar.dark') || 'Dark') : (t('navbar.light') || 'Light')}</div>
-                  </button>
+                    <div className="w-10 h-10 rounded-xl bg-orange-50 dark:bg-orange-950/30 flex items-center justify-center">
+                      <ShoppingCart className="w-5 h-5 text-orange-600" />
+                    </div>
+                    <span className="font-bold text-[var(--text)] text-sm">{t('navbar.marketplace')}</span>
+                  </Link>
+
+                  <Link
+                    href="/auctions"
+                    className="flex items-center space-x-3 px-5 py-4 bg-[var(--bg-1)] rounded-2xl hover:bg-[var(--bg-3)] transition-all border border-transparent active:scale-95"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/30 flex items-center justify-center">
+                      <LayoutDashboard className="w-5 h-5 text-red-600" />
+                    </div>
+                    <span className="font-bold text-[var(--text)] text-sm">{t('navbar.auctions') || 'Auctions'}</span>
+                    {hasLiveAuctions && (
+                      <span className="ml-auto px-2 py-0.5 bg-red-600 text-[10px] text-white font-bold rounded-lg animate-pulse">LIVE</span>
+                    )}
+                  </Link>
+
+                  <Link 
+                    href="/reels" 
+                    className="flex items-center space-x-3 px-5 py-4 bg-[var(--bg-1)] rounded-2xl hover:bg-[var(--bg-3)] transition-all border border-transparent active:scale-95"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <div className="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-950/30 flex items-center justify-center">
+                      <Video className="w-5 h-5 text-purple-600" />
+                    </div>
+                    <span className="font-bold text-[var(--text)] text-sm">{t('navbar.reels')}/{t('navbar.ads')}</span>
+                  </Link>
+
+                  {user ? (
+                    <>
+                      {profile?.role === 'seller' && (
+                        <Link
+                          href="/dashboard"
+                          className="flex items-center space-x-3 px-5 py-4 bg-orange-50/50 dark:bg-orange-900/10 rounded-2xl hover:bg-orange-100/50 transition-all border border-orange-100/50 dark:border-orange-900/20 active:scale-95"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          <div className="w-10 h-10 rounded-xl bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
+                            <LayoutDashboard className="w-5 h-5 text-orange-600" />
+                          </div>
+                          <span className="font-bold text-orange-700 dark:text-orange-400 text-sm">{t('navbar.dashboard')}</span>
+                        </Link>
+                      )}
+
+                      {/* Language Selector (Now above the actions grid) */}
+                      <div className="mt-4 mb-2">
+                        <div className="bg-[var(--bg-3)]/50 p-3 rounded-2xl border border-[var(--border)]">
+                          <div className="flex items-center space-x-2 mb-2 px-1">
+                            <Palette className="w-4 h-4 text-orange-500" />
+                            <span className="text-[10px] font-bold text-[var(--text)] uppercase tracking-wider">{t('navbar.language') || 'Language'}</span>
+                          </div>
+                          <div className="relative">
+                            <select
+                              value={currentLanguage}
+                              onChange={handleLanguageChange}
+                              className="w-full h-10 px-4 bg-[var(--bg-1)] border border-[var(--border)] rounded-xl text-[var(--text)] text-xs font-medium focus:ring-2 focus:ring-orange-500 outline-none appearance-none transition-all shadow-sm"
+                            >
+                              {languages.map((lang) => (
+                                <option key={lang.code} value={lang.code}>
+                                  {lang.flag} {lang.label}
+                                </option>
+                              ))}
+                            </select>
+                            <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-orange-500">
+                              <ChevronRight className="w-3 h-3 rotate-90" />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2 mt-2">
+                        <Link
+                          href="/notifications"
+                          className="flex flex-col items-center justify-center p-4 bg-[var(--bg-1)] rounded-2xl border border-[var(--border)] active:scale-95 relative"
+                          onClick={() => {
+                            setIsMenuOpen(false);
+                            setShowMobileNotificationDot(false);
+                          }}
+                        >
+                          <div className="relative">
+                            <Bell className="w-6 h-6 text-[var(--text)] mb-2" />
+                            {unreadNotificationsCount > 0 && (
+                              <span className="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 shadow-md border-2 border-[var(--bg-1)]">
+                                {unreadNotificationsCount > 99 ? '99+' : unreadNotificationsCount}
+                              </span>
+                            )}
+                          </div>
+                          <span className="text-[10px] font-bold text-[var(--muted)] uppercase tracking-wider">{t('navbar.notifications') || 'Alerts'}</span>
+                        </Link>
+
+                        <Link
+                          href="/cart"
+                          className="flex flex-col items-center justify-center p-4 bg-[var(--bg-1)] rounded-2xl border border-[var(--border)] active:scale-95 relative"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          <div className="relative">
+                            <ShoppingCart className="w-6 h-6 text-[var(--text)] mb-2" />
+                            {cartCount > 0 && (
+                              <span className="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 shadow-md border-2 border-[var(--bg-1)]">
+                                {cartCount}
+                              </span>
+                            )}
+                          </div>
+                          <span className="text-[10px] font-bold text-[var(--muted)] uppercase tracking-wider">{t('navbar.cart')}</span>
+                        </Link>
+
+                        <Link
+                          href="/gifts"
+                          className="flex flex-col items-center justify-center p-4 bg-pink-50/30 dark:bg-pink-900/10 rounded-2xl border border-pink-100 dark:border-pink-900/20 active:scale-95 relative"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          <div className="relative">
+                            <Gift className="w-6 h-6 text-pink-500 mb-2" />
+                            {unwrappedGiftsCount > 0 && (
+                              <span className="absolute -top-1 -right-1 bg-pink-600 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 shadow-md border-2 border-pink-50/50">
+                                {unwrappedGiftsCount > 99 ? '99+' : unwrappedGiftsCount}
+                              </span>
+                            )}
+                          </div>
+                          <span className="text-[10px] font-bold text-pink-600 dark:text-pink-400 uppercase tracking-wider">{t('navbar.gifts')}</span>
+                        </Link>
+
+                        <Link
+                          href="/wishlist"
+                          className="flex flex-col items-center justify-center p-4 bg-red-50/30 dark:bg-red-900/10 rounded-2xl border border-red-100 dark:border-red-900/20 active:scale-95 relative"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          <Heart className="w-6 h-6 text-red-500 mb-2" />
+                          <span className="text-[10px] font-bold text-red-600 dark:text-red-400 uppercase tracking-wider">{t('profile.wishlist') }</span>
+                        </Link>
+                      </div>
+
+                      <div className="pt-4 mt-2 border-t border-[var(--border)] flex flex-col space-y-2">
+                        <button
+                          onClick={handleSignOut}
+                          className="flex items-center space-x-3 px-5 py-3 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-xl transition-colors group w-full text-left"
+                        >
+                          <LogOut className="w-4 h-4 text-red-500" />
+                          <span className="text-sm font-medium text-red-600">{t('navbar.signOut')}</span>
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="flex flex-col space-y-3 pt-4 border-t border-[var(--border)]">
+                      <Link
+                        href="/auth/signin"
+                        className="w-full py-4 text-center font-bold text-[var(--text)] bg-[var(--bg-1)] border border-[var(--border)] rounded-2xl active:scale-95 transition-transform"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        {t('navbar.signIn')}
+                      </Link>
+                      <Link
+                        href="/auth/signup"
+                        className="w-full py-4 text-center font-bold text-white bg-gradient-to-r from-orange-600 to-heritage-red rounded-2xl shadow-lg active:scale-95 transition-transform"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        {t('auth.signupTitle')}
+                      </Link>
+                    </div>
+                  )}
                 </div>
               </div>
-            </div>
-          </div>
-        )}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
       </div>
       {/* Messages section moved to profile page */}
 

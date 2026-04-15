@@ -2,9 +2,9 @@
 
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
-import { motion } from 'framer-motion'
-import { Search, Filter, ShoppingCart, Heart, Sparkles, Volume2, StopCircle } from 'lucide-react'
+import React, { useState, useEffect, useRef, useMemo } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Search, Filter, Sparkles, ChevronLeft, ChevronRight, X } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
 import { logActivity } from '@/lib/activity'
@@ -13,6 +13,30 @@ import { Database } from '@/lib/supabase'
 import Link from 'next/link'
 import Market3DButton from '@/components/Market3DButton'
 import ARViewer from '@/components/ARViewer'
+import ProductCard from '@/components/ProductCard'
+import ErrorBoundary from '@/components/ErrorBoundary'
+import { useInView } from 'react-intersection-observer'
+import { Swiper, SwiperSlide } from 'swiper/react'
+import { Navigation, Pagination, Autoplay } from 'swiper/modules'
+import 'swiper/css'
+import 'swiper/css/navigation'
+import 'swiper/css/pagination'
+
+// Skeleton loader for product card
+function ProductCardSkeleton() {
+  return (
+    <div className="animate-pulse bg-[var(--card)] rounded-lg border border-[var(--border)] overflow-hidden">
+      <div className="h-48 bg-[var(--bg-3)] flex items-center justify-center">
+        <div className="w-3/4 h-3/4 bg-gradient-to-br from-orange-100 to-red-100 rounded" />
+      </div>
+      <div className="p-4">
+        <div className="h-5 bg-gray-200 rounded w-3/4 mb-2" />
+        <div className="h-4 bg-gray-100 rounded w-1/2 mb-2" />
+        <div className="h-6 bg-orange-100 rounded w-1/3" />
+      </div>
+    </div>
+  )
+}
 import type { Product as ThreeProduct } from '@/types/product'
 import { useSearchParams } from 'next/navigation'
 import { Suspense } from 'react'
@@ -27,7 +51,7 @@ type ProductWithFeatures = ProductBase & {
   image_avg_b?: number | null
   image_ahash?: string | null
 }
-type Product = ProductBase & {
+export type Product = ProductBase & {
   seller: {
     name: string
   }
@@ -36,6 +60,8 @@ type Product = ProductBase & {
     id: string
     name: string
   }[]
+  product_type?: string | null | undefined;
+  product_story?: string | null;
 }
 
 type CollabJoin = {
@@ -255,6 +281,40 @@ function MarketplaceContent() {
   const [isSearching, setIsSearching] = useState(false)
   const [showCollaborativeOnly, setShowCollaborativeOnly] = useState(false)
   const [showVirtualOnly, setShowVirtualOnly] = useState(false)
+  // Pagination / Load More state
+  const PRODUCTS_PER_PAGE = 8
+  const [visibleCount, setVisibleCount] = useState(PRODUCTS_PER_PAGE)
+  const { ref: loadMoreRef, inView } = useInView({ threshold: 0.1 })
+
+  // Incremental loading for main grid
+  useEffect(() => {
+    if (inView && visibleCount < filteredProducts.length) {
+      setVisibleCount(prev => prev + PRODUCTS_PER_PAGE)
+    }
+  }, [inView, filteredProducts.length])
+
+  // Reset pagination when filters change
+  useEffect(() => {
+    setVisibleCount(PRODUCTS_PER_PAGE)
+  }, [searchTerm, selectedCategory, showCollaborativeOnly, showVirtualOnly])
+
+  // Get only visible products
+  const paginatedProducts = useMemo(() => {
+    return filteredProducts.slice(0, visibleCount)
+  }, [filteredProducts, visibleCount])
+
+  // Determine positions for inline recommendation rows
+  const recommendationInsertIndices = useMemo(() => {
+    // Show after every 12 items (3 full rows of 4)
+    const indices: number[] = []
+    if (user && recommended.length > 0) {
+      for (let i = 12; i < visibleCount; i += 12) {
+        indices.push(i)
+      }
+    }
+    return indices
+  }, [user, recommended, visibleCount])
+
   // AR modal state
   const [arOpen, setArOpen] = useState(false)
   const [arImageUrl, setArImageUrl] = useState<string | undefined>(undefined)
@@ -956,13 +1016,24 @@ function MarketplaceContent() {
 
 
   if (loading) {
+    // Show a grid of skeleton cards matching the product grid
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-          className="w-12 h-12 border-4 border-orange-200 border-t-orange-600 rounded-full"
-        />
+      <div className="min-h-screen heritage-bg py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="mb-8">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
+              <div>
+                <div className="h-10 w-48 bg-gray-200 rounded mb-2 animate-pulse" />
+                <div className="h-6 w-64 bg-gray-100 rounded animate-pulse" />
+              </div>
+            </div>
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <ProductCardSkeleton key={i} />
+            ))}
+          </div>
+        </div>
       </div>
     )
   }
@@ -1134,165 +1205,175 @@ function MarketplaceContent() {
 
 
         {/* Products Grid */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-        >
-          {filteredProducts.length === 0 ? (
-            <div className="text-center py-12">
-              <Search className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <p className="text-[var(--muted)] text-lg">{t('marketplace.noProducts')}</p>
-              <p className="text-gray-400">{t('marketplace.noProductsDescription')}</p>
-            </div>
-          ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {filteredProducts.map((product, index) => (
-                <motion.div
-                  key={product.id}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.3, delay: index * 0.1 }}
-                  className={`bg-[var(--card)] rounded-lg border border-[var(--border)] overflow-hidden hover:shadow-lg transition-all duration-200 hover:scale-105 flex flex-col h-full`}
-                >
-                  <Link href={`/product/${product.id}`}>
-                    <div className="relative h-48 bg-[var(--bg-3)] flex items-center justify-center overflow-hidden">
-                      {/* Badges: Collab + Virtual, visually balanced */}
-                      {product.isCollaborative && product.is_virtual ? (
-                        <>
-                          <div className="absolute top-2 left-2 z-10 bg-gradient-to-r from-cyan-400 to-teal-500 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg flex items-center gap-1">
-                            🧩 {t('marketplace.virtualBadge')}
+        <ErrorBoundary fallback={
+          <div className="text-center py-20 bg-[var(--card)] rounded-2xl border border-red-200">
+            <X className="w-12 h-12 text-red-500 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-[var(--text)]">{t('errors.general')}</h2>
+            <button 
+              onClick={() => window.location.reload()}
+              className="mt-4 px-6 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700"
+            >
+              {t('common.refresh')}
+            </button>
+          </div>
+        }>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            {filteredProducts.length === 0 ? (
+              <div className="text-center py-12">
+                <Search className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                <p className="text-[var(--muted)] text-lg">{t('marketplace.noProducts')}</p>
+                <p className="text-gray-400">{t('marketplace.noProductsDescription')}</p>
+              </div>
+            ) : (
+              <>
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  {paginatedProducts.map((product, index) => (
+                    <React.Fragment key={product.id}>
+                      <ProductCard
+                        product={product}
+                        displayProduct={displayProducts.find(p => p.id === product.id) || product}
+                        translatedSellerNames={translatedSellerNames}
+                        narratingId={narratingId}
+                        wishlistIds={wishlistIds}
+                        onAddToCart={addToCart}
+                        onToggleWishlist={toggleWishlist}
+                        onNarrate={handleNarrate}
+                        onStopNarrate={handleStopNarrate}
+                        onAR={(imageUrl, productType) => {
+                          setArImageUrl(imageUrl);
+                          setArProductType(productType || 'vertical');
+                          setArOpen(true);
+                        }}
+                      />
+
+                      {/* Inline Recommendation Carousel (only if user logged in and has recs) */}
+                      {(index + 1) % 12 === 0 && (index + 1) < visibleCount && user && displayRecommended.length > 0 && (
+                        <div className="col-span-full py-6 md:py-8 border-y border-heritage-gold/20 my-4 bg-[var(--bg-2)]/50 backdrop-blur-sm rounded-2xl px-3 md:px-8 overflow-hidden">
+                          <div className="flex items-center justify-between mb-4 px-1">
+                            <h2 className="text-lg md:text-xl font-bold flex items-center gap-2 text-[var(--text)]">
+                              <Sparkles className="w-4 h-4 md:w-5 md:h-5 text-orange-500" />
+                              <span className="line-clamp-1">{t('marketplace.becauseViewedSimilar')}</span>
+                            </h2>
+                            <Link href="/recommendations" className="text-xs md:text-sm font-medium text-orange-600 hover:text-orange-700 transition-colors whitespace-nowrap">
+                              {t('common.viewAll')} →
+                            </Link>
                           </div>
-                          <div className="absolute top-10 left-2 z-10 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg">
-                            🤝 {t('marketplace.collabBadge')}
-                          </div>
-                        </>
-                      ) : product.isCollaborative ? (
-                        <div className="absolute top-2 right-2 z-10 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg">
-                          🤝 {t('marketplace.collabBadge')}
-                        </div>
-                      ) : product.is_virtual ? (
-                        <div className="absolute top-2 left-2 z-10 bg-gradient-to-r from-cyan-400 to-teal-500 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg flex items-center gap-1">
-                          🧩 {t('marketplace.virtualBadge')}
-                        </div>
-                      ) : null}
-                      {product.image_url ? (
-                        <img
-                          src={product.image_url}
-                          alt={product.title}
-                          className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
-                        />
-                      ) : (
-                        <div className={`w-full h-full bg-gradient-to-br flex items-center justify-center ${product.isCollaborative
-                          ? 'from-yellow-100 to-orange-100'
-                          : 'from-orange-100 to-red-100'
-                          }`}>
-                          <span className={`text-4xl ${product.isCollaborative ? 'text-yellow-500' : 'text-orange-400'
-                            }`}>🎨</span>
+                          <style jsx global>{`
+                            .recommended-carousel .swiper-button-next,
+                            .recommended-carousel .swiper-button-prev {
+                              color: var(--heritage-gold);
+                              background: var(--bg-1);
+                              width: 30px;
+                              height: 30px;
+                              border-radius: 50%;
+                              border: 1px solid var(--border);
+                              box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                            }
+                            @media (max-width: 640px) {
+                              .recommended-carousel .swiper-button-next,
+                              .recommended-carousel .swiper-button-prev {
+                                display: none;
+                              }
+                            }
+                            .recommended-carousel .swiper-button-next:after,
+                            .recommended-carousel .swiper-button-prev:after {
+                              font-size: 12px;
+                              font-weight: bold;
+                            }
+                            .recommended-carousel .swiper-pagination-bullet {
+                              background: var(--muted);
+                              opacity: 0.5;
+                            }
+                            .recommended-carousel .swiper-pagination-bullet-active {
+                              background: var(--heritage-gold);
+                              opacity: 1;
+                            }
+                            .recommended-carousel.swiper {
+                              padding-bottom: 50px !important;
+                            }
+                          `}</style>
+                          <Swiper
+                            modules={[Navigation, Pagination, Autoplay]}
+                            spaceBetween={16}
+                            slidesPerView={1.2}
+                            navigation
+                            pagination={{ clickable: true }}
+                            breakpoints={{
+                              480: { slidesPerView: 1.5, spaceBetween: 20 },
+                              640: { slidesPerView: 2, spaceBetween: 24 },
+                              1024: { slidesPerView: 3, spaceBetween: 24 },
+                              1280: { slidesPerView: 4, spaceBetween: 24 }
+                            }}
+                            className="recommended-carousel"
+                          >
+                            {displayRecommended.map((rp) => (
+                              <SwiperSlide key={`rec-${rp.id}`}>
+                                <motion.div
+                                  whileHover={{ scale: 1.02 }}
+                                  className="bg-[var(--card)] rounded-xl border border-[var(--border)] overflow-hidden shadow-sm hover:shadow-md transition-all h-full"
+                                >
+                                  <Link href={`/product/${rp.id}`}>
+                                    <div className="h-40 bg-[var(--bg-3)] relative overflow-hidden">
+                                      {rp.image_url ? (
+                                        <img
+                                          src={rp.image_url}
+                                          alt={rp.title}
+                                          className="w-full h-full object-cover"
+                                          loading="lazy"
+                                        />
+                                      ) : (
+                                        <div className="w-full h-full flex items-center justify-center bg-[var(--bg-3)]">
+                                          <span className="text-4xl text-[var(--muted)]">🎨</span>
+                                        </div>
+                                      )}
+                                      <div className="absolute top-2 right-2 px-2 py-1 bg-[var(--card)]/90 backdrop-blur rounded text-xs font-bold text-orange-600 border border-[var(--border)] shadow-sm">
+                                        ₹{rp.price}
+                                      </div>
+                                    </div>
+                                    <div className="p-3">
+                                      <h3 className="font-semibold text-sm text-[var(--text)] line-clamp-1 mb-1">
+                                        {rp.title}
+                                      </h3>
+                                      <p className="text-xs text-[var(--muted)] mb-2">{rp.category}</p>
+                                      <button
+                                        onClick={(e) => {
+                                          e.preventDefault();
+                                          e.stopPropagation();
+                                          addToCart(rp.id);
+                                        }}
+                                        className="w-full py-2 bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold rounded-lg transition-colors"
+                                      >
+                                        {t('product.addToCart')}
+                                      </button>
+                                    </div>
+                                  </Link>
+                                </motion.div>
+                              </SwiperSlide>
+                            ))}
+                          </Swiper>
                         </div>
                       )}
-                    </div>
-                  </Link>
-                  <div className="p-4 flex flex-col flex-grow">
-                    <Link href={`/product/${product.id}`}>
-                      <h3 className="font-semibold text-[var(--text)] mb-2 hover:text-orange-600 transition-colors line-clamp-1">
-                        {displayProducts.find(p => p.id === product.id)?.title || product.title}
-                      </h3>
-                    </Link>
-                    <p className="text-sm text-[var(--muted)] mb-2 line-clamp-1">{displayProducts.find(p => p.id === product.id)?.category || product.category}</p>
-                    {/* Show collaborators or single seller */}
-                    {product.isCollaborative && product.collaborators && product.collaborators.length > 0 ? (
-                      <div className="text-xs mb-3 p-3 rounded-md border border-yellow-200/90 dark:border-yellow-700/30 shadow-sm">
-                        <p className="font-medium mb-1 text-yellow-800 dark:text-gray-300">🤝 Collaboration by:</p>
-                        <div className="space-y-0.5">
-                          {product.collaborators.map((collab) => (
-                            <p key={collab.id} className="text-yellow-800 dark:text-yellow-400 font-semibold truncate">
-                              • {translatedSellerNames[collab.name] || collab.name}
-                            </p>
-                          ))}
-                        </div>
-                      </div>
-                    ) : (
-                      <p className="text-xs text-[var(--muted)] mb-3 line-clamp-1">
-                        {(() => {
-                          const sellerName = product.seller?.name || ''
-                          const translatedName = translatedSellerNames[sellerName] || sellerName
-                          return t('product.byAuthor', {
-                            name: translatedName || t('product.unknownArtisan')
-                          })
-                        })()}
-                      </p>
-                    )}
+                    </React.Fragment>
+                  ))}
+                </div>
 
-                    {/* Price and Actions - Anchored to bottom */}
-                    <div className="mt-auto flex items-center justify-between pt-2 border-t border-[var(--border)]">
-                      <p className="text-lg font-bold text-orange-600 dark:text-orange-400">₹{product.price}</p>
-                      <div className="flex space-x-2">
-                        {/* Voice narration button */}
-                        {narratingId === product.id ? (
-                          <button
-                            id="joyride-speaker-btn"
-                            onClick={handleStopNarrate}
-                            className="p-2 bg-orange-100 text-orange-600 rounded-full hover:bg-orange-200 transition-colors"
-                            title={t('marketplace.stopNarration')}
-                          >
-                            <StopCircle className="w-4 h-4 animate-pulse" />
-                          </button>
-                        ) : (
-                          <button
-                            id="joyride-speaker-btn"
-                            onClick={() => handleNarrate(product)}
-                            className="p-2 bg-orange-100 text-orange-600 rounded-full hover:bg-orange-200 transition-colors"
-                            title={t('marketplace.listenNarration')}
-                          >
-                            <Volume2 className="w-4 h-4" />
-                          </button>
-                        )}
-                        <button
-                          id="joyride-add-to-cart-btn"
-                          onClick={() => addToCart(product.id)}
-                          className="p-2 bg-orange-100 text-orange-600 rounded-full hover:bg-orange-200 transition-colors"
-                          title={t('product.addToCart')}
-                        >
-                          <ShoppingCart className="w-4 h-4" />
-                        </button>
-                        <button
-                          id="joyride-wishlist-btn"
-                          onClick={() => toggleWishlist(product.id)}
-                          className={`p-2 rounded-full transition-colors ${wishlistIds.has(product.id)
-                            ? 'bg-red-50 text-red-500'
-                            : 'bg-[var(--bg-2)] text-[var(--muted)] hover:bg-[var(--bg-3)]'
-                            }`}
-                          title={wishlistIds.has(product.id) ? t('product.removeFromWishlist') : t('product.addToWishlist')}
-                        >
-                          <Heart className={`w-4 h-4 ${wishlistIds.has(product.id) ? 'fill-current' : ''}`} />
-                        </button>
-                        {/* AR Button */}
-                        <button
-                          id="joyride-ar-btn"
-                          onClick={() => {
-                            setArImageUrl(product.image_url)
-                            setArProductType((product.product_type as 'vertical' | 'horizontal' | undefined) || 'vertical')
-                            setArOpen(true)
-                          }}
-                          className="group relative p-2 bg-gradient-to-r from-green-100 to-emerald-100 text-green-700 rounded-full hover:from-green-200 hover:to-emerald-200 transition-all duration-200 shadow-sm hover:shadow-md"
-                          title={t('marketplace.viewInAR')}
-                        >
-                          <span role="img" aria-label="AR" className="text-lg">📱</span>
-                          {/* Tooltip */}
-                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-10">
-                            {t('marketplace.viewInAR')}
-                            <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
-                          </div>
-                        </button>
-                      </div>
+                {/* Load More Trigger */}
+                {visibleCount < filteredProducts.length && (
+                  <div ref={loadMoreRef} className="py-12 flex justify-center">
+                    <div className="flex flex-col items-center gap-2">
+                      <div className="w-8 h-8 border-4 border-orange-200 border-t-orange-600 rounded-full animate-spin"></div>
+                      <p className="text-sm text-[var(--muted)]">{t('common.loadingMore') || 'Discovering more treasures...'}</p>
                     </div>
                   </div>
-                </motion.div>
-              ))}
-            </div>
-          )}
-        </motion.div>
+                )}
+              </>
+            )}
+          </motion.div>
+        </ErrorBoundary>
 
         {/* Results Count */}
         <motion.div
@@ -1301,58 +1382,8 @@ function MarketplaceContent() {
           transition={{ duration: 0.6, delay: 0.3 }}
           className="mt-8 text-center text-[var(--muted)]"
         >
-          {t('marketplace.resultsCount', { count: filteredProducts.length, total: products.length })}
+          {t('marketplace.resultsCount', { count: paginatedProducts.length, total: products.length })}
         </motion.div>
-
-        {/* Recommendations */}
-        {user && recommended.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="mt-12"
-          >
-            <h2 className="text-2xl font-semibold text-[var(--text)] mb-4">
-              {t('marketplace.becauseViewedSimilar')}
-            </h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 xl-grid-cols-4 gap-6">
-              {displayRecommended.map((product) => (
-                <motion.div
-                  key={product.id}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.3 }}
-                  className="bg-[var(--card)] rounded-lg border border-[var(--border)] overflow-hidden hover:shadow-lg transition-all duration-200 hover:scale-105"
-                >
-                  <Link href={`/product/${product.id}`}>
-                    <div className="h-48 bg-[var(--bg-3)] flex items-center justify-center overflow-hidden">
-                      {product.image_url ? (
-                        <img
-                          src={product.image_url}
-                          alt={product.title}
-                          className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-orange-100 to-red-100 flex items-center justify-center">
-                          <span className="text-orange-400 text-4xl">🎨</span>
-                        </div>
-                      )}
-                    </div>
-                  </Link>
-                  <div className="p-4">
-                    <Link href={`/product/${product.id}`}>
-                      <h3 className="font-semibold text-[var(--text)] mb-2 hover:text-orange-600 transition-colors">
-                        {product.title}
-                      </h3>
-                    </Link>
-                    <p className="text-sm text-[var(--muted)] mb-2">{product.category}</p>
-                    <p className="text-lg font-bold text-orange-600">₹{product.price}</p>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-        )}
       </div>
 
       {/* ARViewer Modal */}
