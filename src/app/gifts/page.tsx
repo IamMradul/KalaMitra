@@ -212,15 +212,32 @@ export default function GiftsPage() {
       fetchGifts();
       fetchGroupGifts();
     }
+    // Listen for giftUpdated event to refetch gifts in real-time (sync with Navbar)
+    const handleGiftUpdate = () => {
+      fetchGifts();
+      fetchGroupGifts();
+    };
+    if (typeof window !== 'undefined') {
+      window.addEventListener('giftUpdated', handleGiftUpdate);
+    }
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('giftUpdated', handleGiftUpdate);
+      }
+    };
   }, [profile, user]);
 
   const handleUnbox = async (giftId: string) => {
-  if (!profile) return;
-  await supabase.from('gifts').update({ viewed: true }).eq('id', giftId).eq('recipient_id', profile.id);
-  // Update local state for the unwrapped gift
-  setGiftsR(prev => prev.map(g => g.id === giftId ? { ...g, viewed: true } : g));
-  setConfettiGiftId(giftId);
-  setTimeout(() => setConfettiGiftId(null), 1200);
+    if (!profile) return;
+    await supabase.from('gifts').update({ viewed: true }).eq('id', giftId).eq('recipient_id', profile.id);
+    // Update local state for the unwrapped gift
+    setGiftsR(prev => prev.map(g => g.id === giftId ? { ...g, viewed: true } : g));
+    setConfettiGiftId(giftId);
+    setTimeout(() => setConfettiGiftId(null), 1200);
+    // Dispatch event so Navbar and this page update immediately
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('giftUpdated'));
+    }
   };
 
   const handleThank = (giftId: string) => {

@@ -147,6 +147,10 @@ export default function Navbar() {
   const { i18n, t } = useTranslation();
   // Unread notifications count
   const [unreadNotificationsCount, setUnreadNotificationsCount] = useState(0);
+  // Unwrapped gifts count
+  const [unwrappedGiftsCount, setUnwrappedGiftsCount] = useState(0);
+  // Gifts red dot (mobile)
+  const [showMobileGiftDot, setShowMobileGiftDot] = useState(false);
   // Notifications popup state
   const [notificationsPopupOpen, setNotificationsPopupOpen] = useState(false);
   const [notifications, setNotifications] = useState<any[]>([]);
@@ -156,6 +160,81 @@ export default function Navbar() {
   const [newNotificationToast, setNewNotificationToast] = useState<{ title: string; body: string } | null>(null);
   // Mobile notification indicator - red dot for new notifications
   const [showMobileNotificationDot, setShowMobileNotificationDot] = useState(false);
+  // Fetch unwrapped gifts count and subscribe to real-time updates and custom event
+  useEffect(() => {
+    if (!user?.id) {
+      setUnwrappedGiftsCount(0);
+      setShowMobileGiftDot(false);
+      return;
+    }
+    let unsubscribed = false;
+    const fetchUnwrappedGifts = async () => {
+      try {
+        const { count, error } = await supabase
+          .from('gifts')
+          .select('*', { count: 'exact', head: true })
+          .eq('recipient_id', user.id)
+          .eq('viewed', false);
+        if (error) throw error;
+        if (!unsubscribed) {
+          setUnwrappedGiftsCount(count || 0);
+          if ((count || 0) > 0) setShowMobileGiftDot(true);
+        }
+      } catch (err) {
+        if (!unsubscribed) setUnwrappedGiftsCount(0);
+      }
+    };
+    fetchUnwrappedGifts();
+    // Listen for custom event for immediate updates
+    const handleGiftUpdate = () => {
+      fetchUnwrappedGifts();
+    };
+    if (typeof window !== 'undefined') {
+      window.addEventListener('giftUpdated', handleGiftUpdate);
+    }
+    // Subscribe to real-time gifts
+    const channel = supabase
+      .channel(`gifts:${user.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'gifts',
+          filter: `recipient_id=eq.${user.id}`,
+        },
+        (payload) => {
+          // Optimistically update count
+          if (payload.eventType === 'INSERT') {
+            setUnwrappedGiftsCount((prev) => {
+              const next = prev + 1;
+              if (next > 0) setShowMobileGiftDot(true);
+              return next;
+            });
+          } else if (payload.eventType === 'UPDATE' && payload.new?.viewed === true && payload.old?.viewed === false) {
+            setUnwrappedGiftsCount((prev) => {
+              const next = Math.max(0, prev - 1);
+              if (next === 0) setShowMobileGiftDot(false);
+              return next;
+            });
+          } else if (payload.eventType === 'DELETE' && payload.old?.viewed === false) {
+            setUnwrappedGiftsCount((prev) => {
+              const next = Math.max(0, prev - 1);
+              if (next === 0) setShowMobileGiftDot(false);
+              return next;
+            });
+          }
+        }
+      )
+      .subscribe();
+    return () => {
+      unsubscribed = true;
+      channel.unsubscribe();
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('giftUpdated', handleGiftUpdate);
+      }
+    };
+  }, [user?.id]);
 
   // Fetch unread notifications count and subscribe to real-time updates
   useEffect(() => {
@@ -684,6 +763,11 @@ export default function Navbar() {
                   title={t('navbar.gifts')}
                 >
                   <Gift className="w-6 h-6" />
+                  {unwrappedGiftsCount > 0 && (
+                    <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center animate-pulse z-10 shadow-lg">
+                      {unwrappedGiftsCount > 99 ? '99+' : unwrappedGiftsCount}
+                    </span>
+                  )}
                 </Link>
                 <div className="flex items-center space-x-6">
                   {/* Notifications Icon (desktop) */}
@@ -1135,11 +1219,23 @@ export default function Navbar() {
                   <Link
                     id="navbar-mobile-gifts"
                     href="/gifts"
-                    className="text-[var(--text)] hover:text-pink-600 transition-all duration-300 font-medium px-6 py-3 hover:bg-pink-100 rounded-2xl hover:translate-x-2 transform flex items-center gap-2"
+                    className="text-[var(--text)] hover:text-pink-600 transition-all duration-300 font-medium px-6 py-3 hover:bg-pink-100 rounded-2xl hover:translate-x-2 transform flex items-center gap-2 relative"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     <Gift className="w-5 h-5" />
                     {t('navbar.gifts')}
+                    {showMobileGiftDot && (
+                      <motion.span
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        className="ml-2 w-4 h-4 bg-pink-600 rounded-full animate-pulse shadow-lg shadow-pink-600/50"
+                      />
+                    )}
+                    {unwrappedGiftsCount > 0 && !showMobileGiftDot && (
+                      <span className="ml-2 bg-pink-600 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center z-10">
+                        {unwrappedGiftsCount > 99 ? '99+' : unwrappedGiftsCount}
+                      </span>
+                    )}
                   </Link>
                   <div className="pt-4 border-t border-heritage-gold/50 px-6">
                     <span className="text-[var(--text)] font-medium block mb-3 px-4 py-2 bg-[var(--bg-2)] rounded-xl backdrop-blur-sm">
