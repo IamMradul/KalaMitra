@@ -247,6 +247,8 @@ KalaMitra/
 │   │   │   └── page.tsx
 │   │   ├── notifications/
 │   │   │   └── page.tsx
+|   |   |──recommendations/
+|   |   |  └── page.tsx 
 │   │   ├── product/
 │   │   │   └── [id]/
 │   │   │       └── page.tsx
@@ -289,19 +291,21 @@ KalaMitra/
 │   │   ├── AuctionWidget.tsx
 │   │   ├── DMChat.tsx
 │   │   ├── DonateModal.tsx
-│   │   ├── Footer.tsx
-│   │   ├── GroupGiftContribution.tsx
-│   │   ├── GroupGiftModal.tsx
-│   │   ├── HideNavbar.tsx
-│   │   ├── LanguageProvider.tsx
-│   │   ├── Leaderboard.tsx
-│   │   ├── Market3DButton.tsx
-│   │   ├── MarketplaceNavigator3D.tsx
-│   │   ├── MarketplaceStalls3D.tsx
-│   │   ├── MessageInputModal.tsx
-│   │   ├── MotionWrapper.tsx
-│   │   ├── Navbar.tsx
-│   │   ├── NotificationsList.tsx
+    │   ├── ErrorBoundary.tsx
+    │   ├── Footer.tsx
+    │   ├── GroupGiftContribution.tsx
+    │   ├── GroupGiftModal.tsx
+    │   ├── HideNavbar.tsx
+    │   ├── LanguageProvider.tsx
+    │   ├── Leaderboard.tsx
+    │   ├── Market3DButton.tsx
+    │   ├── MarketplaceNavigator3D.tsx
+    │   ├── MarketplaceStalls3D.tsx
+    │   ├── MessageInputModal.tsx
+    │   ├── MotionWrapper.tsx
+    │   ├── Navbar.tsx
+    │   ├── NotificationsList.tsx
+    │   ├── ProductCard.tsx
 │   │   ├── ShareModal.tsx
 │   │   ├── StallCustomizationModal.tsx
 │   │   ├── ThemeProvider.tsx
@@ -351,6 +355,7 @@ KalaMitra/
 │   ├── types/
 │   │   ├── product.ts
 │   │   ├── speech.d.ts
+|   |   ├── swiper.d.ts
 │   │   └── three-shims.d.ts
 │   └── utils/
 │       ├── marketplaceScene.ts

@@ -316,6 +316,24 @@
   color: white;
 }
 
+/* Global scrollbar hiding */
+html {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+html::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 .craft-badge-kashmiri {
   background: linear-gradient(135deg, #4169E1, #191970);
   color: white;
