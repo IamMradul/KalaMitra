@@ -11,7 +11,8 @@ import { translateArray } from '@/lib/translate'
 import ProductCard from '@/components/ProductCard'
 import { hammingDistanceHex as hammingHex } from '@/lib/image-similarity'
 import Link from 'next/link'
-import ARViewer from '@/components/ARViewer'
+import dynamic from 'next/dynamic'
+const ARViewer = dynamic(() => import('@/components/ARViewer'), { ssr: false })
 
 interface ProductBase {
   id: string;

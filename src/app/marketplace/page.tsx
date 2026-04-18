@@ -3,6 +3,7 @@
 'use client'
 
 import React, { useState, useEffect, useRef, useMemo } from 'react'
+import useSWR from 'swr'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Search, Filter, Sparkles, ChevronLeft, ChevronRight, X } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
@@ -11,8 +12,9 @@ import { logActivity } from '@/lib/activity'
 import { hammingDistanceHex as hammingHex } from '@/lib/image-similarity'
 import { Database } from '@/lib/supabase'
 import Link from 'next/link'
-import Market3DButton from '@/components/Market3DButton'
-import ARViewer from '@/components/ARViewer'
+import dynamic from 'next/dynamic'
+const Market3DButton = dynamic(() => import('@/components/Market3DButton'), { ssr: false })
+const ARViewer = dynamic(() => import('@/components/ARViewer'), { ssr: false })
 import ProductCard from '@/components/ProductCard'
 import ErrorBoundary from '@/components/ErrorBoundary'
 import { useInView } from 'react-intersection-observer'
@@ -264,8 +266,84 @@ function MarketplaceContent() {
   const { t, i18n } = useTranslation()
   const { currentLanguage } = useLanguage()
   const searchParams = useSearchParams()
+
+  // SWR Fetcher for marketplace products
+  const productsFetcher = async () => {
+    // 1. Fetch auctioned product IDs
+    const { data: aData } = await supabase
+      .from('auctions')
+      .select('product_id,status')
+      .in('status', ['scheduled', 'running'])
+    const auctionIds = (aData || []).map(a => a.product_id)
+
+    // 2. Fetch products (excluding auctioned ones if any)
+    let query = supabase
+      .from('products')
+      .select('*, seller:profiles(name)')
+      .order('created_at', { ascending: false })
+
+    if (auctionIds.length > 0) {
+      query = query.not('id', 'in', `(${auctionIds.map(id => `'${id}'`).join(',')})`)
+    }
+    const { data: productsData, error: productsError } = await query
+    if (productsError) throw productsError
+
+    // 3. Fetch collaborative data
+    const { data: collabData } = await supabase
+      .from('collaborative_products')
+      .select(`
+        product_id,
+        collaboration:collaborations(
+          id, initiator_id, partner_id, status,
+          initiator:profiles!collaborations_initiator_id_fkey(id, name),
+          partner:profiles!collaborations_partner_id_fkey(id, name)
+        )
+      `)
+      .eq('collaboration.status', 'accepted')
+
+    const collabMap = new Map()
+    const extractName = (val: any) => {
+      if (!val) return undefined
+      return Array.isArray(val) ? val[0]?.name : val.name
+    }
+
+    collabData?.forEach((cp: any) => {
+      const collObj = Array.isArray(cp.collaboration) ? cp.collaboration[0] : cp.collaboration
+      if (!collObj) return
+      collabMap.set(cp.product_id, [
+        { id: collObj.initiator_id, name: extractName(collObj.initiator) || 'Unknown' },
+        { id: collObj.partner_id, name: extractName(collObj.partner) || 'Unknown' }
+      ])
+    })
+
+    // 4. Enrich and return
+    const enriched = (productsData || []).map(p => ({
+      ...p,
+      isCollaborative: collabMap.has(p.id),
+      collaborators: collabMap.get(p.id) || []
+    }))
+
+    const categoriesList = [...new Set(enriched.map(p => p.category).filter(Boolean))] as string[]
+    return { products: enriched, categories: categoriesList }
+  }
+
+  const { data: swrData, error: swrError, isLoading: swrLoading } = useSWR('marketplace-products', productsFetcher, {
+    revalidateOnFocus: false,
+    dedupingInterval: 60000, // 1 minute cache
+  })
+
   const [products, setProducts] = useState<Product[]>([])
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([])
+
+  // Load from SWR
+  useEffect(() => {
+    if (swrData) {
+      setProducts(swrData.products)
+      setCategories(swrData.categories)
+      setLoading(false)
+    }
+  }, [swrData])
+
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('')
   const [categories, setCategories] = useState<string[]>([])
@@ -466,7 +544,6 @@ function MarketplaceContent() {
         console.error('Error parsing Microsoft session:', error)
       }
     }
-    fetchProducts()
   }, [searchParams])
 
   // Debounce search to avoid too many API calls
@@ -506,101 +583,6 @@ function MarketplaceContent() {
         filtered = filtered.filter(product => product.category === selectedCategory)
       }
       setFilteredProducts(filtered)
-    }
-  }
-
-  const fetchProducts = async () => {
-    try {
-      // fetch active/scheduled auctions to exclude their products from normal listing
-      try {
-        const { data: aData } = await supabase
-          .from('auctions')
-          .select('product_id,status,starts_at')
-          .in('status', ['scheduled', 'running'])
-        const ids = (aData || []).map((a: { product_id: string }) => a.product_id)
-        setAuctionedProductIds(ids)
-      } catch (err) {
-        console.error('Error fetching auctions for marketplace:', err)
-        setAuctionedProductIds([])
-      }
-      let query = supabase
-        .from('products')
-        .select(`
-          *,
-          seller:profiles(name)
-        `)
-        .order('created_at', { ascending: false })
-
-      if (auctionedProductIds.length > 0) {
-        // exclude auctioned products from normal listing
-        const inList = `(${auctionedProductIds.map((id) => `'${id}'`).join(',')})`
-        query = query.not('id', 'in', inList)
-      }
-
-      const { data, error } = await query
-
-      if (error) throw error
-
-      // Fetch collaborative products to enrich the data
-      const { data: collabData } = await supabase
-        .from('collaborative_products')
-        .select(`
-          product_id,
-          collaboration:collaborations(
-            id,
-            initiator_id,
-            partner_id,
-            status,
-            initiator:profiles!collaborations_initiator_id_fkey(id, name),
-            partner:profiles!collaborations_partner_id_fkey(id, name)
-          )
-        `)
-        .eq('collaboration.status', 'accepted')
-
-      // Create a map of product_id -> collaborators
-      const collabMap = new Map<string, { id: string, name: string }[]>()
-      // Helper: extract name from either an object or an array of objects returned by Supabase joins
-      const extractName = (val?: { name?: string } | { name?: string }[] | null) => {
-        if (!val) return undefined
-        if (Array.isArray(val)) return val[0]?.name
-        return val.name
-      }
-
-      collabData?.forEach((cp: CollabJoin) => {
-        const rawCollab = cp.collaboration
-        if (!rawCollab) return
-
-        // Normalize arrays to a single object if Supabase returned an array
-        const collObj = Array.isArray(rawCollab) ? rawCollab[0] : rawCollab
-
-        const initiatorName = extractName(collObj.initiator)
-        const partnerName = extractName(collObj.partner)
-
-        const collaborators = [
-          { id: collObj.initiator_id, name: initiatorName || 'Unknown' },
-          { id: collObj.partner_id, name: partnerName || 'Unknown' }
-        ]
-
-        collabMap.set(cp.product_id, collaborators)
-      })
-
-      // Enrich products with collaboration info
-      const enrichedProducts = (data || []).map(product => ({
-        ...product,
-        isCollaborative: collabMap.has(product.id),
-        collaborators: collabMap.get(product.id) || []
-      }))
-
-      setProducts(enrichedProducts)
-
-      // Extract unique categories
-      const uniqueCategories = [...new Set(enrichedProducts?.map(p => p.category) || [])]
-      setCategories(uniqueCategories)
-
-      setLoading(false)
-    } catch (error) {
-      console.error('Error fetching products:', error)
-      setLoading(false)
     }
   }
 

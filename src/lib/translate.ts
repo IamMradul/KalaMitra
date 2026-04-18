@@ -44,7 +44,7 @@ const potentiallyUnsupportedLanguages = new Set([
 
 // Simple in-memory cache + persistent localStorage cache (client only)
 const cache = new Map<string, string>()
-const LS_KEY = 'km_translate_cache_v1'
+const LS_KEY = 'km_translate_cache_v2'
 
 type CacheShape = Record<string, string>
 
@@ -62,10 +62,10 @@ function loadLSCache(): CacheShape {
 function saveLSCache(obj: CacheShape) {
   if (typeof window === 'undefined') return
   try {
-    // Keep it bounded: max ~200 entries
+    // Keep it bounded: max ~500 entries (higher than previous 200)
     const entries = Object.entries(obj)
-    if (entries.length > 200) {
-      const trimmed = entries.slice(entries.length - 200)
+    if (entries.length > 500) {
+      const trimmed = entries.slice(entries.length - 500)
       obj = Object.fromEntries(trimmed)
     }
     localStorage.setItem(LS_KEY, JSON.stringify(obj))
@@ -88,6 +88,7 @@ function getFromCache(key: string): string | undefined {
 }
 
 function putInCache(key: string, val: string) {
+  if (!val || val === 'undefined') return // Don't cache garbage
   cache.set(key, val)
   lsCache[key] = val
   saveLSCache(lsCache)

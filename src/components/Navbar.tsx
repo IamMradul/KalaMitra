@@ -1065,7 +1065,15 @@ export default function Navbar() {
             {user && (
               <Link href="/profile" className="mr-2 flex items-center justify-center">
                 {profile?.profile_image ? (
-                  <img src={profile.profile_image} alt="avatar" className="w-9 h-9 rounded-full object-cover border-2 border-blue-400" />
+                  <div className="relative w-9 h-9 rounded-full overflow-hidden border-2 border-blue-400">
+                    <Image
+                      src={profile.profile_image}
+                      alt="avatar"
+                      fill
+                      className="object-cover"
+                      sizes="36px"
+                    />
+                  </div>
                 ) : (
                   <div className="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center text-lg font-bold border-2 border-blue-400">
                     {profile?.name ? profile.name[0] : <User className="w-5 h-5" />}

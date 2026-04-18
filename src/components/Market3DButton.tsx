@@ -1,7 +1,9 @@
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'next-i18next';
 import { Shapes } from 'lucide-react';
-import MarketplaceStalls3D, { SellerGroup } from './MarketplaceStalls3D';
+import dynamic from 'next/dynamic';
+import type { SellerGroup } from './MarketplaceStalls3D';
+const MarketplaceStalls3D = dynamic(() => import('./MarketplaceStalls3D'), { ssr: false });
 import { Product } from '../types/product';
 
 // Extend Product type to include seller_id if not present
