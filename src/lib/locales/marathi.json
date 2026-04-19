@@ -8,7 +8,8 @@
     "loadingHistory": "तुमचा चॅट इतिहास लोड होत आहे...",
     "moreProducts": "+{{count}} अजून उत्पादने",
     "analyzingProducts": "एआय उत्पादनांचे विश्लेषण करत आहे...",
-    "inputPlaceholder": "मला काहीही विचारा..."
+    "inputPlaceholder": "मला काहीही विचारा...",
+    "helpTooltip": "मदत हवी आहे? आमच्या AI सहाय्यकाशी चॅट करा!"
   },
   "donate": {
     "modalTitle": "एनजीओ साठी वस्तू दान करा",
@@ -151,7 +152,9 @@
     "confirm": "पुष्टी करा",
     "yes": "होय",
     "no": "नाही",
-    "viewAll": "सर्व पहा"
+    "viewAll": "सर्व पहा",
+    "refresh": "रिफ्रेश करा",
+    "loadingMore": "आणखी खजिने शोधत आहोत..."
   },
   "auctions": {
     "title": "वारसा लिलाव",
@@ -420,7 +423,9 @@
     "recsSignInPrompt": "तुमच्या आवडीनुसार तुमच्यासाठी निवडलेली उत्पादने पाहण्यासाठी साइन इन करा.",
     "recsEmptyTitle": "अद्याप कोणत्याही शिफारसी नाहीत",
     "recsEmptyDescription": "आम्हाला तुम्हाला आवडतील अशा गोष्टी शोधण्यात मदत करण्यासाठी मार्केटप्लेस ब्राउझ करणे सुरू करा!",
-    "exploreMarketplace": "मार्केटप्लेस एक्सप्लोर करा"
+    "exploreMarketplace": "मार्केटप्लेस एक्सप्लोर करा",
+    "speakToSearch": "शोधण्यासाठी बोला",
+    "listening": "ऐकत आहे..."
   },
   "product": {
     "addToCart": "कार्टमध्ये जोडा",
@@ -442,6 +447,7 @@
     "report": "समस्या नोंदवा",
     "favorite": "आवडत्यामध्ये जोडा",
     "unfavorite": "आवडत्यामधून काढा",
+    "removeFromWishlist": "विशलिस्ट मधून काढा",
     "byAuthor": "{{name}} कडून",
     "unknownArtisan": "अज्ञात कारागीर",
     "addToWishlist": "विशलिस्टमध्ये जोडा",

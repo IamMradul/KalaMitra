@@ -8,7 +8,8 @@
     "loadingHistory": "नोंसोरनि च्याट इतिहास ल'ड खालामदों...",
     "moreProducts": "+{{count}} आरो product",
     "analyzingProducts": "एआइ ए product फिन बिलाइखालामदों...",
-    "inputPlaceholder": "आंनो मोनसेबो सों..."
+    "inputPlaceholder": "आंनो मोनसेबो सों...",
+    "helpTooltip": "মদদ নাंगौ? जोंनि AI मददगिरिजों रायज्लाय!"
   },
   "donate": {
     "modalTitle": "NGO नि थाखाय जिंसाखौ दान खालाम",
@@ -151,7 +152,9 @@
     "confirm": "रोजा खालाम",
     "yes": "माव",
     "no": "नङा",
-    "viewAll": "ཚང་མ་ལྟོས།"
+    "viewAll": "ཚང་མ་ལྟོས།",
+    "refresh": "रिफ्रेश खालाम",
+    "loadingMore": "गोबां मुवाफोर नागিরगासिनो दं..."
   },
   "auctions": {
     "title": "ऐतिह्य निलाम",
@@ -420,7 +423,9 @@
     "recsSignInPrompt": "ཁྱེད་ཀྱི་དགའ་ཕྱོགས་ལྟར་བདམས་པའི་དངོས་པོ་རྣམས་གཟིགས་པར་ནང་འཛུལ་བྱེད་དགོས།",
     "recsEmptyTitle": "ད་ལྟ་རེ་འདུན་མེད།",
     "recsEmptyDescription": "ཁྱེད་ཀྱི་དགའ་ཕྱོགས་ལྟར་དངོས་པོ་འཚོལ་བར་ཚོང་རར་གཟིགས་དང་།",
-    "exploreMarketplace": "ཚོང་རར་ལྟོས།"
+    "exploreMarketplace": "ཚོང་རར་ལྟོས།",
+    "speakToSearch": "नागिरनो थाखाय बुं",
+    "listening": "खनागासिनो दं..."
   },
   "product": {
     "addToCart": "कार्ट आव दाजाब",
@@ -494,7 +499,8 @@
     "speechRecognitionNotSupported": "बे ब्राउजारआव स्पिच रिकगनिसनखौ सपर्ट नङा।",
     "meetCollaborativeArtisans": "Collaborative आर्तिजानफोरजों सोमोन्दो ला",
     "storyLabel": "Productनि कथा (हेरिटेज)",
-    "storyNarrateHint": "हेरिटेज कथाखौ गोसो हो।"
+    "storyNarrateHint": "हेरिटेज कथाखौ गोसो हो।",
+    "removeFromWishlist": "मुलिनाय फारিনিফ੍ਰाय बोखार"
   },
   "auction": {
     "title": "निलाम",

@@ -1,17 +1,60 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import { generateEmbedding } from '@/lib/embedding-service';
+import { z } from 'zod';
+import { searchRateLimit } from '@/lib/rate-limit';
+import { localRateLimit } from '@/lib/local-limit';
+
+const searchSchema = z.object({
+  query: z.string().min(1).max(200).trim(),
+});
 
 // Don't use edge runtime - the embedding model needs Node.js environment
 // export const runtime = 'edge';
 
 export async function POST(req: Request) {
   try {
-    const { query } = await req.json();
+    // 1. Rate Limiting with Fallback
+    const ip = req.headers.get('x-forwarded-for') ?? '127.0.0.1';
+    let isAllowed = true;
+    let limitInfo = { limit: 10, remaining: 10, reset: 0 };
 
-    if (!query) {
-      return NextResponse.json({ error: 'Query is required' }, { status: 400 });
+    try {
+      // 1a. Try high-performance Upstash Limit first
+      const { success, limit, reset, remaining } = await searchRateLimit.limit(ip);
+      isAllowed = success;
+      limitInfo = { limit, remaining, reset };
+    } catch (ratelimitError) {
+      // 1b. IF UPSTASH IS GONE, use Code-Based Local Memory Limit (10 requests / 10s)
+      console.warn('Upstash rate limiting unavailable, falling back to local memory limit.');
+      const localResult = localRateLimit(`search:${ip}`, 10, 10000);
+      isAllowed = localResult.success;
+      limitInfo = { limit: 10, remaining: localResult.remaining, reset: Date.now() + 10000 };
     }
+    
+    if (!isAllowed) {
+      return NextResponse.json(
+        { error: 'Too many requests' },
+        { 
+          status: 429,
+          headers: {
+            'X-RateLimit-Limit': limitInfo.limit.toString(),
+            'X-RateLimit-Remaining': limitInfo.remaining.toString(),
+            'X-RateLimit-Reset': limitInfo.reset.toString(),
+          }
+        }
+      );
+    }
+
+    // 2. Validation
+    const body = await req.json();
+    const result = searchSchema.safeParse(body);
+
+    if (!result.success) {
+      return NextResponse.json({ error: 'Invalid search query' }, { status: 400 });
+    }
+
+    const { query } = result.data;
 
     console.log('Search query:', query);
 
@@ -22,7 +65,7 @@ export async function POST(req: Request) {
     // Query Supabase for similar products using the pgvector extension
     const { data, error } = await supabase.rpc('match_products', {
       query_embedding: queryEmbedding,
-      match_threshold: 0.3, // Lower threshold = more lenient matching
+      match_threshold: 0.2, // Lowered to 0.2 for better typo tolerance
       match_count: 20,
     });
 

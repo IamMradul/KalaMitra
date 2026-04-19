@@ -8,7 +8,8 @@
     "loadingHistory": "आपकी चैट हिस्ट्री लोड हो रही है...",
     "moreProducts": "+{{count}} और उत्पाद",
     "analyzingProducts": "एआई उत्पादों का विश्लेषण कर रहा है...",
-    "inputPlaceholder": "कुछ भी पूछें..."
+    "inputPlaceholder": "कुछ भी पूछें...",
+    "helpTooltip": "मदद चाहिए? हमारे एआई सहायक के साथ चैट करें!"
   },
   "donate": {
     "modalTitle": "एनजीओ के लिए वस्तु दान करें",
@@ -151,7 +152,9 @@
     "confirm": "पुष्टि करें",
     "yes": "हाँ",
     "no": "नहीं",
-    "viewAll": "सभी देखें"
+    "viewAll": "सभी देखें",
+    "refresh": "रीफ्रेश करें",
+    "loadingMore": "और खजाने खोज रहे हैं..."
   },
   "auctions": {
     "title": "विरासत नीलामी",
@@ -419,7 +422,9 @@
     "recsSignInPrompt": "साइन इन करें और अपनी रुचियों के आधार पर अपने लिए चुने गए उत्पाद देखें।",
     "recsEmptyTitle": "अभी तक कोई अनुशंसा नहीं",
     "recsEmptyDescription": "चीजें खोजने में हमारी मदद करने के लिए मार्केटप्लेस ब्राउज़ करना शुरू करें!",
-    "exploreMarketplace": "मार्केटप्लेस देखें"
+    "exploreMarketplace": "मार्केटप्लेस देखें",
+    "speakToSearch": "खोजने के लिए बोलें",
+    "listening": "सुन रहे हैं..."
   },
   "product": {
     "addToCart": "कार्ट में डालें",
@@ -441,6 +446,7 @@
     "report": "समस्या रिपोर्ट करें",
     "favorite": "पसंदीदा में जोड़ें",
     "unfavorite": "पसंदीदा से हटाएं",
+    "removeFromWishlist": "विशलिस्ट से हटाएं",
     "byAuthor": "द्वारा {{name}}",
     "unknownArtisan": "अज्ञात कारीगर",
     "addToWishlist": "विशलिस्ट में जोड़ें",

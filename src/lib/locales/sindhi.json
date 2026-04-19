@@ -8,7 +8,8 @@
     "loadingHistory": "توهان جي چيٽ تاريخ لوڊ ٿي رهي آهي...",
     "moreProducts": "+{{count}} وڌيڪ شيون",
     "analyzingProducts": "اي آئي شين جو تجزيو ڪري رهيو آهي...",
-    "inputPlaceholder": "مون کي ڪجھ به پڇو..."
+    "inputPlaceholder": "مون کي ڪجھ به پڇو...",
+    "helpTooltip": "مددگهرجي؟ اسان جي AI مددگار سان ڳالهايو!"
   },
   "donate": {
     "modalTitle": "این جی او لاءِ شئي دان ڪريو",
@@ -151,7 +152,9 @@
     "confirm": "پڪ ڪريو",
     "yes": "ها",
     "no": "نه",
-    "viewAll": "سڀ ڏسو"
+    "viewAll": "سڀ ڏسو",
+    "refresh": "تازو ڪريو",
+    "loadingMore": "وڌيڪ خزانو ڳولي رهيا آهيون..."
   },
   "auctions": {
     "title": "وراثتي نيلام",
@@ -420,7 +423,9 @@
     "recsSignInPrompt": "توهان جي دلچسپين جي بنياد تي توهان لاءِ چونڊيل حصا ڏسڻ لاءِ سائن ان ڪريو.",
     "recsEmptyTitle": "اڃا تائين ڪا به سفارش ناهي",
     "recsEmptyDescription": "توهان کي پسند ايندڙ شيون ڳولڻ ۾ اسان جي مدد لاءِ مارڪيٽ پليس برائوز ڪرڻ شروع ڪريو!",
-    "exploreMarketplace": "مارڪيٽ پليس ڏسو"
+    "exploreMarketplace": "مارڪيٽ پليس ڏسو",
+    "speakToSearch": "ڳولڻ لاءِ ڳالهايو",
+    "listening": "ٻڌي رهيا آهيون..."
   },
   "product": {
     "addToCart": "کارٽ ۾ شامل ڪريو",
@@ -494,7 +499,8 @@
     "speechRecognitionNotSupported": "ھن برائوزر ۾ اسپيچ رڪگنشن سپورٽ نہ ٿيل.",
     "meetCollaborativeArtisans": "تعاون وارا دستڪار سان ملو",
     "storyLabel": "شين جي ڪهاڻي (ورثو)",
-    "storyNarrateHint": "ورثي واري ڪهاڻي ٻڌو."
+    "storyNarrateHint": "ورثي واري ڪهاڻي ٻڌو.",
+    "removeFromWishlist": "خواهش جي لسٽ مان هٽايو"
   },
   "auction": {
     "title": "نيلام",

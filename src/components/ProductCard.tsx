@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { ShoppingCart, Heart, Volume2, StopCircle } from 'lucide-react';
 import type { Product } from '@/app/marketplace/page';
@@ -59,11 +60,14 @@ const ProductCard: React.FC<ProductCardProps> = ({
             </div>
           ) : null}
           {product.image_url ? (
-            <img
+            <Image
               src={product.image_url}
               alt={displayProduct?.title || product.title}
+              fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+              className="object-cover hover:scale-110 transition-transform duration-300"
+              priority={false}
               loading="lazy"
-              className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
             />
           ) : (
             <div className={`w-full h-full bg-gradient-to-br flex items-center justify-center ${product.isCollaborative

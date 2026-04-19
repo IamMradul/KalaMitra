@@ -8,7 +8,8 @@
     "loadingHistory": "আপোনাৰ চেট ইতিহাস ল'ড হৈ আছে...",
     "moreProducts": "+{{count}} টকা অধিক সামগ্ৰী",
     "analyzingProducts": "এআই-য়ে সামগ্ৰীবোৰ বিশ্লেষণ কৰি আছে...",
-    "inputPlaceholder": "মোক যিকোনো কথা সুধিব..."
+    "inputPlaceholder": "মোক যিকোনো কথা সুধিব...",
+    "helpTooltip": "সহায় লাগে? আমাৰ এআই সহায়কৰ সৈতে কথা পাতক!"
   },
   "donate": {
     "modalTitle": "এনজিঅ’ৰ বাবে সামগ্ৰী দান কৰক",
@@ -151,7 +152,9 @@
     "confirm": "নিশ্চিত কৰক",
     "yes": "হয়",
     "no": "নহয়",
-    "viewAll": "সকলো চাওক"
+    "viewAll": "সকলো চাওক",
+    "refresh": "ৰীফ্ৰেছ কৰক",
+    "loadingMore": "অধিক সম্পদ বিচাৰি থকা হৈছে..."
   },
   "auctions": {
     "title": "ঐতিহ্য নিলাম",
@@ -420,7 +423,9 @@
     "recsSignInPrompt": "আপোনাৰ আগ্ৰহৰ ভিত্তিত আপোনাৰ বাবে বাছনি কৰা সামগ্ৰী চাবলৈ চাইন ইন কৰক।",
     "recsEmptyTitle": "এতিয়ালৈকে কোনো পৰামৰ্শ নাই",
     "recsEmptyDescription": "আপোনাৰ পচন্দৰ সামগ্ৰী বিচাৰি উলিওৱাত আমাক সহায় কৰিবলৈ বজাৰখন চাবলৈ আৰম্ভ কৰক!",
-    "exploreMarketplace": "সকলো চাওক"
+    "exploreMarketplace": "সকলো চাওক",
+    "speakToSearch": "সন্ধান কৰিবলৈ কওক",
+    "listening": "শুনি আছো..."
   },
   "product": {
     "addToCart": "কাৰ্টত যোগ কৰক",
@@ -494,7 +499,8 @@
     "speechRecognitionNotSupported": "এই ব্ৰাউজাৰত speech recognition সমৰ্থিত নহয়।",
     "meetCollaborativeArtisans": "সহযোগিতামূলক শিল্পীসকলৰ সৈতে পৰিচিত হওক",
     "storyLabel": "সামগ্ৰীৰ কাহিনী (ঐতিহ্য)",
-    "storyNarrateHint": "ঐতিহ্যৰ কাহিনীটো শুনক।"
+    "storyNarrateHint": "ঐতিহ্যৰ কাহিনীটো শুনক।",
+    "removeFromWishlist": "পছন্দৰ তালিকাৰ পৰা আঁতৰাওক"
   },
   "auction": {
     "title": "নিলাম",

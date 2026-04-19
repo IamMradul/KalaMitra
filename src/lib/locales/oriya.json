@@ -8,7 +8,8 @@
     "loadingHistory": "ଆପଣଙ୍କର ଚାଟ୍ ଇତିହାସ ଲୋଡ୍ ହେଉଛି...",
     "moreProducts": "+{{count}} ଅଧିକ ଉତ୍ପାଦ",
     "analyzingProducts": "ଏଆଇ ଉତ୍ପାଦଗୁଡିକୁ ବିଶ୍ଳେଷଣ କରୁଛି...",
-    "inputPlaceholder": "ମୋତେ କିଛି ପଚାରନ୍ତୁ..."
+    "inputPlaceholder": "ମୋତେ କିଛି ପଚାରନ୍ତୁ...",
+    "helpTooltip": "ସାହାଯ୍ୟ ଦରକାର କି? ଆମର AI ସହାୟକଙ୍କ ସହିତ ଚାଟ୍ କରନ୍ତୁ!"
   },
   "donate": {
     "modalTitle": "ବେସରକାରୀ ସଂସ୍ଥା ପାଇଁ ବସ୍ତୁ ଦାନ କରନ୍ତୁ",
@@ -151,7 +152,9 @@
     "confirm": "ନିଶ୍ଚିତ କରନ୍ତୁ",
     "yes": "ହଁ",
     "no": "ନା",
-    "viewAll": "ସବୁ ଦେଖନ୍ତୁ"
+    "viewAll": "ସବୁ ଦେଖନ୍ତୁ",
+    "refresh": "ରିଫ୍ରେଶ୍ କରନ୍ତୁ",
+    "loadingMore": "ଅଧିକ ଖଜାନା ଖୋଜୁଛି..."
   },
   "auctions": {
     "title": "ପାରମ୍ପରିକ ନୀଳାମ",
@@ -420,7 +423,9 @@
     "recsSignInPrompt": "ଆପଣଙ୍କ ଆଗ୍ରହ ଆଧାରରେ ଆପଣଙ୍କ ପାଇଁ ମନୋନୀତ ଉତ୍ପାଦ ଦେଖିବାକୁ ସାଇନ୍ ଇନ୍ କରନ୍ତୁ |",
     "recsEmptyTitle": "ଏପର୍ଯ୍ୟନ୍ତ କୌଣସି ସୁପାରିଶ ନାହିଁ",
     "recsEmptyDescription": "ଆପଣଙ୍କ ପସନ୍ଦର ଜିନିଷ ଖୋଜିବାରେ ଆମକୁ ସାହାଯ୍ୟ କରିବାକୁ ମାର୍କେଟପ୍ଲେସ୍ ବ୍ରାଉଜ୍ କରିବା ଆରମ୍ଭ କରନ୍ତୁ |",
-    "exploreMarketplace": "ମାର୍କେଟପ୍ଲେସ୍ ଅନୁସନ୍ଧାନ କରନ୍ତୁ"
+    "exploreMarketplace": "ମାର୍କେଟପ୍ଲେସ୍ ଅନୁସନ୍ଧାନ କରନ୍ତୁ",
+    "speakToSearch": "ଖୋଜିବା ପାଇଁ କୁହନ୍ତୁ",
+    "listening": "ଶୁଣୁଛି..."
   },
   "product": {
     "addToCart": "କାର୍ଟରେ ଯୋଡନ୍ତୁ",
@@ -494,7 +499,8 @@
     "speechRecognitionNotSupported": "ଏହି ବ୍ରାଉଜରରେ ସ୍ପିଚ୍ ରେକଗନିଶନ୍ ସମର୍ଥିତ ନୁହେଁ।",
     "meetCollaborativeArtisans": "ସହଯୋଗୀ କାରିଗରମାନଙ୍କୁ ଭେଟନ୍ତୁ",
     "storyLabel": "ଉତ୍ପାଦ କଥା (ବିରାସତ)",
-    "storyNarrateHint": "ବିରାସତ କଥା ଶୁଣନ୍ତୁ।"
+    "storyNarrateHint": "ବିରାସତ କଥା ଶୁଣନ୍ତୁ।",
+    "removeFromWishlist": "ୱିସଲିଷ୍ଟରୁ ହଟାନ୍ତୁ"
   },
   "auction": {
     "title": "ନିଲାମ",

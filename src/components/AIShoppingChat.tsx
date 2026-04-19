@@ -394,7 +394,7 @@ export default function AIShoppingChat() {
               {/* Tooltip for help */}
               {showTooltip && (
                 <div className="absolute right-14 top-1/2 -translate-y-1/2 bg-yellow-100 text-yellow-900 px-3 py-2 rounded-lg shadow-lg text-xs font-semibold whitespace-nowrap z-50 animate-fade-in">
-                  {t('Need help? Chat with our AI assistant!')}
+                  {t('aiChat.helpTooltip')}
                 </div>
               )}
             </motion.div>
