@@ -8,7 +8,8 @@
     "loadingHistory": "तुहाडी चैट हिस्ट्री लोड हो रही ऐ...",
     "moreProducts": "+{{count}} होर प्रोडक्ट",
     "analyzingProducts": "एआई प्रोडक्ट्स दा विश्लेषण कर रही ऐ...",
-    "inputPlaceholder": "मैंनू कुज्ह वी पुछो..."
+    "inputPlaceholder": "मैंनू कुज्ह वी पुछो...",
+    "helpTooltip": "मदद चाहिदी? साडे एआई सहायक कन्नै गल्ल करो!"
   },
   "donate": {
     "modalTitle": "NGO आस्तै सामान दान करो",
@@ -151,7 +152,9 @@
     "confirm": "पुष्टि करो",
     "yes": "हां",
     "no": "नेई",
-    "viewAll": "सभनूं देखो"
+    "viewAll": "सभनूं देखो",
+    "refresh": "रिफ्रेश करो",
+    "loadingMore": "होर खजाने टोह्डे जा करदे न..."
   },
   "auctions": {
     "title": "विरासत नीलामी",
@@ -420,7 +423,9 @@
     "recsSignInPrompt": "तूंढियां रुचियां दे अधार पर तूंढे लेई चुने दे उत्पाद देखन लेई साइन इन करो।",
     "recsEmptyTitle": "अजें तकर कोई सिफारिश नई",
     "recsEmptyDescription": "तूंढे पसंद दे चिजें गी लब्भन लेई मार्केटप्लेस देखना शुरू करो।",
-    "exploreMarketplace": "मार्केटप्लेस देखो"
+    "exploreMarketplace": "मार्केटप्लेस देखो",
+    "speakToSearch": "लब्भने लेई बोलो",
+    "listening": "सुणदे आं..."
   },
   "product": {
     "addToCart": "कार्ट च जोड़ो",
@@ -494,7 +499,8 @@
     "speechRecognitionNotSupported": "एह् ब्राउजर च स्पीच रिकग्निशन सपोर्टेड नेई।",
     "meetCollaborativeArtisans": "कोलैबोरेटिव आर्टिजनां नाल मिलो",
     "storyLabel": "प्रोडक्ट स्टोरी (विरासत)",
-    "storyNarrateHint": "विरासत दी कहानी सुनो।"
+    "storyNarrateHint": "विरासत दी कहानी सुनो।",
+    "removeFromWishlist": "विशलिस्ट थमां हटाओ"
   },
   "auction": {
     "title": "नीलामी",

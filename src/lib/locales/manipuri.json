@@ -8,7 +8,8 @@
     "loadingHistory": "ꯅꯍꯥꯛꯀꯤ ꯆꯦꯠ ꯍꯤꯁ꯭ꯇꯔꯤ ꯂꯣꯗꯤꯡ ꯇꯧꯔꯤ...",
     "moreProducts": "+{{count}} ꯍꯦꯟꯅꯥ ꯄ꯭ꯔꯣꯗꯛꯇꯁꯤꯡ",
     "analyzingProducts": "ꯑꯦꯑꯥꯏꯅꯥ ꯄ꯭ꯔꯣꯗꯛꯇꯁꯤꯡ ꯑꯦꯅꯦꯂꯥꯏꯖꯤꯡ ꯇꯧꯔꯤ...",
-    "inputPlaceholder": "ꯑꯩꯗꯥ ꯀꯔꯤꯕꯨ ꯍꯥꯏꯌꯨ..."
+    "inputPlaceholder": "ꯑꯩꯗꯥ ꯀꯔꯤꯕꯨ ꯍꯥꯏꯌꯨ...",
+    "helpTooltip": "ꯃꯇꯦꯡ ꯄꯥꯝꯕ꯭ꯔꯥ? ꯑꯩꯈꯣꯏꯒꯤ AI ꯑꯦꯁꯤꯁ꯭ꯇꯦꯟꯇꯀꯥ ꯋꯥꯔꯤ ꯁꯥꯟꯅꯕꯤꯌꯨ!"
   },
   "donate": {
     "modalTitle": "এন.জি.ও.দা গীসেৱা লৌরিবা ঙম্বী",
@@ -151,7 +152,9 @@
     "confirm": "ꯀꯟꯐꯥꯔꯝꯒꯜ",
     "yes": "ꯍꯣꯏ",
     "no": "ꯅꯠꯇꯦ",
-    "viewAll": "পুম্নমক উবা"
+    "viewAll": "পুম্নমক উবা",
+    "refresh": "ꯔꯤꯐ꯭ꯔꯦꯁ ꯇꯧꯕꯤꯌꯨ",
+    "loadingMore": "ꯍꯦꯟꯅꯥ ꯊꯤꯔꯤ..."
   },
   "auctions": {
     "title": "ꯍꯦꯔꯤꯇꯦꯖ ꯑꯥꯛꯁꯟ",
@@ -420,7 +423,9 @@
     "recsSignInPrompt": "নহাক্কী পামজবশিংদা য়ুম্ফম ওইরগা নহাক্কীদমক খল্লবা পোত্থোকশিং উনবগীদমক সাইন ইন তৌবিয়ু।",
     "recsEmptyTitle": "হৌজিকফাও পাউতাক লৈত্রি",
     "recsEmptyDescription": "নহাক্না পামজবা পোত্থোকশিং থিবদা ঐখোয়বু মতেং পাংনবগীদমক কৈথেল ব্রাউজ তৌবা হৌবিয়ু!",
-    "exploreMarketplace": "ক কৈथেল উবিয়ু"
+    "exploreMarketplace": "ক কৈथেল উবিয়ু",
+    "speakToSearch": "ꯊꯤꯕꯥ ꯍꯧꯕꯤꯌꯨ",
+    "listening": "ꯇꯥꯔꯤ..."
   },
   "product": {
     "addToCart": "ꯀꯥꯔꯇꯇꯥ ꯍꯥꯞꯆꯤꯟꯕꯤꯌꯨ",
@@ -494,7 +499,8 @@
     "speechRecognitionNotSupported": "ꯑꯦꯗꯥ ꯕ꯭ꯔꯥꯎꯖꯔꯗꯥ ꯁ꯭ꯄꯤꯆ ꯔꯤꯀꯣꯒꯅꯤꯁꯟ ꯁꯄꯣꯔꯇꯗꯒꯦ꯫",
     "meetCollaborativeArtisans": "ꯀꯣꯂꯥꯕꯣꯔꯦꯇꯤꯕꯀꯦꯜꯒꯤꯗꯃꯛ ꯀ꯭ꯔꯥꯐꯇ꯭ꯃꯦꯟꯁꯤꯡꯕꯨ ꯈꯨꯝꯅꯕꯤꯌꯨ",
     "storyLabel": "ꯄ꯭ꯔꯣꯗꯛꯇꯀꯤ ꯋꯥꯔꯤ (ꯍꯦꯔꯤꯇꯦꯖ)",
-    "storyNarrateHint": "ꯍꯦꯔꯤꯇꯦꯖꯀꯤ ꯋꯥꯔꯤ꯫ ꯇꯥꯕꯤꯌꯨ꯫"
+    "storyNarrateHint": "ꯍꯦꯔꯤꯇꯦꯖꯀꯤ ꯋꯥꯔꯤ꯫ ꯇꯥꯕꯤꯌꯨ꯫",
+    "removeFromWishlist": "ꯋꯤꯁꯂꯤꯁ꯭ꯠꯇꯒꯤ ꯂꯧꯊꯣꯀꯄꯥ"
   },
   "auction": {
     "title": "ꯑꯣꯛꯁꯟ",

@@ -548,15 +548,16 @@ function MarketplaceContent() {
 
   // Debounce search to avoid too many API calls
   useEffect(() => {
-    // Don't filter if search is empty - handleSearchChange already handled it
+    // If search is empty, the handleSearchChange or the other useEffect 
+    // already handles resetting to the full list.
     if (searchTerm.trim() === '') {
       return
     }
 
-    // Debounce the search by 300ms
+    // Debounce the search by 500ms to give user time to delete/type
     const timer = setTimeout(() => {
       filterProducts()
-    }, 300)
+    }, 500)
 
     return () => clearTimeout(timer)
   }, [searchTerm])
@@ -572,17 +573,15 @@ function MarketplaceContent() {
   // Handle search input change with immediate reset for empty search
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
-    setSearchTerm(value)
+    // Improved security: sanitize search term by removing potentially dangerous characters and trimming
+    const sanitizedValue = value.replace(/[<>{}()]/g, '').slice(0, 100)
+    setSearchTerm(sanitizedValue)
 
     // Immediately reset to all products when search is cleared
-    if (value.trim() === '') {
+    if (sanitizedValue.trim() === '') {
       setIsSearching(false)
-      // Apply only category filter if selected, otherwise show all products
-      let filtered = products
-      if (selectedCategory) {
-        filtered = filtered.filter(product => product.category === selectedCategory)
-      }
-      setFilteredProducts(filtered)
+      // Call clientSideFilter to properly handle all active filters (category, virtual, collaborative)
+      clientSideFilter()
     }
   }
 

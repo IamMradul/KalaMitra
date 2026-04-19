@@ -8,7 +8,8 @@
     "loadingHistory": "آپ کی چیٹ ہسٹری لوڈ ہو رہی ہے...",
     "moreProducts": "+{{count}} مزید مصنوعات",
     "analyzingProducts": "اے آئی مصنوعات کا تجزیہ کر رہی ہے...",
-    "inputPlaceholder": "مجھ سے کچھ بھی پوچھیں..."
+    "inputPlaceholder": "مجھ سے کچھ بھی پوچھیں...",
+    "helpTooltip": "مدد چاہیے؟ ہمارے AI اسسٹنٹ سے بات کریں!"
   },
   "donate": {
     "modalTitle": "این جی او کے لیے آئٹم عطیہ کریں",
@@ -151,7 +152,9 @@
     "confirm": "تصدیق کریں",
     "yes": "جی ہاں",
     "no": "نہیں",
-    "viewAll": "سب دیکھیں"
+    "viewAll": "سب دیکھیں",
+    "refresh": "ریفریش کریں",
+    "loadingMore": "مزید خزانے تلاش کر رہے ہیں..."
   },
   "auctions": {
     "title": "وراثتی نیلام",
@@ -420,7 +423,9 @@
     "recsSignInPrompt": "اپنی دلچسپیوں کی بنیاد پر اپنے لیے منتخب کردہ مصنوعات دیکھنے کے لیے سائن ان کریں۔",
     "recsEmptyTitle": "ابھی تک کوئی سفارشات نہیں ہیں",
     "recsEmptyDescription": "اپنی پسند کی چیزیں تلاش کرنے میں ہماری مدد کرنے کے لیے مارکیٹ پلیس کو براؤز کرنا شروع کریں!",
-    "exploreMarketplace": "مارکیٹ پلیس دریافت کریں"
+    "exploreMarketplace": "مارکیٹ پلیس دریافت کریں",
+    "speakToSearch": "تلاش کرنے کے لیے بولیں",
+    "listening": "سن رہے ہیں..."
   },
   "product": {
     "addToCart": "کارٹ میں شامل کریں",
@@ -494,7 +499,8 @@
     "speechRecognitionNotSupported": "اس براؤزر میں سپیچ ریکگنیشن سپورٹ نہیں ہے۔",
     "meetCollaborativeArtisans": "مشترکہ دستکاروں سے ملیں",
     "storyLabel": "پروڈکٹ کہانی (ورثہ)",
-    "storyNarrateHint": "ورثے کی کہانی سنیں۔"
+    "storyNarrateHint": "ورثے کی کہانی سنیں۔",
+    "removeFromWishlist": "وش لسٹ سے ہٹائیں"
   },
   "auction": {
     "title": "نیلامی",

@@ -8,7 +8,8 @@
     "loadingHistory": "আপনার চ্যাট ইতিহাস লোড হচ্ছে...",
     "moreProducts": "+{{count}} টি আরও পণ্য",
     "analyzingProducts": "এআই পণ্য বিশ্লেষণ করছে...",
-    "inputPlaceholder": "আমাকে কিছু জিজ্ঞাসা করুন..."
+    "inputPlaceholder": "আমাকে কিছু জিজ্ঞাসা করুন...",
+    "helpTooltip": "সাহায্য দরকার? আমাদের এআই সহকারীর সাথে চ্যাট করুন!"
   },
   "donate": {
     "modalTitle": "এনজিওর জন্য উপকরণ দান করুন",
@@ -151,7 +152,9 @@
     "confirm": "নিশ্চিত করুন",
     "yes": "হ্যাঁ",
     "no": "না",
-    "viewAll": "সব দেখুন"
+    "viewAll": "সব দেখুন",
+    "refresh": "রিফ্রেশ করুন",
+    "loadingMore": "আরও ধন-সম্পদ খোঁজা হচ্ছে..."
   },
   "auctions": {
     "title": "ঐতিহ্য নিলাম",
@@ -420,7 +423,9 @@
     "recsSignInPrompt": "আপনার আগ্রহের ভিত্তিতে আপনার জন্য নির্বাচিত পণ্য দেখতে সাইন ইন করুন।",
     "recsEmptyTitle": "এখনও কোনো সুপারিশ নেই",
     "recsEmptyDescription": "আপনার পছন্দের জিনিস খুঁজে পেতে আমাদের সাহায্য করার জন্য মার্কেটপ্লেস ব্রাউজ করা শুরু করুন!",
-    "exploreMarketplace": "মার্কেটপ্লেস ঘুরে দেখুন"
+    "exploreMarketplace": "মার্কেটপ্লেস ঘুরে দেখুন",
+    "speakToSearch": "সার্চ করতে কথা বলুন",
+    "listening": "শুনছি..."
   },
   "product": {
     "addToCart": "কার্টে যোগ করুন",
@@ -494,7 +499,8 @@
     "speechRecognitionNotSupported": "এই ব্রাউজারে স্পিচ রিকগনিশন সমর্থিত নয়।",
     "meetCollaborativeArtisans": "সহযোগিতামূলক শিল্পীদের সাথে পরিচিত হন",
     "storyLabel": "পণ্যের গল্প (ঐতিহ্য)",
-    "storyNarrateHint": "ঐতিহ্যের গল্প শুনুন।"
+    "storyNarrateHint": "ঐতিহ্যের গল্প শুনুন।",
+    "removeFromWishlist": "উইশলিস্ট থেকে সরান"
   },
   "auction": {
     "title": "নিলাম",

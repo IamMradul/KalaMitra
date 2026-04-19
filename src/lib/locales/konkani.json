@@ -8,7 +8,8 @@
     "loadingHistory": "तुजो चॅट इतिहास लोड जाता...",
     "moreProducts": "+{{count}} चड उत्पादनां",
     "analyzingProducts": "एआय उत्पादनांचे विश्लेशण करता...",
-    "inputPlaceholder": "म्हजे कडेन कितेंय विचार..."
+    "inputPlaceholder": "म्हजे कडेन कितेंय विचार...",
+    "helpTooltip": "मदत जाय? आमच्या एआय सहायका वांगडा गजाली करा!"
   },
   "donate": {
     "modalTitle": "एनजीओ खातीर वस्तू दान करात",
@@ -151,7 +152,9 @@
     "confirm": "खात्री कर",
     "yes": "हय",
     "no": "ना",
-    "viewAll": "सगळें पळयात"
+    "viewAll": "सगळें पळयात",
+    "refresh": "रिफ्रेश करा",
+    "loadingMore": "अदिक गिरेस्तकाय सोदतात..."
   },
   "auctions": {
     "title": "वारसा लिलाव",
@@ -420,7 +423,9 @@
     "recsSignInPrompt": "तुमच्या खाशेल्या आवडी प्रमाणे विंचिल्ले माल पळोवपा खातीर साइन इन करात.",
     "recsEmptyTitle": "अजून खंयचीच शिफारस ना",
     "recsEmptyDescription": "तुमकां आवडपी वस्तू सोदपाक आमकां मदत करचे खातीर मार्केटप्लेस पळोवपाक सुरवात करात!",
-    "exploreMarketplace": "मार्केटप्लेस पळयात"
+    "exploreMarketplace": "मार्केटप्लेस पळयात",
+    "speakToSearch": "सोधपा खातीर उलय",
+    "listening": "आयकुन घेतात..."
   },
   "product": {
     "addToCart": "कार्टांत जोड",
@@ -494,7 +499,8 @@
     "speechRecognitionNotSupported": "ह्या ब्राउझरांत भाशण ओळखणें सपोर्ट करिना.",
     "meetCollaborativeArtisans": "सहयोगी कारागीरांक भेट",
     "storyLabel": "उत्पादन कथा (वारसो)",
-    "storyNarrateHint": "वारसो कथा आयक."
+    "storyNarrateHint": "वारसो कथा आयक.",
+    "removeFromWishlist": "विशलिस्टिंतल्यान काडून उडयात"
   },
   "auction": {
     "title": "लिलाम",

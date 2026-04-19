@@ -8,7 +8,8 @@
     "loadingHistory": "ᱟᱢᱟᱜ ᱜᱟᱯᱟᱞ ᱱᱟᱜᱟᱢ ᱞᱚᱫᱚ ᱠᱟᱱᱟ...",
     "moreProducts": "+{{count}} ᱰᱮᱦᱮᱨ ᱡᱤᱱᱤᱥ",
     "analyzingProducts": "ᱮᱟᱭ ᱡᱤᱱᱤᱥ ᱵᱤᱪᱟᱹᱨ ᱠᱟᱱᱟ...",
-    "inputPlaceholder": "ᱤᱧ ᱴᱷᱮᱱ ᱡᱮᱦᱚᱸ ᱮᱱᱮᱡ ᱢᱮ..."
+    "inputPlaceholder": "ᱤᱧ ᱴᱷᱮᱱ ᱡᱮᱦᱚᱸ ᱮᱱᱮᱡ ᱢᱮ...",
+    "helpTooltip": "ᱜᱚᱲᱚ ᱫᱚᱨᱠᱟᱨ? ᱟᱞེᱭᱟᱜ AI ᱜᱚᱲᱚᱭᱤᱡ ᱥᱟᱶ ᱜᱟᱞਮᱟরাও ᱢᱮ!"
   },
   "donate": {
     "modalTitle": "ᱮᱱ.ᱡᱤ.ᱳ ᱮᱱᱟᱠᱚ ᱞᱟᱹᱜᱤᱫ ᱮᱱᱮᱢ",
@@ -151,7 +152,9 @@
     "confirm": "ᱯᱩᱥᱴᱤ ᱢᱮ",
     "yes": "ᱦᱚᱭ",
     "no": "ᱵᱟᱝ",
-    "viewAll": "ᱡᱚᱛᱚ ᱧᱮᱞ"
+    "viewAll": "ᱡᱚᱛᱚ ᱧᱮᱞ",
+    "refresh": "ᱨᱤᱯᱷᱨᱮᱥ ᱢᱮ",
+    "loadingMore": "ᱟᱨᱦᱚᱸ ᱠᱷᱚᱡᱟᱱᱟ ᱥᱮᱸᱫᱽᱨᱟ ᱦᱩᱭᱩᱜ ᱠᱟᱱᱟ..."
   },
   "auctions": {
     "title": "ᱵᱟᱹᱨᱟᱥᱟ ᱱᱤᱞᱟᱢ",
@@ -420,7 +423,9 @@
     "recsSignInPrompt": "ᱟᱢᱟᱜ ᱠᱩᱥᱤ ᱞᱮᱠᱟᱛᱮ ᱵᱟᱪᱷᱟᱣ ᱟᱠᱟᱱ ᱡᱤᱱᱤᱥ ᱧᱮᱞ ᱞᱟᱹᱜᱤᱫ ᱥᱟᱭᱤᱱ ᱤᱱ ᱢᱮ ᱾",
     "recsEmptyTitle": "ᱱᱤᱛ ᱫᱷᱟᱹᱵᱤᱡ ᱚᱠᱟ ᱥᱩᱡᱷᱟᱹᱣ ᱵᱟᱹᱱᱩᱜᱼᱟ",
     "recsEmptyDescription": "ᱟᱢᱟᱜ ᱠᱩᱥᱤ ᱡᱤᱱᱤᱥ ᱧᱟᱢ ᱞᱟᱹᱜᱤᱫ ᱢᱟᱨᱠᱮᱴᱯᱞᱮᱥ ᱧᱮᱞ ᱮᱦᱚᱵ ᱢᱮ ᱾",
-    "exploreMarketplace": "ᱢᱟᱨᱠᱮᱴᱯᱞᱮᱥ ᱧᱮᱞ ᱢᱮ"
+    "exploreMarketplace": "ᱢᱟᱨᱠᱮᱴᱯᱞᱮᱥ ᱧᱮᱞ ᱢᱮ",
+    "speakToSearch": "ᱥᱮᱸᱫᱽᱨᱟ ᱞᱟᱹᱜᱤᱫ ᱨᱚᱲ ᱢᱮ",
+    "listening": "ᱟᱸᱡᱚᱢᱮᱫᱟ..."
   },
   "product": {
     "addToCart": "ᱜᱟᱹᱰᱤ ᱨᱮ ᱥᱮᱞᱮᱫ ᱢᱮ",
@@ -494,7 +499,8 @@
     "speechRecognitionNotSupported": "ᱮᱭᱟ ᱵᱽᱨᱟᱣᱩᱡᱚᱨ ᱨᱮ ᱠᱟᱹᱦᱱᱤ ᱪᱤᱱᱦᱟᱹ ᱵᱟᱭ ᱦᱚᱯᱚᱱ ᱠᱟᱱᱟ ᱾",
     "meetCollaborativeArtisans": "ᱠᱚᱞᱟᱵᱳᱨᱮᱴᱤᱵᱽ ᱠᱟᱹᱨᱤᱜᱩᱲ ᱠᱚ ᱥᱟᱝ ᱧᱟᱯᱟᱢ ᱢᱮ",
     "storyLabel": "ᱡᱤᱱᱤᱥ ᱠᱟᱹᱦᱱᱤ (ᱵᱤᱨᱟᱥᱚᱛ)",
-    "storyNarrateHint": "ᱵᱤᱨᱟᱥᱚᱛ ᱠᱟᱹᱦᱱᱤ ᱥᱟᱸᱣ ᱢᱮ ᱾"
+    "storyNarrateHint": "ᱵᱤᱨᱟᱥᱚᱛ ᱠᱟᱹᱦᱱᱤ ᱥᱟᱸᱣ ᱢᱮ ᱾",
+    "removeFromWishlist": "ᱣᱤᱥᱞᱤᱥᱴ ᱠᱷᱚᱱ ᱚᱪᱚᱜᱽ ᱢᱮ"
   },
   "auction": {
     "title": "ᱱᱤᱞᱟᱢᱤ",

@@ -8,7 +8,8 @@
       "loadingHistory": "Loading your chat history...",
       "moreProducts": "+{{count}} more products",
       "analyzingProducts": "AI is analyzing products...",
-      "inputPlaceholder": "Ask me anything..."
+      "inputPlaceholder": "Ask me anything...",
+      "helpTooltip": "Need help? Chat with our AI assistant!"
     },
     "donate": {
       "modalTitle": "Donate Item for NGO",
@@ -152,7 +153,9 @@
       "submit": "Submit",
       "confirm": "Confirm",
       "yes": "Yes",
-      "no": "No"
+      "no": "No",
+      "refresh": "Refresh",
+      "loadingMore": "Discovering more treasures..."
     },
     "auctions": {
       "title": "Heritage Auctions",
@@ -413,6 +416,8 @@
       "showVirtualProducts": "🧩 Show Virtual Products",
       "collabBadge": "Collab",
       "virtualBadge": "Virtual",
+      "speakToSearch": "Speak to search",
+      "listening": "Listening...",
       "viewInAR": "View in Augmented Reality - Place this product in your space",
       "stopNarration": "Stop Narration",
       "listenNarration": "Listen to Product",
@@ -443,6 +448,7 @@
       "report": "Report Issue",
       "favorite": "Add to Favorites",
       "unfavorite": "Remove from Favorites",
+      "removeFromWishlist": "Remove from Wishlist",
       "byAuthor": "by {{name}}",
       "unknownArtisan": "Unknown Artisan",
       "addToWishlist": "Add to Wishlist",

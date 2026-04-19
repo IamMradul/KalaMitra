@@ -8,7 +8,8 @@
     "loadingHistory": "ਤੁਹਾਡਾ ਚੈਟ ਇਤਿਹਾਸ ਲੋਡ ਹੋ ਰਿਹਾ ਹੈ...",
     "moreProducts": "+{{count}} ਹੋਰ ਉਤਪਾਦ",
     "analyzingProducts": "ਏਆਈ ਉਤਪਾਦਾਂ ਦਾ ਵਿਸ਼ਲੇਸ਼ਣ ਕਰ ਰਿਹਾ ਹੈ...",
-    "inputPlaceholder": "ਮੈਨੂੰ ਕੁਝ ਵੀ ਪੁੱਛੋ..."
+    "inputPlaceholder": "ਮੈਨੂੰ ਕੁਝ ਵੀ ਪੁੱਛੋ...",
+    "helpTooltip": "ਮਦਦ ਚਾਹੀਦੀ ਹੈ? ਸਾਡੇ AI ਸਹਾਇਕ ਨਾਲ ਚੈਟ ਕਰੋ!"
   },
   "donate": {
     "modalTitle": "ਗੈਰ-ਸਰਕਾਰੀ ਸੰਗਠਨ ਲਈ ਸਮਾਨ ਦਾਨ ਕਰੋ",
@@ -151,7 +152,9 @@
     "confirm": "ਪੁਸ਼ਟੀ ਕਰੋ",
     "yes": "ਹਾਂ",
     "no": "ਨਹੀਂ",
-    "viewAll": "ਸਭ ਵੇਖੋ"
+    "viewAll": "ਸਭ ਵੇਖੋ",
+    "refresh": "ਰਿਫ੍ਰੈਸ਼ ਕਰੋ",
+    "loadingMore": "ਹੋਰ ਖਜ਼ਾਨੇ ਲੱਭ ਰਹੇ ਹਾਂ..."
   },
   "auctions": {
     "title": "ਵਿਰਾਸਤ ਨੀਲਾਮੀ",
@@ -420,7 +423,9 @@
     "recsSignInPrompt": "ਆਪਣੀਆਂ ਰੁਚੀਆਂ ਦੇ ਅਧਾਰ ਤੇ ਤੁਹਾਡੇ ਲਈ ਚੁਣੇ ਗਏ ਉਤਪాਦਾਂ ਨੂੰ ਵੇਖਣ ਲਈ साइन ਇਨ ਕਰੋ।",
     "recsEmptyTitle": "ਅਜੇ ਤੱਕ ਕੋਈ ਸਿਫ਼ਾਰਸ਼ ਨਹੀਂ",
     "recsEmptyDescription": "ਤੁਹਾਨੂੰ ਪਸੰਦ ਆਉਣ ਵਾਲੀਆਂ ਚੀਜ਼ਾਂ ਲੱਭਣ ਵਿੱਚ ਸਾਡੀ ਮਦਦ ਕਰਨ ਲਈ ਮਾਰਕੀਟਪਲੇਸ ਬ੍ਰਾਊਜ਼ ਕਰਨਾ ਸ਼ੁਰੂ ਕਰੋ!",
-    "exploreMarketplace": "ਮਾਰਕੀਟਪਲੇਸ ਦੀ ਪੜਚੋল ਕਰੋ"
+    "exploreMarketplace": "ਮਾਰਕੀਟਪਲੇਸ ਦੀ ਪੜਚੋল ਕਰੋ",
+    "speakToSearch": "ਲੱਭਣ ਲਈ ਬੋਲੋ",
+    "listening": "ਸੁਣ ਰਿਹਾ ਹਾਂ..."
   },
   "product": {
     "addToCart": "ਕਾਰਟ ਵਿੱਚ ਜੋੜੋ",
@@ -494,7 +499,8 @@
     "speechRecognitionNotSupported": "ਇਸ ਬਰਾਊਜ਼ਰ ਵਿੱਚ ਸਪੀਚ ਰੈਕੋਗਨੀਸ਼ਨ ਸਮਰਥਿਤ ਨਹੀਂ ਹੈ।",
     "meetCollaborativeArtisans": "ਸਹਿਯੋਗੀ ਕਾਰੀਗਰਾਂ ਨੂੰ ਮਿਲੋ",
     "storyLabel": "ਉਤਪਾਦ ਕਹਾਣੀ (ਵਿਰਾਸਤ)",
-    "storyNarrateHint": "ਵਿਰਾਸਤ ਕਹਾਣੀ ਸੁਣੋ।"
+    "storyNarrateHint": "ਵਿਰਾਸਤ ਕਹਾਣੀ ਸੁਣੋ।",
+    "removeFromWishlist": "ਵਿਸ਼ਲਿਸਟ ਤੋਂ ਹਟਾਓ"
   },
   "auction": {
     "title": "ਨਿਲਾਮ",

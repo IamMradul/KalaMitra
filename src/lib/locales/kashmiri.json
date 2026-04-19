@@ -8,7 +8,8 @@
     "loadingHistory": "تہند بات چِت چھُ لوڈ گَژھان...",
     "moreProducts": "+{{count}} زِیادٕ مٲل",
     "analyzingProducts": "اے آئی چھُ مٲل تجزیہ کران...",
-    "inputPlaceholder": "مؠں سٟتؠ پوچھِتھ..."
+    "inputPlaceholder": "مؠں سٟتؠ پوچھِتھ...",
+    "helpTooltip": "मदद च़ाहिजे? अस्य एआई सहायकस सथ च़ेट करिव!"
   },
   "donate": {
     "modalTitle": "این جی او خٲطرٕ چیز دان",
@@ -151,7 +152,9 @@
     "confirm": "تصدیق کٔرِتھ",
     "yes": "شٲی",
     "no": "نہ",
-    "viewAll": "سٲری وچھو"
+    "viewAll": "سٲری وچھو",
+    "refresh": "रिफ्रेश करिव",
+    "loadingMore": "वॉरयाह खज़ान छ़ांडान..."
   },
   "auctions": {
     "title": "وراثتی نیلام",
@@ -420,7 +423,9 @@
     "recsSignInPrompt": "تُہنٛزِ دلچسپی ہٕնٛدِ بنیاس پؠٹھ کٔرِتھ منتخب چیٖز वછન્હ خٲطرٕ کٔরِو سائن اِن।",
     "recsEmptyTitle": "اُنؠ تام چُھ نَہ کانہہ سفارش",
     "recsEmptyDescription": "پَننِہ پَسندِ ہٕনٛدِ چیٖز ژھانٛڈنَس منٛز کٔرِو اَسہِ مَدَد، مارکیٹ پلیس وچھُن کٔرِو شروع।",
-    "exploreMarketplace": "مارکیٹ پلیس وچھِو"
+    "exploreMarketplace": "مارکیٹ پلیس وچھِو",
+    "speakToSearch": "छ़ांडने खज़़ कषिव",
+    "listening": "बो़ज़़ान..."
   },
   "product": {
     "addToCart": "کارٹ میں شامل کریں",
@@ -494,7 +499,8 @@
     "speechRecognitionNotSupported": "اس براؤزر میں سپیچ ریکگنیشن سپورٹڈ نہیں ہے۔",
     "meetCollaborativeArtisans": "تعاون شدہ دستکاروں سے ملیں",
     "storyLabel": "مصنوعات کی کہانی (ورثہ)",
-    "storyNarrateHint": "ورثہ کی کہانی سنیں۔"
+    "storyNarrateHint": "ورثہ کی کہانی سنیں۔",
+    "removeFromWishlist": "विशलिस्ट प्यठ हटाविय"
   },
   "auction": {
     "title": "نیلام",

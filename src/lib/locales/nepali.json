@@ -8,7 +8,8 @@
     "loadingHistory": "तपाईंको च्याट इतिहास लोड हुँदैछ...",
     "moreProducts": "+{{count}} थप उत्पादनहरू",
     "analyzingProducts": "एआइ ले उत्पादनहरूको विश्लेषण गर्दैछ...",
-    "inputPlaceholder": "मलाई केही पनि सोध्नुहोस्..."
+    "inputPlaceholder": "मलाई केही पनि सोध्नुहोस्...",
+    "helpTooltip": "सहयोग चाहियो? हाम्रो एआई सहायकसँग च्याट गर्नुहोस्!"
   },
   "donate": {
     "modalTitle": "गैर-सरकारी संस्थालाई वस्तु दान गर्नुहोस्",
@@ -151,7 +152,9 @@
     "confirm": "पुष्टि गर्नुहोस्",
     "yes": "हो",
     "no": "होईन",
-    "viewAll": "सबै हेर्नुहोस्"
+    "viewAll": "सबै हेर्नुहोस्",
+    "refresh": "रिफ्रेस गर्नुहोस्",
+    "loadingMore": "थप खजानाहरू खोज्दै..."
   },
   "auctions": {
     "title": "पारंपरिक लिलाम",
@@ -420,7 +423,9 @@
     "recsSignInPrompt": "तपाईको रुचिमा आधारित तपाईको लागि छानिएका उत्पादनहरू हेर्न साइन इन गर्नुहोस्।",
     "recsEmptyTitle": "अझै कुनै सिफारिशहरू छैनन्",
     "recsEmptyDescription": "तपाईलाई मनपर्ने कुराहरू फेला पार्न मद्दत गर्न बजार ब्राउज गर्न सुरु गर्नुहोस्!",
-    "exploreMarketplace": "बजार अन्वेषण गर्नुहोस्"
+    "exploreMarketplace": "बजार अन्वेषण गर्नुहोस्",
+    "speakToSearch": "खोज्नका लागि बोल्नुहोस्",
+    "listening": "सुन्दै..."
   },
   "product": {
     "addToCart": "कार्टमा थप्नुहोस्",
@@ -494,7 +499,8 @@
     "speechRecognitionNotSupported": "यो ब्राउजरमा भाषण मान्यता समर्थित छैन।",
     "meetCollaborativeArtisans": "सहयोगी कारीगरहरूलाई भेट्नुहोस्",
     "storyLabel": "उत्पादन कथा (विरासत)",
-    "storyNarrateHint": "विरासत कथा सुन्नुहोस्।"
+    "storyNarrateHint": "विरासत कथा सुन्नुहोस्।",
+    "removeFromWishlist": "विशलिस्टबाट हटाउनुहोस्"
   },
   "auction": {
     "title": "निलामी",

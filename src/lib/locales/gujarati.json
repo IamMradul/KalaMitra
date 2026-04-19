@@ -8,7 +8,8 @@
     "loadingHistory": "તમારી ચેટ હિસ્ટ્રી લોડ થઈ રહી છે...",
     "moreProducts": "+{{count}} વધુ ઉત્પાદનો",
     "analyzingProducts": "એઆઈ ઉત્પાદનોનું વિશ્લેષણ કરી રહ્યું છે...",
-    "inputPlaceholder": "મને કંઈપણ પૂછો..."
+    "inputPlaceholder": "મને કંઈપણ પૂછો...",
+    "helpTooltip": "મદદ જોઈતી હોય? અમારા AI સહાયક સાથે ચેટ કરો!"
   },
   "donate": {
     "modalTitle": "NGO માટે વસ્તુ દાન કરો",
@@ -151,7 +152,9 @@
     "confirm": "કન્ફર્મ કરો",
     "yes": "હા",
     "no": "ના",
-    "viewAll": "બધું જુઓ"
+    "viewAll": "બધું જુઓ",
+    "refresh": "રિફ્રેશ કરો",
+    "loadingMore": "વધુ ખજાના શોધી રહ્યા છીએ..."
   },
   "auctions": {
     "title": "વારસાની હરાજી",
@@ -420,7 +423,9 @@
     "recsSignInPrompt": "તમારી રુચિઓના આધારે તમારા માટે પસંદ કરેલ ઉત્પાદનો જોવા માટે સાઇન ઇન કરો.",
     "recsEmptyTitle": "હજી કોઈ ભલામણો નથી",
     "recsEmptyDescription": "તમને ગમતી વસ્તુઓ શોધવામાં અમને मदद કરવા માટે માર્કેટપ્લેસ બ્રાઉઝ કરવાનું પ્રારંભ કરો!",
-    "exploreMarketplace": "માર્કેટપ્લેસ શોધો"
+    "exploreMarketplace": "માર્કેટપ્લેસ શોધો",
+    "speakToSearch": "શોધવા માટે બોલો",
+    "listening": "સાંભળી રહ્યા છીએ..."
   },
   "product": {
     "addToCart": "કાર્ટમાં ઉમેરો",
@@ -442,6 +447,7 @@
     "report": "ઇશ્યુ રિપોર્ટ કરો",
     "favorite": "ફેવરિટમાં ઉમેરો",
     "unfavorite": "ફેવરિટમાંથી દૂર કરો",
+    "removeFromWishlist": "વિશલિસ્ટમાંથી દૂર કરો",
     "byAuthor": "{{name}} દ્વારા",
     "unknownArtisan": "અજ્ઞાત કારીગર",
     "addToWishlist": "વિશલિસ્ટમાં ઉમેરો",

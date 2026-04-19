@@ -8,7 +8,8 @@
     "loadingHistory": "तव संवादइतिहासः लोड् क्रियते...",
     "moreProducts": "+{{count}} अधिक उत्पादाः",
     "analyzingProducts": "कृत्रिमबुद्धि उत्पादान् विश्लेषयति...",
-    "inputPlaceholder": "किंचित् पृच्छतु..."
+    "inputPlaceholder": "किंचित् पृच्छतु...",
+    "helpTooltip": "सहायता आवश्यकी वा? अस्मत् AI सहायकेन सह वार्तालापं करोतु!"
   },
   "donate": {
     "modalTitle": "NGO हेतु वस्तु दातव्य",
@@ -151,7 +152,9 @@
     "confirm": "सङ्ग्रहीतु",
     "yes": "आम्",
     "no": "न",
-    "viewAll": "सर्वं पश्यन्तु"
+    "viewAll": "सर्वं पश्यन्तु",
+    "refresh": "नवीकरणं कुरु",
+    "loadingMore": "अधिकान् निधीन अन्विष्यति..."
   },
   "auctions": {
     "title": "परंपरा लिलावः",
@@ -420,7 +423,9 @@
     "recsSignInPrompt": "तव रुचिनां आधारेण तव कृते चित्तान् उत्पादान् द्रष्टुं साईन-इन् कुरुत।",
     "recsEmptyTitle": "अद्यापि कोऽपि सुझावः नास्ति",
     "recsEmptyDescription": "भवतः रोचमानानि वस्तूनि अन्वेष्टुं अस्मान् साहाय्यं कर्तुं विपणिं पश्यन्तु!",
-    "exploreMarketplace": "विपणिं पश्यन्तु"
+    "exploreMarketplace": "विपणिं पश्यन्तु",
+    "speakToSearch": "अन्वेषणाय वदतु",
+    "listening": "शृणोति..."
   },
   "product": {
     "addToCart": "कार्ट् मध्ये योजयतु",
@@ -494,7 +499,8 @@
     "speechRecognitionNotSupported": "एषु ब्राउज़र् मध्ये वाक्-पहिचान समर्थितम् नास्ति।",
     "meetCollaborativeArtisans": "सहयोगी शिल्पकर्मियों से मिलतु",
     "storyLabel": "उत्पाद कथा (परंपरा)",
-    "storyNarrateHint": "परंपरा कथा शृणु।"
+    "storyNarrateHint": "परंपरा कथा शृणु।",
+    "removeFromWishlist": "इच्छासूच्याः निष्कासयतु"
   },
   "auction": {
     "title": "नीलामी",

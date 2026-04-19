@@ -8,7 +8,8 @@
     "loadingHistory": "आपक चैट इतिहास लोड होइत अछि...",
     "moreProducts": "+{{count}} अधिक उत्पाद",
     "analyzingProducts": "एआइ उत्पाद के विश्लेषण करि रहल अछि...",
-    "inputPlaceholder": "हमरा सँ कुछू पूछू..."
+    "inputPlaceholder": "हमरा सँ कुछू पूछू...",
+    "helpTooltip": "मदद चाही? हमर एआई सहायक सँ बात करू!"
   },
   "donate": {
     "modalTitle": "गैर-सरकारी संस्था कऽ लेल वस्तु दान करू",
@@ -151,7 +152,9 @@
     "confirm": "पुष्टि करू",
     "yes": "हँ",
     "no": "नहि",
-    "viewAll": "सभ देखू"
+    "viewAll": "सभ देखू",
+    "refresh": "रिफ्रेश करू",
+    "loadingMore": "आर खजाना खोजि रहल छी..."
   },
   "auctions": {
     "title": "विरासत नीलामी",
@@ -420,7 +423,9 @@
     "recsSignInPrompt": "अहाँक रुचिक आधार पर अहाँक लेल चुनल गेल उत्पाद देखबाक लेल साइन इन करू।",
     "recsEmptyTitle": "एखुन धरि कोनो अनुशंसा नै",
     "recsEmptyDescription": "अहाँक पचिन्द चिज सभकेँ खोजवामे हमर मदति करबाक लेल मार्केटप्लेस देखब शुरू करू।",
-    "exploreMarketplace": "मार्केटप्लेस देखू"
+    "exploreMarketplace": "मार्केटप्लेस देखू",
+    "speakToSearch": "खोजबाक लेल बाजू",
+    "listening": "सुनि रहल छी..."
   },
   "product": {
     "addToCart": "कार्ट मे जोड़ू",
@@ -494,7 +499,8 @@
     "speechRecognitionNotSupported": "ई ब्राउजर मे स्पीच रिकग्निशन समर्थित नहि अछि।",
     "meetCollaborativeArtisans": "सहयोगी शिल्पकारन के सँ मिलू",
     "storyLabel": "उत्पाद कहानी (विरासत)",
-    "storyNarrateHint": "विरासत कहानी सुनू।"
+    "storyNarrateHint": "विरासत कहानी सुनू।",
+    "removeFromWishlist": "विशलिस्ट सँ हटाउ"
   },
   "auction": {
     "title": "नीलामी",
