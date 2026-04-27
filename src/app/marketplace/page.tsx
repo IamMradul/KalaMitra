@@ -1,12 +1,11 @@
 
-
 'use client'
 
-import React, { useState, useEffect, useRef, useMemo } from 'react'
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import useSWR from 'swr'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Search, Filter, Sparkles, ChevronLeft, ChevronRight, X } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
+import { supabase } from '@/lib/supabase' // Only needed for wishlist, cart, recommendations
 import { useAuth } from '@/contexts/AuthContext'
 import { logActivity } from '@/lib/activity'
 import { hammingDistanceHex as hammingHex } from '@/lib/image-similarity'
@@ -15,6 +14,7 @@ import Link from 'next/link'
 import dynamic from 'next/dynamic'
 const Market3DButton = dynamic(() => import('@/components/Market3DButton'), { ssr: false })
 const ARViewer = dynamic(() => import('@/components/ARViewer'), { ssr: false })
+
 import ProductCard from '@/components/ProductCard'
 import ErrorBoundary from '@/components/ErrorBoundary'
 import { useInView } from 'react-intersection-observer'
@@ -220,6 +220,10 @@ function MarketplaceContent() {
   const synthRef = useRef<SpeechSynthesis | null>(typeof window !== 'undefined' ? window.speechSynthesis : null)
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null)
 
+
+  // Search is backend-driven (server filtering + pagination)
+
+
   // Helper: get BCP-47 code for narration
   const getNarrationLang = () => {
     const lang = currentLanguage || i18n.language || 'en'
@@ -267,136 +271,254 @@ function MarketplaceContent() {
   const { currentLanguage } = useLanguage()
   const searchParams = useSearchParams()
 
-  // SWR Fetcher for marketplace products
+  // SWR Fetcher for marketplace products (backend API, paginated)
+  const PRODUCTS_PER_PAGE = 12;
+  const [totalProducts, setTotalProducts] = useState(0)
+
+  const [searchTerm, setSearchTerm] = useState('')
+  const [selectedCategory, setSelectedCategory] = useState('')
+  const [showCollaborativeOnly, setShowCollaborativeOnly] = useState(false)
+  const [showVirtualOnly, setShowVirtualOnly] = useState(false)
+  const [semanticResults, setSemanticResults] = useState<Product[]>([])
+  const [isSearching, setIsSearching] = useState(false)
+  const [semanticResolved, setSemanticResolved] = useState(true)
+
+  const dedupeById = useCallback((items: Product[]) => {
+    const map = new Map<string, Product>()
+    for (const p of items) map.set(p.id, p)
+    return Array.from(map.values())
+  }, [])
+  // productsFetcher now only uses the backend API, no Supabase direct fetch
   const productsFetcher = async () => {
-    // 1. Fetch auctioned product IDs
-    const { data: aData } = await supabase
-      .from('auctions')
-      .select('product_id,status')
-      .in('status', ['scheduled', 'running'])
-    const auctionIds = (aData || []).map(a => a.product_id)
-
-    // 2. Fetch products (excluding auctioned ones if any)
-    let query = supabase
-      .from('products')
-      .select('*, seller:profiles(name)')
-      .order('created_at', { ascending: false })
-
-    if (auctionIds.length > 0) {
-      query = query.not('id', 'in', `(${auctionIds.map(id => `'${id}'`).join(',')})`)
-    }
-    const { data: productsData, error: productsError } = await query
-    if (productsError) throw productsError
-
-    // 3. Fetch collaborative data
-    const { data: collabData } = await supabase
-      .from('collaborative_products')
-      .select(`
-        product_id,
-        collaboration:collaborations(
-          id, initiator_id, partner_id, status,
-          initiator:profiles!collaborations_initiator_id_fkey(id, name),
-          partner:profiles!collaborations_partner_id_fkey(id, name)
-        )
-      `)
-      .eq('collaboration.status', 'accepted')
-
-    const collabMap = new Map()
-    const extractName = (val: any) => {
-      if (!val) return undefined
-      return Array.isArray(val) ? val[0]?.name : val.name
-    }
-
-    collabData?.forEach((cp: any) => {
-      const collObj = Array.isArray(cp.collaboration) ? cp.collaboration[0] : cp.collaboration
-      if (!collObj) return
-      collabMap.set(cp.product_id, [
-        { id: collObj.initiator_id, name: extractName(collObj.initiator) || 'Unknown' },
-        { id: collObj.partner_id, name: extractName(collObj.partner) || 'Unknown' }
-      ])
+    // Always pass current language to backend for translation
+    const lang = currentLanguage || i18n.language || 'en';
+    const qs = new URLSearchParams({
+      page: '1',
+      pageSize: String(PRODUCTS_PER_PAGE),
+      lang,
+      includeCategories: 'true',
     })
+    if (selectedCategory) qs.set('category', selectedCategory)
+    if (showCollaborativeOnly) qs.set('collaborativeOnly', 'true')
+    if (showVirtualOnly) qs.set('virtualOnly', 'true')
 
-    // 4. Enrich and return
-    const enriched = (productsData || []).map(p => ({
-      ...p,
-      isCollaborative: collabMap.has(p.id),
-      collaborators: collabMap.get(p.id) || []
-    }))
-
-    const categoriesList = [...new Set(enriched.map(p => p.category).filter(Boolean))] as string[]
-    return { products: enriched, categories: categoriesList }
+    const res = await fetch(`/api/marketplace/products?${qs.toString()}`);
+    if (!res.ok) throw new Error('Failed to fetch products');
+    const json = await res.json();
+    const products = json.products || [];
+    const categoriesList = Array.isArray(json.categories) ? (json.categories as string[]) : [];
+    return { products, categories: categoriesList, total: typeof json.total === 'number' ? json.total : 0 };
   }
 
-  const { data: swrData, error: swrError, isLoading: swrLoading } = useSWR('marketplace-products', productsFetcher, {
+  const swrKey = useMemo(() => {
+    const lang = currentLanguage || i18n.language || 'en'
+    return [
+      'marketplace-products',
+      lang,
+      selectedCategory,
+      showCollaborativeOnly ? '1' : '0',
+      showVirtualOnly ? '1' : '0',
+    ] as const
+  }, [currentLanguage, i18n.language, selectedCategory, showCollaborativeOnly, showVirtualOnly])
+
+  const { data: swrData, error: swrError, isLoading: swrLoading, isValidating: swrValidating } = useSWR(swrKey, productsFetcher, {
     revalidateOnFocus: false,
-    dedupingInterval: 60000, // 1 minute cache
+    revalidateOnReconnect: false,
+    revalidateIfStale: false,
+    // We MUST allow the initial fetch when there's no cache yet (otherwise skeleton hangs forever).
+    // To avoid refetching when navigating away/back, we rely on SWR's in-memory cache + a long dedupe window.
+    revalidateOnMount: true,
+    keepPreviousData: true,
+    dedupingInterval: 1000 * 60 * 60, // 1 hour
   })
 
   const [products, setProducts] = useState<Product[]>([])
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>([])
+  // Products list is server-filtered
 
   // Load from SWR
   useEffect(() => {
     if (swrData) {
-      setProducts(swrData.products)
+      setProducts(dedupeById(swrData.products))
       setCategories(swrData.categories)
-      setLoading(false)
+      setTotalProducts(swrData.total || 0)
     }
-  }, [swrData])
+  }, [swrData, dedupeById])
 
-  const [searchTerm, setSearchTerm] = useState('')
-  const [selectedCategory, setSelectedCategory] = useState('')
+  // If needed later, you can render an error state from `swrError`.
+
   const [categories, setCategories] = useState<string[]>([])
   const [displayProducts, setDisplayProducts] = useState<Product[]>([])
   const [displayCategories, setDisplayCategories] = useState<string[]>([])
   const [translatedSellerNames, setTranslatedSellerNames] = useState<Record<string, string>>({})
-  const [loading, setLoading] = useState(true)
   const [auctionedProductIds, setAuctionedProductIds] = useState<string[]>([])
   const [searchLogTimer, setSearchLogTimer] = useState<NodeJS.Timeout | null>(null)
   const [recommended, setRecommended] = useState<ProductBase[]>([])
   const [recLoading, setRecLoading] = useState(false)
   const [displayRecommended, setDisplayRecommended] = useState<ProductBase[]>([])
-  const [isSearching, setIsSearching] = useState(false)
-  const [showCollaborativeOnly, setShowCollaborativeOnly] = useState(false)
-  const [showVirtualOnly, setShowVirtualOnly] = useState(false)
-  // Pagination / Load More state
-  const PRODUCTS_PER_PAGE = 8
-  const [visibleCount, setVisibleCount] = useState(PRODUCTS_PER_PAGE)
-  const { ref: loadMoreRef, inView } = useInView({ threshold: 0.1 })
+  // Pagination / Load More state (API-driven)
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const { ref: loadMoreRef, inView } = useInView({ threshold: 0.1 });
 
-  // Incremental loading for main grid
+  // Products are server-filtered; what we have in `products` is already the filtered list.
+  const isSemanticSearchActive = searchTerm.trim().length > 0
+
   useEffect(() => {
-    if (inView && visibleCount < filteredProducts.length) {
-      setVisibleCount(prev => prev + PRODUCTS_PER_PAGE)
+    if (!isSemanticSearchActive) {
+      setSemanticResults([])
+      setSemanticResolved(true)
+      return
     }
-  }, [inView, filteredProducts.length])
+    setSemanticResolved(false)
+    const timer = setTimeout(async () => {
+      setIsSearching(true)
+      try {
+        const response = await fetch('/api/search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query: searchTerm.trim() }),
+        })
+        if (!response.ok) {
+          setSemanticResults([])
+          return
+        }
+        const semanticResultsRaw = await response.json()
+        const enrichedResults = (Array.isArray(semanticResultsRaw) ? semanticResultsRaw : [])
+          .map((result: ProductBase) => {
+            const fullProduct = products.find((p) => p.id === result.id) as Product | undefined
+            const resultWithSeller = result as Product
+            return {
+              ...result,
+              seller: fullProduct?.seller || resultWithSeller?.seller || { name: 'Unknown' },
+              isCollaborative: fullProduct?.isCollaborative || false,
+              collaborators: fullProduct?.collaborators || [],
+            } as Product
+          })
+        setSemanticResults(dedupeById(enrichedResults))
+      } catch {
+        setSemanticResults([])
+      } finally {
+        setIsSearching(false)
+        setSemanticResolved(true)
+      }
+    }, 350)
 
-  // Reset pagination when filters change
+    return () => clearTimeout(timer)
+  }, [isSemanticSearchActive, searchTerm, products, dedupeById])
+
+  // Infinite scroll: fetch next page from API when inView
   useEffect(() => {
-    setVisibleCount(PRODUCTS_PER_PAGE)
-  }, [searchTerm, selectedCategory, showCollaborativeOnly, showVirtualOnly])
+    if (isSemanticSearchActive) return;
+    if (!hasMore || loadingMore) return;
+    if (inView) {
+      setLoadingMore(true);
+      const nextPage = currentPage + 1;
+      const lang = currentLanguage || i18n.language || 'en'
+      const qs = new URLSearchParams({
+        page: String(nextPage),
+        pageSize: String(PRODUCTS_PER_PAGE),
+        lang,
+      })
+      if (selectedCategory) qs.set('category', selectedCategory)
+      if (showCollaborativeOnly) qs.set('collaborativeOnly', 'true')
+      if (showVirtualOnly) qs.set('virtualOnly', 'true')
+      fetch(`/api/marketplace/products?${qs.toString()}`)
+        .then(res => res.json())
+        .then(json => {
+          const newProducts = json.products || [];
+          setProducts(prev => dedupeById([...prev, ...newProducts]));
+          setCurrentPage(nextPage);
+          if (typeof json.total === 'number') setTotalProducts(json.total)
+          // If less than page size returned, no more data
+          if (!json.products || json.products.length < PRODUCTS_PER_PAGE) {
+            setHasMore(false);
+          }
+        })
+        .catch(() => setHasMore(false))
+        .finally(() => setLoadingMore(false));
+    }
+  }, [
+    inView,
+    hasMore,
+    loadingMore,
+    currentPage,
+    currentLanguage,
+    i18n.language,
+    searchTerm,
+    selectedCategory,
+    showCollaborativeOnly,
+    showVirtualOnly,
+    dedupeById,
+    isSemanticSearchActive,
+  ]);
 
-  // Get only visible products
+  // Reset pagination when filters/search change (server will refetch page 1 via SWR key)
+  useEffect(() => {
+    if (isSemanticSearchActive) {
+      setHasMore(false)
+      setCurrentPage(1)
+      setLoadingMore(false)
+      return
+    }
+    setCurrentPage(1);
+    setHasMore(true);
+    setLoadingMore(false)
+  }, [searchTerm, selectedCategory, showCollaborativeOnly, showVirtualOnly, isSemanticSearchActive]);
+
+
+
+  // Use semantic results while searching; otherwise use server-filtered paginated products.
   const paginatedProducts = useMemo(() => {
-    return filteredProducts.slice(0, visibleCount)
-  }, [filteredProducts, visibleCount])
+    if (!isSemanticSearchActive) return products
+    // Keep current products visible until semantic search returns for this query.
+    if (!semanticResolved) return products
+    let list = semanticResults
+    if (selectedCategory) list = list.filter((p) => p.category === selectedCategory)
+    if (showCollaborativeOnly) list = list.filter((p) => p.isCollaborative)
+    if (showVirtualOnly) list = list.filter((p) => p.is_virtual === true)
+    return list
+  }, [isSemanticSearchActive, semanticResolved, products, semanticResults, selectedCategory, showCollaborativeOnly, showVirtualOnly]);
 
   // Determine positions for inline recommendation rows
   const recommendationInsertIndices = useMemo(() => {
     // Show after every 12 items (3 full rows of 4)
-    const indices: number[] = []
+    const indices: number[] = [];
     if (user && recommended.length > 0) {
-      for (let i = 12; i < visibleCount; i += 12) {
-        indices.push(i)
+      for (let i = 12; i < paginatedProducts.length; i += 12) {
+        indices.push(i);
       }
     }
-    return indices
-  }, [user, recommended, visibleCount])
+    return indices;
+  }, [user, recommended, paginatedProducts.length]);
 
   // AR modal state
   const [arOpen, setArOpen] = useState(false)
   const [arImageUrl, setArImageUrl] = useState<string | undefined>(undefined)
   const [arProductType, setArProductType] = useState<'vertical' | 'horizontal'>('vertical')
+
+    // Fetch recommendations for logged-in user
+    useEffect(() => {
+      const fetchRecommendations = async () => {
+        if (!user) {
+          setRecommended([]);
+          return;
+        }
+        try {
+          setRecLoading(true);
+          const lang = currentLanguage || i18n.language || 'en';
+          const res = await fetch(`/api/recommendations?userId=${user.id}&lang=${encodeURIComponent(lang)}`);
+          if (!res.ok) throw new Error('Failed to fetch recommendations');
+          const json = await res.json();
+          setRecommended(json.products || []);
+        } catch (err) {
+          setRecommended([]);
+        } finally {
+          setRecLoading(false);
+        }
+      };
+      fetchRecommendations();
+    }, [user, currentLanguage]);
 
   // Wishlist state
   const [wishlistIds, setWishlistIds] = useState<Set<string>>(new Set())
@@ -546,29 +668,9 @@ function MarketplaceContent() {
     }
   }, [searchParams])
 
-  // Debounce search to avoid too many API calls
-  useEffect(() => {
-    // If search is empty, the handleSearchChange or the other useEffect 
-    // already handles resetting to the full list.
-    if (searchTerm.trim() === '') {
-      return
-    }
+  // Remove debounced search effect for filterProducts, now handled by useMemo
 
-    // Debounce the search by 500ms to give user time to delete/type
-    const timer = setTimeout(() => {
-      filterProducts()
-    }, 500)
-
-    return () => clearTimeout(timer)
-  }, [searchTerm])
-
-  // Filter when products or category changes (but not search term - handled above)
-  useEffect(() => {
-    // Only run if there's no active search term
-    if (searchTerm.trim() === '') {
-      filterProducts()
-    }
-  }, [products, selectedCategory, showCollaborativeOnly, showVirtualOnly])
+  // Remove effect for filterProducts, now handled by useMemo
 
   // Handle search input change with immediate reset for empty search
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -576,183 +678,20 @@ function MarketplaceContent() {
     // Improved security: sanitize search term by removing potentially dangerous characters and trimming
     const sanitizedValue = value.replace(/[<>{}()]/g, '').slice(0, 100)
     setSearchTerm(sanitizedValue)
-
-    // Immediately reset to all products when search is cleared
-    if (sanitizedValue.trim() === '') {
-      setIsSearching(false)
-      // Call clientSideFilter to properly handle all active filters (category, virtual, collaborative)
-      clientSideFilter()
-    }
   }
 
-  const filterProducts = async () => {
-    // If there's a search term, use semantic search
-    if (searchTerm && searchTerm.trim().length > 0) {
-      setIsSearching(true)
-      try {
-        const response = await fetch('/api/search', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ query: searchTerm }),
-        })
-
-        if (response.ok) {
-          const semanticResults = await response.json()
-
-          // Enrich semantic results with seller and collaboration information from the products we already have
-          const enrichedResults = semanticResults.map((result: ProductBase) => {
-            const fullProduct = products.find(p => p.id === result.id)
-            return {
-              ...result,
-              seller: fullProduct?.seller || { name: 'Unknown' },
-              isCollaborative: fullProduct?.isCollaborative || false,
-              collaborators: fullProduct?.collaborators || []
-            } as Product
-          }).filter((p: Product | null): p is Product => p !== null)
-
-          // Apply category filter if selected
-          let filtered = enrichedResults
-          if (selectedCategory) {
-            filtered = filtered.filter((product: Product) => product.category === selectedCategory)
-          }
-
-          // Apply collaborative filter if selected
-          if (showCollaborativeOnly) {
-            filtered = filtered.filter((product: Product) => product.isCollaborative)
-          }
-
-          // Apply virtual product filter if selected
-          if (showVirtualOnly) {
-            filtered = filtered.filter((product: Product) => product.is_virtual)
-          }
-
-          setFilteredProducts(filtered)
-        } else {
-          // Fallback to client-side filtering if API fails
-          console.warn('Semantic search API failed, falling back to client-side search')
-          clientSideFilter()
-        }
-      } catch (error) {
-        console.error('Error during semantic search:', error)
-        // Fallback to client-side filtering
-        clientSideFilter()
-      } finally {
-        setIsSearching(false)
-      }
-    } else {
-      // No search term, reset to client-side filtering with all products
-      setIsSearching(false)
-      clientSideFilter()
-    }
-  }
-
-  const clientSideFilter = () => {
-    let filtered = products;
-
-    // Only apply search filter if searchTerm is not empty
-    if (searchTerm && searchTerm.trim().length > 0) {
-      filtered = filtered.filter(product =>
-      (product.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.category?.toLowerCase().includes(searchTerm.toLowerCase()))
-      );
-    }
-
-    // Apply category filter if selected
-    if (selectedCategory) {
-      filtered = filtered.filter(product => product.category === selectedCategory);
-    }
-
-    // Apply collaborative filter if selected
-    if (showCollaborativeOnly) {
-      filtered = filtered.filter(product => product.isCollaborative);
-    }
-
-    // Apply virtual product filter if selected
-    if (showVirtualOnly) {
-      filtered = filtered.filter(product => product.is_virtual === true);
-    }
-
-    console.log('Client-side filter:', {
-      searchTerm,
-      selectedCategory,
-      showCollaborativeOnly,
-      showVirtualOnly,
-      totalProducts: products.length,
-      filteredCount: filtered.length
-    });
-    setFilteredProducts(filtered);
-  }
-  // Translate product titles/categories and category list for display when language changes
+  // Remove clientSideFilter, now handled by useMemo
+  // No need to translate products/categories/sellers on frontend anymore
   useEffect(() => {
-    const applyDisplayTranslations = async () => {
-      try {
-        const lang = currentLanguage
-        if (!products?.length) {
-          setDisplayProducts([])
-          // Translate categories directly for stable mapping
-          if (categories?.length) {
-            const trCatsList = await translateArray(categories, lang)
-            setDisplayCategories(trCatsList)
-          } else {
-            setDisplayCategories([])
-          }
-          return
-        }
-        const titles = products.map(p => p.title || '')
-        // Translate categories from the categories array (one-to-one mapping)
-        const trCatsList = categories?.length ? await translateArray(categories, lang) : []
-        const trTitles = await translateArray(titles, lang)
+    setDisplayProducts(products)
+    setDisplayCategories(categories)
+    setTranslatedSellerNames({})
+  }, [products, categories])
 
-        // Translate seller names
-        const uniqueSellerNames = [...new Set(products.map(p => p.seller?.name).filter(Boolean))]
-        console.log('Translating seller names:', uniqueSellerNames, 'to language:', lang)
-        const trSellerNames = await translateArray(uniqueSellerNames, lang)
-        console.log('Translated seller names result:', trSellerNames)
-        const sellerNameMap: Record<string, string> = {}
-        uniqueSellerNames.forEach((name, idx) => {
-          if (name) sellerNameMap[name] = trSellerNames[idx] || name
-        })
-        console.log('Seller name mapping:', sellerNameMap)
-        setTranslatedSellerNames(sellerNameMap)
-
-        const dp = products.map((p, idx) => {
-          const origCat = p.category
-          const catIndex = categories.findIndex(c => c === origCat)
-          const displayCat = catIndex >= 0 ? trCatsList[catIndex] || origCat : origCat
-          return { ...p, title: trTitles[idx] || p.title, category: displayCat }
-        })
-        setDisplayProducts(dp)
-        setDisplayCategories(trCatsList)
-      } catch {
-        setDisplayProducts(products)
-        setDisplayCategories(categories)
-      }
-    }
-    applyDisplayTranslations()
-  }, [products, categories, currentLanguage])
-
-  // Translate recommended list for display
+  // No need to translate recommended list on frontend anymore
   useEffect(() => {
-    const applyDisplayTranslations = async () => {
-      try {
-        const lang = i18n.language
-        if (!recommended?.length) {
-          setDisplayRecommended([])
-          return
-        }
-        const titles = recommended.map(p => p.title || '')
-        const trTitles = await translateArray(titles, lang)
-        const dp = recommended.map((p, idx) => ({ ...p, title: trTitles[idx] || p.title }))
-        setDisplayRecommended(dp)
-      } catch {
-        setDisplayRecommended(recommended)
-      }
-    }
-    applyDisplayTranslations()
-  }, [recommended, currentLanguage])
+    setDisplayRecommended(recommended)
+  }, [recommended])
 
 
   // Debounced search logging
@@ -768,165 +707,7 @@ function MarketplaceContent() {
   }, [user, searchTerm])
 
   // Fetch recommendations (client-side to leverage user session for RLS)
-  useEffect(() => {
-    const fetchRecs = async () => {
-      if (!user) return
-      try {
-        setRecLoading(true)
-        const thirtyDaysAgo = new Date(Date.now() - 1000 * 60 * 60 * 24 * 30).toISOString()
-        const { data: activities, error: actErr } = await supabase
-          .from('user_activity')
-          .select('*')
-          .eq('user_id', user.id)
-          .gte('timestamp', thirtyDaysAgo)
-
-        if (actErr) {
-          setRecommended([])
-          return
-        }
-
-        if (!activities || activities.length === 0) {
-          setRecommended([])
-          return
-        }
-
-        const { data: allProducts, error: prodErr } = await supabase
-          .from('products')
-          .select('*')
-
-        if (prodErr || !allProducts) {
-          setRecommended([])
-          return
-        }
-
-        const scores = new Map<string, number>()
-        const viewedIds = new Set<string>()
-        const viewedCategories = new Set<string>()
-        const productById = new Map<string, ProductWithFeatures>()
-        for (const p of allProducts as ProductWithFeatures[]) productById.set(p.id, p)
-
-        for (const a of activities) {
-          if (a.activity_type === 'view' && a.product_id) {
-            // Track viewed product and its category
-            viewedIds.add(a.product_id)
-            const vp = productById.get(a.product_id)
-            if (vp?.category) viewedCategories.add(String(vp.category))
-          }
-          if (a.activity_type === 'search' && a.query) {
-            const q = String(a.query).toLowerCase()
-            for (const p of allProducts) {
-              const title = (p.title || '').toLowerCase()
-              const desc = (p.description || '').toLowerCase()
-              const cat = (p.category || '').toLowerCase()
-              if (title.includes(q) || desc.includes(q) || cat.includes(q)) {
-                scores.set(p.id, (scores.get(p.id) || 0) + 2)
-              }
-            }
-          }
-        }
-
-        // Category-based: boost products in categories of viewed items, excluding the exact viewed items
-        if (viewedCategories.size > 0) {
-          for (const p of allProducts) {
-            if (viewedIds.has(p.id)) continue
-            if (p.category && viewedCategories.has(String(p.category))) {
-              scores.set(p.id, (scores.get(p.id) || 0) + 2)
-            }
-          }
-        }
-
-        // Content-based similarity: title/description token overlap with viewed products
-        const viewedProducts = [...viewedIds]
-          .map(id => productById.get(id))
-          .filter((p): p is ProductWithFeatures => Boolean(p))
-        const tokenize = (s: string) => (s || '').toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(Boolean)
-        const toSet = (arr: string[]) => new Set(arr)
-        const jaccard = (a: Set<string>, b: Set<string>) => {
-          let inter = 0
-          for (const t of a) if (b.has(t)) inter++
-          const uni = a.size + b.size - inter
-          return uni === 0 ? 0 : inter / uni
-        }
-        for (const p of allProducts as ProductWithFeatures[]) {
-          if (viewedIds.has(p.id)) continue
-          let bestSim = 0
-          for (const vp of viewedProducts) {
-            const a = toSet([...tokenize(vp.title || ''), ...tokenize(vp.description || '')])
-            const b = toSet([...tokenize(p.title || ''), ...tokenize(p.description || '')])
-            const sim = jaccard(a, b)
-            if (sim > bestSim) bestSim = sim
-          }
-          if (bestSim > 0) {
-            // scale similarity to points (0..1 -> 0..3)
-            const bonus = Math.min(3, Math.max(0, bestSim * 3))
-            scores.set(p.id, (scores.get(p.id) || 0) + bonus)
-          }
-        }
-
-        // Image-based similarity (fast): average color distance + aHash Hamming distance
-        const colorOf = (x: ProductWithFeatures | undefined | null) => x && x.image_avg_r != null ? { r: x.image_avg_r as number, g: x.image_avg_g as number, b: x.image_avg_b as number } : null
-        const aHashOf = (x: ProductWithFeatures | undefined | null) => x && x.image_ahash ? String(x.image_ahash) : null
-        for (const p of allProducts as ProductWithFeatures[]) {
-          if (viewedIds.has(p.id)) continue
-          const pc = colorOf(p)
-          const ph = aHashOf(p)
-          if (!pc && !ph) continue
-          let colorScore = 0
-          let hashScore = 0
-          for (const vp of viewedProducts) {
-            const vc = colorOf(vp)
-            const vh = aHashOf(vp)
-            if (pc && vc) {
-              const dr = pc.r - vc.r, dg = pc.g - vc.g, db = pc.b - vc.b
-              const dist = Math.sqrt(dr * dr + dg * dg + db * db) // 0..441
-              const sim = Math.max(0, 1 - dist / 441)
-              colorScore = Math.max(colorScore, sim)
-            }
-            if (ph && vh) {
-              const hd = hammingHex(ph, vh)
-              const sim = Math.max(0, 1 - hd / 64)
-              hashScore = Math.max(hashScore, sim)
-            }
-          }
-          const combined = (colorScore * 1.5) + (hashScore * 1.5) // weight up to 3 points
-          if (combined > 0) {
-            scores.set(p.id, (scores.get(p.id) || 0) + combined)
-          }
-        }
-
-        // "Exact same one in different price": boost items with very similar titles in same category but different id
-        const normalizeTitle = (s: string) => (s || '').toLowerCase().replace(/\s+/g, ' ').trim()
-        const viewedTitleNorms = new Set(viewedProducts.map(vp => normalizeTitle(vp.title)))
-        for (const p of allProducts as ProductWithFeatures[]) {
-          if (viewedIds.has(p.id)) continue
-          const nt = normalizeTitle(p.title)
-          if (viewedTitleNorms.has(nt)) {
-            scores.set(p.id, (scores.get(p.id) || 0) + 2)
-          }
-        }
-
-        if (scores.size === 0) {
-          setRecommended([])
-          return
-        }
-
-        const ranked = [...(allProducts as ProductWithFeatures[])]
-          .filter(p => scores.has(p.id) && !viewedIds.has(p.id))
-          .sort((a: ProductWithFeatures, b: ProductWithFeatures) => {
-            const sa = scores.get(a.id) || 0
-            const sb = scores.get(b.id) || 0
-            if (sb !== sa) return sb - sa
-            return (b.created_at || '').localeCompare(a.created_at || '')
-          })
-          .slice(0, 12)
-
-        setRecommended(ranked as ProductBase[])
-      } finally {
-        setRecLoading(false)
-      }
-    }
-    fetchRecs()
-  }, [user])
+  // (No direct Supabase product fetching for main grid)
 
   // Cart feedback state
   const [cartStatus, setCartStatus] = useState<'success' | 'error' | null>(null);
@@ -994,9 +775,9 @@ function MarketplaceContent() {
     setCartModalOpen(true);
   }
 
+  const showInitialSkeleton = !swrData && swrLoading
 
-
-  if (loading) {
+  if (showInitialSkeleton) {
     // Show a grid of skeleton cards matching the product grid
     return (
       <div className="min-h-screen heritage-bg py-8">
@@ -1064,7 +845,7 @@ function MarketplaceContent() {
             </div>
             <div className="w-full md:w-auto mt-4 md:mt-0 flex justify-center md:justify-end">
               <Market3DButton
-                products={filteredProducts.map(p => ({
+                products={paginatedProducts.map(p => ({
                   ...p,
                   name: typeof p.title === 'string' ? p.title : '',
                   price: p.price,
@@ -1122,7 +903,7 @@ function MarketplaceContent() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18v3m0 0h-3m3 0h3m-3-3a6 6 0 006-6V9a6 6 0 10-12 0v3a6 6 0 006 6z" />
                 </svg>
               </button>
-              {isSearching && (
+              {(swrValidating || isSearching) && (
                 <div className="absolute right-12 top-1/2 transform -translate-y-1/2">
                   <div className="w-5 h-5 border-2 border-orange-200 border-t-orange-600 rounded-full animate-spin"></div>
                 </div>
@@ -1203,7 +984,7 @@ function MarketplaceContent() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
           >
-            {filteredProducts.length === 0 ? (
+            {paginatedProducts.length === 0 ? (
               <div className="text-center py-12">
                 <Search className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                 <p className="text-[var(--muted)] text-lg">{t('marketplace.noProducts')}</p>
@@ -1212,9 +993,12 @@ function MarketplaceContent() {
             ) : (
               <>
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                  {paginatedProducts.map((product, index) => (
-                    <React.Fragment key={product.id}>
+                  {paginatedProducts.map((product, index) => {
+                    // Insert carousel after every 12 products (3 rows of 4), but ensure unique keys for all children
+                    const children = [];
+                    children.push(
                       <ProductCard
+                        key={`product-${product.id}`}
                         product={product}
                         displayProduct={displayProducts.find(p => p.id === product.id) || product}
                         translatedSellerNames={translatedSellerNames}
@@ -1230,10 +1014,10 @@ function MarketplaceContent() {
                           setArOpen(true);
                         }}
                       />
-
-                      {/* Inline Recommendation Carousel (only if user logged in and has recs) */}
-                      {(index + 1) % 12 === 0 && (index + 1) < visibleCount && user && displayRecommended.length > 0 && (
-                        <div className="col-span-full py-6 md:py-8 border-y border-heritage-gold/20 my-4 bg-[var(--bg-2)]/50 backdrop-blur-sm rounded-2xl px-3 md:px-8 overflow-hidden">
+                    );
+                    if ((index + 1) % 12 === 0 && (index + 1) < paginatedProducts.length && user && displayRecommended.length > 0) {
+                      children.push(
+                        <div key={`carousel-${index + 1}`} className="col-span-full py-6 md:py-8 border-y border-heritage-gold/20 my-4 bg-[var(--bg-2)]/50 backdrop-blur-sm rounded-2xl px-3 md:px-8 overflow-hidden">
                           <div className="flex items-center justify-between mb-4 px-1">
                             <h2 className="text-lg md:text-xl font-bold flex items-center gap-2 text-[var(--text)]">
                               <Sparkles className="w-4 h-4 md:w-5 md:h-5 text-orange-500" />
@@ -1337,13 +1121,14 @@ function MarketplaceContent() {
                             ))}
                           </Swiper>
                         </div>
-                      )}
-                    </React.Fragment>
-                  ))}
+                      );
+                    }
+                    return children;
+                  })}
                 </div>
 
                 {/* Load More Trigger */}
-                {visibleCount < filteredProducts.length && (
+                {hasMore && (
                   <div ref={loadMoreRef} className="py-12 flex justify-center">
                     <div className="flex flex-col items-center gap-2">
                       <div className="w-8 h-8 border-4 border-orange-200 border-t-orange-600 rounded-full animate-spin"></div>
@@ -1363,7 +1148,7 @@ function MarketplaceContent() {
           transition={{ duration: 0.6, delay: 0.3 }}
           className="mt-8 text-center text-[var(--muted)]"
         >
-          {t('marketplace.resultsCount', { count: paginatedProducts.length, total: products.length })}
+          {t('marketplace.resultsCount', { count: paginatedProducts.length, total: totalProducts || dedupeById(products).length })}
         </motion.div>
       </div>
 
