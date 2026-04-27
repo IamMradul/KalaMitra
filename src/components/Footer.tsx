@@ -77,9 +77,14 @@ export default function Footer() {
         {/* Brand Section */}
         <div className="space-y-6 col-span-2">
           <Link href="/" className="flex items-center gap-3">
-            <div className="relative w-24 h-24">
-              <Image src="/kalamitra-symbol.png" alt="KalaMitra Symbol" fill className="object-contain" />
-            </div>
+            <Image
+              src="/kalamitra-symbol.png"
+              alt="KalaMitra Symbol"
+              width={96}
+              height={96}
+              sizes="96px"
+              className="object-contain w-auto h-auto"
+            />
             <span className="text-2xl font-bold">{t('brand.name')}</span>
           </Link>
           <p className="max-w-lg text-[var(--muted)] leading-relaxed">

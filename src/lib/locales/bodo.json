@@ -25,7 +25,8 @@
     "submitBtn": "दान खालाम दों",
     "submitting": "गथाय गासिनो दाङ...",
     "successMsg": "नोंथांनि दाननि थाखाय बोहागोन! नोंथांनि हुखुङखौ जुङोनि गोनां गोनांथि।",
-    "closeModal": "बन्द खालाम"
+    "closeModal": "बन्द खालाम",
+    "title": "एनजिओनि थाखाय सामग्रि दान खालाम"
   },
   "stallCustomizationModal": {
     "title": "3D Stall बदलखा खालाम",
@@ -271,7 +272,8 @@
     "india": "भारत",
     "english": "इंराजी",
     "following": "फलावदों",
-    "follow": "फलाव"
+    "follow": "फलाव",
+    "memberSince": "मेम्बार नोंथि"
   },
   "navbar": {
     "home": "हम",
@@ -1085,7 +1087,8 @@
   },
   "leaderboard": {
     "title": "लिडारबर्ड",
-    "desc": "MitraPoints आसाद टप किनग्रा फोर (निलाम जिउनायनि थाखाय एवार्ड होनाय)।"
+    "desc": "MitraPoints आसाद टप किनग्रा फोर (निलाम जिउनायनि थाखाय एवार्ड होनाय)।",
+    "auctionsWon": "जितनाय निलाम"
   },
   "dm": {
     "newGroupChat": "+ गोदान Group च्याट",

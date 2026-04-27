@@ -25,7 +25,8 @@
     "submitBtn": "য়ুম্হৌৱ্রে লৌরিবা",
     "submitting": "দজদুনা লৈব্রবা...",
     "successMsg": "নংসীবু লৌরিবাগী দেম্বা শুক্রিয়ানা! ইকাইখীবু পুনা-শক্তেগী মমা ওইরিবানি।",
-    "closeModal": "খুম্নবী"
+    "closeModal": "খুম্নবী",
+    "title": "NGO-gi damak potshing khudol pibu"
   },
   "stallCustomizationModal": {
     "title": "3D ꯁ꯭ꯇꯣꯜ ꯀꯁ꯭ꯇꯦꯃꯥꯏꯖꯦꯁꯟ",
@@ -271,7 +272,8 @@
     "india": "ꯏꯟꯗꯤꯌꯥ",
     "english": "ꯏꯪꯂꯤꯁ",
     "following": "ꯐꯣꯂꯣꯋꯤꯡ",
-    "follow": "ꯐꯣꯂꯣꯋꯒꯜ"
+    "follow": "ꯐꯣꯂꯣꯋꯒꯜ",
+    "memberSince": "মেম্বর ওইরবা মতুংদা"
   },
   "navbar": {
     "home": "ꯍꯣꯝ",
@@ -1085,7 +1087,8 @@
   },
   "leaderboard": {
     "title": "ꯂꯤꯗꯔꯕꯣꯔꯗ",
-    "desc": "ꯃꯤꯇ꯭ꯔꯥꯄꯣꯏꯟꯇꯁꯤꯡꯒꯤ ꯃꯇꯥꯡꯗꯥ ꯇꯣꯞꯒꯤ ꯍꯤꯕꯤꯕꯁꯤꯡ (ꯑꯣꯛꯁꯟꯒꯤꯗꯃꯛ ꯋꯤꯟꯁꯤꯡꯒꯤꯗꯃꯛ ꯑꯋꯥꯡꯕꯥ)꯫"
+    "desc": "ꯃꯤꯇ꯭ꯔꯥꯄꯣꯏꯟꯇꯁꯤꯡꯒꯤ ꯃꯇꯥꯡꯗꯥ ꯇꯣꯞꯒꯤ ꯍꯤꯕꯤꯕꯁꯤꯡ (ꯑꯣꯛꯁꯟꯒꯤꯗꯃꯛ ꯋꯤꯟꯁꯤꯡꯒꯤꯗꯃꯛ ꯑꯋꯥꯡꯕꯥ)꯫",
+    "auctionsWon": "mayam piba auction-sing"
   },
   "dm": {
     "newGroupChat": "+ ꯅꯋꯥ ꯒ꯭ꯔꯨꯞꯒꯤꯗꯃꯛ ꯆꯦꯠ",

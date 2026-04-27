@@ -600,7 +600,7 @@ export default function Navbar() {
             {/* Logo placeholder */}
             <div className="flex items-center space-x-4 group">
               <div className="relative w-14 h-14 flex items-center justify-center">
-                <Image src="/kalamitra-symbol.png" alt="KalaMitra Symbol" width={56} height={56} className="object-contain" />
+                <Image src="/kalamitra-symbol.png" alt="KalaMitra Symbol" width={56} height={56} className="object-contain w-auto h-auto" />
               </div>
               <span className="text-3xl font-bold heritage-title">KalaMitra</span>
             </div>
@@ -671,7 +671,7 @@ export default function Navbar() {
           <div className="flex items-center space-x-4 group">
             <Link href="/" className="flex items-center space-x-4 group">
               <div className="relative w-14 h-14 flex items-center justify-center group-hover:scale-110 transition-all duration-500">
-                <Image src="/kalamitra-symbol.png" alt="KalaMitra Symbol" width={56} height={56} className="object-contain drop-shadow-md" priority />
+                <Image src="/kalamitra-symbol.png" alt="KalaMitra Symbol" width={56} height={56} className="object-contain drop-shadow-md w-auto h-auto" priority />
               </div>
               <span className="text-3xl font-bold heritage-title hidden md:inline" key={`brand-${currentLanguage}`}>{t('brand.name')}</span>
               {/* Mobile: Show "KM" when signed in, "KalaMitra" when not */}

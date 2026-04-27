@@ -144,6 +144,7 @@ interface NavigatorProps {
     });
   }, [visibleSellers, sellerNameMap, stallCustomizations]);
 
+  // Initialize 3D renderer/scene once per theme, not per page change.
   useEffect(() => {
     let disposed = false;
     const canvas = canvasRef.current;
@@ -153,90 +154,10 @@ interface NavigatorProps {
         sceneRef.current.dispose();
         sceneRef.current = null;
       }
-      // Pass stalls with addAvatar flag to scene, and theme
       const scene = await initMarketplaceScene(canvas, stalls, isLightTheme);
-      if (!disposed) {
-        sceneRef.current = scene;
-        // --- Camera and controls adjustment for paginated stalls ---
-        // Use only visible stalls for initial camera position
-        if (scene.controls) {
-          const visibleRows = Math.ceil(stalls.length / 3);
-          scene.controls.maxDistance = Math.max(35, 18 * (visibleRows + 2));
-          scene.controls.minDistance = 2;
-          scene.controls.enablePan = true;
-          scene.controls.enableZoom = true;
-          scene.controls.enableRotate = true;
-          scene.controls.dampingFactor = 0.18;
-          scene.controls.rotateSpeed = 1.1;
-          scene.controls.panSpeed = 1.1;
-          scene.controls.zoomSpeed = 1.1;
-          scene.controls.screenSpacePanning = true;
-          // If no focusSellerId, start from last gate (behind last row of visible stalls)
-          if (!focusSellerId) {
-            const rowSpacing = 14;
-            const gateZ = (visibleRows - 0.5) * rowSpacing + rowSpacing * 0.7;
-            const insideOffset = -20;
-            scene.controls.target.set(0, 1.2, gateZ + insideOffset);
-            if (scene.camera) {
-              scene.camera.position.set(8, 6, gateZ + 12 + insideOffset);
-            }
-          } else {
-            // Target center row by default (visible stalls)
-            scene.controls.target.set(0, 1.2, (visibleRows > 2 ? ((visibleRows - 1) * 7) : 0));
-            if (scene.camera) {
-              scene.camera.position.set(8, 6 + Math.max(0, visibleRows - 2) * 2, 12 + Math.max(0, visibleRows - 2) * 10);
-            }
-          }
-        }
-        scene.start();
-        // If focusSellerId is provided, robustly simulate a 'goto-stall' click for the focused seller
-        if (focusSellerId) {
-          const stall = scene.stalls.find((s) => s.sellerId === focusSellerId);
-          if (stall && stall.gotoButton) {
-            // Enable carousel arrows for focused stall
-            scene.stalls.forEach((s) => {
-              const group = s.group as typeof s.group & StallCarousel;
-              if (group && typeof group.setFocused === 'function') {
-                group.setFocused(false);
-              }
-            });
-            const group = stall.group as typeof stall.group & StallCarousel;
-            if (group && typeof group.setFocused === 'function') {
-              group.setFocused(true);
-            }
-            // Tween camera and controls target toward this stall
-            const cam = scene.camera;
-            const controls = scene.controls;
-            const btnWorldPos = new THREE.Vector3();
-            stall.gotoButton.getWorldPosition(btnWorldPos);
-            const endTarget = btnWorldPos.clone();
-            endTarget.y += 1.2;
-            const stallCenter = new THREE.Vector3().setFromMatrixPosition(stall.group.matrixWorld);
-            const dir = btnWorldPos.clone().sub(stallCenter).normalize();
-            const endPos = btnWorldPos.clone().add(dir.multiplyScalar(6 + Math.max(0, maxRows - 2) * 2)).setY(btnWorldPos.y + 3 + Math.max(0, maxRows - 2) * 2);
-            const startPos = cam.position.clone();
-            const startTarget = controls.target.clone();
-            const start = performance.now();
-            const duration = 700;
-            const animateTween = () => {
-              const t = Math.min(1, (performance.now() - start) / duration);
-              const ease = t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
-              cam.position.lerpVectors(startPos, endPos, ease);
-              controls.target.lerpVectors(startTarget, endTarget, ease);
-              controls.update();
-              if (t < 1) requestAnimationFrame(animateTween);
-            };
-            requestAnimationFrame(animateTween);
-            // Trigger welcome message narration if available
-            const customization = stallCustomizations[focusSellerId];
-            if (customization && customization.welcome_message && typeof window !== 'undefined' && 'speechSynthesis' in window) {
-              const utter = new window.SpeechSynthesisUtterance(customization.welcome_message);
-              utter.rate = 1.05;
-              window.speechSynthesis.speak(utter);
-            }
-          }
-        }
-      }
+      if (disposed) return;
+      sceneRef.current = scene;
+      scene.start();
     })();
     return () => {
       disposed = true;
@@ -245,7 +166,75 @@ interface NavigatorProps {
         sceneRef.current = null;
       }
     };
-  }, [stalls, isLightTheme, focusSellerId]);
+  }, [isLightTheme]);
+
+  // Update stalls on page changes without recreating the renderer.
+  useEffect(() => {
+    const current = sceneRef.current;
+    if (!current) return;
+    (async () => {
+      await current.updateStalls(stalls);
+      // Re-apply controls tuning after update
+      const visibleRows = Math.ceil(stalls.length / 3);
+      current.controls.maxDistance = Math.max(35, 18 * (visibleRows + 2));
+      current.controls.minDistance = 2;
+      current.controls.enablePan = true;
+      current.controls.enableZoom = true;
+      current.controls.enableRotate = true;
+      current.controls.dampingFactor = 0.18;
+      current.controls.rotateSpeed = 1.1;
+      current.controls.panSpeed = 1.1;
+      current.controls.zoomSpeed = 1.1;
+      current.controls.screenSpacePanning = true;
+
+      // Re-apply focused seller tween without recreating renderer/scene.
+      if (focusSellerId) {
+        const stall = current.stalls.find((s) => s.sellerId === focusSellerId);
+        if (stall && stall.gotoButton) {
+          current.stalls.forEach((s) => {
+            const g = s.group as typeof s.group & StallCarousel;
+            if (g && typeof g.setFocused === 'function') g.setFocused(false);
+          });
+          const group = stall.group as typeof stall.group & StallCarousel;
+          if (group && typeof group.setFocused === 'function') group.setFocused(true);
+
+          const cam = current.camera;
+          const controls = current.controls;
+          const btnWorldPos = new THREE.Vector3();
+          stall.gotoButton.getWorldPosition(btnWorldPos);
+          const endTarget = btnWorldPos.clone();
+          endTarget.y += 1.2;
+          const stallCenter = new THREE.Vector3().setFromMatrixPosition(stall.group.matrixWorld);
+          const dir = btnWorldPos.clone().sub(stallCenter).normalize();
+          const endPos = btnWorldPos
+            .clone()
+            .add(dir.multiplyScalar(6 + Math.max(0, maxRows - 2) * 2))
+            .setY(btnWorldPos.y + 3 + Math.max(0, maxRows - 2) * 2);
+
+          const startPos = cam.position.clone();
+          const startTarget = controls.target.clone();
+          const start = performance.now();
+          const duration = 700;
+          const animateTween = () => {
+            const t = Math.min(1, (performance.now() - start) / duration);
+            const ease = t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+            cam.position.lerpVectors(startPos, endPos, ease);
+            controls.target.lerpVectors(startTarget, endTarget, ease);
+            controls.update();
+            if (t < 1) requestAnimationFrame(animateTween);
+          };
+          requestAnimationFrame(animateTween);
+
+          const customization = stallCustomizations[focusSellerId];
+          if (customization?.welcome_message && typeof window !== 'undefined' && 'speechSynthesis' in window) {
+            const utter = new window.SpeechSynthesisUtterance(customization.welcome_message);
+            utter.rate = 1.05;
+            window.speechSynthesis.speak(utter);
+          }
+        }
+      }
+    })();
+  }, [stalls, focusSellerId, stallCustomizations, maxRows]);
 
   const onClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const current = sceneRef.current;
