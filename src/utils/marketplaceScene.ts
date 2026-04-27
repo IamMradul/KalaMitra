@@ -80,6 +80,7 @@ export interface MarketplaceRefs {
   renderer: WebGLRenderer;
   controls: OrbitControls;
   stalls: MarketStall[];
+  updateStalls: (stallsInput: StallInput[]) => Promise<void>;
   resize: () => void;
   dispose: () => void;
   start: () => void;
@@ -288,6 +289,14 @@ export async function initMarketplaceScene(
   }
 
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+  // WebGL2 restriction: texImage3D does not allow UNPACK_FLIP_Y / UNPACK_PREMULTIPLY_ALPHA.
+  // When we recreate renderers (e.g. on bazaar page changes), ensuring a clean pixelStore
+  // state reduces warnings and helps avoid context instability.
+  try {
+    const gl = renderer.getContext();
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+    gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+  } catch {}
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
   renderer.shadowMap.enabled = true;
@@ -479,25 +488,65 @@ export async function initMarketplaceScene(
     addMoon();
   }
 
-  const stalls: MarketStall[] = [];
-  // ...existing code...
-  // Fetch seller names from Supabase for label display
-  const sellerIds = stallsInput.map(s => s.sellerId);
-  const { data: profiles, error } = await supabase
-    .from('profiles')
-    .select('id, name')
-    .in('id', sellerIds);
-  if (error) {
-    console.warn('Error fetching seller profiles:', error);
-  }
-  const sellerNameMap: Record<string, string> = {};
-  if (profiles) {
-    profiles.forEach((profile: { id: string; name: string }) => {
-      sellerNameMap[profile.id] = profile.name;
-    });
-  }
+  let stalls: MarketStall[] = [];
 
-  stallsInput.forEach((stall, idx) => {
+  const disposeGroupDeep = (root: Group) => {
+    root.traverse((obj: Object3D) => {
+      const mesh = obj as unknown as Mesh;
+      const anyObj = obj as unknown as { material?: any; geometry?: any };
+      if (mesh && (mesh as any).isMesh) {
+        // Dispose geometry
+        if (anyObj.geometry && typeof anyObj.geometry.dispose === 'function') {
+          anyObj.geometry.dispose();
+        }
+        // Dispose material(s) + textures
+        const mats = Array.isArray(anyObj.material) ? anyObj.material : [anyObj.material];
+        for (const m of mats) {
+          if (!m) continue;
+          if (m.map && typeof m.map.dispose === 'function') m.map.dispose();
+          if (m.alphaMap && typeof m.alphaMap.dispose === 'function') m.alphaMap.dispose();
+          if (m.emissiveMap && typeof m.emissiveMap.dispose === 'function') m.emissiveMap.dispose();
+          if (m.normalMap && typeof m.normalMap.dispose === 'function') m.normalMap.dispose();
+          if (m.roughnessMap && typeof m.roughnessMap.dispose === 'function') m.roughnessMap.dispose();
+          if (m.metalnessMap && typeof m.metalnessMap.dispose === 'function') m.metalnessMap.dispose();
+          if (typeof m.dispose === 'function') m.dispose();
+        }
+      }
+    });
+  };
+
+  const clearStalls = () => {
+    stalls.forEach((s) => {
+      try {
+        scene.remove(s.group);
+      } catch {}
+      try {
+        disposeGroupDeep(s.group);
+      } catch {}
+    });
+    stalls = [];
+  };
+
+  const buildStalls = async (nextInput: StallInput[]) => {
+    clearStalls();
+
+    // Fetch seller names from Supabase for label display
+    const sellerIds = nextInput.map(s => s.sellerId);
+    const { data: profiles, error } = await supabase
+      .from('profiles')
+      .select('id, name')
+      .in('id', sellerIds);
+    if (error) {
+      console.warn('Error fetching seller profiles:', error);
+    }
+    const sellerNameMap: Record<string, string> = {};
+    if (profiles) {
+      profiles.forEach((profile: { id: string; name: string }) => {
+        sellerNameMap[profile.id] = profile.name;
+      });
+    }
+
+    nextInput.forEach((stall, idx) => {
     // 1. THEME: Choose stall structure based on theme
     let sGroup: Group;
     switch (stall.stallTheme) {
@@ -604,7 +653,9 @@ export async function initMarketplaceScene(
       head.position.y = 4.2;
       const light = new THREE.PointLight(0xffe6a8, 1.0, 14, 2);
       light.position.copy(head.position);
-      light.castShadow = true;
+      // Important: avoid too many shadow maps (GPU texture unit limit ~16).
+      // Only the main directional light casts shadows; stall point lights do not.
+      light.castShadow = false;
       lamp.add(pole, head, light);
       lamp.position.set(offsetX, 0, offsetZ);
       return lamp;
@@ -760,28 +811,13 @@ export async function initMarketplaceScene(
           arrowLabel = null;
         }
       };
-      // Animate arrows: color pulse (blue to yellow)
-      const pulseArrows = () => {
-        const t = performance.now() * 0.001;
-        // Pulse between blue and yellow
-        const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
-        const pulse = (Math.sin(t * 2.2) + 1) / 2; // 0 to 1
-        // Blue: 0x3b82f6, Yellow: 0xfbbf24
-        const colorA = { r: 0x3b / 255, g: 0x82 / 255, b: 0xf6 / 255 };
-        const colorB = { r: 0xfb / 255, g: 0xbf / 255, b: 0x24 / 255 };
-        const r = lerp(colorA.r, colorB.r, pulse);
-        const g = lerp(colorA.g, colorB.g, pulse);
-        const b = lerp(colorA.b, colorB.b, pulse);
-        const newColor = new THREE.Color(r, g, b);
-        if (leftArrow && leftArrow.material && 'color' in leftArrow.material) {
-          (leftArrow.material as InstanceType<typeof THREE.MeshStandardMaterial>).color.copy(newColor);
-        }
-        if (rightArrow && rightArrow.material && 'color' in rightArrow.material) {
-          (rightArrow.material as InstanceType<typeof THREE.MeshStandardMaterial>).color.copy(newColor);
-        }
-        requestAnimationFrame(pulseArrows);
-      };
-      pulseArrows();
+      // Keep arrows static to avoid spawning unbounded RAF loops per stall instance.
+      if (leftArrow?.material && 'color' in leftArrow.material) {
+        (leftArrow.material as InstanceType<typeof THREE.MeshStandardMaterial>).color.set(0x3b82f6);
+      }
+      if (rightArrow?.material && 'color' in rightArrow.material) {
+        (rightArrow.material as InstanceType<typeof THREE.MeshStandardMaterial>).color.set(0x3b82f6);
+      }
     }
 
     // 7. GO TO BUTTON
@@ -793,8 +829,12 @@ export async function initMarketplaceScene(
     gotoBtn.userData = { action: 'goto-stall', sellerId: stall.sellerId };
     sGroup.add(gotoBtn);
 
-    stalls.push({ sellerId: stall.sellerId, group: sGroup, billboards, gotoButton: gotoBtn });
-  });
+      stalls.push({ sellerId: stall.sellerId, group: sGroup, billboards, gotoButton: gotoBtn });
+    });
+  };
+
+  // initial build
+  await buildStalls(stallsInput);
   // --- MINIMAP SETUP ---
   // Create a small top-down orthographic camera that will render a portion of the scene as a minimap
   const minimap: {
@@ -958,6 +998,11 @@ export async function initMarketplaceScene(
 
   // Create a dedicated small WebGL renderer for the minimap
   const minimapRenderer = new THREE.WebGLRenderer({ canvas: minimapOverlay, antialias: true, alpha: true });
+  try {
+    const gl2 = minimapRenderer.getContext();
+    gl2.pixelStorei(gl2.UNPACK_FLIP_Y_WEBGL, false);
+    gl2.pixelStorei(gl2.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+  } catch {}
   minimapRenderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
   minimapRenderer.setClearColor(0x000000, 0); // transparent background
 
@@ -1243,7 +1288,12 @@ function createStallStructureFestive(decor?: Record<string, string | number | bo
   // Add extra banners (gold, pink, blue)
   const bannerColors = [0xffcc00, 0xe84393, 0x3b82f6];
   for (let i = -3; i <= 3; i++) {
-    const banner = new THREE.Mesh(new THREE.PlaneGeometry(0.7, 0.22), new THREE.MeshStandardMaterial({ color: bannerColors[i % bannerColors.length], emissive: bannerColors[i % bannerColors.length], emissiveIntensity: 0.18 }));
+    const colorIdx = ((i % bannerColors.length) + bannerColors.length) % bannerColors.length;
+    const color = bannerColors[colorIdx] ?? 0xffcc00;
+    const banner = new THREE.Mesh(
+      new THREE.PlaneGeometry(0.7, 0.22),
+      new THREE.MeshStandardMaterial({ color, emissive: color, emissiveIntensity: 0.18 })
+    );
     banner.position.set(i, 3.7, 1.3);
     group.add(banner);
   }
@@ -1427,6 +1477,7 @@ function createStallStructureFestive(decor?: Record<string, string | number | bo
 
   const dispose = () => {
     stop();
+    window.removeEventListener('resize', onResize);
     controls.dispose();
     // disable scissor
     try { renderer.setScissorTest(false); } catch (e) {}
@@ -1447,18 +1498,31 @@ function createStallStructureFestive(decor?: Record<string, string | number | bo
       }
       // dispose minimap renderer and remove overlay
       try {
-        minimapRenderer.forceContextLoss();
+        minimapRenderer.dispose();
+        // Explicitly release WebGL context so frequent open/close does not exhaust context quota.
+        if (typeof (minimapRenderer as unknown as { forceContextLoss?: () => void }).forceContextLoss === 'function') {
+          (minimapRenderer as unknown as { forceContextLoss: () => void }).forceContextLoss();
+        }
       } catch (e) {}
       try {
         if (minimapOverlay && minimapOverlay.parentElement) minimapOverlay.parentElement.removeChild(minimapOverlay);
       } catch (e) {}
+    } catch (e) {}
+    try {
+      if (typeof (renderer as unknown as { forceContextLoss?: () => void }).forceContextLoss === 'function') {
+        (renderer as unknown as { forceContextLoss: () => void }).forceContextLoss();
+      }
     } catch (e) {}
     renderer.dispose();
   };
 
   window.addEventListener('resize', onResize);
 
-  return { scene, camera, renderer, controls, stalls, resize: onResize, dispose, start, stop };
+  const updateStalls = async (nextInput: StallInput[]) => {
+    await buildStalls(nextInput);
+  };
+
+  return { scene, camera, renderer, controls, stalls, updateStalls, resize: onResize, dispose, start, stop };
 }
 
 

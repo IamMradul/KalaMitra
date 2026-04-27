@@ -68,7 +68,7 @@ export default function AuctionWidget({ productId }: Props) {
         .eq('product_id', productId)
         .order('created_at', { ascending: false })
         .limit(1)
-        .single()
+        .maybeSingle()
 
       if (data) {
         setAuction(data)

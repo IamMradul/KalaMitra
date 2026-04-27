@@ -7,7 +7,11 @@ const MarketplaceStalls3D = dynamic(() => import('./MarketplaceStalls3D'), { ssr
 import { Product } from '../types/product';
 
 // Extend Product type to include seller_id if not present
-type ProductWithSeller = Product & { seller_id: string; sellerName?: string };
+type ProductWithSeller = Product & {
+  seller_id: string;
+  sellerName?: string;
+  seller?: { name?: string } | null;
+};
 
 interface Market3DButtonProps {
   products: Product[];
@@ -16,17 +20,54 @@ interface Market3DButtonProps {
 }
 
 export default function Market3DButton({ products, onAddToCart, onViewDetails }: Market3DButtonProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [open, setOpen] = useState(false);
+  const [bazaarProducts, setBazaarProducts] = useState<Product[]>(products);
+  const [loadingBazaar, setLoadingBazaar] = useState(false);
+
+  const loadBazaarProducts = async () => {
+    setLoadingBazaar(true);
+    try {
+      const lang = i18n?.language || 'en';
+      // Independent paginated fetch: not tied to marketplace filters/pagination.
+      const pageSize = 50;
+      let page = 1;
+      let totalPages = 1;
+      const aggregated: Product[] = [];
+
+      do {
+        const res = await fetch(
+          `/api/marketplace/bazaar?page=${page}&pageSize=${pageSize}&lang=${encodeURIComponent(lang)}`
+        );
+        if (!res.ok) throw new Error('Failed to fetch bazaar products');
+        const json = await res.json();
+        const pageItems = Array.isArray(json?.products) ? json.products : [];
+        aggregated.push(...pageItems);
+        totalPages = Number.isFinite(json?.totalPages) ? Number(json.totalPages) : page;
+        page += 1;
+      } while (page <= totalPages);
+
+      const deduped = Array.from(
+        new Map(aggregated.map((p: Product) => [p.id, p])).values()
+      );
+      setBazaarProducts(deduped);
+    } catch {
+      // Keep existing list as fallback
+      setBazaarProducts(products);
+    } finally {
+      setLoadingBazaar(false);
+    }
+  };
 
   // Group products by a seller key. Adjust mapping to your actual data.
   const sellers: SellerGroup[] = useMemo(() => {
     // Group products by sellerId
     const map = new Map<string, { sellerName: string; items: ProductWithSeller[] }>();
-    (products as ProductWithSeller[]).forEach((p) => {
-      const sellerId = p.seller_id;
-      const sellerName = p.sellerName || sellerId;
-      const current = map.get(sellerId) ?? { sellerName, items: [] };
+    (bazaarProducts as ProductWithSeller[]).forEach((p, idx) => {
+      const sellerId = p.seller_id || `unknown-seller-${idx}`;
+      const sellerName = p.sellerName || p.seller?.name || sellerId;
+      const current: { sellerName: string; items: ProductWithSeller[] } =
+        map.get(sellerId) ?? { sellerName, items: [] };
       current.items.push(p);
       map.set(sellerId, current);
     });
@@ -62,19 +103,23 @@ export default function Market3DButton({ products, onAddToCart, onViewDetails }:
       }
       return stalls;
     }
-  }, [products]);
+  }, [bazaarProducts]);
 
   return (
     <>
       <button
         id="joyride-3d-bazaar-btn"
         type="button"
-        onClick={() => setOpen(true)}
+        onClick={async () => {
+          await loadBazaarProducts();
+          setOpen(true);
+        }}
+        disabled={loadingBazaar}
         className="inline-flex items-center gap-2 rounded-lg px-5 py-3 font-semibold text-white bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 dark:from-indigo-700 dark:via-purple-700 dark:to-pink-700 shadow-lg hover:scale-105 hover:shadow-xl transition-all duration-200"
         style={{ minWidth: 180 }}
       >
         <Shapes className="w-5 h-5 text-white drop-shadow" />
-        {t('home.explore3dBazaar')}
+        {loadingBazaar ? (t('common.loading') || 'Loading...') : t('home.explore3dBazaar')}
       </button>
 
       <MarketplaceStalls3D

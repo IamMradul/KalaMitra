@@ -125,6 +125,20 @@ export default function Home() {
           muted
           playsInline
           onEnded={handleEnded}
+          ref={(el) => {
+            if (el) {
+              const playPromise = el.play();
+              if (playPromise !== undefined) {
+                playPromise.catch((error) => {
+                  if (error.name === 'AbortError') {
+                    // Ignore abort error which happens when component is unmounted or navigation happens
+                    return;
+                  }
+                  console.error("Video play failed:", error);
+                });
+              }
+            }
+          }}
           className="absolute inset-0 w-full h-full object-cover z-0 transition-opacity duration-1000"
         />
         {/* Overlay for better contrast */}

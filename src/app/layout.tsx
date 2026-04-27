@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
-import './globals.css'
+import '@/app/globals.css'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import { LanguageProvider } from '@/components/LanguageProvider'
@@ -22,7 +22,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
+    <html lang="en" data-scroll-behavior="smooth">
       <head>
         <link rel="icon" type="image/png" href="/favicon.png" />
         <link rel="apple-touch-icon" href="/favicon.png" />

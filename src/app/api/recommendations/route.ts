@@ -2,9 +2,11 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 import type { Database } from '@/lib/supabase'
 
+
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
   const userId = searchParams.get('userId')
+  const lang = searchParams.get('lang') || 'en'
   if (!userId) return NextResponse.json({ products: [] })
 
   try {
@@ -15,10 +17,11 @@ export async function GET(req: NextRequest) {
       .eq('user_id', userId)
       .gte('timestamp', new Date(Date.now() - 1000 * 60 * 60 * 24 * 30).toISOString())
 
-    // Get all products
+
+    // Get all products (with seller info)
     const { data: allProducts } = await supabase
       .from('products')
-      .select('*')
+      .select('*, seller:profiles(name)')
 
     if (!allProducts || allProducts.length === 0) {
       return NextResponse.json({ products: [] })
@@ -98,7 +101,8 @@ export async function GET(req: NextRequest) {
     }
 
     // Rank by score then recency tie-breaker
-    const ranked = [...(allProducts as Database['public']['Tables']['products']['Row'][])]
+
+    let ranked = [...(allProducts as any[])]
       .filter(p => scores.has(p.id) && !viewedProductIds.has(p.id)) // Exclude already viewed
       .sort((a, b) => {
         const sa = scores.get(a.id) || 0
@@ -107,6 +111,69 @@ export async function GET(req: NextRequest) {
         return (b.created_at || '').localeCompare(a.created_at || '')
       })
       .slice(0, 12)
+
+    // Translate product title, category, and seller name if not English
+    if (lang && lang !== 'en' && ranked.length > 0) {
+      try {
+        const titles = ranked.map((p: any) => p.title || '')
+        const categories = ranked.map((p: any) => p.category || '')
+        const sellerNames = ranked.map((p: any) => (p.seller?.name || ''))
+
+        // Use absolute URL on server (relative fetch can fail) and make only ONE translate call.
+        const combined = [...titles, ...categories, ...sellerNames]
+        const hasAnythingToTranslate = combined.some((s) => typeof s === 'string' && s.trim().length > 0)
+        if (!hasAnythingToTranslate) {
+          return NextResponse.json({ products: ranked })
+        }
+
+        const baseUrl = new URL(req.url).origin
+        // Pre-dedupe repeated strings (e.g. same seller name many times)
+        const unique: string[] = []
+        const positions = new Map<string, number[]>()
+        combined.forEach((txt, idx) => {
+          const key = String(txt ?? '')
+          const arr = positions.get(key)
+          if (arr) {
+            arr.push(idx)
+          } else {
+            positions.set(key, [idx])
+            unique.push(key)
+          }
+        })
+
+        const trUnique = await fetch(`${baseUrl}/api/translate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ q: unique, target: lang }),
+        }).then(res => res.ok ? res.json() : { translations: unique })
+
+        const uniqueTranslations: string[] = Array.isArray(trUnique?.translations) ? trUnique.translations : unique
+        const translations = combined.slice()
+        uniqueTranslations.forEach((tr, uIdx) => {
+          const original = unique[uIdx]
+          const idxs = positions.get(original) || []
+          for (const i of idxs) translations[i] = tr || original
+        })
+        const n = ranked.length
+        const trTitles = translations.slice(0, n)
+        const trCategories = translations.slice(n, n * 2)
+        const trSellerNames = translations.slice(n * 2, n * 3)
+
+        ranked = ranked.map((p: any, idx: number) => ({
+          ...p,
+          title: trTitles[idx] || p.title,
+          category: trCategories[idx] || p.category,
+          seller: {
+            ...p.seller,
+            name: trSellerNames[idx] || (p.seller?.name || ''),
+          },
+        }))
+      } catch (err) {
+        // If translation fails, fallback to original
+        // eslint-disable-next-line no-console
+        console.error('Translation error in recommendations API:', err)
+      }
+    }
 
     return NextResponse.json({ products: ranked })
   } catch (error) {

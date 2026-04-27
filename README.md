@@ -204,6 +204,11 @@ KalaMitra/
 │   │   │   │   └── route.ts
 │   │   │   ├── placeholder/
 │   │   │   │   └── route.ts
+│   │   │   ├── marketplace/
+│   │   │   |   ├──products/
+│   │   │   |   |   └── route.ts
+│   │   │   |   ├──bazaar/
+│   │   │   |   |   └── route.ts
 │   │   │   ├── recommendations/
 │   │   │   │   └── route.ts
 │   │   │   ├── refine-tutorial/
@@ -358,6 +363,7 @@ KalaMitra/
 │   │   ├── product.ts
 │   │   ├── speech.d.ts
 |   |   ├── swiper.d.ts
+|   |   ├── css.d.ts
 │   │   └── three-shims.d.ts
 │   └── utils/
 │       ├── marketplaceScene.ts

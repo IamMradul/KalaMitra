@@ -25,7 +25,8 @@
     "submitBtn": "हुणे दान करो",
     "submitting": "भेजा जा रिया ऐ...",
     "successMsg": "तुहाडे दान दा धन्यवाद! असीं तुहाडी मदद दी कदर करदे आं।",
-    "closeModal": "बंद करो"
+    "closeModal": "बंद करो",
+    "title": "ਐਨਜੀਓ ਲई ਸਮਾਨ ਦਾਨ करो"
   },
   "stallCustomizationModal": {
     "title": "3D स्टाल कस्टमाइज करो",
@@ -271,7 +272,8 @@
     "india": "भारत",
     "english": "अंग्रेजी",
     "following": "फॉलो कर रहे ओ",
-    "follow": "फॉलो करो"
+    "follow": "फॉलो करो",
+    "memberSince": "सदस्य बने दे बाद"
   },
   "navbar": {
     "home": "होम",
@@ -1087,7 +1089,8 @@
   },
   "leaderboard": {
     "title": "लीडरबोर्ड",
-    "desc": "MitraPoints अनुसार शीर्ष खरीदार (नीलामी जीतने पर दिए जाते हैं)।"
+    "desc": "MitraPoints अनुसार शीर्ष खरीदार (नीलामी जीतने पर दिए जाते हैं)।",
+    "auctionsWon": "जीते दे नीलाम"
   },
   "dm": {
     "newGroupChat": "+ नवां ग्रुप चैट",

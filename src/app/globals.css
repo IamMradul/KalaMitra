@@ -948,8 +948,8 @@ body {
   will-change: transform;
 }
 
-/* Smooth scroll behavior */
-html {
+/* Smooth scroll behavior (avoid Next.js html smooth-scroll warning) */
+body {
   scroll-behavior: smooth;
 }
 

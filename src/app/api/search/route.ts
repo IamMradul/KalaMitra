@@ -74,10 +74,32 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Failed to match products' }, { status: 500 });
     }
 
-    console.log('Matched products count:', data?.length || 0);
-    console.log('Sample results:', data?.slice(0, 2));
+    // Attach seller names so semantic search results are self-sufficient in UI.
+    const sellerIds = [...new Set((data || []).map((p: any) => p?.seller_id).filter(Boolean))] as string[]
+    const sellerNameMap = new Map<string, string>()
+    if (sellerIds.length > 0) {
+      const { data: sellerRows, error: sellerError } = await supabase
+        .from('profiles')
+        .select('id, name')
+        .in('id', sellerIds)
+      if (sellerError) {
+        console.warn('Error fetching seller names for search results:', sellerError)
+      } else {
+        for (const row of sellerRows || []) {
+          if (row?.id) sellerNameMap.set(row.id, row.name || 'Unknown')
+        }
+      }
+    }
 
-    return NextResponse.json(data);
+    const enrichedData = (data || []).map((p: any) => ({
+      ...p,
+      seller: { name: sellerNameMap.get(p?.seller_id) || 'Unknown' },
+    }))
+
+    console.log('Matched products count:', data?.length || 0);
+    console.log('Sample results:', enrichedData?.slice(0, 2));
+
+    return NextResponse.json(enrichedData);
   } catch (e) {
     console.error(e);
     return NextResponse.json({ error: 'An unexpected error occurred' }, { status: 500 });

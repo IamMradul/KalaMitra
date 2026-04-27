@@ -4,6 +4,9 @@ import { NextRequest, NextResponse } from 'next/server'
 const cache = new Map<string, { v: string; t: number }>()
 const TTL_MS = 1000 * 60 * 60 * 24 * 7 // 7 days
 const GEMINI_MODEL = process.env.NEXT_PUBLIC_GEMINI_MODEL || 'gemini-2.5-flash'
+// If Google starts returning 403/quota/billing errors, stop hammering it for a bit.
+const googleDisabledUntil = new Map<string, number>()
+const GOOGLE_COOLDOWN_MS = 1000 * 60 * 10 // 10 minutes
 
 function getTargetFromAppLang(appLang: string): string | null {
   // Accept both canonical and alternate spellings from locale filenames
@@ -81,7 +84,8 @@ export async function POST(req: NextRequest) {
     // Always treat 'target' as an app language key and map it
   const appLang: string = typeof body?.target === 'string' ? body.target : 'en';
   const target: string | null = getTargetFromAppLang(appLang);
-  console.log('[TRANSLATE API] appLang:', appLang, 'target (Google code):', target, 'items:', items);
+  // Avoid noisy logs and repeated entries; just show counts.
+  console.log('[TRANSLATE API]', { appLang, target, itemsCount: items.length });
     if (!items.length || !target) {
       return NextResponse.json({ translations: items }, { status: 200 })
     }
@@ -108,7 +112,9 @@ export async function POST(req: NextRequest) {
     if (toTrans.length === 0) return NextResponse.json({ translations: outputs }, { status: 200 })
 
     // Try Google Cloud Translation v2 (batched) - skip for potentially unsupported languages
-    if (googleKey && wellSupportedLanguages.has(target)) {
+    const disabledUntil = googleDisabledUntil.get(target) || 0
+    const googleEnabled = Date.now() > disabledUntil
+    if (googleKey && wellSupportedLanguages.has(target) && googleEnabled) {
       try {
         const resp = await fetch(`https://translation.googleapis.com/language/translate/v2?key=${googleKey}`, {
           method: 'POST',
@@ -129,10 +135,15 @@ export async function POST(req: NextRequest) {
           return NextResponse.json({ translations: outputs }, { status: 200 })
         } else {
           console.log(`Google Translate API failed for ${target}: ${resp.status} ${resp.statusText}`)
+          if (resp.status === 403) {
+            googleDisabledUntil.set(target, Date.now() + GOOGLE_COOLDOWN_MS)
+          }
         }
       } catch (error) {
         console.log(`Google Translate API error for ${target}:`, error)
       }
+    } else if (googleKey && wellSupportedLanguages.has(target) && !googleEnabled) {
+      console.log(`[TRANSLATE API] Google disabled (cooldown) for ${target}`)
     } else if (potentiallyUnsupportedLanguages.has(target)) {
       console.log(`Skipping Google Translate for potentially unsupported language: ${target}`)
     }

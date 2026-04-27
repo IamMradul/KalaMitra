@@ -18,6 +18,7 @@ export default function VideoPlayer({
   className = ""
 }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
+  const playRequestRef = useRef<Promise<void> | null>(null)
   const [isPlaying, setIsPlaying] = useState(false)
   const [isMuted, setIsMuted] = useState(false)
   const [currentTime, setCurrentTime] = useState(0)
@@ -43,6 +44,14 @@ export default function VideoPlayer({
       video.removeEventListener('loadedmetadata', updateDuration)
       video.removeEventListener('play', handlePlay)
       video.removeEventListener('pause', handlePause)
+      
+      // Stop the video safely. Avoid clearing src here as it can cause 
+      // NotSupportedError if the browser tries to play a cleared source during unmount.
+      try {
+        video.pause();
+      } catch (e) {
+        // Ignore pause errors on unmount
+      }
     }
   }, [])
 
@@ -51,9 +60,30 @@ export default function VideoPlayer({
     if (!video) return
 
     if (isPlaying) {
-      video.pause()
+      // If a play() request is still settling, wait before pausing to avoid AbortError noise.
+      const pendingPlay = playRequestRef.current
+      if (pendingPlay) {
+        pendingPlay.finally(() => {
+          if (!video.paused) video.pause()
+        })
+      } else {
+        video.pause()
+      }
     } else {
-      video.play()
+      const playPromise = video.play()
+      playRequestRef.current = playPromise
+      playPromise
+        .catch((err: unknown) => {
+          // Rapid play/pause interactions can reject with AbortError; this is expected browser behavior.
+          if (err instanceof DOMException && (err.name === 'AbortError' || err.name === 'NotSupportedError')) return;
+          // eslint-disable-next-line no-console
+          console.error('Video play failed:', err)
+        })
+        .finally(() => {
+          if (playRequestRef.current === playPromise) {
+            playRequestRef.current = null
+          }
+        })
     }
   }
 
@@ -108,8 +138,8 @@ export default function VideoPlayer({
         loop
         onMouseEnter={() => setShowControls(true)}
         onMouseLeave={() => setShowControls(false)}
+        src={src}
       >
-        <source src={src} type="video/mp4" />
         Your browser does not support the video tag.
       </video>
 
