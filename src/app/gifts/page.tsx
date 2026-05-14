@@ -443,7 +443,7 @@ export default function GiftsPage() {
         initial={{ opacity: 0, y: 22 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.45, delay: index * 0.08 }}
-        className={`relative overflow-hidden rounded-[1.75rem] border bg-[linear-gradient(180deg,var(--bg-1)_0%,var(--bg-2)_100%)] p-6 shadow-[0_16px_50px_rgba(0,0,0,0.055)] transition-transform duration-300 hover:-translate-y-1 md:p-7 ${gift.viewed ? 'border-[var(--border)]' : 'border-[var(--heritage-gold)]/35'}`}
+        className={`relative overflow-hidden rounded-[1.5rem] border bg-[linear-gradient(180deg,var(--bg-1)_0%,var(--bg-2)_100%)] p-4 shadow-[0_12px_28px_rgba(0,0,0,0.04)] transition-transform duration-300 hover:-translate-y-1 md:p-5 ${gift.viewed ? 'border-[var(--border)]' : 'border-[var(--heritage-gold)]/35'}`}
       >
         <div className={`absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r ${gift.viewed ? 'from-[var(--heritage-blue)]/50 via-[var(--heritage-green)]/60 to-[var(--heritage-blue)]/50' : 'from-[var(--heritage-gold)] via-[var(--heritage-red)] to-[var(--heritage-gold)]'}`} />
         {!gift.viewed && <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(176,141,85,0.16),transparent_45%)]" />}
@@ -455,25 +455,25 @@ export default function GiftsPage() {
           </div>
         )}
 
-        <div className="relative z-10 space-y-6">
-          <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
+        <div className="relative z-10 space-y-4.5">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
             <div className="flex-shrink-0">
               {gift.viewed ? (
                 gift.product?.image_url ? (
-                  <img src={gift.product.image_url} alt={gift.product.title} className="h-28 w-28 rounded-[1.25rem] object-cover shadow-[0_12px_30px_rgba(0,0,0,0.12)] ring-1 ring-[var(--border)]" />
+                  <img src={gift.product.image_url} alt={gift.product.title} className="h-20 w-20 rounded-[1rem] object-cover shadow-[0_10px_22px_rgba(0,0,0,0.10)] ring-1 ring-[var(--border)] sm:h-22 sm:w-22" />
                 ) : (
-                  <div className="flex h-28 w-28 items-center justify-center rounded-[1.25rem] border border-[var(--border)] bg-[var(--bg-2)] text-[var(--muted)]">
-                    <Gift className="h-10 w-10" />
+                  <div className="flex h-20 w-20 items-center justify-center rounded-[1rem] border border-[var(--border)] bg-[var(--bg-2)] text-[var(--muted)] sm:h-22 sm:w-22">
+                    <Gift className="h-7 w-7 sm:h-8 sm:w-8" />
                   </div>
                 )
               ) : (
-                <div className="flex h-28 w-28 items-center justify-center rounded-[1.25rem] bg-[linear-gradient(135deg,var(--heritage-red)_0%,var(--heritage-gold)_100%)] text-white shadow-[0_18px_35px_rgba(169,68,66,0.2)]">
-                  <Gift className="h-11 w-11" />
+                <div className="flex h-20 w-20 items-center justify-center rounded-[1rem] bg-[linear-gradient(135deg,var(--heritage-red)_0%,var(--heritage-gold)_100%)] text-white shadow-[0_14px_24px_rgba(169,68,66,0.16)] sm:h-22 sm:w-22">
+                  <Gift className="h-7 w-7 sm:h-8 sm:w-8" />
                 </div>
               )}
             </div>
 
-            <div className="min-w-0 flex-1 space-y-3">
+            <div className="min-w-0 flex-1 space-y-2.5">
               <div className="flex flex-wrap items-center gap-2">
                 <span className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] ring-1 ${gift.viewed ? 'bg-[var(--success)]/10 text-[var(--success)] ring-[var(--success)]/15' : 'bg-[var(--heritage-gold)]/12 text-[var(--heritage-gold)] ring-[var(--heritage-gold)]/15'}`}>
                   {gift.viewed ? 'Opened' : 'New gift'}
@@ -487,12 +487,12 @@ export default function GiftsPage() {
 
               {gift.viewed ? (
                 <Link href={`/product/${gift.product?.id}`} className="block">
-                  <h3 className="text-2xl font-bold text-[var(--text)] transition-colors hover:text-[var(--heritage-gold)]">
+                  <h3 className="text-xl font-bold text-[var(--text)] transition-colors hover:text-[var(--heritage-gold)] sm:text-2xl">
                     {gift.product?.title || t('gifts.gift', 'Gift')}
                   </h3>
                 </Link>
               ) : (
-                <h3 className="text-2xl font-bold text-[var(--heritage-gold)]">
+                <h3 className="text-xl font-bold text-[var(--heritage-gold)] sm:text-2xl">
                   {t('gifts.gift', 'A Special Gift')}
                 </h3>
               )}
@@ -501,7 +501,7 @@ export default function GiftsPage() {
                 {t('gifts.receivedOn', 'Received on {{date}}', { date: new Date(gift.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }) })}
               </p>
 
-              <div className="flex items-center gap-3 rounded-[1.25rem] border border-[var(--border)] bg-[var(--bg-1)]/70 px-3 py-2.5">
+              <div className="flex items-center gap-3 rounded-[1rem] border border-[var(--border)] bg-[var(--bg-1)]/70 px-3 py-2 shadow-sm">
                 {gift.viewed ? (
                   gift.metadata?.type === 'group_gift' && Array.isArray(gift.contributors) && gift.contributors.length > 0 ? (
                     <div className="flex -space-x-3 pr-1">
@@ -533,7 +533,7 @@ export default function GiftsPage() {
                   </div>
                 )}
                 <div>
-                  <div className="text-xs uppercase tracking-[0.2em] text-[var(--muted)]">From</div>
+                  <div className="text-[10px] uppercase tracking-[0.22em] text-[var(--muted)]">From</div>
                   <div className="font-semibold text-[var(--text)]">
                     {gift.viewed ? (gift.metadata?.type === 'group_gift' && Array.isArray(gift.contributors) && gift.contributors.length > 0 ? gift.contributors.map((c: any) => c.name).join(', ') : (gift.sender?.name || t('gifts.unknownSender', 'Unknown Sender'))) : t('gifts.senderHidden', 'Someone Special')}
                   </div>
@@ -543,27 +543,27 @@ export default function GiftsPage() {
           </div>
 
           {gift.message && (
-            <div className="rounded-[1.25rem] border border-[var(--border)] bg-[var(--bg-2)]/70 p-4 text-sm italic text-[var(--text)] shadow-[inset_0_1px_0_rgba(255,255,255,0.35)]">
-              <p className="leading-6 text-[15px]">“{gift.message}”</p>
+            <div className="rounded-[1rem] border border-[var(--border)] bg-[var(--bg-2)]/70 p-3.5 text-sm italic text-[var(--text)] shadow-[inset_0_1px_0_rgba(255,255,255,0.22)]">
+              <p className="leading-6 text-[14px]">“{gift.message}”</p>
             </div>
           )}
 
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             {!gift.viewed && user && (
-              <button type="button" className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[linear-gradient(135deg,var(--heritage-red)_0%,var(--heritage-gold)_100%)] px-5 py-3 text-base font-bold text-white shadow-[0_16px_30px_rgba(169,68,66,0.18)] transition-transform duration-200 hover:-translate-y-0.5" onClick={() => handleUnbox(gift.id)}>
-                <Sparkles className="h-5 w-5" />
+              <button type="button" className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[linear-gradient(135deg,var(--heritage-red)_0%,var(--heritage-gold)_100%)] px-4 py-2.5 text-sm font-bold text-white shadow-[0_12px_22px_rgba(169,68,66,0.16)] transition-transform duration-200 hover:-translate-y-0.5" onClick={() => handleUnbox(gift.id)}>
+                <Sparkles className="h-4 w-4" />
                 {t('gifts.unwrapGift', 'Unwrap Gift')}
               </button>
             )}
             {gift.viewed && !thankedGifts.has(gift.id) && (
-              <button type="button" className="flex w-full items-center justify-center gap-2 rounded-2xl border border-[var(--border)] bg-[var(--bg-1)] px-5 py-3 text-base font-semibold text-[var(--text)] transition-all hover:-translate-y-0.5 hover:border-[var(--heritage-red)]/25 hover:bg-[var(--heritage-red)]/5 hover:text-[var(--heritage-red)]" onClick={() => handleThank(gift.id)}>
-                <Heart className="h-5 w-5" />
+              <button type="button" className="flex w-full items-center justify-center gap-2 rounded-2xl border border-[var(--border)] bg-[var(--bg-1)] px-4 py-2.5 text-sm font-semibold text-[var(--text)] transition-all hover:-translate-y-0.5 hover:border-[var(--heritage-red)]/25 hover:bg-[var(--heritage-red)]/5 hover:text-[var(--heritage-red)]" onClick={() => handleThank(gift.id)}>
+                <Heart className="h-4 w-4" />
                 {t('gifts.thankSender', 'Say Thank You')}
               </button>
             )}
             {thankedGifts.has(gift.id) && (
-              <div className="flex w-full items-center justify-center gap-2 rounded-2xl border border-[var(--success)]/20 bg-[var(--success)]/10 px-5 py-3 font-semibold text-[var(--success)]">
-                <Heart className="h-5 w-5 fill-[var(--success)]" />
+              <div className="flex w-full items-center justify-center gap-2 rounded-2xl border border-[var(--success)]/20 bg-[var(--success)]/10 px-4 py-2.5 text-sm font-semibold text-[var(--success)]">
+                <Heart className="h-4 w-4 fill-[var(--success)]" />
                 {t('gifts.thanked', 'Thanked')}
               </div>
             )}
@@ -579,23 +579,23 @@ export default function GiftsPage() {
         initial={{ opacity: 0, y: 22 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.45, delay: index * 0.08 }}
-        className="rounded-[1.75rem] border border-[var(--border)] bg-[linear-gradient(180deg,var(--bg-1)_0%,var(--bg-2)_100%)] p-6 shadow-[0_16px_50px_rgba(0,0,0,0.055)] md:p-7"
+        className="rounded-[1.5rem] border border-[var(--border)] bg-[linear-gradient(180deg,var(--bg-1)_0%,var(--bg-2)_100%)] p-4 shadow-[0_12px_28px_rgba(0,0,0,0.04)] md:p-5"
       >
-        <div className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-[var(--heritage-gold)]/40 via-[var(--heritage-accent)]/70 to-[var(--heritage-gold)]/40" />
-        <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
+        <div className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-[var(--heritage-gold)]/30 via-[var(--heritage-accent)]/55 to-[var(--heritage-gold)]/30" />
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
           <div className="flex-shrink-0">
             {gift.product?.image_url ? (
-              <img src={gift.product.image_url} alt={gift.product.title} className="h-24 w-24 rounded-[1.25rem] object-cover shadow-[0_12px_30px_rgba(0,0,0,0.12)] ring-1 ring-[var(--border)]" />
+              <img src={gift.product.image_url} alt={gift.product.title} className="h-20 w-20 rounded-[1rem] object-cover shadow-[0_10px_22px_rgba(0,0,0,0.10)] ring-1 ring-[var(--border)] sm:h-22 sm:w-22" />
             ) : (
-              <div className="flex h-24 w-24 items-center justify-center rounded-[1.25rem] border border-[var(--border)] bg-[var(--bg-2)] text-[var(--muted)]">
-                <Gift className="h-9 w-9" />
+              <div className="flex h-20 w-20 items-center justify-center rounded-[1rem] border border-[var(--border)] bg-[var(--bg-2)] text-[var(--muted)] sm:h-22 sm:w-22">
+                <Gift className="h-7 w-7 sm:h-8 sm:w-8" />
               </div>
             )}
           </div>
 
-          <div className="min-w-0 flex-1 space-y-3">
+          <div className="min-w-0 flex-1 space-y-2.5">
             <Link href={`/product/${gift.product?.id}`} className="block">
-              <h3 className="text-2xl font-bold text-[var(--text)] transition-colors hover:text-[var(--heritage-gold)]">
+              <h3 className="text-xl font-bold text-[var(--text)] transition-colors hover:text-[var(--heritage-gold)] sm:text-2xl">
                 {gift.product?.title || t('gifts.gift', 'Gift')}
               </h3>
             </Link>
@@ -607,12 +607,12 @@ export default function GiftsPage() {
               {gift.recipient?.profile_image ? (
                 <img src={gift.recipient.profile_image} alt={gift.recipient?.name || 'Recipient'} className="h-10 w-10 rounded-full border-2 border-[var(--bg-1)] object-cover shadow-sm" />
               ) : (
-                <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-[var(--bg-1)] bg-[var(--bg-2)] shadow-sm">
-                  <User className="h-5 w-5 text-[var(--muted)]" />
+                <div className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-[var(--bg-1)] bg-[var(--bg-2)] shadow-sm">
+                  <User className="h-4 w-4 text-[var(--muted)]" />
                 </div>
               )}
               <div>
-                <div className="text-xs uppercase tracking-[0.2em] text-[var(--muted)]">To</div>
+                <div className="text-[10px] uppercase tracking-[0.22em] text-[var(--muted)]">To</div>
                 <div className="font-semibold text-[var(--text)]">{gift.recipient?.name || t('gifts.unknownRecipient', 'Unknown Recipient')}</div>
               </div>
             </div>
@@ -620,8 +620,8 @@ export default function GiftsPage() {
         </div>
 
           {gift.message && (
-            <div className="mt-5 rounded-[1.25rem] border border-[var(--border)] bg-[var(--bg-2)]/70 p-4 text-sm italic text-[var(--text)] shadow-[inset_0_1px_0_rgba(255,255,255,0.35)]">
-              <p className="leading-6 text-[15px]">“{gift.message}”</p>
+            <div className="mt-4 rounded-[1rem] border border-[var(--border)] bg-[var(--bg-2)]/70 p-3.5 text-sm italic text-[var(--text)] shadow-[inset_0_1px_0_rgba(255,255,255,0.22)]">
+              <p className="leading-6 text-[14px]">“{gift.message}”</p>
           </div>
         )}
       </motion.div>
@@ -634,26 +634,26 @@ export default function GiftsPage() {
         initial={{ opacity: 0, y: 22 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.45, delay: index * 0.08 }}
-        className="relative overflow-hidden rounded-[1.75rem] border border-[var(--border)] bg-[linear-gradient(180deg,var(--bg-1)_0%,var(--bg-2)_100%)] p-6 shadow-[0_16px_50px_rgba(0,0,0,0.055)] md:p-7"
+        className="relative overflow-hidden rounded-[1.5rem] border border-[var(--border)] bg-[linear-gradient(180deg,var(--bg-1)_0%,var(--bg-2)_100%)] p-4 shadow-[0_12px_28px_rgba(0,0,0,0.04)] md:p-5"
       >
-        <div className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-[var(--heritage-blue)]/40 via-[var(--heritage-green)]/70 to-[var(--heritage-blue)]/40" />
-        <div className="absolute right-0 top-0 h-24 w-24 rounded-bl-full bg-[radial-gradient(circle,rgba(59,89,152,0.12),transparent_70%)]" />
+        <div className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-[var(--heritage-blue)]/30 via-[var(--heritage-green)]/55 to-[var(--heritage-blue)]/30" />
+        <div className="absolute right-0 top-0 h-24 w-24 rounded-bl-full bg-[radial-gradient(circle,rgba(59,89,152,0.06),transparent_70%)]" />
 
-        <div className="relative z-10 space-y-6">
-          <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
+        <div className="relative z-10 space-y-4.5">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
             <div className="flex-shrink-0">
               {gift.product?.image_url ? (
-                <img src={gift.product.image_url} alt={gift.product.title} className="h-24 w-24 rounded-[1.25rem] object-cover shadow-[0_12px_30px_rgba(0,0,0,0.12)] ring-1 ring-[var(--border)]" />
+                <img src={gift.product.image_url} alt={gift.product.title} className="h-20 w-20 rounded-[1rem] object-cover shadow-[0_10px_22px_rgba(0,0,0,0.10)] ring-1 ring-[var(--border)] sm:h-22 sm:w-22" />
               ) : (
-                <div className="flex h-24 w-24 items-center justify-center rounded-[1.25rem] border border-[var(--border)] bg-[var(--bg-2)] text-[var(--muted)]">
-                  <Users className="h-9 w-9" />
+                <div className="flex h-20 w-20 items-center justify-center rounded-[1rem] border border-[var(--border)] bg-[var(--bg-2)] text-[var(--muted)] sm:h-22 sm:w-22">
+                  <Users className="h-7 w-7 sm:h-8 sm:w-8" />
                 </div>
               )}
             </div>
 
-            <div className="min-w-0 flex-1 space-y-3">
+            <div className="min-w-0 flex-1 space-y-2.5">
               <Link href={`/group-gift/${gift.id}`} className="block">
-                <h3 className="text-2xl font-bold text-[var(--text)] transition-colors hover:text-[var(--heritage-blue)]">
+                <h3 className="text-xl font-bold text-[var(--text)] transition-colors hover:text-[var(--heritage-blue)] sm:text-2xl">
                   {gift.product?.title || t('gifts.groupTab', 'Group Gift')}
                 </h3>
               </Link>
@@ -665,12 +665,12 @@ export default function GiftsPage() {
                 {gift.initiator?.profile_image ? (
                   <img src={gift.initiator.profile_image} alt={gift.initiator?.name || 'Initiator'} className="h-10 w-10 rounded-full border-2 border-[var(--bg-1)] object-cover shadow-sm" />
                 ) : (
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-[var(--bg-1)] bg-[var(--bg-2)] shadow-sm">
-                    <User className="h-5 w-5 text-[var(--muted)]" />
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-[var(--bg-1)] bg-[var(--bg-2)] shadow-sm">
+                    <User className="h-4 w-4 text-[var(--muted)]" />
                   </div>
                 )}
                 <div>
-                  <div className="text-xs uppercase tracking-[0.2em] text-[var(--muted)]">Organized by</div>
+                  <div className="text-[10px] uppercase tracking-[0.22em] text-[var(--muted)]">Organized by</div>
                   <div className="font-semibold text-[var(--text)]">{gift.initiator?.name || t('gifts.unknownInitiator', 'Unknown')}</div>
                 </div>
               </div>
@@ -678,19 +678,19 @@ export default function GiftsPage() {
           </div>
 
           <div className="grid grid-cols-2 gap-3 sm:gap-4">
-            <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg-1)] p-4">
-              <div className="text-xs uppercase tracking-[0.2em] text-[var(--muted)]">Target amount</div>
+            <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg-1)] p-3.5">
+              <div className="text-[10px] uppercase tracking-[0.22em] text-[var(--muted)]">Target amount</div>
               <div className="mt-1 text-lg font-bold text-[var(--text)]">₹{gift.target_amount}</div>
             </div>
-            <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg-1)] p-4">
-              <div className="text-xs uppercase tracking-[0.2em] text-[var(--muted)]">Recipient</div>
+            <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg-1)] p-3.5">
+              <div className="text-[10px] uppercase tracking-[0.22em] text-[var(--muted)]">Recipient</div>
               <div className="mt-1 truncate text-lg font-bold text-[var(--text)]">{gift.recipient?.name || t('gifts.unknownRecipient', 'Unknown')}</div>
             </div>
           </div>
 
           {gift.message && (
-            <div className="rounded-[1.25rem] border border-[var(--border)] bg-[var(--bg-2)]/70 p-4 text-sm italic text-[var(--text)] shadow-[inset_0_1px_0_rgba(255,255,255,0.35)]">
-              <p className="leading-6 text-[15px]">“{gift.message}”</p>
+            <div className="rounded-[1rem] border border-[var(--border)] bg-[var(--bg-2)]/70 p-3.5 text-sm italic text-[var(--text)] shadow-[inset_0_1px_0_rgba(255,255,255,0.22)]">
+              <p className="leading-6 text-[14px]">“{gift.message}”</p>
             </div>
           )}
 
