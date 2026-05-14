@@ -518,7 +518,7 @@ export default function ProductDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-bg-1 py-8 transition-colors duration-300">
+    <div className="min-h-screen bg-[var(--bg-1)] py-8 transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Navigation Breadcrumb */}
@@ -592,24 +592,24 @@ export default function ProductDetail() {
             {product.product_story && (
               <div className="relative mt-8 group perspective-1000">
                 {/* Background Parchment Effect */}
-                <div className="absolute inset-0 bg-bg-2 [:root[data-theme=dark]_&]:bg-gray-900 rounded-xl shadow-[inset_0_0_40px_rgba(176,141,85,0.1)] border border-border-color [:root[data-theme=dark]_&]:border-gray-700 transform transition-transform duration-700 group-hover:rotate-x-2"></div>
+                <div className="absolute inset-0 bg-[#fdfbf7] [:root[data-theme=dark]_&]:bg-gray-900 rounded-xl shadow-[inset_0_0_40px_rgba(176,141,85,0.1)] border border-[#e6dcc5] [:root[data-theme=dark]_&]:border-gray-700 transform transition-transform duration-700 group-hover:rotate-x-2"></div>
 
                 {/* Content */}
                 <div className="relative p-8 text-center space-y-4">
                   {/* Decorative Header */}
                   <div className="flex items-center justify-center gap-4 mb-6">
-                    <div className="h-[2px] w-12 bg-gradient-to-r from-transparent to-heritage-gold"></div>
-                    <Sparkles className="w-6 h-6 text-heritage-gold" />
-                    <h3 className="font-serif text-2xl text-heritage-brown [:root[data-theme=dark]_&]:text-orange-100 tracking-wide">
+                    <div className="h-[2px] w-12 bg-gradient-to-r from-transparent to-[#b08d55]"></div>
+                    <Sparkles className="w-6 h-6 text-[#b08d55]" />
+                    <h3 className="font-serif text-2xl text-[#3d0000] [:root[data-theme=dark]_&]:text-orange-100 tracking-wide">
                       Artisan&apos;s Story
                     </h3>
-                    <Sparkles className="w-6 h-6 text-heritage-gold" />
-                    <div className="h-[2px] w-12 bg-gradient-to-l from-transparent to-heritage-gold"></div>
+                    <Sparkles className="w-6 h-6 text-[#b08d55]" />
+                    <div className="h-[2px] w-12 bg-gradient-to-l from-transparent to-[#b08d55]"></div>
                   </div>
 
                   {/* Drop Cap Story */}
                   <div className="prose prose-lg text-gray-700 [:root[data-theme=dark]_&]:text-gray-300 mx-auto font-serif leading-relaxed">
-                    <p className="first-letter:text-5xl first-letter:font-bold first-letter:text-heritage-gold first-letter:mr-3 first-letter:float-left">
+                    <p className="first-letter:text-5xl first-letter:font-bold first-letter:text-[#b08d55] first-letter:mr-3 first-letter:float-left">
                       {product.product_story}
                     </p>
                   </div>
@@ -641,7 +641,7 @@ export default function ProductDetail() {
                           setIsNarrating(true);
                           utter.onend = () => setIsNarrating(false);
                         }}
-                        className="flex items-center gap-2 px-5 py-2 bg-heritage-gold text-white rounded-full font-serif font-bold text-sm hover:bg-heritage-gold/80 transition-colors shadow-sm hover:shadow-md"
+                        className="flex items-center gap-2 px-5 py-2 bg-[#b08d55] text-white rounded-full font-serif font-bold text-sm hover:bg-[#8c6b30] transition-colors shadow-sm hover:shadow-md"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
                         Listen
@@ -652,7 +652,7 @@ export default function ProductDetail() {
                           window.speechSynthesis.cancel();
                           setIsNarrating(false);
                         }}
-                        className="flex items-center gap-2 px-5 py-2 bg-heritage-gold/80 text-white rounded-full font-serif font-bold text-sm animate-pulse"
+                        className="flex items-center gap-2 px-5 py-2 bg-[#8c6b30] text-white rounded-full font-serif font-bold text-sm animate-pulse"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
                         Stop
@@ -695,21 +695,21 @@ export default function ProductDetail() {
               {/* Main Actions (Moved Up) */}
               <div className="space-y-4 pt-4">
                 {/* Quantity Selector */}
-                <div className="flex items-center gap-4 bg-bg-2 border border-border-color p-4 rounded-lg">
-                  <span className="font-medium text-text">Qty:</span>
-                  <div className="flex items-center border border-border-color rounded-lg">
+                <div className="flex items-center gap-4 bg-[var(--bg-2)] border border-[var(--border)] p-4 rounded-lg">
+                  <span className="font-medium text-[var(--text)]">Qty:</span>
+                  <div className="flex items-center border border-[var(--border)] rounded-lg">
                     <button
                       onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                      className="px-4 py-2 text-text hover:bg-bg-3 transition-colors"
+                      className="px-4 py-2 text-[var(--text)] hover:bg-[var(--bg-3)] transition-colors"
                     >
                       −
                     </button>
-                    <span className="px-6 py-2 font-mono font-medium text-text border-x border-border-color">
+                    <span className="px-6 py-2 font-mono font-medium text-[var(--text)] border-x border-[var(--border)]">
                       {quantity}
                     </span>
                     <button
                       onClick={() => setQuantity(quantity + 1)}
-                      className="px-4 py-2 text-text hover:bg-bg-3 transition-colors"
+                      className="px-4 py-2 text-[var(--text)] hover:bg-[var(--bg-3)] transition-colors"
                     >
                       +
                     </button>
@@ -719,7 +719,7 @@ export default function ProductDetail() {
                 <button
                   onClick={addToCart}
                   disabled={hasActiveAuction}
-                  className="w-full bg-gradient-to-r from-heritage-gold to-heritage-gold/80 hover:from-heritage-gold/80 hover:to-heritage-gold/60 text-white py-3 rounded-lg font-bold text-base shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center gap-2 border border-heritage-gold/50 relative overflow-hidden group"
+                  className="w-full bg-gradient-to-r from-[#b08d55] to-[#8c6b30] hover:from-[#8c6b30] hover:to-[#6b4c1e] text-white py-3 rounded-lg font-bold text-base shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center gap-2 border border-[#b08d55]/50 relative overflow-hidden group"
                 >
                   <span className="relative z-10 flex items-center gap-2">
                     {hasActiveAuction ? 'On Auction' : t('product.addToCart')}
@@ -733,7 +733,7 @@ export default function ProductDetail() {
               <div className="flex flex-col sm:flex-row gap-3">
                 {/* Gift Button */}
                 <button
-                  className="group relative flex-1 flex items-center justify-center px-4 py-2.5 bg-white border border-heritage-gold text-heritage-gold font-semibold rounded-lg transition-all duration-300 hover:bg-heritage-gold hover:text-white hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus:ring-4 focus:ring-heritage-gold/20"
+                  className="group relative flex-1 flex items-center justify-center px-4 py-2.5 bg-white border border-[#b08d55] text-[#b08d55] font-semibold rounded-lg transition-all duration-300 hover:bg-[#b08d55] hover:text-white hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus:ring-4 focus:ring-[#b08d55]/20"
                   title={t('product.giftButtonTooltip')}
                   onClick={() => setGiftModalOpen(true)}
                 >
@@ -745,7 +745,7 @@ export default function ProductDetail() {
 
                 {/* Custom Request Button */}
                 <button
-                  className="group relative flex-1 flex items-center justify-center px-4 py-2.5 bg-heritage-brown text-heritage-gold font-semibold rounded-lg transition-all duration-300 hover:bg-heritage-brown/80 hover:text-heritage-accent hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus:ring-4 focus:ring-heritage-brown/20 shadow-md hover:shadow-lg"
+                  className="group relative flex-1 flex items-center justify-center px-4 py-2.5 bg-[#3d0000] text-[#b08d55] font-semibold rounded-lg transition-all duration-300 hover:bg-[#590000] hover:text-[#d4af37] hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus:ring-4 focus:ring-[#3d0000]/20 shadow-md hover:shadow-lg"
                   title={t('product.customRequestButtonTooltip')}
                   onClick={() => setCustomRequestModalOpen(true)}
                 >
@@ -811,8 +811,8 @@ export default function ProductDetail() {
                 className="mt-8 pt-8 border-t border-gray-100"
               >
                 <div className="flex items-center gap-3 mb-6">
-                  <span className="w-1 h-8 bg-heritage-gold rounded-full"></span>
-                  <h3 className="text-xl font-serif text-heritage-brown [:root[data-theme=dark]_&]:text-orange-100">
+                  <span className="w-1 h-8 bg-[#b08d55] rounded-full"></span>
+                  <h3 className="text-xl font-serif text-[#3d0000] [:root[data-theme=dark]_&]:text-orange-100">
                     {product.isCollaborative
                       ? `🤝 ${t('product.meetCollaborativeArtisans')}`
                       : t('product.meetTheArtisan')
@@ -824,10 +824,10 @@ export default function ProductDetail() {
                   // Show all collaborators (Professional Grid)
                   <div className="grid gap-4">
                     {product.collaborators.map((collaborator, index) => (
-                      <div key={collaborator.id} className="group relative bg-white rounded-xl border border-gray-100 p-4 shadow-sm hover:shadow-md hover:border-heritage-gold/30 transition-all duration-300">
+                      <div key={collaborator.id} className="group relative bg-white rounded-xl border border-gray-100 p-4 shadow-sm hover:shadow-md hover:border-[#b08d55]/30 transition-all duration-300">
                         <div className="flex items-start gap-4">
                           <div className="relative">
-                            <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-white shadow-md ring-2 ring-heritage-gold/20 group-hover:ring-heritage-gold transition-all">
+                            <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-white shadow-md ring-2 ring-[#b08d55]/20 group-hover:ring-[#b08d55] transition-all">
                               {collaborator.profile_image ? (
                                 <Image
                                   src={collaborator.profile_image}
@@ -837,21 +837,21 @@ export default function ProductDetail() {
                                   className="object-cover w-full h-full"
                                 />
                               ) : (
-                                <div className="w-full h-full bg-bg-2 flex items-center justify-center text-heritage-gold">
+                                <div className="w-full h-full bg-[#fdfbf7] flex items-center justify-center text-[#b08d55]">
                                   <User className="w-8 h-8" />
                                 </div>
                               )}
                             </div>
                             {index === 0 && (
-                              <span className="absolute -bottom-1 -right-1 bg-heritage-gold text-white text-[10px] uppercase font-bold px-2 py-0.5 rounded-full border border-white">
+                              <span className="absolute -bottom-1 -right-1 bg-[#b08d55] text-white text-[10px] uppercase font-bold px-2 py-0.5 rounded-full border border-white">
                                 Lead
                               </span>
                             )}
                           </div>
 
                           <div className="flex-1 min-w-0">
-                            <h4 className="font-bold text-gray-900 truncate group-hover:text-heritage-gold transition-colors">{collaborator.name}</h4>
-                            <p className="text-xs text-heritage-gold font-medium uppercase tracking-wider mb-1">
+                            <h4 className="font-bold text-gray-900 truncate group-hover:text-[#b08d55] transition-colors">{collaborator.name}</h4>
+                            <p className="text-xs text-[#b08d55] font-medium uppercase tracking-wider mb-1">
                               {index === 0 ? "Master Artisan" : "Collaborator"}
                             </p>
                             <p className="text-sm text-gray-500 line-clamp-2 leading-relaxed">
@@ -860,7 +860,7 @@ export default function ProductDetail() {
 
                             <Link
                               href={`/stall/${collaborator.id}`}
-                              className="inline-flex items-center gap-1 text-xs font-bold text-heritage-brown [:root[data-theme=dark]_&]:text-orange-200 mt-2 hover:underline decoration-heritage-gold"
+                              className="inline-flex items-center gap-1 text-xs font-bold text-[#3d0000] [:root[data-theme=dark]_&]:text-orange-200 mt-2 hover:underline decoration-[#b08d55]"
                             >
                               Visit Stall <ArrowLeft className="w-3 h-3 rotate-180" />
                             </Link>
@@ -871,10 +871,10 @@ export default function ProductDetail() {
                   </div>
                 ) : (
                   // Show single seller (Professional Card)
-                  <div className="group relative bg-white rounded-xl border border-gray-100 p-5 shadow-sm hover:shadow-md hover:border-heritage-gold/30 transition-all duration-300">
+                  <div className="group relative bg-white rounded-xl border border-gray-100 p-5 shadow-sm hover:shadow-md hover:border-[#b08d55]/30 transition-all duration-300">
                     <div className="flex items-center gap-5">
                       <div className="relative w-20 h-20 shrink-0">
-                        <div className="w-full h-full rounded-full overflow-hidden border-4 border-white [:root[data-theme=dark]_&]:border-gray-600 shadow-lg ring-1 ring-gray-100 [:root[data-theme=dark]_&]:ring-gray-700 group-hover:ring-heritage-gold transition-all">
+                        <div className="w-full h-full rounded-full overflow-hidden border-4 border-white [:root[data-theme=dark]_&]:border-gray-600 shadow-lg ring-1 ring-gray-100 [:root[data-theme=dark]_&]:ring-gray-700 group-hover:ring-[#b08d55] transition-all">
                           {product.seller?.profile_image ? (
                             <Image
                               src={product.seller.profile_image}
@@ -884,7 +884,7 @@ export default function ProductDetail() {
                               className="object-cover w-full h-full"
                             />
                           ) : (
-                            <div className="w-full h-full bg-bg-2 flex items-center justify-center text-heritage-gold">
+                            <div className="w-full h-full bg-[#fdfbf7] flex items-center justify-center text-[#b08d55]">
                               <User className="w-10 h-10" />
                             </div>
                           )}
@@ -895,11 +895,11 @@ export default function ProductDetail() {
                       </div>
 
                       <div className="flex-1">
-                        <h4 className="text-lg font-bold text-gray-900 group-hover:text-heritage-gold transition-colors">
+                        <h4 className="text-lg font-bold text-gray-900 group-hover:text-[#b08d55] transition-colors">
                           {product.seller?.name}
                         </h4>
                         <div className="flex items-center gap-2 mb-2">
-                          <span className="text-xs bg-bg-2 text-heritage-gold/80 px-2 py-0.5 rounded border border-border-color">
+                          <span className="text-xs bg-[#fdfbf7] text-[#8c6b30] px-2 py-0.5 rounded border border-[#e6dcc5]">
                             Verified Artisan
                           </span>
                         </div>
@@ -908,7 +908,7 @@ export default function ProductDetail() {
                         </p>
                         <Link
                           href={`/stall/${product.seller_id}`}
-                          className="text-sm font-bold text-heritage-gold hover:text-heritage-gold/80 flex items-center gap-1"
+                          className="text-sm font-bold text-[#b08d55] hover:text-[#8c6b30] flex items-center gap-1"
                         >
                           View Collection <ArrowLeft className="w-4 h-4 rotate-180" />
                         </Link>
@@ -919,7 +919,7 @@ export default function ProductDetail() {
               </motion.div>
               {/* Auction Widget */}
               <div>
-                <h3 className="text-lg font-semibold text-text mb-4">{t('auction.title')}</h3>
+                <h3 className="text-lg font-semibold text-[var(--text)] mb-4">{t('auction.title')}</h3>
                 <AuctionWidget productId={product.id} />
               </div>
             </div>
@@ -945,64 +945,64 @@ export default function ProductDetail() {
                 initial={{ opacity: 0, scale: 0.95, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                className="bg-bg-1 border border-border-color rounded-2xl shadow-2xl p-8 max-w-md w-full relative overflow-hidden"
+                className="bg-[var(--bg-1)] border border-[var(--border)] rounded-2xl shadow-2xl p-8 max-w-md w-full relative overflow-hidden"
               >
-                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-heritage-gold/20 to-transparent rounded-bl-full pointer-events-none"></div>
+                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-[var(--heritage-gold)]/20 to-transparent rounded-bl-full pointer-events-none"></div>
 
-                <button className="absolute top-4 right-4 text-muted hover:text-text transition-colors p-2 rounded-full hover:bg-bg-2 z-10" onClick={() => { setGiftModalOpen(false); setGiftSuccess(false); }}>
+                <button className="absolute top-4 right-4 text-[var(--muted)] hover:text-[var(--text)] transition-colors p-2 rounded-full hover:bg-[var(--bg-2)] z-10" onClick={() => { setGiftModalOpen(false); setGiftSuccess(false); }}>
                   <X className="w-5 h-5" />
                 </button>
                 
-                <h2 className="text-3xl font-cormorant font-bold text-text mb-6">{t('product.giftModalTitle', 'Send a Gift')}</h2>
+                <h2 className="text-3xl font-display font-bold text-[var(--text)] mb-6">{t('product.giftModalTitle', 'Send a Gift')}</h2>
 
                 <div className="mb-8 relative z-10">
-                  <label className="block mb-4 font-serif text-text font-semibold">{t('product.chooseGiftType', 'How would you like to gift?')}</label>
+                  <label className="block mb-4 font-serif text-[var(--text)] font-semibold">{t('product.chooseGiftType', 'How would you like to gift?')}</label>
                   <div className="grid grid-cols-2 gap-4">
                     <button
                       onClick={() => setGiftType('individual')}
                       className={`relative p-4 rounded-xl border transition-all duration-300 overflow-hidden group ${giftType === 'individual'
-                        ? 'border-heritage-gold bg-heritage-gold/10 text-heritage-gold shadow-[0_0_15px_rgba(176,141,85,0.2)]'
-                        : 'border-border-color bg-bg-2 text-muted hover:border-heritage-gold/50'
+                        ? 'border-[var(--heritage-gold)] bg-[var(--heritage-gold)]/10 text-[var(--heritage-gold)] shadow-[0_0_15px_rgba(176,141,85,0.2)]'
+                        : 'border-[var(--border)] bg-[var(--bg-2)] text-[var(--muted)] hover:border-[var(--heritage-gold)]/50'
                         }`}
                     >
-                      {giftType === 'individual' && <div className="absolute inset-0 bg-gradient-to-br from-heritage-gold/5 to-transparent pointer-events-none"></div>}
+                      {giftType === 'individual' && <div className="absolute inset-0 bg-gradient-to-br from-[var(--heritage-gold)]/5 to-transparent pointer-events-none"></div>}
                       <div className="text-center relative z-10">
                         <div className="flex justify-center mb-2">
-                          <Gift className={`w-8 h-8 ${giftType === 'individual' ? 'text-heritage-gold' : 'text-muted group-hover:text-heritage-gold/70'} transition-colors`} />
+                          <Gift className={`w-8 h-8 ${giftType === 'individual' ? 'text-[var(--heritage-gold)]' : 'text-[var(--muted)] group-hover:text-[var(--heritage-gold)]/70'} transition-colors`} />
                         </div>
-                        <div className="font-semibold text-text">{t('product.individualGift', 'Individual Gift')}</div>
+                        <div className="font-semibold text-[var(--text)]">{t('product.individualGift', 'Individual Gift')}</div>
                         <div className="text-xs mt-1 opacity-80">{t('product.individualGiftDesc', 'Send directly to someone')}</div>
                       </div>
                     </button>
                     <button
                       onClick={() => setGiftType('group')}
                       className={`relative p-4 rounded-xl border transition-all duration-300 overflow-hidden group ${giftType === 'group'
-                        ? 'border-heritage-blue bg-heritage-blue/10 text-heritage-blue shadow-[0_0_15px_rgba(30,58,138,0.2)]'
-                        : 'border-border-color bg-bg-2 text-muted hover:border-heritage-blue/50'
+                        ? 'border-[var(--heritage-blue)] bg-[var(--heritage-blue)]/10 text-[var(--heritage-blue)] shadow-[0_0_15px_rgba(30,58,138,0.2)]'
+                        : 'border-[var(--border)] bg-[var(--bg-2)] text-[var(--muted)] hover:border-[var(--heritage-blue)]/50'
                         }`}
                     >
-                      {giftType === 'group' && <div className="absolute inset-0 bg-gradient-to-br from-heritage-blue/5 to-transparent pointer-events-none"></div>}
+                      {giftType === 'group' && <div className="absolute inset-0 bg-gradient-to-br from-[var(--heritage-blue)]/5 to-transparent pointer-events-none"></div>}
                       <div className="text-center relative z-10">
                         <div className="flex justify-center mb-2">
-                          <Users className={`w-8 h-8 ${giftType === 'group' ? 'text-heritage-blue' : 'text-muted group-hover:text-heritage-blue/70'} transition-colors`} />
+                          <Users className={`w-8 h-8 ${giftType === 'group' ? 'text-[var(--heritage-blue)]' : 'text-[var(--muted)] group-hover:text-[var(--heritage-blue)]/70'} transition-colors`} />
                         </div>
-                        <div className="font-semibold text-text">{t('product.groupGift', 'Group Gift')}</div>
+                        <div className="font-semibold text-[var(--text)]">{t('product.groupGift', 'Group Gift')}</div>
                         <div className="text-xs mt-1 opacity-80">{t('product.groupGiftDesc', 'Split cost with friends')}</div>
                       </div>
                     </button>
                   </div>
                 </div>
-                {giftError && <div className="mb-4 text-heritage-red bg-heritage-red/10 border border-heritage-red/30 rounded-lg px-4 py-3 text-sm">{giftError}</div>}
+                {giftError && <div className="mb-4 text-[var(--heritage-red)] bg-[var(--heritage-red)]/10 border border-[var(--heritage-red)]/30 rounded-lg px-4 py-3 text-sm">{giftError}</div>}
 
                 {giftType === 'individual' ? (
                   <div className="relative z-10">
                     {giftSuccess ? (
                       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-center py-6">
-                        <div className="w-20 h-20 mx-auto bg-gradient-to-br from-heritage-gold to-heritage-red rounded-full flex items-center justify-center shadow-glow mb-6">
+                        <div className="w-20 h-20 mx-auto bg-gradient-to-br from-[var(--heritage-gold)] to-[var(--heritage-red)] rounded-full flex items-center justify-center shadow-glow mb-6">
                           <Sparkles className="w-10 h-10 text-white" />
                         </div>
-                        <h3 className="text-2xl font-serif font-bold text-text mb-2">{t('product.giftSuccessTitle', 'Gift Sent Successfully!')}</h3>
-                        <p className="text-muted mb-8">{t('product.giftSuccessDesc', 'Your gift has been sent to {{name}}.', { name: selectedRecipient?.name || 'the recipient' })}</p>
+                        <h3 className="text-2xl font-serif font-bold text-[var(--text)] mb-2">{t('product.giftSuccessTitle', 'Gift Sent Successfully!')}</h3>
+                        <p className="text-[var(--muted)] mb-8">{t('product.giftSuccessDesc', 'Your gift has been sent to {{name}}.', { name: selectedRecipient?.name || 'the recipient' })}</p>
                         <button
                           onClick={() => {
                             setGiftModalOpen(false);
@@ -1021,7 +1021,7 @@ export default function ProductDetail() {
                       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
                         {!selectedRecipient ? (
                           <div>
-                            <label className="block mb-2 font-serif font-semibold text-text">{t('product.recipientLabel', 'Recipient')}</label>
+                            <label className="block mb-2 font-serif font-semibold text-[var(--text)]">{t('product.recipientLabel', 'Recipient')}</label>
                             <div className="relative">
                               <input
                                 type="text"
@@ -1030,18 +1030,18 @@ export default function ProductDetail() {
                                   setRecipientQuery(e.target.value);
                                   setGiftRecipient("");
                                 }}
-                                className="w-full p-3 bg-bg-2 border border-border-color rounded-xl focus:ring-2 focus:ring-heritage-gold focus:border-transparent text-text transition-all"
+                                className="w-full p-3 bg-[var(--bg-2)] border border-[var(--border)] rounded-xl focus:ring-2 focus:ring-[var(--heritage-gold)] focus:border-transparent text-[var(--text)] transition-all"
                                 placeholder={t('product.recipientPlaceholder', 'Search by name or email...')}
                                 disabled={gifting}
                               />
                             </div>
-                            {recipientLoading && <div className="text-xs text-heritage-gold mt-2 animate-pulse">{t('product.recipientSearching', 'Searching...')}</div>}
+                            {recipientLoading && <div className="text-xs text-[var(--heritage-gold)] mt-2 animate-pulse">{t('product.recipientSearching', 'Searching...')}</div>}
                             {recipientResults.length > 0 && (
-                              <ul className="absolute z-20 w-full mt-1 bg-bg-1 border border-border-color rounded-xl shadow-xl max-h-48 overflow-auto">
+                              <ul className="absolute z-20 w-full mt-1 bg-[var(--bg-1)] border border-[var(--border)] rounded-xl shadow-xl max-h-48 overflow-auto">
                                 {recipientResults.map(profile => (
                                   <li
                                     key={profile.id}
-                                    className="flex items-center px-4 py-3 hover:bg-bg-2 cursor-pointer gap-3 border-b border-border-color last:border-0 transition-colors"
+                                    className="flex items-center px-4 py-3 hover:bg-[var(--bg-2)] cursor-pointer gap-3 border-b border-[var(--border)] last:border-0 transition-colors"
                                     onClick={() => {
                                       setSelectedRecipient(profile);
                                       setGiftRecipient(profile.id);
@@ -1050,15 +1050,15 @@ export default function ProductDetail() {
                                     }}
                                   >
                                     {profile.profile_image ? (
-                                      <img src={profile.profile_image} alt="profile" className="w-8 h-8 rounded-full object-cover border border-border-color" />
+                                      <img src={profile.profile_image} alt="profile" className="w-8 h-8 rounded-full object-cover border border-[var(--border)]" />
                                     ) : (
-                                      <div className="w-8 h-8 bg-bg-3 rounded-full flex items-center justify-center border border-border-color">
-                                        <User className="w-4 h-4 text-muted" />
+                                      <div className="w-8 h-8 bg-[var(--bg-3)] rounded-full flex items-center justify-center border border-[var(--border)]">
+                                        <User className="w-4 h-4 text-[var(--muted)]" />
                                       </div>
                                     )}
                                     <div className="flex flex-col">
-                                      <span className="font-semibold text-text">{profile.name}</span>
-                                      <span className="text-xs text-muted">{profile.email}</span>
+                                      <span className="font-semibold text-[var(--text)]">{profile.name}</span>
+                                      <span className="text-xs text-[var(--muted)]">{profile.email}</span>
                                     </div>
                                   </li>
                                 ))}
@@ -1066,31 +1066,31 @@ export default function ProductDetail() {
                             )}
                           </div>
                         ) : (
-                          <div className="flex items-center justify-between p-3 bg-bg-2 border border-border-color rounded-xl">
+                          <div className="flex items-center justify-between p-3 bg-[var(--bg-2)] border border-[var(--border)] rounded-xl">
                             <div className="flex items-center gap-3">
                               {selectedRecipient.profile_image ? (
-                                <img src={selectedRecipient.profile_image} alt="profile" className="w-10 h-10 rounded-full object-cover border border-border-color" />
+                                <img src={selectedRecipient.profile_image} alt="profile" className="w-10 h-10 rounded-full object-cover border border-[var(--border)]" />
                               ) : (
-                                <div className="w-10 h-10 bg-bg-3 rounded-full flex items-center justify-center border border-border-color">
-                                  <User className="w-5 h-5 text-muted" />
+                                <div className="w-10 h-10 bg-[var(--bg-3)] rounded-full flex items-center justify-center border border-[var(--border)]">
+                                  <User className="w-5 h-5 text-[var(--muted)]" />
                                 </div>
                               )}
                               <div className="flex flex-col">
-                                <span className="font-semibold text-text">{selectedRecipient.name}</span>
-                                <span className="text-xs text-muted">{selectedRecipient.email}</span>
+                                <span className="font-semibold text-[var(--text)]">{selectedRecipient.name}</span>
+                                <span className="text-xs text-[var(--muted)]">{selectedRecipient.email}</span>
                               </div>
                             </div>
-                            <button className="text-sm text-heritage-gold hover:underline font-semibold" onClick={() => {
+                            <button className="text-sm text-[var(--heritage-gold)] hover:underline font-semibold" onClick={() => {
                               setSelectedRecipient(null); setGiftRecipient(""); setRecipientQuery("");
                             }}>{t('product.changeRecipient', 'Change')}</button>
                           </div>
                         )}
                         <div>
-                          <label className="block mb-2 font-serif font-semibold text-text">{t('product.personalMessageLabel', 'Personal Message')}</label>
+                          <label className="block mb-2 font-serif font-semibold text-[var(--text)]">{t('product.personalMessageLabel', 'Personal Message')}</label>
                           <textarea 
                             value={giftMessage} 
                             onChange={e => setGiftMessage(e.target.value)} 
-                            className="w-full p-3 bg-bg-2 border border-border-color rounded-xl focus:ring-2 focus:ring-heritage-gold focus:border-transparent text-text transition-all min-h-[100px] resize-none" 
+                            className="w-full p-3 bg-[var(--bg-2)] border border-[var(--border)] rounded-xl focus:ring-2 focus:ring-[var(--heritage-gold)] focus:border-transparent text-[var(--text)] transition-all min-h-[100px] resize-none" 
                             placeholder={t('product.personalMessagePlaceholder', 'Add a note to your gift...')} 
                           />
                         </div>
@@ -1116,17 +1116,17 @@ export default function ProductDetail() {
                   </div>
                 ) : (
                   <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-6 relative z-10">
-                    <div className="w-20 h-20 mx-auto bg-gradient-to-br from-heritage-blue to-heritage-green rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(30,58,138,0.3)] mb-6">
+                    <div className="w-20 h-20 mx-auto bg-gradient-to-br from-[var(--heritage-blue)] to-[var(--heritage-green)] rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(30,58,138,0.3)] mb-6">
                       <Users className="w-10 h-10 text-white" />
                     </div>
-                    <h3 className="text-xl font-serif font-bold text-text mb-3">{t('product.groupGiftTitle', 'Start a Group Gift')}</h3>
-                    <p className="text-muted mb-8">{t('product.groupGiftDesc', 'Split the cost with friends and make gifting easier together.')}</p>
+                    <h3 className="text-xl font-serif font-bold text-[var(--text)] mb-3">{t('product.groupGiftTitle', 'Start a Group Gift')}</h3>
+                    <p className="text-[var(--muted)] mb-8">{t('product.groupGiftDesc', 'Split the cost with friends and make gifting easier together.')}</p>
                     <button
                       onClick={() => {
                         setGiftModalOpen(false);
                         setGroupGiftModalOpen(true);
                       }}
-                      className="w-full py-3 px-6 bg-gradient-to-r from-heritage-blue to-heritage-green text-white font-bold rounded-xl hover:shadow-[0_0_20px_rgba(30,58,138,0.4)] transition-all duration-300 transform hover:-translate-y-1 flex justify-center items-center gap-2"
+                      className="w-full py-3 px-6 bg-gradient-to-r from-[var(--heritage-blue)] to-[var(--heritage-green)] text-white font-bold rounded-xl hover:shadow-[0_0_20px_rgba(30,58,138,0.4)] transition-all duration-300 transform hover:-translate-y-1 flex justify-center items-center gap-2"
                     >
                       <Users className="w-5 h-5" />
                       {t('product.createGroupGift', 'Create Group Gift')}
@@ -1283,7 +1283,7 @@ export default function ProductDetail() {
         {/* Related Products Section */}
         {relatedProducts.length > 0 && (
           <div className="mt-20 border-t border-gray-100 pt-16 col-span-full">
-            <h2 className="text-3xl font-serif text-heritage-brown [:root[data-theme=dark]_&]:text-orange-100 mb-10 text-center">
+            <h2 className="text-3xl font-serif text-[#3d0000] [:root[data-theme=dark]_&]:text-orange-100 mb-10 text-center">
               {t('product.youMightAlsoLike', { defaultValue: 'You Might Also Like' })}
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -1309,7 +1309,7 @@ export default function ProductDetail() {
                         {rp.title}
                       </h3>
                       <div className="mt-auto flex items-center justify-between">
-                        <span className="font-medium text-heritage-gold">₹{rp.price}</span>
+                        <span className="font-medium text-[#b08d55]">₹{rp.price}</span>
                         <div className="w-8 h-8 rounded-full bg-orange-50 flex items-center justify-center text-orange-600 opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300">
                           {/* Reuse ArrowLeft or similar icon */}
                           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="rotate-180"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
@@ -1330,7 +1330,7 @@ export default function ProductDetail() {
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className={`bg-bg-1 border-2 rounded-xl shadow-2xl p-8 max-w-md w-full relative overflow-hidden ${
+              className={`bg-[var(--bg-1)] border-2 rounded-xl shadow-2xl p-8 max-w-md w-full relative overflow-hidden ${
                 cartModalStatus === 'success'
                   ? 'border-green-500'
                   : 'border-red-500'
@@ -1338,7 +1338,7 @@ export default function ProductDetail() {
             >
               <button
                 onClick={() => setCartModalOpen(false)}
-                className="absolute top-4 right-4 text-text/60 hover:text-text text-2xl transition-colors"
+                className="absolute top-4 right-4 text-[var(--text)]/60 hover:text-[var(--text)] text-2xl transition-colors"
               >
                 ×
               </button>
@@ -1354,7 +1354,7 @@ export default function ProductDetail() {
                 }`}>
                   {cartModalStatus === 'success' ? 'Added to Cart!' : 'Error'}
                 </h3>
-                <p className="text-text mb-6">
+                <p className="text-[var(--text)] mb-6">
                   {cartModalMessage}
                 </p>
                 <button
@@ -1376,7 +1376,7 @@ export default function ProductDetail() {
                   <Link
                     href="/cart"
                     onClick={() => setCartModalOpen(false)}
-                    className="mt-3 block w-full px-6 py-3 bg-text text-bg-1 font-semibold rounded-xl hover:bg-heritage-gold transition-all duration-300 transform hover:scale-105"
+                    className="mt-3 block w-full px-6 py-3 bg-[var(--text)] text-[var(--bg-1)] font-semibold rounded-xl hover:bg-[#b08d55] transition-all duration-300 transform hover:scale-105"
                   >
                     View Cart
                   </Link>
