@@ -269,7 +269,7 @@
     "speechRecognitionNotSupported": "Speech recognition not supported in this browser.",
     "listening": "Listening...",
     "speak": "Speak",
-    "checkOutProfile": "Check out this profile on कलाMitra",
+    "checkOutProfile": "Check out this profile on KalaMitra",
     "passionateAbout": "Passionate about preserving and sharing the beauty of traditional Indian craftsmanship...",
     "india": "India",
     "english": "English",
@@ -329,14 +329,14 @@
     "terms": "I agree to the Terms and Conditions",
     "privacy": "Privacy Policy",
     "welcomeBack": "Welcome Back",
-    "signinSubtitle": "Sign in to your कलाMitra account",
+    "signinSubtitle": "Sign in to your KalaMitra account",
     "emailAddress": "Email Address",
     "enterYourEmail": "Enter your email",
     "enterYourPassword": "Enter your password",
     "signingIn": "Signing In...",
     "orContinueWith": "Or continue with",
     "chooseRoleTitle": "Choose Your Role",
-    "chooseRoleSubtitle": "Select how you want to use कलाMitra with your Google account",
+    "chooseRoleSubtitle": "Select how you want to use KalaMitra with your Google account",
     "chooseRoleTip": "If you have an existing account with the same email, you'll be signed in automatically",
     "continueAsBuyer": "Continue as Buyer",
     "continueAsArtisan": "Continue as Artisan",
@@ -350,7 +350,7 @@
       "missingEmailPassword": "Please enter both email and password."
     },
     "branding": {
-      "kalaMitra": "कलाMitra",
+      "kalaMitra": "KalaMitra",
       "yourArtisanMarketplace": "Your Artisan Marketplace",
       "welcomeBackToCreativeJourney": "Welcome Back to Your Creative Journey",
       "startYourCreativeJourneyToday": "Start Your Creative Journey Today",
@@ -807,7 +807,7 @@
     "subscribeBtn": "Subscribe",
     "emailPlaceholder": "email@example.com",
     "followUs": "Follow Us",
-    "copyright": "© 2025 कलाMitra. All rights reserved.",
+    "copyright": "© 2025 KalaMitra. All rights reserved.",
     "successStories": "Success Stories",
     "quickLinks": "Quick Links",
     "legal": "Legal",
@@ -1001,7 +1001,7 @@
   },
   "home": {
     "badgeHeritage": "Authentic Indian Heritage",
-    "mainTitle": "Discover कलाMitra",
+    "mainTitle": "Discover KalaMitra",
     "subtitleMain": "Where Tradition Meets Modernity",
     "subtitleExplore": "Explore our curated collection of authentic Indian traditional items, handcrafted by skilled artisans and brought to you through our innovative e-commerce platform.",
     "exploreCollection": "Explore Collection",
@@ -1012,7 +1012,7 @@
     "statsCategories": "Categories",
     "videoSectionTitle": "Discover Our Unique Craftsmanship",
     "videoSectionDesc": "Watch our artisans create beautiful traditional items using centuries-old techniques passed down through generations.",
-    "videoPlayerTitle": "कलाMitra Craftsmanship",
+    "videoPlayerTitle": "KalaMitra Craftsmanship",
     "videoPlayerDesc": "Experience traditional artistry",
     "videoStoriesTitle": "Discover Our Artisan Stories",
     "videoStoriesDesc": "Watch our skilled artisans create beautiful traditional items using centuries-old techniques. Each piece tells a story of cultural heritage, passed down through generations of master craftsmen.",
@@ -1046,7 +1046,7 @@
     "bazaarFeature3Title": "Authentic Atmosphere",
     "bazaarFeature3Desc": "Experience the vibrant atmosphere of traditional Indian markets from anywhere in the world.",
     "enter3dBazaar": "Enter 3D Bazaar",
-    "uspTitle": "Why Choose कलाMitra?",
+    "uspTitle": "Why Choose KalaMitra?",
     "uspDesc": "We bridge the gap between traditional craftsmanship and modern convenience, ensuring authentic quality and cultural preservation.",
     "usp1Title": "100% Authentic",
     "usp1Desc": "Every item is verified for authenticity and sourced directly from skilled artisans, ensuring genuine traditional craftsmanship.",
@@ -1054,7 +1054,7 @@
     "usp2Desc": "Each piece is meticulously crafted by master artisans using traditional techniques passed down through generations.",
     "usp3Title": "Cultural Heritage",
     "usp3Desc": "Supporting traditional artisans and preserving India's rich cultural heritage for future generations.",
-    "howItWorksTitle": "How कलाMitra Works",
+    "howItWorksTitle": "How KalaMitra Works",
     "howItWorksDesc2": "Experience the seamless journey from discovering authentic traditional items to bringing them home.",
     "stepDiscoverTitle": "Discover",
     "stepDiscoverDesc": "Browse our curated collection of authentic traditional items from skilled artisans across India.",
@@ -1065,7 +1065,7 @@
     "stepEnjoyTitle": "Enjoy",
     "stepEnjoyDesc": "Receive your authentic traditional items and become part of preserving India's cultural heritage.",
     "ctaTitle": "Ready to Start Your Journey?",
-    "ctaDesc": "Join thousands of customers who have discovered the beauty of authentic Indian traditional items through कलाMitra.",
+    "ctaDesc": "Join thousands of customers who have discovered the beauty of authentic Indian traditional items through KalaMitra.",
     "startShopping": "Start Shopping",
     "becomeArtisan": "Become an Artisan",
     "explore3dBazaar": "Explore 3D Bazaar",
@@ -1074,20 +1074,20 @@
     "donateFloatingButtonTooltip": "Donate items for NGO or Artisans to make best out of it!",
     "faq": {
       "title": "Frequently Asked Questions",
-      "q1": "What is कलाMitra?",
-      "a1": "कलाMitra is an AI-powered marketplace connecting talented artisans with buyers worldwide. We celebrate India's cultural heritage by helping artisans showcase their handcrafted products while offering buyers an immersive shopping experience with 3D virtual stalls, AR product visualization, and AI-assisted search.",
-      "q2": "How do I buy products on कलाMitra?",
+      "q1": "What is KalaMitra?",
+      "a1": "KalaMitra is an AI-powered marketplace connecting talented artisans with buyers worldwide. We celebrate India's cultural heritage by helping artisans showcase their handcrafted products while offering buyers an immersive shopping experience with 3D virtual stalls, AR product visualization, and AI-assisted search.",
+      "q2": "How do I buy products on KalaMitra?",
       "a2": "Simply browse our marketplace, use voice or text search in any Indian language, and explore products. You can view items in AR, read artisan stories, add products to your cart, and checkout securely. Our AI Shopping Assistant is always available to help you find exactly what you're looking for.",
-      "q3": "How can artisans sell on कलाMitra?",
+      "q3": "How can artisans sell on KalaMitra?",
       "a3": "Sign up as a seller, create your personalized virtual stall, and start listing products. Use our AI tools to enhance photos, generate descriptions, and create compelling stories. You can also run auctions, post reels, collaborate with other artisans, and track your performance through detailed analytics—all for free.",
-      "q4": "What makes कलाMitra different from other marketplaces?",
-      "a4": "कलाMitra uniquely combines tradition with technology. We offer 3D virtual bazaars, AR product previews, voice search in multiple Indian languages, AI-powered shopping assistance, story narration for products, custom craft requests, and direct chat with artisans. Every feature is designed to preserve cultural heritage while empowering artisans.",
-      "q5": "Is कलाMitra free to use?",
+      "q4": "What makes KalaMitra different from other marketplaces?",
+      "a4": "KalaMitra uniquely combines tradition with technology. We offer 3D virtual bazaars, AR product previews, voice search in multiple Indian languages, AI-powered shopping assistance, story narration for products, custom craft requests, and direct chat with artisans. Every feature is designed to preserve cultural heritage while empowering artisans.",
+      "q5": "Is KalaMitra free to use?",
       "a5": "Yes! Creating an account, browsing products, and listing items as a seller is completely free. We support multiple Indian languages, provide AI tools for sellers at no cost, and charge no upfront fees. Our mission is to make authentic handcrafted art accessible to everyone."
     }
   },
   "brand": {
-    "name": "कलाMitra"
+    "name": "KalaMitra"
   },
   "leaderboard": {
     "title": "Leaderboard",
@@ -1117,15 +1117,15 @@
     "typeMessage": "Type a message..."
   },
   "aboutUs": {
-    "title": "About कलाMitra",
+    "title": "About KalaMitra",
     "subtitle": "Empowering artisans and connecting cultures through technology.",
-    "formationTitle": "How कलाMitra Was Formed",
-    "formationBody": "कलाMitra began as an inspiring vision by Apoorv Gupta and Mradul Gupta, founders of Team ThinkTech, who decided to solve the real problems artisans face today.",
+    "formationTitle": "How KalaMitra Was Formed",
+    "formationBody": "KalaMitra began as an inspiring vision by Apoorv Gupta and Mradul Gupta, founders of Team ThinkTech, who decided to solve the real problems artisans face today.",
     "visionBody": "In the world of an evolving Aatma Nirbhar Bharat – a self-reliant country, a vision ignited by our Hon’ble Prime Minister Shri Narendra Modi – one thing is clear: India’s cultural strength lies in the hands of its artisans. But this challenge is not limited to India. Across the world, local artisans face the same struggle.",
     "challengeBody": "Whether it’s about receiving the fair price their craft truly deserves, or depending upon middlemen, local stalls, or seasonal markets, artisans often earn only a fraction of the value of their work. But it’s not just the makers who struggle—buyers are losing out, too. Because the connection is broken, buyers get mass-produced items, and artisans stay sidelined.",
-    "solutionBody": "That’s where कलाMitra comes in. कलाMitra is an AI-powered cultural marketplace — a digital companion for artisans, buyers, and cultural brands. It removes the biggest barriers to self-reliance. Whether it’s tackling capital with the opportunity to create and sell virtual products from our own app with zero investment, or creating useful products for selling from donated & leftover items and waste materials!",
+    "solutionBody": "That’s where KalaMitra comes in. KalaMitra is an AI-powered cultural marketplace — a digital companion for artisans, buyers, and cultural brands. It removes the biggest barriers to self-reliance. Whether it’s tackling capital with the opportunity to create and sell virtual products from our own app with zero investment, or creating useful products for selling from donated & leftover items and waste materials!",
     "experienceBody": "It’s not only about artisans. Buyers get a rich, immersive experience through stories, voice interaction, AR visualization, and direct connection with creators.",
-    "livingHubBody": "Unlike traditional marketplaces, कलाMitra is not static. It’s a living cultural hub — with AI, 3D bazaars, auctions, collaborations, and community features — all in one place.",
+    "livingHubBody": "Unlike traditional marketplaces, KalaMitra is not static. It’s a living cultural hub — with AI, 3D bazaars, auctions, collaborations, and community features — all in one place.",
     "featuresTitle": "Features",
     "sellerFeaturesTitle": "Seller Features",
     "sellerFeaturesDesc": "Empowering artisans to manage, grow, and showcase their craft online.",
@@ -1191,13 +1191,13 @@
     "founderLabel": "Founder",
     "founderName": "Apoorv Gupta & Mradul Gupta",
     "roleLabel": "Role",
-    "roleName": "Student Founder Team, कलाMitra",
+    "roleName": "Student Founder Team, KalaMitra",
     "addressLabel": "Address",
     "addressText": "Moh. Daulatpur, Misrikh, Sitapur, Uttar Pradesh-261401"
   },
   "howItWorksPage": {
     "title": "How It Works",
-    "subtitle": "From skill to sale: Your journey on कलाMitra explained.",
+    "subtitle": "From skill to sale: Your journey on KalaMitra explained.",
     "artisanSection": {
       "title": "For Artisans",
       "steps": [
@@ -1240,12 +1240,12 @@
     }
   },
   "successStories": {
-    "title": "Voices of कलाMitra",
+    "title": "Voices of KalaMitra",
     "subtitle": "Real stories from artisans and buyers transforming their lives.",
     "comingSoonTitle": "Coming Soon",
-    "comingSoonDesc": "कलाMitra is currently in its prototype phase. Once we are fully live, this space will be filled with the inspiring journeys of our community.",
+    "comingSoonDesc": "KalaMitra is currently in its prototype phase. Once we are fully live, this space will be filled with the inspiring journeys of our community.",
     "shareStoryTitle": "Share Your Story",
-    "shareStoryDesc": "Join कलाMitra"
+    "shareStoryDesc": "Join KalaMitra"
   },
   "support": {
     "title": "We’re Here to Help",
@@ -1266,14 +1266,14 @@
       },
       "payments": {
         "q": "How do sellers get paid?",
-        "a": "Sellers receive payments directly to their registered bank account or UPI after a successful sale, minus any platform or payment gateway fees. कलाMitra does not hold or delay your funds."
+        "a": "Sellers receive payments directly to their registered bank account or UPI after a successful sale, minus any platform or payment gateway fees. KalaMitra does not hold or delay your funds."
       },
       "digital": {
         "q": "Can I sell digital products?",
-        "a": "Yes! कलाMitra allows artisans to sell digital creations such as Kolams, templates, and craft designs. Upload your digital product in your seller dashboard."
+        "a": "Yes! KalaMitra allows artisans to sell digital creations such as Kolams, templates, and craft designs. Upload your digital product in your seller dashboard."
       },
       "free": {
-        "q": "Is कलाMitra free?",
+        "q": "Is KalaMitra free?",
         "a": "Signing up and browsing is free. Sellers may be charged a small commission or service fee per sale, but there are no upfront listing fees."
       },
       "shipping": {
@@ -1309,7 +1309,7 @@
     "phoneLabel": "Phone",
     "mailingAddressTitle": "Mailing Address",
     "mailingAddressPoints": [
-      "कलाMitra Team (ThinkTech)",
+      "KalaMitra Team (ThinkTech)",
       "Moh. Daulatpur",
       "Misrikh, Sitapur",
       "Uttar Pradesh - 261401",
@@ -1323,16 +1323,16 @@
     "termsOfService": {
       "title": "Terms of Service",
       "intro": "Please read these terms carefully before using our platform.",
-      "operatedBy": "This website is operated by कलाMitra.",
+      "operatedBy": "This website is operated by KalaMitra.",
       "disclaimer": "This is a prototype/early-stage platform. By accessing or using this website, you agree to be bound by these Terms of Service. If you do not agree, please do not use the platform.",
       "section1Title": "Platform Role",
-      "section1Desc1": "कलाMitra is a technology facilitator connecting independent artisans (sellers) with buyers. We do not manufacture, own, store, or ship any products. All sales, fulfillment, and shipping are handled directly by the individual sellers listed on the platform.",
-      "section1Desc2": "कलाMitra is not responsible for the quality, safety, legality, or delivery of products, nor for any disputes or losses arising from transactions. We only provide a platform for direct connection and communication between buyers and sellers.",
+      "section1Desc1": "KalaMitra is a technology facilitator connecting independent artisans (sellers) with buyers. We do not manufacture, own, store, or ship any products. All sales, fulfillment, and shipping are handled directly by the individual sellers listed on the platform.",
+      "section1Desc2": "KalaMitra is not responsible for the quality, safety, legality, or delivery of products, nor for any disputes or losses arising from transactions. We only provide a platform for direct connection and communication between buyers and sellers.",
       "section2Title": "User Responsibilities",
       "section2Points": [
         "Users must provide accurate information and comply with all applicable laws.",
         "Buyers and sellers are solely responsible for their transactions, communications, and fulfillment of obligations.",
-        "Any disputes must be resolved directly between buyer and seller. कलाMitra may provide contact details to facilitate resolution but is not a party to any transaction."
+        "Any disputes must be resolved directly between buyer and seller. KalaMitra may provide contact details to facilitate resolution but is not a party to any transaction."
       ],
       "section3Title": "Return & Refund Policy",
       "section3Points": [
@@ -1347,7 +1347,7 @@
       "section4Points": [
         "Orders can be cancelled within 24 hours unless shipped. Custom orders cannot be cancelled.",
         "Shipping typically takes 5–10 business days (Domestic).",
-        "कलाMitra is not liable for indirect damages arising from platform use."
+        "KalaMitra is not liable for indirect damages arising from platform use."
       ],
       "section5Title": "Governing Law & Contact",
       "section5Desc": "These Terms shall be governed by the laws of India. Jurisdiction: Uttar Pradesh, India.",
@@ -1363,20 +1363,20 @@
       "intro": "Your trust is important to us. Learn how we handle your data.",
       "lastUpdated": "Last Updated: January 9, 2026",
       "section1Title": "Your Privacy",
-      "section1Desc": "कलाMitra values your privacy. This is a prototype/early-stage platform. We collect only the information necessary to facilitate transactions and improve your experience. Your data is never sold to third parties.\n\nकलाMitra may use basic cookies or analytics tools to improve platform performance and user experience. These do not collect sensitive personal data.\n\nWe may collect your name, contact details, and transaction information when you use our platform. This information is used solely to connect buyers and sellers and to provide you with a seamless experience.\n\nकलाMitra does not take responsibility for any actions, omissions, or issues arising from transactions between buyers and sellers. We only provide a platform for direct connection and communication between users. All sales, fulfillment, and shipping are handled by individual sellers listed on the platform.\n\nFor any privacy-related queries, contact: talkto.kalamitra@gmail.com",
+      "section1Desc": "KalaMitra values your privacy. This is a prototype/early-stage platform. We collect only the information necessary to facilitate transactions and improve your experience. Your data is never sold to third parties.\n\nKalaMitra may use basic cookies or analytics tools to improve platform performance and user experience. These do not collect sensitive personal data.\n\nWe may collect your name, contact details, and transaction information when you use our platform. This information is used solely to connect buyers and sellers and to provide you with a seamless experience.\n\nKalaMitra does not take responsibility for any actions, omissions, or issues arising from transactions between buyers and sellers. We only provide a platform for direct connection and communication between users. All sales, fulfillment, and shipping are handled by individual sellers listed on the platform.\n\nFor any privacy-related queries, contact: talkto.kalamitra@gmail.com",
       "section2Title": "Data Security",
-      "section2Desc": "We implement reasonable security measures to protect your data. However, कलाMitra is not responsible for any unauthorized access or misuse of your information by third parties, including sellers or other users.",
+      "section2Desc": "We implement reasonable security measures to protect your data. However, KalaMitra is not responsible for any unauthorized access or misuse of your information by third parties, including sellers or other users.",
       "section3Title": "Third-Party Links",
-      "section3Desc": "Our platform may contain links to third-party websites or services. कलाMitra is not responsible for the privacy practices or content of those third parties.",
+      "section3Desc": "Our platform may contain links to third-party websites or services. KalaMitra is not responsible for the privacy practices or content of those third parties.",
       "section4Title": "Platform Role Disclaimer",
-      "section4Desc": "कलाMitra is a technology facilitator and does not directly manufacture, sell, or ship products. We are not responsible for any disputes, losses, or damages arising from transactions between buyers and sellers. In case of any issues, you may be provided with the artisan's contact for direct resolution."
+      "section4Desc": "KalaMitra is a technology facilitator and does not directly manufacture, sell, or ship products. We are not responsible for any disputes, losses, or damages arising from transactions between buyers and sellers. In case of any issues, you may be provided with the artisan's contact for direct resolution."
     },
     "cookiePolicy": {
       "title": "Cookies Policy",
       "subtitle": "Understanding how we use cookies to improve your experience.",
-      "desc1": "कलाMitra may use basic cookies or analytics tools to improve platform performance and user experience. These cookies do not collect sensitive personal data and are only used for essential site functionality and analytics.",
+      "desc1": "KalaMitra may use basic cookies or analytics tools to improve platform performance and user experience. These cookies do not collect sensitive personal data and are only used for essential site functionality and analytics.",
       "desc2": "By using this website, you consent to the use of such cookies. You can control or delete cookies through your browser settings, but some features of the site may not function properly if cookies are disabled.",
-      "desc3": "कलाMitra does not use cookies for advertising or third-party marketing purposes.",
+      "desc3": "KalaMitra does not use cookies for advertising or third-party marketing purposes.",
       "questionsTitle": "Questions?",
       "contactText": "Contact us at"
     }

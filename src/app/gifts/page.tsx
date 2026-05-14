@@ -69,153 +69,150 @@ export default function GiftsPage() {
     return new Set();
   });
 
-  // Helper to enrich a gift with product and profile info
-  async function enrichGift(gift: Gift): Promise<Gift> {
-    // Fetch product
-    let product: { id: string; title: string; image_url?: string } | undefined = undefined;
-    if (gift.product_id) {
-      const { data: prod } = await supabase
-        .from('products')
-        .select('id, title, image_url')
-        .eq('id', gift.product_id)
-        .single();
-      product = prod || undefined;
-    }
-    // Fetch sender profile
-    let sender: { id: string; name: string; profile_image?: string | null } | undefined = undefined;
-    if (gift.sender_id) {
-      const { data: prof } = await supabase
-        .from('profiles')
-        .select('id, name, profile_image')
-        .eq('id', gift.sender_id)
-        .single();
-      sender = prof || undefined;
-    }
-    // Fetch recipient profile
-    let recipient: { id: string; name: string; profile_image?: string | null } | undefined = undefined;
-    if (gift.recipient_id) {
-      const { data: prof } = await supabase
-        .from('profiles')
-        .select('id, name, profile_image')
-        .eq('id', gift.recipient_id)
-        .single();
-      recipient = prof || undefined;
-    }
-    // Fetch contributor profiles for group gifts
-    let contributors: Contributor[] = [];
-    if (gift.metadata?.type === 'group_gift' && Array.isArray(gift.metadata?.contributors) && gift.metadata.contributors.length > 0) {
-      const { data: contribProfiles } = await supabase
-        .from('profiles')
-        .select('id, name, profile_image')
-        .in('id', gift.metadata.contributors);
-      contributors = contribProfiles || [];
-    }
-    return { ...gift, product, sender, recipient, contributors };
-  }
+  const uniqueIds = (values: Array<string | null | undefined>) => Array.from(new Set(values.filter(Boolean) as string[]));
 
-  // Helper to enrich a group gift with product and profile info
-  async function enrichGroupGift(gift: GroupGift): Promise<GroupGift> {
-    let product: { id: string; title: string; image_url?: string } | undefined = undefined;
-    if (gift.product_id) {
-      const { data: prod } = await supabase
-        .from('products')
-        .select('id, title, image_url')
-        .eq('id', gift.product_id)
-        .single();
-      product = prod || undefined;
+  const buildProfileMap = async (profileIds: string[]) => {
+    if (!profileIds.length) {
+      return new Map<string, { id: string; name: string; profile_image?: string | null }>();
     }
-    let recipient: { id: string; name: string; profile_image?: string | null } | undefined = undefined;
-    if (gift.recipient_id) {
-      const { data: prof } = await supabase
-        .from('profiles')
-        .select('id, name, profile_image')
-        .eq('id', gift.recipient_id)
-        .single();
-      recipient = prof || undefined;
+
+    const { data, error: profilesError } = await supabase
+      .from('profiles')
+      .select('id, name, profile_image')
+      .in('id', profileIds);
+
+    if (profilesError) {
+      throw profilesError;
     }
-    let initiator: { id: string; name: string; profile_image?: string | null } | undefined = undefined;
-    if (gift.initiator_id) {
-      const { data: prof } = await supabase
-        .from('profiles')
-        .select('id, name, profile_image')
-        .eq('id', gift.initiator_id)
-        .single();
-      initiator = prof || undefined;
+
+    return new Map((data || []).map((profileRow) => [profileRow.id, profileRow]));
+  };
+
+  const buildProductMap = async (productIds: string[]) => {
+    if (!productIds.length) {
+      return new Map<string, { id: string; title: string; image_url?: string }>();
     }
-    return { ...gift, product, recipient, initiator };
-  }
+
+    const { data, error: productsError } = await supabase
+      .from('products')
+      .select('id, title, image_url')
+      .in('id', productIds);
+
+    if (productsError) {
+      throw productsError;
+    }
+
+    return new Map((data || []).map((productRow) => [productRow.id, productRow]));
+  };
+
+  const enrichGift = (gift: Gift, productMap: Map<string, { id: string; title: string; image_url?: string }>, profileMap: Map<string, { id: string; name: string; profile_image?: string | null }>): Gift => {
+    const contributors = gift.metadata?.type === 'group_gift' && Array.isArray(gift.metadata?.contributors)
+      ? gift.metadata.contributors
+        .map((contributorId) => profileMap.get(contributorId))
+        .filter((contributor): contributor is Contributor => Boolean(contributor))
+      : [];
+
+    return {
+      ...gift,
+      product: gift.product_id ? productMap.get(gift.product_id) : undefined,
+      sender: gift.sender_id ? profileMap.get(gift.sender_id) : undefined,
+      recipient: gift.recipient_id ? profileMap.get(gift.recipient_id) : undefined,
+      contributors,
+    };
+  };
+
+  const enrichGroupGift = (gift: GroupGift, productMap: Map<string, { id: string; title: string; image_url?: string }>, profileMap: Map<string, { id: string; name: string; profile_image?: string | null }>): GroupGift => ({
+    ...gift,
+    product: gift.product_id ? productMap.get(gift.product_id) : undefined,
+    recipient: gift.recipient_id ? profileMap.get(gift.recipient_id) : undefined,
+    initiator: gift.initiator_id ? profileMap.get(gift.initiator_id) : undefined,
+  });
 
   const fetchGifts = async () => {
     setLoading(true);
     setError(null);
-    let received = [];
-    let sent = [];
-    let errR = null;
-    let errS = null;
-    if (profile?.id) {
-      const { data: r, error: eR } = await supabase
-        .from('gifts')
-        .select('*')
-        .eq('recipient_id', profile.id)
-        .order('created_at', { ascending: false });
-      received = r || [];
-      errR = eR;
-      const { data: s, error: eS } = await supabase
-        .from('gifts')
-        .select('*')
-        .eq('sender_id', profile.id)
-        .order('created_at', { ascending: false });
-      sent = s || [];
-      errS = eS;
-    }
-    if ((!received.length && !sent.length) && user?.id) {
-      const { data: r, error: eR } = await supabase
-        .from('gifts')
-        .select('*')
-        .eq('recipient_id', user.id)
-        .order('created_at', { ascending: false });
-      received = r || [];
-      errR = eR;
-      const { data: s, error: eS } = await supabase
-        .from('gifts')
-        .select('*')
-        .eq('sender_id', user.id)
-        .order('created_at', { ascending: false });
-      sent = s || [];
-      errS = eS;
-    }
-    // Enrich gifts with product/profile info
-    const receivedEnriched: Gift[] = await Promise.all(received.map(enrichGift));
-    const sentEnriched: Gift[] = await Promise.all(sent.map(enrichGift));
-    if (errR) setError(errR.message); else setGiftsR(receivedEnriched);
-    if (errS) setError(errS.message); else setGiftsS(sentEnriched);
-    setLoading(false);
-  };
 
-  const fetchGroupGifts = async () => {
-    if (!user && !profile) return;
-    const userId = profile?.id || user?.id;
-    // Fetch group gifts where user is a contributor or initiator (not recipient)
-    const { data: memberGifts, error: memberError } = await supabase
-      .from('group_gifts')
-      .select('*')
-      .or(`initiator_id.eq.${userId},member_ids.cs.{${userId}}`)
-      .not('recipient_id', 'eq', userId);
-    // Enrich
-    const enriched: GroupGift[] = memberGifts ? await Promise.all(memberGifts.map(enrichGroupGift)) : [];
-    setGroupGifts(enriched);
+    try {
+      const userId = profile?.id || user?.id;
+      if (!userId) {
+        setGiftsR([]);
+        setGiftsS([]);
+        setGroupGifts([]);
+        return;
+      }
+
+      const [receivedResult, sentResult, groupResult] = await Promise.all([
+        supabase
+          .from('gifts')
+          .select('id, product_id, sender_id, recipient_id, message, created_at, status, viewed, metadata')
+          .eq('recipient_id', userId)
+          .order('created_at', { ascending: false }),
+        supabase
+          .from('gifts')
+          .select('id, product_id, sender_id, recipient_id, message, created_at, status, viewed, metadata')
+          .eq('sender_id', userId)
+          .order('created_at', { ascending: false }),
+        supabase
+          .from('group_gifts')
+          .select('id, product_id, recipient_id, initiator_id, message, created_at, target_amount, member_ids')
+          .or(`initiator_id.eq.${userId},member_ids.cs.{${userId}}`)
+          .not('recipient_id', 'eq', userId),
+      ]);
+
+      const received = receivedResult.data || [];
+      const sent = sentResult.data || [];
+      const group = groupResult.data || [];
+
+      const productIds = uniqueIds([
+        ...received.map((gift) => gift.product_id),
+        ...sent.map((gift) => gift.product_id),
+        ...group.map((gift) => gift.product_id),
+      ]);
+
+      const profileIds = uniqueIds([
+        ...received.flatMap((gift) => [gift.sender_id, gift.recipient_id, ...(Array.isArray(gift.metadata?.contributors) ? gift.metadata.contributors : [])]),
+        ...sent.flatMap((gift) => [gift.sender_id, gift.recipient_id, ...(Array.isArray(gift.metadata?.contributors) ? gift.metadata.contributors : [])]),
+        ...group.flatMap((gift) => [gift.recipient_id, gift.initiator_id]),
+      ]);
+
+      const [productMap, profileMap] = await Promise.all([
+        buildProductMap(productIds),
+        buildProfileMap(profileIds),
+      ]);
+
+      const receivedEnriched: Gift[] = received.map((gift) => enrichGift(gift, productMap, profileMap));
+      const sentEnriched: Gift[] = sent.map((gift) => enrichGift(gift, productMap, profileMap));
+      const groupEnriched: GroupGift[] = group.map((gift) => enrichGroupGift(gift, productMap, profileMap));
+
+      if (receivedResult.error) {
+        throw receivedResult.error;
+      }
+      if (sentResult.error) {
+        throw sentResult.error;
+      }
+      if (groupResult.error) {
+        throw groupResult.error;
+      }
+
+      setGiftsR(receivedEnriched);
+      setGiftsS(sentEnriched);
+      setGroupGifts(groupEnriched);
+    } catch (err) {
+      console.error('Error fetching gifts:', err)
+      setError(err instanceof Error ? err.message : 'Failed to load gifts.')
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
     // Always trigger fetchGifts when either profile or user changes
     if (profile?.id || user?.id) {
       fetchGifts();
-      fetchGroupGifts();
     }
     // Listen for giftUpdated event to refetch gifts in real-time (sync with Navbar)
     const handleGiftUpdate = () => {
       fetchGifts();
-      fetchGroupGifts();
     };
     if (typeof window !== 'undefined') {
       window.addEventListener('giftUpdated', handleGiftUpdate);
@@ -335,31 +332,31 @@ export default function GiftsPage() {
       <div className="absolute bottom-20 right-[-10%] w-[40%] h-[40%] bg-gradient-to-br from-[var(--heritage-green)] to-[var(--heritage-blue)] rounded-full mix-blend-multiply filter blur-[100px] opacity-10 pointer-events-none"></div>
 
       <div className="max-w-6xl mx-auto px-4 md:px-8 relative z-10">
-        
+
         {/* Premium Hero Section */}
         <div className="flex flex-col items-center text-center py-16 md:py-24 space-y-6">
           <div className="inline-flex items-center px-4 py-1.5 bg-[var(--heritage-gold)]/10 dark:bg-[var(--heritage-gold)]/5 border border-[var(--heritage-gold)]/30 rounded-full shadow-sm mb-2 animate-slide-in-up">
             <Sparkles className="w-4 h-4 text-[var(--heritage-gold)] mr-2 animate-pulse" />
             <span className="text-sm font-semibold text-[var(--heritage-gold)] uppercase tracking-widest">{t('gifts.heroBadge', 'KalaMitra Gifting')}</span>
           </div>
-          
+
           <h1 className="text-5xl md:text-6xl lg:text-7xl font-display font-bold text-transparent bg-clip-text bg-gradient-to-r from-[var(--heritage-red)] to-[var(--heritage-gold)] dark:from-[var(--heritage-gold)] dark:to-[var(--heritage-accent)] tracking-tight animate-slide-in-up animate-delay-100 pb-2">
             {t('gifts.centerTitle', 'Your Gifts')}
           </h1>
-          
+
           <p className="text-xl md:text-2xl text-[var(--muted)] max-w-2xl font-serif animate-slide-in-up animate-delay-200">
             {t('gifts.centerSubtitle', 'Celebrate craftsmanship and shared heritage with every present.')}
           </p>
 
           <div className="mt-10 flex flex-wrap gap-4 justify-center animate-slide-in-up animate-delay-300">
-            <Link 
-              href="/marketplace" 
+            <Link
+              href="/marketplace"
               className="btn-primary flex items-center gap-3 px-8 py-4 rounded-xl text-lg hover-scale shadow-glow"
             >
               <Gift className="w-6 h-6" />
               {t('gifts.sendIndividualGift', 'Send a Gift')}
             </Link>
-            <button 
+            <button
               className="btn-secondary flex items-center gap-3 px-8 py-4 rounded-xl text-lg hover-scale border-[var(--heritage-gold)]/30 text-[var(--heritage-gold)] bg-[var(--bg-1)] hover:bg-[var(--heritage-gold)]/10 transition-colors"
               onClick={() => window.location.href = '/marketplace'}
             >
@@ -375,30 +372,27 @@ export default function GiftsPage() {
             {(['received', 'sent', 'group'] as const).map((tab) => (
               <button
                 key={tab}
-                className={`relative px-6 md:px-8 py-3 rounded-xl font-semibold text-base md:text-lg transition-all duration-300 whitespace-nowrap ${
-                  activeTab === tab 
-                    ? 'text-white shadow-md' 
+                className={`relative px-6 md:px-8 py-3 rounded-xl font-semibold text-base md:text-lg transition-all duration-300 whitespace-nowrap ${activeTab === tab
+                    ? 'text-white shadow-md'
                     : 'text-[var(--muted)] hover:text-[var(--text)] hover:bg-[var(--bg-1)]/50'
-                }`}
+                  }`}
                 onClick={() => setActiveTab(tab)}
               >
                 {activeTab === tab && (
                   <motion.div
                     layoutId="activeTabBackground"
-                    className={`absolute inset-0 rounded-xl bg-gradient-to-r ${
-                      tab === 'received' ? 'from-[var(--heritage-red)] to-[var(--heritage-gold)]' :
-                      tab === 'sent' ? 'from-[var(--heritage-gold)] to-[var(--heritage-accent)]' :
-                      'from-[var(--heritage-blue)] to-[var(--heritage-green)]'
-                    }`}
+                    className={`absolute inset-0 rounded-xl bg-gradient-to-r ${tab === 'received' ? 'from-[var(--heritage-red)] to-[var(--heritage-gold)]' :
+                        tab === 'sent' ? 'from-[var(--heritage-gold)] to-[var(--heritage-accent)]' :
+                          'from-[var(--heritage-blue)] to-[var(--heritage-green)]'
+                      }`}
                     initial={false}
                     transition={{ type: "spring", stiffness: 400, damping: 30 }}
                   />
                 )}
                 <span className="relative z-10 flex items-center gap-2">
                   {t(`gifts.${tab}Tab`, tab.charAt(0).toUpperCase() + tab.slice(1))}
-                  <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
-                    activeTab === tab ? 'bg-white/20 text-white' : 'bg-[var(--border)] text-[var(--muted)]'
-                  }`}>
+                  <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${activeTab === tab ? 'bg-white/20 text-white' : 'bg-[var(--border)] text-[var(--muted)]'
+                    }`}>
                     {tab === 'received' ? giftsR.length : tab === 'sent' ? giftsS.length : groupGifts.length}
                   </span>
                 </span>
@@ -411,7 +405,7 @@ export default function GiftsPage() {
         <div className="animate-slide-in-up animate-delay-500">
           {activeTab === 'received' && (
             giftsR.length === 0 ? (
-              <EmptyState 
+              <EmptyState
                 icon={<Gift className="w-16 h-16" />}
                 title={t('gifts.receivedEmpty', 'No gifts received yet')}
                 actionText={t('gifts.sendGiftNow', 'Browse Marketplace')}
@@ -429,7 +423,7 @@ export default function GiftsPage() {
 
           {activeTab === 'sent' && (
             giftsS.length === 0 ? (
-              <EmptyState 
+              <EmptyState
                 icon={<Heart className="w-16 h-16" />}
                 title={t('gifts.sentEmpty', 'No gifts sent yet')}
                 actionText={t('gifts.sendGiftNow', 'Send a Gift')}
@@ -447,7 +441,7 @@ export default function GiftsPage() {
 
           {activeTab === 'group' && (
             groupGifts.length === 0 ? (
-              <EmptyState 
+              <EmptyState
                 icon={<Users className="w-16 h-16" />}
                 title={t('gifts.groupEmpty', 'No group gifts yet')}
                 actionText={t('gifts.startGroupGiftNow', 'Start a Group Gift')}
@@ -542,7 +536,7 @@ function ReceivedGiftCard({ gift, index, handleUnbox, handleThank, thankedGifts,
             </h3>
           )}
           <p className="text-sm text-[var(--muted)] mb-4">{t('gifts.receivedOn', 'Received on {{date}}', { date: new Date(gift.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }) })}</p>
-          
+
           {/* Sender Info */}
           <div className="flex items-center justify-center sm:justify-start gap-3">
             {gift.viewed ? (
@@ -617,13 +611,13 @@ function ReceivedGiftCard({ gift, index, handleUnbox, handleThank, thankedGifts,
             className="w-full btn-secondary py-3 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-[var(--heritage-red)]/5 hover:text-[var(--heritage-red)] hover:border-[var(--heritage-red)]/30 transition-all group"
             onClick={() => handleThank(gift.id)}
           >
-            <Heart className="w-5 h-5 group-hover:fill-[var(--heritage-red)] transition-all" /> 
+            <Heart className="w-5 h-5 group-hover:fill-[var(--heritage-red)] transition-all" />
             {t('gifts.thankSender', 'Say Thank You')}
           </button>
         )}
         {thankedGifts.has(gift.id) && (
           <div className="w-full py-3 rounded-xl font-semibold flex items-center justify-center gap-2 bg-[var(--success)]/10 text-[var(--success)] border border-[var(--success)]/20">
-            <Heart className="w-5 h-5 fill-[var(--success)]" /> 
+            <Heart className="w-5 h-5 fill-[var(--success)]" />
             {t('gifts.thanked', 'Thanked')}
           </div>
         )}
@@ -659,7 +653,7 @@ function SentGiftCard({ gift, index, t }: any) {
             </h3>
           </Link>
           <p className="text-sm text-[var(--muted)] mb-4">{t('gifts.sentOn', 'Sent on {{date}}', { date: new Date(gift.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }) })}</p>
-          
+
           <div className="flex items-center justify-center sm:justify-start gap-3">
             {gift.recipient?.profile_image ? (
               <img src={gift.recipient.profile_image} alt={gift.recipient?.name || 'Recipient'} className="w-10 h-10 rounded-full object-cover border-2 border-[var(--bg-1)] shadow-sm" />
@@ -678,8 +672,8 @@ function SentGiftCard({ gift, index, t }: any) {
 
       {gift.message && (
         <div className="mt-2 p-4 bg-[var(--bg-2)]/50 rounded-xl border border-[var(--border)] italic text-[var(--text)] relative">
-           <QuoteIcon className="w-6 h-6 text-[var(--heritage-gold)]/20 absolute top-2 left-2" />
-           <p className="relative z-10 pl-6 text-sm leading-relaxed">&quot;{gift.message}&quot;</p>
+          <QuoteIcon className="w-6 h-6 text-[var(--heritage-gold)]/20 absolute top-2 left-2" />
+          <p className="relative z-10 pl-6 text-sm leading-relaxed">&quot;{gift.message}&quot;</p>
         </div>
       )}
     </motion.div>
@@ -715,7 +709,7 @@ function GroupGiftCard({ gift, index, t }: any) {
             </h3>
           </Link>
           <p className="text-sm text-[var(--muted)] mb-4">{t('gifts.createdOn', 'Created on {{date}}', { date: new Date(gift.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }) })}</p>
-          
+
           <div className="flex items-center justify-center sm:justify-start gap-3">
             {gift.initiator?.profile_image ? (
               <img src={gift.initiator.profile_image} alt={gift.initiator?.name || 'Initiator'} className="w-10 h-10 rounded-full object-cover border-2 border-[var(--bg-1)] shadow-sm" />
@@ -745,8 +739,8 @@ function GroupGiftCard({ gift, index, t }: any) {
 
       {gift.message && (
         <div className="p-4 bg-[var(--bg-2)]/50 rounded-xl border border-[var(--border)] italic text-[var(--text)] relative">
-           <QuoteIcon className="w-6 h-6 text-[var(--heritage-blue)]/20 absolute top-2 left-2" />
-           <p className="relative z-10 pl-6 text-sm leading-relaxed">&quot;{gift.message}&quot;</p>
+          <QuoteIcon className="w-6 h-6 text-[var(--heritage-blue)]/20 absolute top-2 left-2" />
+          <p className="relative z-10 pl-6 text-sm leading-relaxed">&quot;{gift.message}&quot;</p>
         </div>
       )}
 
