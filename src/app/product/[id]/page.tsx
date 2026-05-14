@@ -1148,20 +1148,40 @@ export default function ProductDetail() {
           productImage={product?.image_url}
         />
 
-        {/* Custom Request Modal */}
+        {/* Custom Request Modal (Heritage Premium) */}
         {
           customRequestModalOpen && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-              <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full relative">
-                <button className="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-xl" onClick={() => { setCustomRequestModalOpen(false); setCustomRequestSuccess(false); setCustomRequestMessage(""); setCustomRequestError(null); }}>&times;</button>
-                <h2 className="text-2xl font-bold mb-4">{t('product.customRequestModalTitle')}</h2>
-                {customRequestError && <div className="mb-2 text-teal-700 bg-teal-100 border border-teal-300 rounded px-3 py-2 text-sm">{customRequestError}</div>}
+            <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                className="bg-[var(--bg-1)] border border-[var(--border)] rounded-2xl shadow-2xl p-8 max-w-md w-full relative overflow-hidden"
+              >
+                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-[#b08d55]/20 to-transparent rounded-bl-full pointer-events-none"></div>
+
+                <button 
+                  className="absolute top-4 right-4 text-[var(--muted)] hover:text-[var(--text)] transition-colors p-2 rounded-full hover:bg-[var(--bg-2)] z-10" 
+                  onClick={() => { setCustomRequestModalOpen(false); setCustomRequestSuccess(false); setCustomRequestMessage(""); setCustomRequestError(null); }}
+                >
+                  <X className="w-5 h-5" />
+                </button>
+                
+                <h2 className="text-3xl font-display font-bold text-[var(--text)] mb-6 flex items-center gap-3 relative z-10">
+                  <Sparkles className="w-8 h-8 text-[#b08d55]" />
+                  {t('product.customRequestModalTitle', 'Custom Request')}
+                </h2>
+                
+                {customRequestError && <div className="mb-4 text-red-500 bg-red-500/10 border border-red-500/30 rounded-lg px-4 py-3 text-sm relative z-10">{customRequestError}</div>}
+                
                 {customRequestSuccess ? (
-                  <div className="text-center py-8">
-                    <div className="text-6xl mb-4">🎉</div>
-                    <h3 className="text-2xl font-bold text-green-600 mb-2">Request Sent!</h3>
-                    <p className="text-gray-600 mb-2">Your custom craft request has been sent to the seller.</p>
-                    <p className="text-teal-700 bg-teal-50 border border-teal-200 rounded px-3 py-2 text-sm mb-4">The seller will reach out to you through DM (Direct Message) for further details and updates.</p>
+                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-center py-6 relative z-10">
+                    <div className="w-20 h-20 mx-auto bg-gradient-to-br from-[#b08d55] to-[#8c6b30] rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(176,141,85,0.3)] mb-6">
+                      <Sparkles className="w-10 h-10 text-white" />
+                    </div>
+                    <h3 className="text-2xl font-serif font-bold text-[var(--text)] mb-2">Request Sent Successfully!</h3>
+                    <p className="text-[var(--muted)] mb-4">Your custom craft request has been sent to the artisan.</p>
+                    <p className="text-[#b08d55] bg-[#b08d55]/10 border border-[#b08d55]/30 rounded-lg px-4 py-3 text-sm mb-6">The artisan will reach out to you through Direct Message for further details.</p>
                     <button
                       onClick={() => {
                         setCustomRequestModalOpen(false);
@@ -1169,70 +1189,69 @@ export default function ProductDetail() {
                         setCustomRequestMessage("");
                         setCustomRequestError(null);
                       }}
-                      className="w-full px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-green-200 shadow-lg hover:shadow-xl"
+                      className="w-full btn-primary hover-scale shadow-glow"
                     >
                       Close
                     </button>
-                  </div>
+                  </motion.div>
                 ) : (
-                  <>
-                    <label className="block mb-2 font-semibold">{t('product.customRequestLabel')}</label>
-                    <div className="relative mb-4">
-                      <textarea
-                        value={customRequestMessage}
-                        onChange={e => setCustomRequestMessage(e.target.value)}
-                        className="w-full p-2 border rounded-lg pr-12"
-                        placeholder={t('product.customRequestPlaceholder')}
-                        disabled={customRequestLoading}
-                        rows={4}
-                      />
-                      <button
-                        type="button"
-                        className="absolute top-2 right-2 bg-teal-100 hover:bg-teal-200 text-teal-700 rounded-full p-2 shadow focus:outline-none"
-                        title={t('product.speakYourRequest')}
-                        onClick={() => {
-                          if (typeof window !== 'undefined' && ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
-                            const win = window as typeof window & {
-                              SpeechRecognition?: typeof SpeechRecognition;
-                              webkitSpeechRecognition?: typeof SpeechRecognition;
-                            };
-                            const SpeechRecognitionCtor: typeof SpeechRecognition | undefined = win.SpeechRecognition || win.webkitSpeechRecognition;
-                            if (!SpeechRecognitionCtor) {
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="relative z-10 space-y-4">
+                    <div>
+                      <label className="block mb-2 font-serif font-semibold text-[var(--text)]">{t('product.customRequestLabel', 'Describe Your Vision')}</label>
+                      <div className="relative">
+                        <textarea
+                          value={customRequestMessage}
+                          onChange={e => setCustomRequestMessage(e.target.value)}
+                          className="w-full p-4 bg-[var(--bg-2)] border border-[var(--border)] rounded-xl focus:ring-2 focus:ring-[#b08d55] focus:border-transparent text-[var(--text)] transition-all min-h-[120px] resize-none pr-14"
+                          placeholder={t('product.customRequestPlaceholder', 'E.g. I would like this in a darker shade of blue, with my initials engraved...')}
+                          disabled={customRequestLoading}
+                        />
+                        <button
+                          type="button"
+                          className="absolute bottom-4 right-4 bg-[#b08d55]/10 hover:bg-[#b08d55]/20 text-[#b08d55] rounded-full p-2.5 transition-colors focus:outline-none focus:ring-2 focus:ring-[#b08d55] group"
+                          title={t('product.speakYourRequest', 'Speak your request')}
+                          onClick={() => {
+                            if (typeof window !== 'undefined' && ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+                              const win = window as typeof window & {
+                                SpeechRecognition?: typeof SpeechRecognition;
+                                webkitSpeechRecognition?: typeof SpeechRecognition;
+                              };
+                              const SpeechRecognitionCtor: typeof SpeechRecognition | undefined = win.SpeechRecognition || win.webkitSpeechRecognition;
+                              if (!SpeechRecognitionCtor) {
+                                setCustomRequestError('Speech recognition not supported in this browser.');
+                                return;
+                              }
+                              const recognition = new SpeechRecognitionCtor();
+                              const langMap: Record<string, string> = {
+                                en: 'en-IN', hi: 'hi-IN', assamese: 'as-IN', bengali: 'bn-IN', bodo: 'brx-IN', dogri: 'doi-IN', gujarati: 'gu-IN', kannad: 'kn-IN', kannada: 'kn-IN', kashmiri: 'ks-IN', konkani: 'kok-IN', maithili: 'mai-IN', malyalam: 'ml-IN', malayalam: 'ml-IN', manipuri: 'mni-IN', marathi: 'mr-IN', nepali: 'ne-NP', oriya: 'or-IN', punjabi: 'pa-IN', sanskrit: 'sa-IN', santhali: 'sat-IN', sindhi: 'sd-IN', tamil: 'ta-IN', telgu: 'te-IN', telugu: 'te-IN', urdu: 'ur-IN', as: 'as-IN', bn: 'bn-IN', brx: 'brx-IN', doi: 'doi-IN', gu: 'gu-IN', kn: 'kn-IN', ks: 'ks-IN', kok: 'kok-IN', mai: 'mai-IN', ml: 'ml-IN', mni: 'mni-IN', mr: 'mr-IN', ne: 'ne-NP', or: 'or-IN', pa: 'pa-IN', sa: 'sa-IN', sat: 'sat-IN', sd: 'sd-IN', ta: 'ta-IN', te: 'te-IN', ur: 'ur-IN',
+                              };
+                              const appLang = (typeof currentLanguage !== 'undefined' && currentLanguage) ? currentLanguage : (typeof i18n !== 'undefined' && i18n.language ? i18n.language : 'en');
+                              recognition.lang = langMap[appLang] || appLang || 'en-IN';
+                              recognition.interimResults = false;
+                              recognition.maxAlternatives = 1;
+                              recognition.onresult = (event: SpeechRecognitionEvent) => {
+                                const transcript = event.results[0][0].transcript;
+                                setCustomRequestMessage(prev => prev ? prev + ' ' + transcript : transcript);
+                              };
+                              recognition.onerror = (event: Event) => {
+                                const error = (event as { error?: string }).error;
+                                setCustomRequestError('Voice input error: ' + (error || 'Unknown error'));
+                              };
+                              recognition.start();
+                            } else {
                               setCustomRequestError('Speech recognition not supported in this browser.');
-                              return;
                             }
-                            const recognition = new SpeechRecognitionCtor();
-                            // Map app language to BCP-47 code
-                            const langMap: Record<string, string> = {
-                              en: 'en-IN', hi: 'hi-IN', assamese: 'as-IN', bengali: 'bn-IN', bodo: 'brx-IN', dogri: 'doi-IN', gujarati: 'gu-IN', kannad: 'kn-IN', kannada: 'kn-IN', kashmiri: 'ks-IN', konkani: 'kok-IN', maithili: 'mai-IN', malyalam: 'ml-IN', malayalam: 'ml-IN', manipuri: 'mni-IN', marathi: 'mr-IN', nepali: 'ne-NP', oriya: 'or-IN', punjabi: 'pa-IN', sanskrit: 'sa-IN', santhali: 'sat-IN', sindhi: 'sd-IN', tamil: 'ta-IN', telgu: 'te-IN', telugu: 'te-IN', urdu: 'ur-IN', as: 'as-IN', bn: 'bn-IN', brx: 'brx-IN', doi: 'doi-IN', gu: 'gu-IN', kn: 'kn-IN', ks: 'ks-IN', kok: 'kok-IN', mai: 'mai-IN', ml: 'ml-IN', mni: 'mni-IN', mr: 'mr-IN', ne: 'ne-NP', or: 'or-IN', pa: 'pa-IN', sa: 'sa-IN', sat: 'sat-IN', sd: 'sd-IN', ta: 'ta-IN', te: 'te-IN', ur: 'ur-IN',
-                            };
-                            // Use currentLanguage or i18n.language
-                            const appLang = (typeof currentLanguage !== 'undefined' && currentLanguage) ? currentLanguage : (typeof i18n !== 'undefined' && i18n.language ? i18n.language : 'en');
-                            recognition.lang = langMap[appLang] || appLang || 'en-IN';
-                            recognition.interimResults = false;
-                            recognition.maxAlternatives = 1;
-                            recognition.onresult = (event: SpeechRecognitionEvent) => {
-                              const transcript = event.results[0][0].transcript;
-                              setCustomRequestMessage(prev => prev ? prev + ' ' + transcript : transcript);
-                            };
-                            recognition.onerror = (event: Event) => {
-                              const error = (event as { error?: string }).error;
-                              setCustomRequestError('Voice input error: ' + (error || 'Unknown error'));
-                            };
-                            recognition.start();
-                          } else {
-                            setCustomRequestError('Speech recognition not supported in this browser.');
-                          }
-                        }}
-                        disabled={customRequestLoading}
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 18.75v-1.5m0-13.5a3.75 3.75 0 013.75 3.75v6a3.75 3.75 0 01-7.5 0v-6A3.75 3.75 0 0112 3.75zm0 0v13.5m6-6a6 6 0 11-12 0" />
-                        </svg>
-                      </button>
+                          }}
+                          disabled={customRequestLoading}
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 group-hover:scale-110 transition-transform">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 18.75v-1.5m0-13.5a3.75 3.75 0 013.75 3.75v6a3.75 3.75 0 01-7.5 0v-6A3.75 3.75 0 0112 3.75zm0 0v13.5m6-6a6 6 0 11-12 0" />
+                          </svg>
+                        </button>
+                      </div>
                     </div>
                     <button
-                      className="w-full px-6 py-3 bg-gradient-to-r from-teal-500 to-emerald-600 text-white font-semibold rounded-xl hover:from-teal-600 hover:to-emerald-700 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-teal-200 shadow-lg hover:shadow-xl disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
+                      className="w-full btn-primary mt-6 hover-scale shadow-glow disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none flex justify-center items-center gap-2"
                       onClick={async () => {
                         setCustomRequestLoading(true);
                         setCustomRequestError(null);
@@ -1272,11 +1291,21 @@ export default function ProductDetail() {
                       }}
                       disabled={customRequestLoading || !customRequestMessage.trim()}
                     >
-                      {customRequestLoading ? t('product.sending') : t('product.sendCustomRequest')}
+                      {customRequestLoading ? (
+                        <>
+                          <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                          {t('product.sending', 'Sending...')}
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="w-5 h-5" />
+                          {t('product.sendCustomRequest', 'Send Request')}
+                        </>
+                      )}
                     </button>
-                  </>
+                  </motion.div>
                 )}
-              </div>
+              </motion.div>
             </div>
           )
         }
