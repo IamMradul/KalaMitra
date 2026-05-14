@@ -286,7 +286,7 @@ export default function Navbar() {
             setShowMobileNotificationDot(true);
             // Auto-hide toast after 5 seconds
             setTimeout(() => setNewNotificationToast(null), 5000);
-            
+
             // Immediately increment count if the new notification is unread
             if (!payload.new.read) {
               setUnreadNotificationsCount(prev => prev + 1);
@@ -673,9 +673,9 @@ export default function Navbar() {
               <div className="relative w-14 h-14 flex items-center justify-center group-hover:scale-110 transition-all duration-500">
                 <Image src="/kalamitra-symbol.png" alt="KalaMitra Symbol" width={56} height={56} className="object-contain drop-shadow-md w-auto h-auto" priority />
               </div>
-              <span className="text-3xl font-bold heritage-title hidden md:inline" key={`brand-${currentLanguage}`}>{t('brand.name')}</span>
+              <span className="text-3xl font-extrabold heritage-title hidden md:inline" key={`brand-${currentLanguage}`}>{t('brand.name')}</span>
               {/* Mobile: Show "KM" when signed in, "KalaMitra" when not */}
-              <span id="navbar-brand-mobile" className="text-2xl font-bold heritage-title md:hidden" key={`brand-short-${currentLanguage}`}>
+              <span id="navbar-brand-mobile" className="text-2xl font-extrabold heritage-title md:hidden" key={`brand-short-${currentLanguage}`}>
                 {user ? 'KM' : 'KalaMitra'}
               </span>
             </Link>
@@ -825,11 +825,10 @@ export default function Navbar() {
                                   {notifications.map((notif) => (
                                     <div
                                       key={notif.id}
-                                      className={`p-4 transition-all duration-200 border-l-4 ${
-                                        notif.read
-                                          ? 'border-l-transparent bg-[var(--bg-1)]'
-                                          : 'border-l-blue-500 bg-[var(--bg-2)]'
-                                      } hover:bg-[var(--bg-3)]`}
+                                      className={`p-4 transition-all duration-200 border-l-4 ${notif.read
+                                        ? 'border-l-transparent bg-[var(--bg-1)]'
+                                        : 'border-l-blue-500 bg-[var(--bg-2)]'
+                                        } hover:bg-[var(--bg-3)]`}
                                     >
                                       <div className="flex justify-between items-start gap-3">
                                         <div className="flex-1 min-w-0">
@@ -1142,7 +1141,7 @@ export default function Navbar() {
         {/* Mobile navbar */}
         <AnimatePresence>
           {isMenuOpen && (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
@@ -1161,8 +1160,8 @@ export default function Navbar() {
                 {/* User Context Header (if logged in) */}
                 {user && (
                   <div className="px-4 py-4 mb-4 bg-gradient-to-br from-[var(--bg-3)] to-[var(--bg-1)] rounded-3xl border border-heritage-gold/10 shadow-sm flex items-center justify-between relative group">
-                    <Link 
-                      href="/profile" 
+                    <Link
+                      href="/profile"
                       onClick={() => setIsMenuOpen(false)}
                       className="flex items-center space-x-3 flex-1"
                     >
@@ -1218,8 +1217,8 @@ export default function Navbar() {
                     )}
                   </Link>
 
-                  <Link 
-                    href="/reels" 
+                  <Link
+                    href="/reels"
                     className="flex items-center space-x-3 px-5 py-4 bg-[var(--bg-1)] rounded-2xl hover:bg-[var(--bg-3)] transition-all border border-transparent active:scale-95"
                     onClick={() => setIsMenuOpen(false)}
                   >
@@ -1328,7 +1327,7 @@ export default function Navbar() {
                           onClick={() => setIsMenuOpen(false)}
                         >
                           <Heart className="w-6 h-6 text-red-500 mb-2" />
-                          <span className="text-[10px] font-bold text-red-600 dark:text-red-400 uppercase tracking-wider">{t('profile.wishlist') }</span>
+                          <span className="text-[10px] font-bold text-red-600 dark:text-red-400 uppercase tracking-wider">{t('profile.wishlist')}</span>
                         </Link>
                       </div>
 

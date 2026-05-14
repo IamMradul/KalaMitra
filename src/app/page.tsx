@@ -154,7 +154,7 @@ export default function Home() {
 
             {/* Main Title */}
             <h1 className="text-pretty text-3xl md:text-5xl xl:text-6xl font-bold font-display text-white animate-slide-in-up animate-delay-100 hero-title leading-tight mb-2">
-              <span className="text-primary font-bold whitespace-pre-line lg:whitespace-nowrap break-words">{t('home.mainTitle')}</span>
+              <span className="text-white font-bold whitespace-pre-line lg:whitespace-nowrap break-words">{t('home.mainTitle')}</span>
             </h1>
 
             {/* Subtitle */}

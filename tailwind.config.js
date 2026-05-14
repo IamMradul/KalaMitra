@@ -13,8 +13,10 @@ module.exports = {
         foreground: 'var(--foreground)',
       },
       fontFamily: {
-        sans: ['var(--font-geist-sans)', 'Arial', 'sans-serif'],
+        sans: ['var(--font-nunito)', 'Arial', 'sans-serif'],
         mono: ['var(--font-geist-mono)', 'monospace'],
+        cormorant: ['var(--font-cormorant)', 'serif'],
+        tiro: ['var(--font-tiro)', 'serif'],
       },
       animation: {
         'float': 'float 6s ease-in-out infinite',

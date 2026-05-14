@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { Cormorant_Garamond, Nunito, Tiro_Devanagari_Hindi } from 'next/font/google'
 import '@/app/globals.css'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { ThemeProvider } from '@/components/ThemeProvider'
@@ -9,7 +9,25 @@ import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import AIChatConditional from '@/components/AIChatConditional'
 
-const inter = Inter({ subsets: ['latin'] })
+const cormorant = Cormorant_Garamond({ 
+  weight: ['400', '600', '700'], 
+  style: ['normal', 'italic'],
+  subsets: ['latin'],
+  variable: '--font-cormorant'
+})
+
+const nunito = Nunito({ 
+  weight: ['400', '500', '600', '700'], 
+  subsets: ['latin'],
+  variable: '--font-nunito'
+})
+
+const tiro = Tiro_Devanagari_Hindi({ 
+  weight: '400', 
+  style: ['normal', 'italic'],
+  subsets: ['devanagari', 'latin'],
+  variable: '--font-tiro'
+})
 
 export const metadata: Metadata = {
   title: 'KalaMitra',
@@ -47,7 +65,7 @@ export default function RootLayout({
         <meta property="profile:profile_link" content="https://www.linkedin.com/in/-apoorv-/" />
         <link rel="canonical" href="https://kalamitra.store" />
       </head>
-      <body className={inter.className} suppressHydrationWarning>
+      <body className={`${nunito.variable} ${cormorant.variable} ${tiro.variable} font-sans`} suppressHydrationWarning>
         <AuthProvider>
           <LanguageProvider>
             <ThemeProvider>
