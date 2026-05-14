@@ -332,7 +332,7 @@ export default function GroupGiftContribution({ groupGiftId }: GroupGiftContribu
         <div className="grid md:grid-cols-2 gap-8 relative z-10">
           <div className="bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/20">
             <h2 className="text-xl font-bold mb-2">{groupGift.product.title}</h2>
-            <p className="text-white/80 text-sm font-medium">{t('groupGiftModal.productForRecipient', { name: groupGift.recipient.name }, `For ${groupGift.recipient.name}`)}</p>
+            <p className="text-white/80 text-sm font-medium">{t('groupGiftModal.productForRecipient', { name: groupGift.recipient.name })}</p>
             {groupGift.message && (
               <p className="mt-3 text-sm italic border-l-2 border-white/40 pl-3">&quot;{groupGift.message}&quot;</p>
             )}
@@ -357,7 +357,7 @@ export default function GroupGiftContribution({ groupGiftId }: GroupGiftContribu
             {t('groupGiftModal.progressTitle', 'Progress')}
           </h3>
           <span className="font-bold text-heritage-gold">
-            {t('groupGiftModal.progressComplete', { percent: progressPercentage.toFixed(1) }, `${progressPercentage.toFixed(1)}% Complete`)}
+            {t('groupGiftModal.progressComplete', { percent: progressPercentage.toFixed(1) })}
           </span>
         </div>
 
@@ -424,7 +424,7 @@ export default function GroupGiftContribution({ groupGiftId }: GroupGiftContribu
                     setContributionAmount(val === '' ? 0 : maxAmount);
                   }}
                   className="w-full pl-10 pr-4 py-3 sm:py-4 border border-border-color rounded-xl focus:ring-2 focus:ring-heritage-blue focus:outline-none focus:border-transparent bg-bg-2 text-text font-bold text-lg transition-all"
-                  placeholder={t('groupGiftModal.amountPlaceholder', { max: remainingAmount }, `Max: ₹${remainingAmount}`)}
+                  placeholder={t('groupGiftModal.amountPlaceholder', { max: remainingAmount })}
                   min="1"
                   max={remainingAmount}
                 />
@@ -457,7 +457,7 @@ export default function GroupGiftContribution({ groupGiftId }: GroupGiftContribu
               ) : (
                 <>
                   <Gift className="w-5 h-5" />
-                  {t('groupGiftModal.contributeButton', { amount: contributionAmount || 0 }, `Contribute ₹${contributionAmount || 0}`)}
+                  {t('groupGiftModal.contributeButton', { amount: contributionAmount || 0 })}
                 </>
               )}
             </button>
@@ -474,7 +474,7 @@ export default function GroupGiftContribution({ groupGiftId }: GroupGiftContribu
       >
         <h3 className="text-xl font-serif font-bold text-text mb-6 flex items-center gap-2">
           <Users className="w-5 h-5 text-heritage-blue" />
-          {t('groupGiftModal.contributorsTitle', { count: contributions.length }, `Contributors (${contributions.length})`)}
+          {t('groupGiftModal.contributorsTitle', { count: contributions.length })}
         </h3>
         {contributions.length === 0 ? (
           <div className="bg-bg-2 border border-border-color rounded-2xl py-12 text-center">
