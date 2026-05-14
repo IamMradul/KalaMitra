@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Heart, Users, DollarSign, Gift, User } from 'lucide-react'
+import { Heart, Users, DollarSign, Gift, User, Sparkles } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
 import { useTranslation } from 'react-i18next';
@@ -292,17 +292,17 @@ export default function GroupGiftContribution({ groupGiftId }: GroupGiftContribu
 
   if (fetchError) {
     return (
-      <div className="flex items-center justify-center p-8 text-center">
-        <div className="w-8 h-8 border-4 border-red-200 border-t-red-500 rounded-full animate-spin mb-4" />
-        <div className="text-red-600 dark:text-red-400 font-semibold text-lg">{fetchError}</div>
+      <div className="flex items-center justify-center p-8 text-center min-h-[50vh]">
+        <div className="w-8 h-8 border-4 border-[var(--heritage-red)]/30 border-t-[var(--heritage-red)] rounded-full animate-spin mb-4" />
+        <div className="text-[var(--heritage-red)] font-semibold text-lg">{fetchError}</div>
       </div>
     )
   }
 
   if (!groupGift) {
     return (
-      <div className="flex items-center justify-center p-8">
-        <div className="w-8 h-8 border-4 border-purple-200 border-t-purple-500 rounded-full animate-spin" />
+      <div className="flex items-center justify-center p-8 min-h-[50vh]">
+        <div className="w-8 h-8 border-4 border-[var(--heritage-blue)]/30 border-t-[var(--heritage-blue)] rounded-full animate-spin" />
       </div>
     )
   }
@@ -311,78 +311,110 @@ export default function GroupGiftContribution({ groupGiftId }: GroupGiftContribu
   const remainingAmount = Math.max(groupGift.target_amount - groupGift.current_amount, 0)
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8">
       {/* Header */}
-      <div className="bg-gradient-to-r from-purple-500 to-pink-500 rounded-3xl p-8 text-white mb-8">
-        <div className="flex items-center gap-4 mb-6">
-          <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center">
-            <Gift className="w-8 h-8" />
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-gradient-to-br from-[var(--heritage-blue)] to-[var(--heritage-green)] rounded-3xl p-8 text-white mb-8 shadow-[0_10px_30px_rgba(30,58,138,0.2)] relative overflow-hidden"
+      >
+        <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl transform translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
+        <div className="flex items-center gap-5 mb-8 relative z-10">
+          <div className="w-16 h-16 bg-white/20 backdrop-blur-md border border-white/30 rounded-2xl flex items-center justify-center shadow-lg">
+            <Gift className="w-8 h-8 text-white" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold">{t('groupGiftModal.headerTitle')}</h1>
-            <p className="text-purple-100">{t('groupGiftModal.headerSubtitle')}</p>
+            <h1 className="text-3xl sm:text-4xl font-serif font-bold tracking-tight">{t('groupGiftModal.headerTitle', 'Group Gift Contribution')}</h1>
+            <p className="text-white/80 mt-1 font-medium">{t('groupGiftModal.headerSubtitle', 'Help your friend get their dream item')}</p>
           </div>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-6">
-          <div>
-            <h2 className="text-xl font-semibold mb-2">{groupGift.product.title}</h2>
-            <p className="text-purple-100">{t('groupGiftModal.productForRecipient', { name: groupGift.recipient.name })}</p>
+        <div className="grid md:grid-cols-2 gap-8 relative z-10">
+          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/20">
+            <h2 className="text-xl font-bold mb-2">{groupGift.product.title}</h2>
+            <p className="text-white/80 text-sm font-medium">{t('groupGiftModal.productForRecipient', { name: groupGift.recipient.name }, `For ${groupGift.recipient.name}`)}</p>
             {groupGift.message && (
-              <p className="mt-2 text-sm italic">&quot;{groupGift.message}&quot;</p>
+              <p className="mt-3 text-sm italic border-l-2 border-white/40 pl-3">&quot;{groupGift.message}&quot;</p>
             )}
           </div>
-          <div className="text-right">
-            <p className="text-2xl font-bold">₹{groupGift.current_amount.toLocaleString()}</p>
-            <p className="text-purple-100">of ₹{groupGift.target_amount.toLocaleString()} raised</p>
+          <div className="flex flex-col justify-center items-end bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/20">
+            <p className="text-3xl font-bold mb-1">₹{groupGift.current_amount.toLocaleString()}</p>
+            <p className="text-white/80 text-sm font-medium">of ₹{groupGift.target_amount.toLocaleString()} raised</p>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Progress Bar */}
-      <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg mb-8">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="bg-[var(--bg-1)] border border-[var(--border)] rounded-3xl p-6 sm:p-8 shadow-xl mb-8 transition-colors duration-300"
+      >
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{t('groupGiftModal.progressTitle')}</h3>
-          <span className="text-sm text-gray-500 dark:text-gray-400">
-            {t('groupGiftModal.progressComplete', { percent: progressPercentage.toFixed(1) })}
+          <h3 className="text-xl font-serif font-bold text-[var(--text)] flex items-center gap-2">
+             <DollarSign className="w-5 h-5 text-[var(--heritage-gold)]" />
+            {t('groupGiftModal.progressTitle', 'Progress')}
+          </h3>
+          <span className="font-bold text-[var(--heritage-gold)]">
+            {t('groupGiftModal.progressComplete', { percent: progressPercentage.toFixed(1) }, `${progressPercentage.toFixed(1)}% Complete`)}
           </span>
         </div>
         
-        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4 mb-4">
+        <div className="w-full bg-[var(--bg-2)] border border-[var(--border)] rounded-full h-5 mb-6 overflow-hidden p-1">
           <motion.div
-            className="bg-gradient-to-r from-purple-500 to-pink-500 h-4 rounded-full"
+            className="bg-gradient-to-r from-[var(--heritage-blue)] to-[var(--heritage-green)] h-full rounded-full relative"
             initial={{ width: 0 }}
             animate={{ width: `${progressPercentage}%` }}
-            transition={{ duration: 1, ease: "easeOut" }}
-          />
+            transition={{ duration: 1.5, ease: "easeOut" }}
+          >
+            <div className="absolute inset-0 bg-white/20 w-full h-full" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)' }}></div>
+          </motion.div>
         </div>
 
         {groupGift.status === 'completed' ? (
-          <div className="text-center py-4">
-            <div className="text-4xl mb-2">🎉</div>
-            <p className="text-lg font-semibold text-green-600">{t('groupGiftModal.progressTargetReached')}</p>
-            <p className="text-gray-600 dark:text-gray-400">{t('groupGiftModal.progressReady')}</p>
+          <div className="text-center py-6 bg-[var(--heritage-green)]/10 border border-[var(--heritage-green)]/30 rounded-2xl">
+            <div className="w-16 h-16 bg-gradient-to-br from-[var(--heritage-green)] to-[#2ecc71] rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg shadow-[var(--heritage-green)]/30">
+              <Sparkles className="w-8 h-8 text-white" />
+            </div>
+            <p className="text-2xl font-serif font-bold text-[var(--text)] mb-2">{t('groupGiftModal.progressTargetReached', 'Target Reached!')}</p>
+            <p className="text-[var(--muted)] font-medium">{t('groupGiftModal.progressReady', 'The gift is ready to be sent to the recipient.')}</p>
           </div>
         ) : (
-          <div className="text-center">
-            <p className="text-gray-600 dark:text-gray-400">
-              <span className="font-semibold text-purple-600">₹{remainingAmount.toLocaleString()}</span> {t('groupGiftModal.progressStillNeeded')}
+          <div className="text-center bg-[var(--bg-2)] rounded-2xl p-4 border border-[var(--border)]">
+            <p className="text-[var(--text)] font-medium text-lg">
+              {t('groupGiftModal.progressStillNeeded', { amount: 'SPLIT_HERE' }).split('SPLIT_HERE').map((part, i, arr) => (
+                <span key={i}>
+                  {part}
+                  {i < arr.length - 1 && (
+                    <span className="font-bold text-[var(--heritage-gold)]">₹{remainingAmount.toLocaleString()}</span>
+                  )}
+                </span>
+              ))}
             </p>
           </div>
         )}
-      </div>
+      </motion.div>
 
       {/* Contribution Form */}
       {groupGift.status !== 'completed' && (
-        <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg mb-8">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{t('groupGiftModal.contributeTitle')}</h3>
-          <div className="space-y-4">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="bg-[var(--bg-1)] border border-[var(--border)] rounded-3xl p-6 sm:p-8 shadow-xl mb-8 transition-colors duration-300"
+        >
+          <h3 className="text-xl font-serif font-bold text-[var(--text)] mb-6 flex items-center gap-2">
+            <Heart className="w-5 h-5 text-[var(--heritage-red)]" />
+            {t('groupGiftModal.contributeTitle', 'Make a Contribution')}
+          </h3>
+          <div className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                {t('groupGiftModal.amountLabel')}
+              <label className="block text-sm font-semibold text-[var(--text)] mb-2">
+                {t('groupGiftModal.amountLabel', 'Amount (₹)')}
               </label>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 font-bold">₹</span>
+                <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[var(--muted)] w-5 h-5 font-bold text-lg">₹</span>
                 <input
                   type="number"
                   value={contributionAmount === 0 ? '' : contributionAmount}
@@ -391,8 +423,8 @@ export default function GroupGiftContribution({ groupGiftId }: GroupGiftContribu
                     const maxAmount = Math.max(1, Math.min(Number(val), remainingAmount));
                     setContributionAmount(val === '' ? 0 : maxAmount);
                   }}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                  placeholder={t('groupGiftModal.amountPlaceholder', { max: remainingAmount })}
+                  className="w-full pl-10 pr-4 py-3 sm:py-4 border border-[var(--border)] rounded-xl focus:ring-2 focus:ring-[var(--heritage-blue)] focus:outline-none focus:border-transparent bg-[var(--bg-2)] text-[var(--text)] font-bold text-lg transition-all"
+                  placeholder={t('groupGiftModal.amountPlaceholder', { max: remainingAmount }, `Max: ₹${remainingAmount}`)}
                   min="1"
                   max={remainingAmount}
                 />
@@ -400,83 +432,97 @@ export default function GroupGiftContribution({ groupGiftId }: GroupGiftContribu
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                {t('groupGiftModal.messageLabel')}
+              <label className="block text-sm font-semibold text-[var(--text)] mb-2">
+                {t('groupGiftModal.messageLabel', 'Personal Message (Optional)')}
               </label>
               <textarea
                 value={contributionMessage}
                 onChange={(e) => setContributionMessage(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                className="w-full px-4 py-3 sm:py-4 border border-[var(--border)] rounded-xl focus:ring-2 focus:ring-[var(--heritage-blue)] focus:outline-none focus:border-transparent bg-[var(--bg-2)] text-[var(--text)] transition-all resize-none"
                 rows={3}
-                placeholder={t('groupGiftModal.messagePlaceholder')}
+                placeholder={t('groupGiftModal.messagePlaceholder', 'Write a message to accompany your contribution...')}
               />
             </div>
 
             <button
               onClick={handleContribute}
               disabled={contributing || typeof contributionAmount !== 'number' || contributionAmount <= 0}
-              className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 px-6 rounded-lg font-semibold hover:from-purple-600 hover:to-pink-600 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+              className="w-full bg-gradient-to-r from-[var(--heritage-blue)] to-[var(--heritage-green)] text-white py-4 px-6 rounded-xl font-bold hover:shadow-[0_10px_25px_rgba(30,58,138,0.3)] transition-all transform hover:-translate-y-1 disabled:opacity-50 disabled:hover:transform-none disabled:hover:shadow-none flex items-center justify-center gap-2 text-lg"
             >
               {contributing ? (
                 <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  {t('groupGiftModal.contributing')}
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  {t('groupGiftModal.contributing', 'Processing...')}
                 </>
               ) : (
                 <>
-                  <Heart className="w-4 h-4" />
-                  {t('groupGiftModal.contributeButton', { amount: contributionAmount || 0 })}
+                  <Gift className="w-5 h-5" />
+                  {t('groupGiftModal.contributeButton', { amount: contributionAmount || 0 }, `Contribute ₹${contributionAmount || 0}`)}
                 </>
               )}
             </button>
           </div>
-        </div>
+        </motion.div>
       )}
 
       {/* Contributors List */}
-      <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          {t('groupGiftModal.contributorsTitle', { count: contributions.length })}
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+        className="bg-[var(--bg-1)] border border-[var(--border)] rounded-3xl p-6 sm:p-8 shadow-xl transition-colors duration-300"
+      >
+        <h3 className="text-xl font-serif font-bold text-[var(--text)] mb-6 flex items-center gap-2">
+          <Users className="w-5 h-5 text-[var(--heritage-blue)]" />
+          {t('groupGiftModal.contributorsTitle', { count: contributions.length }, `Contributors (${contributions.length})`)}
         </h3>
         {contributions.length === 0 ? (
-          <p className="text-gray-500 dark:text-gray-400 text-center py-4">{t('groupGiftModal.noContributions')}</p>
+          <div className="bg-[var(--bg-2)] border border-[var(--border)] rounded-2xl py-12 text-center">
+            <Users className="w-12 h-12 text-[var(--muted)] mx-auto mb-4 opacity-50" />
+            <p className="text-[var(--text)] font-medium text-lg">{t('groupGiftModal.noContributions', 'No contributions yet.')}</p>
+            <p className="text-[var(--muted)] mt-1">Be the first to contribute to this gift!</p>
+          </div>
         ) : (
-          <div className="space-y-3">
-            {contributions.map((contribution) => (
+          <div className="space-y-4">
+            {contributions.map((contribution, index) => (
               <motion.div
                 key={contribution.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.1 * index }}
+                className="flex items-center gap-4 p-5 bg-[var(--bg-2)] border border-[var(--border)] rounded-2xl hover:border-[var(--heritage-blue)]/30 hover:shadow-md transition-all group"
               >
                 {contribution.contributor.profile_image ? (
                   <img
                     src={contribution.contributor.profile_image}
                     alt={contribution.contributor.name}
-                    className="w-10 h-10 rounded-full object-cover"
+                    className="w-12 h-12 rounded-full object-cover border-2 border-[var(--border)] group-hover:border-[var(--heritage-blue)]/50 transition-colors"
                   />
                 ) : (
-                  <div className="w-10 h-10 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center">
-                    <User className="w-5 h-5 text-white" />
+                  <div className="w-12 h-12 bg-gradient-to-br from-[var(--heritage-blue)] to-[var(--heritage-green)] rounded-full flex items-center justify-center shadow-inner">
+                    <User className="w-6 h-6 text-white" />
                   </div>
                 )}
                 
-                <div className="flex-1">
-                  <p className="font-medium text-gray-900 dark:text-white">
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-lg text-[var(--text)] truncate">
                     {contribution.contributor.name}
                   </p>
                   {contribution.message && (
-                    <p className="text-sm text-gray-600 dark:text-gray-400 italic">
+                    <p className="text-sm text-[var(--text)] italic opacity-90 truncate">
                       &quot;{contribution.message}&quot;
                     </p>
                   )}
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                    {new Date(contribution.created_at).toLocaleString()}
+                  <p className="text-xs text-[var(--muted)] mt-1">
+                    {new Date(contribution.created_at).toLocaleString(undefined, {
+                      year: 'numeric', month: 'short', day: 'numeric',
+                      hour: '2-digit', minute: '2-digit'
+                    })}
                   </p>
                 </div>
                 
-                <div className="text-right">
-                  <p className="font-semibold text-purple-600 dark:text-purple-400">
+                <div className="text-right whitespace-nowrap pl-4">
+                  <p className="font-bold text-xl text-[var(--heritage-gold)]">
                     ₹{contribution.amount.toLocaleString()}
                   </p>
                 </div>
@@ -484,7 +530,7 @@ export default function GroupGiftContribution({ groupGiftId }: GroupGiftContribu
             ))}
           </div>
         )}
-      </div>
+      </motion.div>
     </div>
   )
 }

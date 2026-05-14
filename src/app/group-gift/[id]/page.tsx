@@ -9,7 +9,7 @@ export default function GroupGiftPage() {
   const groupGiftId = params.id as string
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
+    <div className="min-h-screen bg-[var(--bg-2)] py-8 transition-colors duration-300">
       <GroupGiftContribution groupGiftId={groupGiftId} />
     </div>
   )

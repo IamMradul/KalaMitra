@@ -11,6 +11,18 @@ module.exports = {
       colors: {
         background: 'var(--background)',
         foreground: 'var(--foreground)',
+        'bg-1': 'var(--bg-1)',
+        'bg-2': 'var(--bg-2)',
+        'bg-3': 'var(--bg-3)',
+        'text': 'var(--text)',
+        'muted': 'var(--muted)',
+        'heritage-gold': 'var(--heritage-gold)',
+        'heritage-red': 'var(--heritage-red)',
+        'heritage-green': 'var(--heritage-green)',
+        'heritage-blue': 'var(--heritage-blue)',
+        'heritage-brown': 'var(--heritage-brown)',
+        'heritage-accent': 'var(--heritage-accent)',
+        'border-color': 'var(--border)',
       },
       fontFamily: {
         sans: ['var(--font-nunito)', 'Arial', 'sans-serif'],
