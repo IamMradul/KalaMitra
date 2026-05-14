@@ -9,21 +9,21 @@ import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import AIChatConditional from '@/components/AIChatConditional'
 
-const cormorant = Cormorant_Garamond({ 
-  weight: ['400', '600', '700'], 
+const cormorant = Cormorant_Garamond({
+  weight: ['400', '600', '700'],
   style: ['normal', 'italic'],
   subsets: ['latin'],
   variable: '--font-cormorant'
 })
 
-const nunito = Nunito({ 
-  weight: ['400', '500', '600', '700'], 
+const nunito = Nunito({
+  weight: ['400', '500', '600', '700'],
   subsets: ['latin'],
   variable: '--font-nunito'
 })
 
-const tiro = Tiro_Devanagari_Hindi({ 
-  weight: '400', 
+const tiro = Tiro_Devanagari_Hindi({
+  weight: '400',
   style: ['normal', 'italic'],
   subsets: ['devanagari', 'latin'],
   variable: '--font-tiro'

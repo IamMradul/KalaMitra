@@ -599,11 +599,11 @@ export default function Navbar() {
           <div className="flex justify-between items-center py-4">
             {/* Logo placeholder */}
             <div className="flex items-center space-x-4 group">
-              <div className="relative w-14 h-14 flex items-center justify-center">
-                <Image src="/kalamitra-symbol.png" alt="KalaMitra Symbol" width={56} height={56} className="object-contain w-auto h-auto" />
+                <div className="relative w-14 h-14 flex items-center justify-center">
+                  <Image src="/kalamitra-symbol.png" alt="KalaMitra Symbol" width={56} height={56} className="object-contain w-auto h-auto" />
+                </div>
+                <span className="text-3xl font-bold heritage-title">{t('brand.name')}</span>
               </div>
-              <span className="text-3xl font-bold heritage-title">KalaMitra</span>
-            </div>
             {/* navbar placeholder */}
             <div className="hidden md:flex items-center space-x-10">
               <Link href="/leaderboard" className="p-2 rounded-xl hover:bg-heritage-gold/50">
@@ -676,7 +676,7 @@ export default function Navbar() {
               <span className="text-3xl font-extrabold heritage-title hidden md:inline" key={`brand-${currentLanguage}`}>{t('brand.name')}</span>
               {/* Mobile: Show "KM" when signed in, "KalaMitra" when not */}
               <span id="navbar-brand-mobile" className="text-2xl font-extrabold heritage-title md:hidden" key={`brand-short-${currentLanguage}`}>
-                {user ? 'KM' : 'KalaMitra'}
+                {user ? 'KM' : t('brand.name')}
               </span>
             </Link>
           </div>

@@ -1,6 +1,16 @@
 @import "tailwindcss";
 @import 'intro.js/introjs.css';
 
+/* Hindi Custom Font */
+@font-face {
+  font-family: 'AmsHindi';
+  src: url('D:/Project/KalaMitra/public/Ams_Handwritting_Unicode.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+.hindi-font {
+  font-family: 'AmsHindi', sans-serif;
+}
 :root {
   /* Light theme palette (refined) */
   --bg-1: #ffffff;
@@ -479,7 +489,9 @@ body {
   letter-spacing: 0.01em;
 }
 
-h1, h2, h3 {
+h1,
+h2,
+h3 {
   font-family: var(--font-cormorant), serif;
   color: var(--primary);
 }
