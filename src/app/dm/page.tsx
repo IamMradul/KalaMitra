@@ -322,7 +322,7 @@ function DMPageContent() {
                     return (
                       <button
                         key={thread.id}
-                        className={`w-full flex items-center gap-4 p-3 rounded-xl mb-2 hover:bg-[var(--glass)] hover:scale-[1.02] transition-all duration-300 border ${selectedThread?.id === thread.id ? 'border-[var(--heritage-gold)] bg-[var(--heritage-gold)]/10 shadow-sm' : 'border-transparent'}`}
+                        className={`w-full flex items-center gap-4 p-3 rounded-xl mb-2 hover:bg-[var(--glass)] transition-all duration-300 border-l-4 ${selectedThread?.id === thread.id ? 'border-l-[var(--heritage-gold)] bg-[var(--bg-2)] shadow-sm border-t-transparent border-r-transparent border-b-transparent' : 'border-transparent'}`}
                         onClick={() => {
                           setSelectedThread(thread);
                           setShowThreadListMobile(false);
@@ -330,13 +330,13 @@ function DMPageContent() {
                       >
                         {/* Profile image */}
                         {other && other.profile_image ? (
-                          <img src={other.profile_image} alt={other.name || 'User'} className="w-12 h-12 rounded-full object-cover border border-gray-300" />
+                          <img src={other.profile_image} alt={other.name || 'User'} className="w-12 h-12 shrink-0 rounded-full object-cover border border-gray-300" />
                         ) : (
-                          <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center text-xl font-bold text-gray-500 border border-gray-300">{other?.name?.[0] || '?'}</div>
+                          <div className="w-12 h-12 shrink-0 rounded-full bg-gray-200 flex items-center justify-center text-xl font-bold text-gray-500 border border-gray-300">{other?.name?.[0] || '?'}</div>
                         )}
-                        <div className="flex-1 text-left">
-                          <div className="font-semibold text-base">{other?.name || t('dm.unknownUser')}</div>
-                          <div className="text-xs text-gray-500 truncate max-w-[180px]">{thread.lastMessage?.content || t('dm.noMessages')}</div>
+                        <div className="flex-1 text-left min-w-0">
+                          <div className="font-semibold text-base truncate">{other?.name || t('dm.unknownUser')}</div>
+                          <div className="text-xs text-gray-500 truncate">{thread.lastMessage?.content || t('dm.noMessages')}</div>
                         </div>
                         {/* Unread dot */}
                         {thread.isUnread && (
@@ -349,17 +349,17 @@ function DMPageContent() {
                     return (
                       <button
                         key={thread.id}
-                        className={`w-full flex items-center gap-3 p-3 rounded-lg mb-2 hover:bg-gray-100 transition-all border ${selectedThread?.id === thread.id ? 'border-heritage-gold bg-heritage-gold/10' : 'border-transparent'}`}
+                        className={`w-full flex items-center gap-3 p-3 rounded-lg mb-2 hover:bg-[var(--glass)] transition-all border-l-4 ${selectedThread?.id === thread.id ? 'border-l-[var(--heritage-gold)] bg-[var(--bg-2)] shadow-sm border-t-transparent border-r-transparent border-b-transparent' : 'border-transparent'}`}
                         onClick={() => {
                           setSelectedThread(thread);
                           setShowThreadListMobile(false);
                         }}
                       >
                         {/* Group avatars */}
-                        <div className="flex -space-x-2">
+                        <div className="flex -space-x-2 shrink-0">
                           {thread.participants.slice(0, 3).map((p: ThreadParticipant) => (
                             p.profile_image ? (
-                              <img key={p.id} src={p.profile_image} alt={p.name} className="w-10 h-10 rounded-full border-2 border-white" />
+                              <img key={p.id} src={p.profile_image} alt={p.name} className="w-10 h-10 rounded-full border-2 border-white object-cover" />
                             ) : (
                               <span key={p.id} className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-base font-bold border-2 border-white">{p.name?.[0] || '?'}</span>
                             )
@@ -368,9 +368,9 @@ function DMPageContent() {
                             <span className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-xs font-bold border-2 border-white">+{thread.participants.length - 3}</span>
                           )}
                         </div>
-                        <div className="flex-1 text-left">
-                          <div className="font-semibold text-base">{thread.title || t('dm.groupChat')}</div>
-                          <div className="text-xs text-gray-500 truncate max-w-[180px]">{thread.lastMessage?.content || t('dm.noMessages')}</div>
+                        <div className="flex-1 text-left min-w-0">
+                          <div className="font-semibold text-base truncate">{thread.title || t('dm.groupChat')}</div>
+                          <div className="text-xs text-gray-500 truncate">{thread.lastMessage?.content || t('dm.noMessages')}</div>
                         </div>
                         {/* Unread dot */}
                         {thread.isUnread && (
@@ -521,18 +521,18 @@ function DMPageContent() {
               return (
                 <button
                   key={thread.id}
-                  className={`w-full flex items-center gap-4 p-3 rounded-xl mb-1 hover:bg-[var(--glass)] hover:scale-[1.02] transition-all duration-300 border ${selectedThread?.id === thread.id ? 'border-[var(--heritage-gold)] bg-[var(--heritage-gold)]/10 shadow-sm' : 'border-transparent'}`}
+                  className={`w-full flex items-center gap-4 p-3 rounded-xl mb-1 hover:bg-[var(--glass)] transition-all duration-300 border-l-4 ${selectedThread?.id === thread.id ? 'border-l-[var(--heritage-gold)] bg-[var(--bg-2)] shadow-sm border-t-transparent border-r-transparent border-b-transparent' : 'border-transparent'}`}
                   onClick={() => setSelectedThread(thread)}
                 >
                   {/* Profile image */}
                   {other && other.profile_image ? (
-                    <img src={other.profile_image} alt={other.name || 'User'} className="w-12 h-12 rounded-full object-cover border border-gray-300" />
+                    <img src={other.profile_image} alt={other.name || 'User'} className="w-12 h-12 shrink-0 rounded-full object-cover border border-gray-300" />
                   ) : (
-                    <div className="w-12 h-12 rounded-full bg-[var(--bg-2)] flex items-center justify-center text-xl font-serif font-bold text-[var(--heritage-gold)] border border-[var(--border)] shadow-sm">{other?.name?.[0] || '?'}</div>
+                    <div className="w-12 h-12 shrink-0 rounded-full bg-[var(--bg-2)] flex items-center justify-center text-xl font-serif font-bold text-[var(--heritage-gold)] border border-[var(--border)] shadow-sm">{other?.name?.[0] || '?'}</div>
                   )}
-                  <div className="flex-1 text-left">
-                    <div className="font-serif font-semibold text-lg text-[var(--text)]">{other?.name || t('dm.unknownUser')}</div>
-                    <div className="text-sm text-[var(--muted)] truncate max-w-[180px]">{thread.lastMessage?.content || t('dm.noMessages')}</div>
+                  <div className="flex-1 text-left min-w-0">
+                    <div className="font-serif font-semibold text-lg text-[var(--text)] truncate">{other?.name || t('dm.unknownUser')}</div>
+                    <div className="text-sm text-[var(--muted)] truncate">{thread.lastMessage?.content || t('dm.noMessages')}</div>
                   </div>
                   {/* Unread dot */}
                   {thread.isUnread && (
@@ -545,14 +545,14 @@ function DMPageContent() {
               return (
                 <button
                   key={thread.id}
-                  className={`w-full flex items-center gap-3 p-3 rounded-lg mb-2 hover:bg-gray-100 transition-all border ${selectedThread?.id === thread.id ? 'border-heritage-gold bg-heritage-gold/10' : 'border-transparent'}`}
+                  className={`w-full flex items-center gap-3 p-3 rounded-lg mb-2 hover:bg-[var(--glass)] transition-all duration-300 border-l-4 ${selectedThread?.id === thread.id ? 'border-l-[var(--heritage-gold)] bg-[var(--bg-2)] shadow-sm border-t-transparent border-r-transparent border-b-transparent' : 'border-transparent'}`}
                   onClick={() => setSelectedThread(thread)}
                 >
                   {/* Group avatars */}
-                  <div className="flex -space-x-2">
+                  <div className="flex -space-x-2 shrink-0">
                     {thread.participants.slice(0, 3).map((p: ThreadParticipant) => (
                       p.profile_image ? (
-                        <img key={p.id} src={p.profile_image} alt={p.name} className="w-10 h-10 rounded-full border-2 border-white" />
+                        <img key={p.id} src={p.profile_image} alt={p.name} className="w-10 h-10 rounded-full border-2 border-[var(--bg-1)] object-cover" />
                       ) : (
                         <span key={p.id} className="w-10 h-10 rounded-full bg-[var(--bg-2)] text-[var(--heritage-gold)] flex items-center justify-center text-base font-bold border-2 border-[var(--bg-1)]">{p.name?.[0] || '?'}</span>
                       )
@@ -561,9 +561,9 @@ function DMPageContent() {
                       <span className="w-10 h-10 rounded-full bg-[var(--muted)] text-white flex items-center justify-center text-xs font-bold border-2 border-[var(--bg-1)]">+{thread.participants.length - 3}</span>
                     )}
                   </div>
-                  <div className="flex-1 text-left">
-                    <div className="font-serif font-semibold text-lg text-[var(--text)]">{thread.title || t('dm.groupChat')}</div>
-                    <div className="text-sm text-[var(--muted)] truncate max-w-[180px]">{thread.lastMessage?.content || t('dm.noMessages')}</div>
+                  <div className="flex-1 text-left min-w-0">
+                    <div className="font-serif font-semibold text-lg text-[var(--text)] truncate">{thread.title || t('dm.groupChat')}</div>
+                    <div className="text-sm text-[var(--muted)] truncate">{thread.lastMessage?.content || t('dm.noMessages')}</div>
                   </div>
                   {/* Unread dot */}
                   {thread.isUnread && (

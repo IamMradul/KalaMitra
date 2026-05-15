@@ -49,6 +49,7 @@ export default function DMChat({ threadId, otherUser }: DMChatProps) {
   const [isListening, setIsListening] = useState(false);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!user || !threadId) return;
@@ -73,8 +74,11 @@ export default function DMChat({ threadId, otherUser }: DMChatProps) {
 
   useEffect(() => {
     // Only scroll if not initial load
-    if (!initialLoadRef.current) {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (!initialLoadRef.current && messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTo({
+        top: messagesContainerRef.current.scrollHeight,
+        behavior: 'smooth'
+      });
     }
   }, [messages]);
 
@@ -93,6 +97,12 @@ export default function DMChat({ threadId, otherUser }: DMChatProps) {
     if (isInitial) {
       setLoading(false);
       initialLoadRef.current = false;
+      // Scroll to bottom instantly on initial load
+      setTimeout(() => {
+        if (messagesContainerRef.current) {
+          messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+        }
+      }, 50);
     }
   }
 
@@ -170,7 +180,7 @@ export default function DMChat({ threadId, otherUser }: DMChatProps) {
       participants = (window as { __DMCHAT_PARTICIPANTS?: DMUser[] }).__DMCHAT_PARTICIPANTS!;
     }
     headerAvatar = (
-      <div className="flex -space-x-2">
+      <div className="flex -space-x-2 shrink-0">
         {participants.slice(0, 3).map((p, idx) =>
           p.profile_image ? (
             <img key={p.id} src={p.profile_image} alt={p.name} className="w-10 h-10 rounded-full border-2 border-[var(--bg-2)] object-cover shadow-sm" style={{ zIndex: 10 - idx }} />
@@ -186,13 +196,13 @@ export default function DMChat({ threadId, otherUser }: DMChatProps) {
     headerTitle = otherUser.threadTitle || 'Group Chat';
   } else if (isDM(otherUser)) {
     if (otherUser.profile_image) {
-      headerAvatar = <img src={otherUser.profile_image} alt={otherUser.name || 'User'} className="w-10 h-10 rounded-full object-cover border-2 border-[var(--bg-2)] shadow-sm" />;
+      headerAvatar = <img src={otherUser.profile_image} alt={otherUser.name || 'User'} className="w-10 h-10 shrink-0 rounded-full object-cover border-2 border-[var(--bg-2)] shadow-sm" />;
     } else {
-      headerAvatar = <div className="w-10 h-10 rounded-full bg-[var(--bg-1)] flex items-center justify-center text-xl font-bold text-[var(--heritage-gold)] border border-[var(--border)] shadow-sm">{otherUser.name?.[0] || '?'}</div>;
+      headerAvatar = <div className="w-10 h-10 shrink-0 rounded-full bg-[var(--bg-1)] flex items-center justify-center text-xl font-bold text-[var(--heritage-gold)] border border-[var(--border)] shadow-sm">{otherUser.name?.[0] || '?'}</div>;
     }
     headerTitle = otherUser.name || 'Unknown User';
   } else {
-    headerAvatar = <div className="w-10 h-10 rounded-full bg-[var(--bg-1)] flex items-center justify-center text-xl font-bold text-[var(--heritage-gold)] border border-[var(--border)] shadow-sm">?</div>;
+    headerAvatar = <div className="w-10 h-10 shrink-0 rounded-full bg-[var(--bg-1)] flex items-center justify-center text-xl font-bold text-[var(--heritage-gold)] border border-[var(--border)] shadow-sm">?</div>;
     headerTitle = 'Chat';
   }
 
@@ -207,10 +217,10 @@ export default function DMChat({ threadId, otherUser }: DMChatProps) {
       {/* Header */}
       <div className="flex items-center gap-4 p-5 border-b border-[var(--border)] bg-[var(--card)] shadow-sm z-10">
         {headerAvatar}
-        <span className="font-serif font-bold text-xl ml-2">{headerTitle}</span>
+        <span className="font-serif font-bold text-xl ml-2 truncate">{headerTitle}</span>
       </div>
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-[var(--bg-2)]" style={{ minHeight: 0 }}>
+      <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-6 space-y-4 bg-[var(--bg-2)]" style={{ minHeight: 0 }}>
         {loading ? (
           <div className="text-center text-[var(--muted)] font-medium mt-10">{t('common.loading')}</div>
         ) : messages.length === 0 ? (
@@ -250,7 +260,7 @@ export default function DMChat({ threadId, otherUser }: DMChatProps) {
                 key={msg.id}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className={`max-w-[80%] px-5 py-3 rounded-2xl shadow-sm text-base flex flex-col ${isMine ? 'bg-[var(--heritage-gold)] text-white ml-auto rounded-tr-sm' : 'bg-[var(--card)] text-[var(--text)] border border-[var(--border)] mr-auto rounded-tl-sm'}`}
+                className={`max-w-[80%] w-fit px-5 py-3 rounded-2xl shadow-sm text-base flex flex-col ${isMine ? 'bg-[var(--heritage-gold)] text-white ml-auto rounded-tr-sm' : 'bg-[var(--card)] text-[var(--text)] border border-[var(--border)] mr-auto rounded-tl-sm'}`}
               >
                 {/* Sender avatar and name for group chats */}
                 {participants.length > 0 && !isMine && senderProfile && (
