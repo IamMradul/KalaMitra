@@ -173,26 +173,26 @@ export default function DMChat({ threadId, otherUser }: DMChatProps) {
       <div className="flex -space-x-2">
         {participants.slice(0, 3).map((p, idx) =>
           p.profile_image ? (
-            <img key={p.id} src={p.profile_image} alt={p.name} className="w-8 h-8 rounded-full border-2 border-white" style={{ zIndex: 10 - idx }} />
+            <img key={p.id} src={p.profile_image} alt={p.name} className="w-10 h-10 rounded-full border-2 border-[var(--bg-2)] object-cover shadow-sm" style={{ zIndex: 10 - idx }} />
           ) : (
-            <span key={p.id} className="w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center text-xs font-bold border-2 border-white" style={{ zIndex: 10 - idx }}>{p.name?.[0] || '?'}</span>
+            <span key={p.id} className="w-10 h-10 rounded-full bg-[var(--bg-1)] text-[var(--heritage-gold)] flex items-center justify-center text-sm font-bold border-2 border-[var(--bg-2)] shadow-sm" style={{ zIndex: 10 - idx }}>{p.name?.[0] || '?'}</span>
           )
         )}
         {participants.length > 3 && (
-          <span className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-xs font-bold border-2 border-white">+{participants.length - 3}</span>
+          <span className="w-10 h-10 rounded-full bg-[var(--muted)] text-white flex items-center justify-center text-xs font-bold border-2 border-[var(--bg-2)] shadow-sm">+{participants.length - 3}</span>
         )}
       </div>
     );
     headerTitle = otherUser.threadTitle || 'Group Chat';
   } else if (isDM(otherUser)) {
     if (otherUser.profile_image) {
-      headerAvatar = <img src={otherUser.profile_image} alt={otherUser.name || 'User'} className="w-10 h-10 rounded-full object-cover border-2 border-white" />;
+      headerAvatar = <img src={otherUser.profile_image} alt={otherUser.name || 'User'} className="w-10 h-10 rounded-full object-cover border-2 border-[var(--bg-2)] shadow-sm" />;
     } else {
-      headerAvatar = <div className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-xl font-bold text-gray-300 border-2 border-white">{otherUser.name?.[0] || '?'}</div>;
+      headerAvatar = <div className="w-10 h-10 rounded-full bg-[var(--bg-1)] flex items-center justify-center text-xl font-bold text-[var(--heritage-gold)] border border-[var(--border)] shadow-sm">{otherUser.name?.[0] || '?'}</div>;
     }
     headerTitle = otherUser.name || 'Unknown User';
   } else {
-    headerAvatar = <div className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-xl font-bold text-gray-300 border-2 border-white">?</div>;
+    headerAvatar = <div className="w-10 h-10 rounded-full bg-[var(--bg-1)] flex items-center justify-center text-xl font-bold text-[var(--heritage-gold)] border border-[var(--border)] shadow-sm">?</div>;
     headerTitle = 'Chat';
   }
 
@@ -203,18 +203,18 @@ export default function DMChat({ threadId, otherUser }: DMChatProps) {
   }
 
   return (
-    <div className="flex flex-col h-full w-full border rounded-lg shadow bg-gradient-to-br from-[#1a2236] to-[#232946] text-white" style={{ height: '100%' }}>
+    <div className="flex flex-col h-full w-full rounded-2xl overflow-hidden bg-[var(--bg-2)] text-[var(--text)] relative" style={{ height: '100%' }}>
       {/* Header */}
-      <div className="flex items-center gap-3 p-4 border-b border-[#232946] bg-[#232946] rounded-t-lg">
+      <div className="flex items-center gap-4 p-5 border-b border-[var(--border)] bg-[var(--card)] shadow-sm z-10">
         {headerAvatar}
-        <span className="font-semibold text-lg ml-2">{headerTitle}</span>
+        <span className="font-serif font-bold text-xl ml-2">{headerTitle}</span>
       </div>
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-2 bg-[#232946]" style={{ minHeight: 0 }}>
+      <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-[var(--bg-2)]" style={{ minHeight: 0 }}>
         {loading ? (
-          <div className="text-center text-gray-400">{t('common.loading')}</div>
+          <div className="text-center text-[var(--muted)] font-medium mt-10">{t('common.loading')}</div>
         ) : messages.length === 0 ? (
-          <div className="text-center text-gray-400">{t('dm.noMessages')}</div>
+          <div className="text-center text-[var(--muted)] font-serif italic mt-10">{t('dm.noMessages')}</div>
         ) : (
           messages.map(msg => {
             // ...existing code...
@@ -250,17 +250,17 @@ export default function DMChat({ threadId, otherUser }: DMChatProps) {
                 key={msg.id}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className={`max-w-[70%] px-4 py-2 rounded-2xl shadow text-sm flex flex-col ${isMine ? 'bg-[#eebd6d] text-[#232946] ml-auto' : 'bg-[#121629] text-white mr-auto'}`}
+                className={`max-w-[80%] px-5 py-3 rounded-2xl shadow-sm text-base flex flex-col ${isMine ? 'bg-[var(--heritage-gold)] text-white ml-auto rounded-tr-sm' : 'bg-[var(--card)] text-[var(--text)] border border-[var(--border)] mr-auto rounded-tl-sm'}`}
               >
                 {/* Sender avatar and name for group chats */}
-                {participants.length > 0 && senderProfile && (
-                  <div className="flex items-center gap-2 mb-1">
+                {participants.length > 0 && !isMine && senderProfile && (
+                  <div className="flex items-center gap-2 mb-2">
                     {senderProfile.profile_image ? (
-                      <img src={senderProfile.profile_image} alt={senderProfile.name} className="w-6 h-6 rounded-full border border-white" />
+                      <img src={senderProfile.profile_image} alt={senderProfile.name} className="w-6 h-6 rounded-full border border-[var(--border)]" />
                     ) : (
-                      <span className="w-6 h-6 rounded-full bg-gray-400 flex items-center justify-center text-xs font-bold border border-white">{senderProfile.name?.[0] || '?'}</span>
+                      <span className="w-6 h-6 rounded-full bg-[var(--bg-1)] flex items-center justify-center text-[10px] font-bold text-[var(--heritage-gold)] border border-[var(--border)]">{senderProfile.name?.[0] || '?'}</span>
                     )}
-                    <span className="text-xs font-semibold text-white">{isMine ? t('dm.me', 'Me') : senderProfile.name}</span>
+                    <span className="text-xs font-semibold text-[var(--muted)]">{senderProfile.name}</span>
                   </div>
                 )}
                 <span className="break-words">
@@ -282,18 +282,18 @@ export default function DMChat({ threadId, otherUser }: DMChatProps) {
         <div ref={messagesEndRef} />
       </div>
       {/* Input */}
-      <div className="flex items-center gap-2 p-4 border-t border-[#232946] bg-[#232946] rounded-b-lg">
+      <div className="flex items-center gap-3 p-4 border-t border-[var(--border)] bg-[var(--card)] z-10">
         <button
           type="button"
           onClick={handleMicClick}
-          className={`p-2 rounded-full border-2 ${isListening ? 'bg-orange-100 text-orange-600 border-orange-400' : 'bg-[#232946] text-[#eebd6d] border-[#eebd6d]'}`}
+          className={`p-2.5 rounded-full transition-all duration-200 ${isListening ? 'bg-orange-100 text-orange-600' : 'bg-[var(--bg-1)] text-[var(--muted)] hover:text-[var(--heritage-gold)] hover:bg-[var(--glass)] border border-[var(--border)]'}`}
           title={isListening ? t('dm.listening', 'Listening...') : t('dm.speakMessage', 'Speak message')}
         >
           <Mic className="w-5 h-5" />
         </button>
         <input
           type="text"
-          className="flex-1 border-none rounded-lg px-3 py-2 bg-[#121629] text-white placeholder-gray-400 focus:outline-none"
+          className="flex-1 border border-[var(--border)] rounded-full px-5 py-3 bg-[var(--bg-1)] text-[var(--text)] placeholder-[var(--muted)] focus:outline-none focus:ring-2 focus:ring-[var(--heritage-gold)] focus:border-transparent transition-all shadow-sm"
           placeholder={t('dm.typeMessage', 'Type a message...')}
           value={input}
           onChange={e => setInput(e.target.value)}
@@ -303,7 +303,7 @@ export default function DMChat({ threadId, otherUser }: DMChatProps) {
         <button
           type="button"
           onClick={sendMessage}
-          className="p-2 rounded-full bg-[#eebd6d] text-[#232946] hover:bg-[#f3d99e] border-2 border-[#eebd6d]"
+          className={`p-3 rounded-full transition-all duration-200 ${sending || !input.trim() ? 'bg-[var(--bg-1)] text-[var(--muted)] border border-[var(--border)] opacity-50 cursor-not-allowed' : 'bg-[var(--heritage-gold)] text-white hover:scale-105 shadow-md'}`}
           disabled={sending || !input.trim()}
         >
           <Send className="w-5 h-5" />

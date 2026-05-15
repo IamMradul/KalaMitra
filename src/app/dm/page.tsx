@@ -213,28 +213,28 @@ function DMPageContent() {
   }
 
   if (!user) {
-    return <div className="flex items-center justify-center h-screen text-gray-400 text-xl">Sign in to view your messages.</div>;
+    return <div className="flex items-center justify-center h-screen text-[var(--muted)] text-xl font-serif">Sign in to view your messages.</div>;
   }
 
   // Responsive rendering
   if (isMobile) {
     return (
-      <div className="flex flex-col h-screen w-full">
-        <div className="p-2 flex gap-2 items-center">
+      <div className="flex flex-col h-screen w-full bg-[var(--bg-1)]">
+        <div className="p-4 flex gap-2 items-center border-b border-[var(--border)] bg-[var(--card)] shadow-sm">
           <button
-            className="px-4 py-2 rounded-lg bg-blue-500 text-white font-semibold shadow hover:bg-blue-600"
+            className="btn-primary"
             onClick={() => setShowGroupModal(true)}
           >
             {t('dm.newGroupChat')}
           </button>
         </div>
         {showGroupModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 w-screen h-screen overflow-y-auto">
-            <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-sm mx-auto" style={{ minHeight: 'auto', maxHeight: '95vh', overflowY: 'auto' }}>
-              <h3 className="text-xl font-bold mb-4">{t('dm.createGroupChat')}</h3>
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm w-screen h-screen overflow-y-auto">
+            <div className="bg-[var(--card)] rounded-2xl shadow-xl p-6 w-full max-w-sm mx-auto border border-[var(--border)]" style={{ minHeight: 'auto', maxHeight: '95vh', overflowY: 'auto' }}>
+              <h3 className="text-2xl font-serif font-bold mb-4 text-[var(--text)]">{t('dm.createGroupChat')}</h3>
               <input
                 type="text"
-                className="w-full mb-3 p-2 border rounded"
+                className="w-full mb-3 p-3 border border-[var(--border)] rounded-xl bg-[var(--bg-1)] text-[var(--text)] focus:ring-2 focus:ring-[var(--heritage-gold)] focus:outline-none transition-all"
                 placeholder={t('dm.groupTitle')}
                 value={groupTitle}
                 onChange={e => setGroupTitle(e.target.value)}
@@ -242,14 +242,14 @@ function DMPageContent() {
               {/* Search/filter input for users */}
               <input
                 type="text"
-                className="w-full mb-2 p-2 border rounded"
+                className="w-full mb-4 p-3 border border-[var(--border)] rounded-xl bg-[var(--bg-1)] text-[var(--text)] focus:ring-2 focus:ring-[var(--heritage-gold)] focus:outline-none transition-all"
                 placeholder={t('dm.searchPeople')}
                 value={userSearch}
                 onChange={e => setUserSearch(e.target.value)}
               />
-              <div className="mb-3">
-                <div className="font-semibold mb-1">{t('dm.addParticipants')}</div>
-                <div className="max-h-40 overflow-y-auto">
+              <div className="mb-4">
+                <div className="font-semibold mb-2 text-[var(--muted)]">{t('dm.addParticipants')}</div>
+                <div className="max-h-40 overflow-y-auto space-y-2 pr-2">
                   {allUsers
                     .filter(u => u.name && u.name.toLowerCase() !== 'sus')
                     .filter(u =>
@@ -257,9 +257,10 @@ function DMPageContent() {
                       (u.name && u.name.toLowerCase().includes(userSearch.trim().toLowerCase()))
                     )
                     .map(u => (
-                      <label key={u.id} className="flex items-center gap-2 mb-1">
+                      <label key={u.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-[var(--glass)] cursor-pointer transition-all">
                         <input
                           type="checkbox"
+                          className="accent-[var(--heritage-gold)] w-4 h-4"
                           checked={groupParticipants.includes(u.id)}
                           onChange={e => {
                             setGroupParticipants(prev =>
@@ -279,10 +280,10 @@ function DMPageContent() {
                     ))}
                 </div>
               </div>
-              <div className="flex gap-2 justify-end mt-4">
-                <button className="px-4 py-2 rounded bg-gray-200" onClick={() => setShowGroupModal(false)}>{t('dm.cancel')}</button>
+              <div className="flex gap-3 justify-end mt-6">
+                <button className="px-5 py-2.5 rounded-xl bg-[var(--bg-2)] hover:bg-[var(--glass)] text-[var(--text)] border border-[var(--border)] font-medium transition-all" onClick={() => setShowGroupModal(false)}>{t('dm.cancel')}</button>
                 <button
-                  className="px-4 py-2 rounded bg-blue-500 text-white font-bold"
+                  className="btn-primary"
                   disabled={groupParticipants.length < 2 || !groupTitle}
                   onClick={async () => {
                     // Create group thread
@@ -307,13 +308,13 @@ function DMPageContent() {
         {/* Thread list (mobile) */}
         <div className="relative flex-1 w-full h-full">
           <div
-            className={`absolute inset-0 transition-transform duration-300 ${showThreadListMobile ? 'translate-x-0 z-10' : '-translate-x-full z-0'} bg-white`}
+            className={`absolute inset-0 transition-transform duration-300 ease-in-out ${showThreadListMobile ? 'translate-x-0 z-10' : '-translate-x-full z-0'} bg-[var(--bg-1)]`}
             style={{ minHeight: '100%', minWidth: '100%' }}
           >
-            <aside className="w-full border-b bg-white p-4  flex-1">
-              <h2 className="font-bold text-lg mb-4">{t('dm.chats')}</h2>
+            <aside className="w-full border-b border-[var(--border)] bg-[var(--bg-1)] p-4 flex-1">
+              <h2 className="font-serif font-bold text-2xl mb-6 text-[var(--text)]">{t('dm.chats')}</h2>
               {threads.length === 0 ? (
-                <div className="text-gray-400">{t('dm.noChats')}</div>
+                <div className="text-[var(--muted)] italic">{t('dm.noChats')}</div>
               ) : (
                 threads.map(thread => {
                   if (thread.type === 'dm') {
@@ -321,7 +322,7 @@ function DMPageContent() {
                     return (
                       <button
                         key={thread.id}
-                        className={`w-full flex items-center gap-3 p-3 rounded-lg mb-2 hover:bg-gray-100 transition-all border ${selectedThread?.id === thread.id ? 'border-heritage-gold bg-heritage-gold/10' : 'border-transparent'}`}
+                        className={`w-full flex items-center gap-4 p-3 rounded-xl mb-2 hover:bg-[var(--glass)] hover:scale-[1.02] transition-all duration-300 border ${selectedThread?.id === thread.id ? 'border-[var(--heritage-gold)] bg-[var(--heritage-gold)]/10 shadow-sm' : 'border-transparent'}`}
                         onClick={() => {
                           setSelectedThread(thread);
                           setShowThreadListMobile(false);
@@ -383,12 +384,12 @@ function DMPageContent() {
             </aside>
           </div>
           <div
-            className={`absolute inset-0 transition-transform duration-300 ${showThreadListMobile ? 'translate-x-full z-0' : 'translate-x-0 z-10'} bg-gray-50`}
+            className={`absolute inset-0 transition-transform duration-300 ease-in-out ${showThreadListMobile ? 'translate-x-full z-0' : 'translate-x-0 z-10'} bg-[var(--bg-2)]`}
             style={{ minHeight: '100%', minWidth: '100%' }}
           >
-            <main className="flex-1 flex flex-col items-center justify-center w-full">
+            <main className="flex-1 flex flex-col items-center justify-center w-full h-full">
               <button
-                className="self-start m-4 px-4 py-2 rounded-lg bg-gray-200 text-gray-700 font-semibold shadow hover:bg-gray-300 transition-all"
+                className="self-start m-4 px-4 py-2 rounded-xl bg-[var(--card)] text-[var(--text)] border border-[var(--border)] font-medium shadow-sm hover:bg-[var(--glass)] transition-all flex items-center gap-2"
                 onClick={() => setShowThreadListMobile(true)}
               >
                 {t('dm.backToChats')}
@@ -410,7 +411,7 @@ function DMPageContent() {
                   );
                 })()
               ) : (
-                <div className="text-gray-400 text-xl">Select a chat to start messaging.</div>
+                <div className="text-[var(--muted)] text-xl font-serif">Select a chat to start messaging.</div>
               )}
             </main>
           </div>
@@ -419,27 +420,27 @@ function DMPageContent() {
     );
   }
 
-  // Desktop UI (unchanged)
+  // Desktop UI
   return (
-    <div className="flex h-screen">
+    <div className="flex h-[calc(100vh-80px)] mt-4 mb-4 mx-4 rounded-2xl overflow-hidden border border-[var(--border)] shadow-medium bg-[var(--bg-1)]">
       {/* Thread list */}
-      <aside className="w-80 border-r bg-white p-4 ">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="font-bold text-lg">{t('dm.chats')}</h2>
+      <aside className="w-80 border-r border-[var(--border)] bg-[var(--card)] p-4 flex flex-col">
+        <div className="flex items-center justify-between mb-6 pb-4 border-b border-[var(--border)]">
+          <h2 className="font-serif font-bold text-2xl text-[var(--text)]">{t('dm.chats')}</h2>
           <button
-            className="px-3 py-1 rounded-lg bg-blue-500 text-white font-semibold shadow hover:bg-blue-600"
+            className="btn-primary py-1.5 px-4 text-sm"
             onClick={() => setShowGroupModal(true)}
           >
             {t('dm.newGroupChat')}
           </button>
         </div>
         {showGroupModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
-            <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-md">
-              <h3 className="text-xl font-bold mb-4">{t('dm.createGroupChat')}</h3>
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm">
+            <div className="bg-[var(--card)] rounded-2xl shadow-xl p-6 w-full max-w-md border border-[var(--border)]">
+              <h3 className="text-2xl font-serif font-bold mb-4 text-[var(--text)]">{t('dm.createGroupChat')}</h3>
               <input
                 type="text"
-                className="w-full mb-3 p-2 border rounded"
+                className="w-full mb-3 p-3 border border-[var(--border)] rounded-xl bg-[var(--bg-1)] text-[var(--text)] focus:ring-2 focus:ring-[var(--heritage-gold)] focus:outline-none transition-all"
                 placeholder={t('dm.groupTitle')}
                 value={groupTitle}
                 onChange={e => setGroupTitle(e.target.value)}
@@ -447,14 +448,14 @@ function DMPageContent() {
               {/* Search/filter input for users (desktop) */}
               <input
                 type="text"
-                className="w-full mb-2 p-2 border rounded"
+                className="w-full mb-4 p-3 border border-[var(--border)] rounded-xl bg-[var(--bg-1)] text-[var(--text)] focus:ring-2 focus:ring-[var(--heritage-gold)] focus:outline-none transition-all"
                 placeholder={t('dm.searchPeople')}
                 value={userSearch}
                 onChange={e => setUserSearch(e.target.value)}
               />
-              <div className="mb-3">
-                <div className="font-semibold mb-1">{t('dm.addParticipants')}</div>
-                <div className="max-h-40 overflow-y-auto">
+              <div className="mb-4">
+                <div className="font-semibold mb-2 text-[var(--muted)]">{t('dm.addParticipants')}</div>
+                <div className="max-h-40 overflow-y-auto space-y-2 pr-2">
                   {allUsers
                     .filter(u => u.name && u.name.toLowerCase() !== 'sus')
                     .filter(u =>
@@ -462,9 +463,10 @@ function DMPageContent() {
                       (u.name && u.name.toLowerCase().includes(userSearch.trim().toLowerCase()))
                     )
                     .map(u => (
-                      <label key={u.id} className="flex items-center gap-2 mb-1">
+                      <label key={u.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-[var(--glass)] cursor-pointer transition-all">
                         <input
                           type="checkbox"
+                          className="accent-[var(--heritage-gold)] w-4 h-4"
                           checked={groupParticipants.includes(u.id)}
                           onChange={e => {
                             setGroupParticipants(prev =>
@@ -477,17 +479,17 @@ function DMPageContent() {
                         {u.profile_image ? (
                           <img src={u.profile_image} className="w-6 h-6 rounded-full" />
                         ) : (
-                          <span className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold">{u.name?.[0] || '?'}</span>
+                          <span className="w-8 h-8 rounded-full bg-[var(--heritage-gold)] flex items-center justify-center text-xs font-bold text-white shadow-sm">{u.name?.[0] || '?'}</span>
                         )}
-                        <span>{u.name}</span>
+                        <span className="font-medium text-[var(--text)]">{u.name}</span>
                       </label>
                     ))}
                 </div>
               </div>
-              <div className="flex gap-2 justify-end mt-4">
-                <button className="px-4 py-2 rounded bg-gray-200" onClick={() => setShowGroupModal(false)}>{t('dm.cancel')}</button>
+              <div className="flex gap-3 justify-end mt-6">
+                <button className="px-5 py-2.5 rounded-xl bg-[var(--bg-2)] hover:bg-[var(--glass)] text-[var(--text)] border border-[var(--border)] font-medium transition-all" onClick={() => setShowGroupModal(false)}>{t('dm.cancel')}</button>
                 <button
-                  className="px-4 py-2 rounded bg-blue-500 text-white font-bold"
+                  className="btn-primary"
                   disabled={groupParticipants.length < 2 || !groupTitle}
                   onClick={async () => {
                     // Create group thread
@@ -509,8 +511,9 @@ function DMPageContent() {
             </div>
           </div>
         )}
+        <div className="flex-1 overflow-y-auto space-y-1 pr-2">
         {threads.length === 0 ? (
-          <div className="text-gray-400">{t('dm.noChats')}</div>
+          <div className="text-[var(--muted)] italic">{t('dm.noChats')}</div>
         ) : (
           threads.map(thread => {
             if (thread.type === 'dm') {
@@ -518,18 +521,18 @@ function DMPageContent() {
               return (
                 <button
                   key={thread.id}
-                  className={`w-full flex items-center gap-3 p-3 rounded-lg mb-2 hover:bg-gray-100 transition-all border ${selectedThread?.id === thread.id ? 'border-heritage-gold bg-heritage-gold/10' : 'border-transparent'}`}
+                  className={`w-full flex items-center gap-4 p-3 rounded-xl mb-1 hover:bg-[var(--glass)] hover:scale-[1.02] transition-all duration-300 border ${selectedThread?.id === thread.id ? 'border-[var(--heritage-gold)] bg-[var(--heritage-gold)]/10 shadow-sm' : 'border-transparent'}`}
                   onClick={() => setSelectedThread(thread)}
                 >
                   {/* Profile image */}
                   {other && other.profile_image ? (
                     <img src={other.profile_image} alt={other.name || 'User'} className="w-12 h-12 rounded-full object-cover border border-gray-300" />
                   ) : (
-                    <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center text-xl font-bold text-gray-500 border border-gray-300">{other?.name?.[0] || '?'}</div>
+                    <div className="w-12 h-12 rounded-full bg-[var(--bg-2)] flex items-center justify-center text-xl font-serif font-bold text-[var(--heritage-gold)] border border-[var(--border)] shadow-sm">{other?.name?.[0] || '?'}</div>
                   )}
                   <div className="flex-1 text-left">
-                    <div className="font-semibold text-base">{other?.name || t('dm.unknownUser')}</div>
-                    <div className="text-xs text-gray-500 truncate max-w-[180px]">{thread.lastMessage?.content || t('dm.noMessages')}</div>
+                    <div className="font-serif font-semibold text-lg text-[var(--text)]">{other?.name || t('dm.unknownUser')}</div>
+                    <div className="text-sm text-[var(--muted)] truncate max-w-[180px]">{thread.lastMessage?.content || t('dm.noMessages')}</div>
                   </div>
                   {/* Unread dot */}
                   {thread.isUnread && (
@@ -551,16 +554,16 @@ function DMPageContent() {
                       p.profile_image ? (
                         <img key={p.id} src={p.profile_image} alt={p.name} className="w-10 h-10 rounded-full border-2 border-white" />
                       ) : (
-                        <span key={p.id} className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-base font-bold border-2 border-white">{p.name?.[0] || '?'}</span>
+                        <span key={p.id} className="w-10 h-10 rounded-full bg-[var(--bg-2)] text-[var(--heritage-gold)] flex items-center justify-center text-base font-bold border-2 border-[var(--bg-1)]">{p.name?.[0] || '?'}</span>
                       )
                     ))}
                     {thread.participants.length > 3 && (
-                      <span className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-xs font-bold border-2 border-white">+{thread.participants.length - 3}</span>
+                      <span className="w-10 h-10 rounded-full bg-[var(--muted)] text-white flex items-center justify-center text-xs font-bold border-2 border-[var(--bg-1)]">+{thread.participants.length - 3}</span>
                     )}
                   </div>
                   <div className="flex-1 text-left">
-                    <div className="font-semibold text-base">{thread.title || t('dm.groupChat')}</div>
-                    <div className="text-xs text-gray-500 truncate max-w-[180px]">{thread.lastMessage?.content || t('dm.noMessages')}</div>
+                    <div className="font-serif font-semibold text-lg text-[var(--text)]">{thread.title || t('dm.groupChat')}</div>
+                    <div className="text-sm text-[var(--muted)] truncate max-w-[180px]">{thread.lastMessage?.content || t('dm.noMessages')}</div>
                   </div>
                   {/* Unread dot */}
                   {thread.isUnread && (
@@ -571,9 +574,10 @@ function DMPageContent() {
             }
           })
         )}
+        </div>
       </aside>
       {/* Chat area */}
-      <main className="flex-1 flex items-center justify-center bg-gray-50">
+      <main className="flex-1 flex items-center justify-center bg-[var(--bg-2)] relative">
         {selectedThread ? (
           (() => {
             if (selectedThread.type === 'group' && typeof window !== 'undefined') {
@@ -591,7 +595,12 @@ function DMPageContent() {
             );
           })()
         ) : (
-          <div className="text-gray-400 text-xl">{t('dm.selectChatToMessage', 'Select a chat to start messaging.')}</div>
+          <div className="text-[var(--muted)] text-2xl font-serif flex flex-col items-center opacity-60">
+            <svg className="w-24 h-24 mb-6 text-[var(--border)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+            </svg>
+            {t('dm.selectChatToMessage', 'Select a chat to start messaging.')}
+          </div>
         )}
       </main>
     </div>
