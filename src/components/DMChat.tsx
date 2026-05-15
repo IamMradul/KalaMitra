@@ -34,6 +34,7 @@ export default function DMChat({ threadId, otherUser }: DMChatProps) {
   const initialLoadRef = useRef(true);
   const [sending, setSending] = useState(false);
   const [isListening, setIsListening] = useState(false);
+  const [showMembers, setShowMembers] = useState(false);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
@@ -146,8 +147,76 @@ export default function DMChat({ threadId, otherUser }: DMChatProps) {
     } catch { return ''; }
   }
 
+  const groupMode = isGroup(otherUser);
+
   return (
-    <div className="flex flex-col h-full w-full" style={{ background: 'var(--bg-2)' }}>
+    <div className="flex flex-col h-full w-full relative" style={{ background: 'var(--bg-2)' }}>
+      {/* Members slide-in panel (group only) */}
+      <AnimatePresence>
+        {showMembers && groupMode && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 z-20"
+              style={{ background: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(2px)' }}
+              onClick={() => setShowMembers(false)}
+            />
+            {/* Panel */}
+            <motion.div
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'spring', stiffness: 320, damping: 32 }}
+              className="absolute right-0 top-0 bottom-0 z-30 flex flex-col"
+              style={{ width: '280px', background: 'var(--card)', borderLeft: '1px solid var(--border)' }}
+            >
+              {/* Panel header */}
+              <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid var(--border)' }}>
+                <div>
+                  <h3 className="font-bold text-[var(--text)]" style={{ fontFamily: 'serif' }}>Members</h3>
+                  <p className="text-xs text-[var(--muted)] mt-0.5">{participants.length} participant{participants.length !== 1 ? 's' : ''}</p>
+                </div>
+                <button
+                  onClick={() => setShowMembers(false)}
+                  className="w-8 h-8 rounded-full flex items-center justify-center transition-colors"
+                  style={{ color: 'var(--muted)' }}
+                  onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg-2)')}
+                  onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+              </div>
+              {/* Member list */}
+              <div className="flex-1 overflow-y-auto py-3 px-3 space-y-1">
+                {participants.map((p, idx) => (
+                  <motion.div
+                    key={p.id}
+                    initial={{ opacity: 0, x: 16 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: idx * 0.04 }}
+                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors"
+                    style={{ cursor: 'default' }}
+                    onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg-2)')}
+                    onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                  >
+                    {p.profile_image
+                      ? <img src={p.profile_image} alt={p.name} className="w-10 h-10 rounded-full object-cover shrink-0 ring-2" style={{ ringColor: 'var(--border)' }} />
+                      : <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white shrink-0" style={{ background: 'linear-gradient(135deg, var(--heritage-gold), var(--heritage-accent))' }}>{p.name?.[0]?.toUpperCase() || '?'}</div>
+                    }
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold truncate" style={{ color: 'var(--text)' }}>{p.name}</p>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
       {/* Header */}
       <div className="flex items-center gap-4 px-6 py-4 shrink-0" style={{ background: 'var(--card)', borderBottom: '1px solid var(--border)' }}>
         <div className="shrink-0">{headerAvatarEl}</div>
@@ -156,6 +225,20 @@ export default function DMChat({ threadId, otherUser }: DMChatProps) {
           <p className="text-xs text-[var(--muted)]">{headerSub}</p>
         </div>
         <div className="flex items-center gap-2">
+          {groupMode && (
+            <button
+              onClick={() => setShowMembers(v => !v)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200"
+              style={showMembers
+                ? { background: 'linear-gradient(135deg, var(--heritage-gold), var(--heritage-accent))', color: '#fff' }
+                : { background: 'var(--bg-2)', color: 'var(--muted)', border: '1px solid var(--border)' }
+              }
+              title="View group members"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+              Members
+            </button>
+          )}
           <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
         </div>
       </div>
