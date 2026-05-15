@@ -168,19 +168,19 @@ export default function Home() {
             {/* CTA Buttons */}
             <div className="flex w-full flex-col justify-center gap-4 sm:flex-row pt-2 animate-slide-in-up animate-delay-400">
               <Link href="/marketplace" className="inline-flex flex-col items-center justify-center gap-1 whitespace-nowrap text-base font-medium h-16 w-full sm:w-auto group bg-gradient-to-r from-orange-500 via-orange-400 to-yellow-400 text-white border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 rounded-full px-8 py-2">
-                <span className="block flex flex-col sm:flex-row items-center justify-center w-full">
+                <span className="flex flex-col sm:flex-row items-center justify-center w-full">
                   <span>{t('home.exploreCollection')}</span>
                   <ArrowRight className="mx-auto size-5 group-hover:translate-y-1 transition-transform sm:ml-2 sm:static sm:translate-y-0 mt-1 sm:mt-0" />
                 </span>
               </Link>
               <Link href="/auth/signup?role=seller" className="inline-flex flex-col items-center justify-center gap-1 whitespace-nowrap text-base font-medium h-16 w-full sm:w-auto group bg-white/10 hover:bg-white/20 text-white border border-white/20 rounded-full px-8 py-2 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 backdrop-blur-sm">
-                <span className="block flex flex-col sm:flex-row items-center justify-center w-full">
+                <span className="flex flex-col sm:flex-row items-center justify-center w-full">
                   <span>{t('home.joinAsArtisan')}</span>
                   <ArrowRight className="mx-auto size-5 group-hover:translate-y-1 transition-transform sm:ml-2 sm:static sm:translate-y-0 mt-1 sm:mt-0" />
                 </span>
               </Link>
               <Link href="/marketplace?view=3d" className="inline-flex flex-col items-center justify-center gap-1 whitespace-nowrap text-base font-medium h-16 w-full sm:w-auto group bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 text-white border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 rounded-full px-8 py-2">
-                <span className="block flex flex-col sm:flex-row items-center justify-center w-full">
+                <span className="flex flex-col sm:flex-row items-center justify-center w-full">
                   <span>{t('home.bazaar3d')}</span>
                   <ArrowRight className="mx-auto size-5 group-hover:translate-y-1 transition-transform sm:ml-2 sm:static sm:translate-y-0 mt-1 sm:mt-0" />
                 </span>
@@ -206,6 +206,7 @@ export default function Home() {
       </section>
 
       {/* Video Showcase Section */}
+      {false && (
       <section className="py-16 md:py-24 bg-gradient-to-br from-[var(--bg-2)]/80 to-white/60 dark:to-[var(--bg-1)]/60 backdrop-blur-sm relative overflow-visible video-section">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-5">
@@ -273,6 +274,7 @@ export default function Home() {
           </div>
         </div>
       </section>
+      )}
 
       {/* Featured Products Section */}
       <section className="section-padding relative">
