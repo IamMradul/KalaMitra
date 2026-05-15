@@ -203,7 +203,7 @@ export default function DMChat({ threadId, otherUser }: DMChatProps) {
                     onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
                   >
                     {p.profile_image
-                      ? <img src={p.profile_image} alt={p.name} className="w-10 h-10 rounded-full object-cover shrink-0 ring-2" style={{ ringColor: 'var(--border)' }} />
+                      ? <img src={p.profile_image} alt={p.name} className="w-10 h-10 rounded-full object-cover shrink-0 ring-2" />
                       : <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white shrink-0" style={{ background: 'linear-gradient(135deg, var(--heritage-gold), var(--heritage-accent))' }}>{p.name?.[0]?.toUpperCase() || '?'}</div>
                     }
                     <div className="flex-1 min-w-0">

@@ -317,6 +317,7 @@ function DMPageContent() {
               className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition-all hover:scale-105 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
               style={{ background: 'linear-gradient(135deg, var(--heritage-gold), var(--heritage-accent))' }}
               onClick={async () => {
+                if (!user) return;
                 const res = await fetch('/api/chat/thread', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ participantIds: [user.id, ...groupParticipants], title: groupTitle }) });
                 const json = await res.json();
                 if (json.threadId) { setShowGroupModal(false); setGroupParticipants([]); setGroupTitle(''); fetchThreads(); }
