@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { X } from 'lucide-react';
 
 interface MessageInputModalProps {
@@ -12,6 +13,7 @@ interface MessageInputModalProps {
 const defaultMaxWords = 100;
 
 export default function MessageInputModal({ open, onClose, onSend, defaultMessage = '', maxWords = defaultMaxWords }: MessageInputModalProps) {
+  const { t } = useTranslation();
   const [message, setMessage] = useState(defaultMessage);
   const [error, setError] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -29,11 +31,11 @@ export default function MessageInputModal({ open, onClose, onSend, defaultMessag
 
   const handleSend = () => {
     if (wordCount === 0) {
-      setError('Please enter a message.');
+      setError(t('messageInputModal.emptyError'));
       return;
     }
     if (wordCount > maxWords) {
-      setError(`Message cannot exceed ${maxWords} words.`);
+      setError(t('messageInputModal.maxWordsError', { maxWords }));
       return;
     }
     onSend(message.trim());
@@ -51,16 +53,16 @@ export default function MessageInputModal({ open, onClose, onSend, defaultMessag
         <button
           className="absolute top-3 right-3 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
           onClick={onClose}
-          aria-label="Close"
+          aria-label={t('messageInputModal.close')}
         >
           <X className="h-5 w-5" />
         </button>
-        <h2 className="text-xl font-bold mb-2 text-yellow-700 dark:text-yellow-300">Send a Collaboration Message</h2>
-        <p className="mb-3 text-gray-600 dark:text-gray-400 text-sm">Share why you want to collaborate. (Max {maxWords} words)</p>
+        <h2 className="text-xl font-bold mb-2 text-yellow-700 dark:text-yellow-300">{t('messageInputModal.title')}</h2>
+        <p className="mb-3 text-gray-600 dark:text-gray-400 text-sm">{t('messageInputModal.description', { maxWords })}</p>
         <textarea
           ref={textareaRef}
           className="w-full min-h-[90px] max-h-40 rounded-lg border border-yellow-300 focus:ring-2 focus:ring-yellow-500 bg-yellow-50 dark:bg-yellow-950/40 text-gray-900 dark:text-yellow-100 p-3 text-base resize-none transition-all placeholder:text-gray-400"
-          placeholder="Why do you want to collaborate?"
+          placeholder={t('messageInputModal.placeholder')}
           value={message}
           onChange={e => {
             setMessage(e.target.value);
@@ -69,13 +71,13 @@ export default function MessageInputModal({ open, onClose, onSend, defaultMessag
           maxLength={1000}
         />
         <div className="flex items-center justify-between mt-2">
-          <span className={`text-xs ${remaining < 0 ? 'text-red-500' : 'text-gray-500 dark:text-gray-400'}`}>{remaining} words left</span>
+          <span className={`text-xs ${remaining < 0 ? 'text-red-500' : 'text-gray-500 dark:text-gray-400'}`}>{t('messageInputModal.wordsLeft', { count: remaining })}</span>
           <button
             className="px-4 py-2 bg-yellow-600 text-white rounded-lg font-semibold hover:bg-yellow-700 transition-colors disabled:opacity-50"
             onClick={handleSend}
             disabled={wordCount === 0 || wordCount > maxWords}
           >
-            Send
+            {t('messageInputModal.send')}
           </button>
         </div>
         {error && <div className="mt-2 text-xs text-red-500">{error}</div>}

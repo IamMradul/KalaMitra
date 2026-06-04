@@ -1,6 +1,7 @@
- 'use client'
+'use client'
 
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { supabase, Database } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -9,6 +10,7 @@ import { Check, Trash2, Bell } from 'lucide-react'
 type NotificationRow = Database['public']['Tables']['notifications']['Row']
 
 export default function NotificationsList() {
+  const { t } = useTranslation()
   const { user } = useAuth()
   const [notes, setNotes] = useState<NotificationRow[]>([])
   const [loading, setLoading] = useState(true)
@@ -93,7 +95,7 @@ export default function NotificationsList() {
   if (!user) return (
     <div className="text-center py-8">
       <Bell className="w-12 h-12 text-[var(--muted)] mx-auto mb-4 opacity-50" />
-      <p className="text-[var(--text)]">Please sign in to see notifications</p>
+      <p className="text-[var(--text)]">{t('notificationsList.signInPrompt')}</p>
     </div>
   )
 
@@ -104,15 +106,15 @@ export default function NotificationsList() {
         transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
         className="w-8 h-8 border-3 border-[var(--heritage-gold)] border-t-transparent rounded-full"
       />
-      <span className="ml-3 text-[var(--text)]">Loading notifications...</span>
+      <span className="ml-3 text-[var(--text)]">{t('notificationsList.loading')}</span>
     </div>
   )
 
   if (notes.length === 0) return (
     <div className="text-center py-12">
       <Bell className="w-16 h-16 text-[var(--muted)] mx-auto mb-4 opacity-30" />
-      <h3 className="text-lg font-semibold text-[var(--text)] mb-2">No notifications</h3>
-      <p className="text-[var(--muted)]">You're all caught up!</p>
+      <h3 className="text-lg font-semibold text-[var(--text)] mb-2">{t('notificationsList.emptyTitle')}</h3>
+      <p className="text-[var(--muted)]">{t('notificationsList.emptyDescription')}</p>
     </div>
   )
 
@@ -132,7 +134,7 @@ export default function NotificationsList() {
           style={{ background: 'var(--bg-2)', borderColor: 'var(--border)' }}>
           <div className="flex items-center gap-2">
             <span className="text-sm font-semibold" style={{ color: 'var(--primary)' }}>
-              {unreadCount} unread notification{unreadCount !== 1 ? 's' : ''}
+              {t('notificationsList.unreadNotifications', { count: unreadCount })}
             </span>
           </div>
           {unreadCount > 0 && (
@@ -141,7 +143,7 @@ export default function NotificationsList() {
               className="text-xs font-semibold hover:underline transition-colors"
               style={{ color: 'var(--primary)' }}
             >
-              Mark all as read
+              {t('notificationsList.markAllAsRead')}
             </button>
           )}
         </div>

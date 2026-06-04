@@ -97,7 +97,7 @@ export default function GroupGiftModal({
         const initiatorId = user?.id || null;
         const recipientId = selectedRecipient?.id || null;
         // Use profile name if available, fallback to user.email or 'Someone'
-        let initiatorName = 'Someone';
+        let initiatorName = t('groupGiftModal.someone');
         if (user?.id) {
           // Fetch profile for initiator
           const { data: profile } = await supabase
@@ -111,14 +111,14 @@ export default function GroupGiftModal({
             initiatorName = user.email;
           }
         }
-        const recipientName = selectedRecipient?.name || 'your friend';
+        const recipientName = selectedRecipient?.name || t('groupGiftModal.yourFriend');
         if (friend.id !== initiatorId && friend.id !== recipientId) {
           await supabase
             .from('notifications')
             .insert({
               user_id: friend.id,
-              title: 'You were invited to a group gift!',
-              body: `${initiatorName} invited you to contribute to a group gift for ${recipientName}.`,
+              title: t('notifications.groupGiftInviteTitle'),
+              body: t('notifications.groupGiftInviteBody', { initiatorName, recipientName }),
               read: false,
               metadata: {
                 type: 'group_gift_invite',
@@ -131,7 +131,7 @@ export default function GroupGiftModal({
         }
       }
     if (!user || !selectedProduct || !selectedProduct.id || !selectedRecipient) {
-      alert('Please select a product and recipient for the group gift.');
+      alert(t('groupGiftModal.productRecipientRequired'));
       return;
     }
     setLoading(true)
@@ -163,7 +163,12 @@ export default function GroupGiftModal({
           group_gift_id: groupGift.id,
           contributor_id: user.id,
           amount: initialAmount,
-          message: `Started group gift for ${selectedProduct.title}${initialAmount > 0 ? ` (Contributed ₹${creatorContribution})` : ''}`
+          message: t('groupGiftModal.startedContributionMessage', {
+            product: selectedProduct.title,
+            contribution: initialAmount > 0
+              ? t('groupGiftModal.startedContributionWithAmount', { amount: creatorContribution })
+              : ''
+          })
         })
 
       const url = `${window.location.origin}/group-gift/${groupGift.id}`;
@@ -171,7 +176,7 @@ export default function GroupGiftModal({
       setShowLinkModal(true);
     } catch (err) {
       console.error('Error creating group gift:', err)
-      alert('Failed to create group gift. Please try again.')
+      alert(t('groupGiftModal.createFailed'))
     }
     setLoading(false)
   }

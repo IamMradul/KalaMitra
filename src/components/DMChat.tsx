@@ -88,7 +88,7 @@ export default function DMChat({ threadId, otherUser }: DMChatProps) {
     if (isListening) { recognitionRef.current?.stop(); setIsListening(false); return; }
     let SpeechRecognitionCtor: typeof SpeechRecognition | undefined;
     if (typeof window !== 'undefined') SpeechRecognitionCtor = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognitionCtor) { alert('Speech recognition not supported.'); return; }
+    if (!SpeechRecognitionCtor) { alert(t('dmChat.speechNotSupported')); return; }
     const recognition = new SpeechRecognitionCtor();
     recognition.lang = getSpeechLang();
     recognition.interimResults = false;

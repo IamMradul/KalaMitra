@@ -122,13 +122,13 @@ const DonateModal: React.FC<DonateModalProps> = ({ open, onClose }) => {
             </div>
             <div className="min-w-0">
               <div className="mb-2 inline-flex items-center rounded-full border border-[var(--border)] bg-[var(--bg-1)] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--muted)]">
-                Donation request
+                {t('donate.badge')}
               </div>
               <h2 className="text-xl font-bold tracking-tight text-[var(--text)] sm:text-2xl">
                 {t('donate.modalTitle')}
               </h2>
               <p className="mt-1 max-w-md text-xs leading-relaxed text-[var(--muted)] sm:text-sm">
-                Share the items you want to donate and where we can collect them.
+                {t('donate.description')}
               </p>
             </div>
           </div>
@@ -150,7 +150,7 @@ const DonateModal: React.FC<DonateModalProps> = ({ open, onClose }) => {
             </div>
             <div className="text-2xl font-bold text-[var(--text)]">{t('donate.successMsg')}</div>
             <p className="mt-3 max-w-md text-sm leading-relaxed text-[var(--muted)]">
-              Your donation request has been submitted successfully. Our team will contact you soon.
+              {t('donate.successDescription')}
             </p>
             <button
               className="mt-6 inline-flex items-center justify-center rounded-full bg-[var(--heritage-brown)] px-6 py-3 font-semibold text-white shadow-lg transition-transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-[var(--heritage-gold)]/20"
@@ -162,7 +162,7 @@ const DonateModal: React.FC<DonateModalProps> = ({ open, onClose }) => {
         ) : (
           <form className="space-y-4 sm:space-y-5" onSubmit={handleSubmit}>
             <div className={sectionClassName}>
-              <div className={`${sectionHeadingClassName} mb-4`}>Donation details</div>
+              <div className={`${sectionHeadingClassName} mb-4`}>{t('donate.detailsSectionTitle')}</div>
               <div className="grid gap-4 md:grid-cols-2">
                 <div>
                   <label className={labelClassName}>{t('donate.itemName')}*</label>
@@ -201,7 +201,7 @@ const DonateModal: React.FC<DonateModalProps> = ({ open, onClose }) => {
             </div>
 
             <div className={sectionClassName}>
-              <div className={`${sectionHeadingClassName} mb-4`}>Collection and contact</div>
+              <div className={`${sectionHeadingClassName} mb-4`}>{t('donate.contactSectionTitle')}</div>
               <div>
                 <label className={labelClassName}>{t('donate.images')}</label>
                 <label className="flex cursor-pointer items-center justify-between gap-4 rounded-2xl border border-dashed border-[var(--border)] bg-[var(--bg-1)] px-4 py-4 transition-colors hover:border-[var(--heritage-gold)] hover:bg-[var(--bg-2)]">
@@ -210,14 +210,14 @@ const DonateModal: React.FC<DonateModalProps> = ({ open, onClose }) => {
                       <UploadCloud className="h-5 w-5" />
                     </div>
                     <div>
-                      <div className="text-sm font-semibold text-[var(--text)]">Upload photos</div>
-                      <div className="text-xs text-[var(--muted)]">PNG, JPG, WEBP. Multiple files allowed.</div>
+                      <div className="text-sm font-semibold text-[var(--text)]">{t('donate.uploadTitle')}</div>
+                      <div className="text-xs text-[var(--muted)]">{t('donate.uploadHint')}</div>
                     </div>
                   </div>
                   <div className="text-xs font-medium text-[var(--muted)] sm:text-sm">
                     {form.images.length > 0
-                      ? `${form.images.length} selected`
-                      : 'No file chosen'}
+                      ? t('donate.selectedFiles', { count: form.images.length })
+                      : t('donate.noFileChosen')}
                   </div>
                   <input
                     type="file"

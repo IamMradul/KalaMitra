@@ -87,12 +87,12 @@ export default function AIShoppingChat() {
   const handleStartListening = () => {
     const speechLang = langMap[currentLanguage] || currentLanguage || 'en-IN'
     if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
-      alert('Speech recognition not supported in this browser.')
+      alert(t('aiShoppingChat.speechNotSupported'))
       return
     }
     const SpeechRecognitionCtor = window.SpeechRecognition || window.webkitSpeechRecognition
     if (!SpeechRecognitionCtor) {
-      alert('Speech recognition not supported in this browser.')
+      alert(t('aiShoppingChat.speechNotSupported'))
       return
     }
     const recognition: SpeechRecognition = new SpeechRecognitionCtor()
@@ -246,7 +246,7 @@ export default function AIShoppingChat() {
     }
 
     const confirmed = window.confirm(
-      '🗑️ Delete this conversation permanently?\n\nThis will remove all messages from your history and cannot be undone.'
+      t('aiShoppingChat.deleteConversationConfirm')
     )
     
     if (!confirmed) return
@@ -274,7 +274,7 @@ export default function AIShoppingChat() {
       console.log('Conversation deleted from database:', sessionId)
     } catch (error) {
       console.error('Error deleting conversation:', error)
-      alert('Failed to delete conversation. Please try again.')
+      alert(t('aiShoppingChat.deleteConversationFailed'))
     } finally {
       setIsLoading(false)
     }

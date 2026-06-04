@@ -48,7 +48,7 @@ export default function StallCustomizationModal({ open, onClose, onSave, initial
         return prev.filter(pid => pid !== id);
       } else {
         if (prev.length >= 4) {
-          setProductLimitError('You can select up to 4 featured products only.');
+          setProductLimitError(t('stallCustomizationModal.featuredLimitError'));
           return prev;
         }
         return [...prev, id];

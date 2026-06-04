@@ -19,6 +19,7 @@ interface XRHitTestSource {
 }
 
 import React, { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   WebGLRenderer,
   Scene,
@@ -35,6 +36,7 @@ import { Texture } from 'three';
 // ARViewer: Markerless AR using WebXR + Three.js
 // Renders a sample cube in AR. Extend to load product models as needed.
 export default function ARViewer({ open, onClose, imageUrl, productType }: { open: boolean; onClose: () => void; imageUrl?: string; productType?: 'vertical' | 'horizontal' }) {
+  const { t } = useTranslation();
   const arRef = useRef<HTMLDivElement>(null);
   const rendererRef = useRef<InstanceType<typeof WebGLRenderer> | null>(null);
   const sessionRef = useRef<XRSession | null>(null);
@@ -130,7 +132,7 @@ export default function ARViewer({ open, onClose, imageUrl, productType }: { ope
 
     async function startAR() {
       if (!('xr' in navigator)) {
-        alert('WebXR not supported on this device/browser.');
+        alert(t('arViewer.webxrNotSupported'))
         handleClose();
         return;
       }
@@ -145,7 +147,7 @@ export default function ARViewer({ open, onClose, imageUrl, productType }: { ope
           xrSession.addEventListener('end', handleClose);
         }
       } catch (err) {
-        alert('Failed to start AR session: ' + err);
+        alert(t('arViewer.startFailed', { error: String(err) }))
         handleClose();
         return;
       }
