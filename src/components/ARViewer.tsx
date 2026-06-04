@@ -395,22 +395,22 @@ export default function ARViewer({ open, onClose, imageUrl, productType }: { ope
             <>
               <div style={{ fontSize: 38, marginBottom: 18 }}>🔄</div>
               <div style={{ marginBottom: 8 }}>
-                Processing product image for AR...
+                {t('arViewer.processingImage', 'Processing product image for AR...')}
               </div>
-              <div style={{ fontSize: 13, color: '#ccc' }}>This can take a few seconds.</div>
+              <div style={{ fontSize: 13, color: '#ccc' }}>{t('arViewer.processingTimeHint', 'This can take a few seconds.')}</div>
             </>
           ) : (
             <>
               <div style={{ fontSize: 32, marginBottom: 16 }}>✅</div>
-              <div style={{ marginBottom: 10 }}>Image processed!</div>
+              <div style={{ marginBottom: 10 }}>{t('arViewer.imageProcessed', 'Image processed!')}</div>
               <button
                 onClick={() => setARReady(true)}
                 style={{ margin: '20px auto 0', background: '#218cf7', color: '#fff', border: 'none', borderRadius: 8, fontSize: 18, padding: '12px 33px', fontWeight: 600, cursor: 'pointer', boxShadow: '0 4px 12px #0002' }}
               >
-                Start AR
+                {t('arViewer.startAR', 'Start AR')}
               </button>
               <div style={{ marginTop: 18 }}>
-                <button onClick={handleClose} style={{ fontSize: 14, background: 'none', color: '#eee', border: 'none', textDecoration: 'underline', cursor: 'pointer' }}>Cancel</button>
+                <button onClick={handleClose} style={{ fontSize: 14, background: 'none', color: '#eee', border: 'none', textDecoration: 'underline', cursor: 'pointer' }}>{t('arViewer.cancel', 'Cancel')}</button>
               </div>
             </>
           )}
@@ -450,7 +450,7 @@ export default function ARViewer({ open, onClose, imageUrl, productType }: { ope
           }}
         >
           <div style={{ marginBottom: 10 }}>🔄</div>
-          <div>Processing image for AR...</div>
+          <div>{t('arViewer.processingImage', 'Processing product image for AR...')}</div>
         </div>
       )}
       

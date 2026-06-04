@@ -320,7 +320,7 @@ export default function CartPage() {
                 <span className="text-[var(--text)]">{new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
               </div>
               <div>
-                <span className="block text-[10px] uppercase tracking-wider mb-1">Order ID</span>
+                <span className="block text-[10px] uppercase tracking-wider mb-1">{t('cart.page.orderId', 'Order ID')}</span>
                 <span className="text-[var(--text)]">#{Math.random().toString(36).substr(2, 9).toUpperCase()}</span>
               </div>
             </div>
@@ -400,7 +400,7 @@ export default function CartPage() {
                                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                                 />
                               ) : (
-                                <div className="w-full h-full flex items-center justify-center text-[var(--muted)] text-xs">NO IMG</div>
+                                <div className="w-full h-full flex items-center justify-center text-[var(--muted)] text-xs">{t('cart.page.noImg', 'NO IMG')}</div>
                               )}
                             </div>
                             <div className="min-w-0">
@@ -423,7 +423,7 @@ export default function CartPage() {
 
                           {/* Price (Col 2) */}
                           <div className="w-full sm:col-span-2 text-center font-mono text-sm text-[var(--muted)]">
-                            <span className="sm:hidden mr-2 uppercase text-xs tracking-wide">Price:</span>
+                            <span className="sm:hidden mr-2 uppercase text-xs tracking-wide">{t('cart.page.priceLabel', 'Price:')}</span>
                             ₹{item.product.price.toLocaleString()}
                           </div>
 
@@ -452,7 +452,7 @@ export default function CartPage() {
 
                           {/* Total (Col 2) */}
                           <div className="w-full sm:col-span-2 text-right font-medium text-[var(--text)]">
-                            <span className="sm:hidden mr-2 uppercase text-xs tracking-wide text-[var(--muted)]">Total:</span>
+                            <span className="sm:hidden mr-2 uppercase text-xs tracking-wide text-[var(--muted)]">{t('cart.page.totalLabel', 'Total:')}</span>
                             ₹{(item.product.price * item.quantity).toLocaleString()}
                           </div>
 
@@ -531,7 +531,7 @@ export default function CartPage() {
                 </button>
 
                 <div className="mt-8 pt-6 border-t border-[var(--border)] text-center">
-                  <p className="text-[10px] text-[var(--muted)] uppercase tracking-wider mb-2">We Accept</p>
+                  <p className="text-[10px] text-[var(--muted)] uppercase tracking-wider mb-2">{t('cart.page.weAccept', 'We Accept')}</p>
                   <div className="flex justify-center gap-3 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
                     {/* Placeholders for payment icons */}
                     <div className="w-8 h-5 bg-[var(--text)]/10 rounded-sm"></div>
@@ -540,7 +540,7 @@ export default function CartPage() {
                   </div>
                   <div className="mt-4 flex items-center justify-center gap-2 text-[10px] text-[var(--muted)] uppercase tracking-wider">
                     <Shield className="w-3 h-3" />
-                    <span>Secure SSL Encryption</span>
+                    <span>{t('cart.page.secureSsl', 'Secure SSL Encryption')}</span>
                   </div>
                 </div>
               </div>
@@ -574,7 +574,7 @@ export default function CartPage() {
                       {item.image_url ? (
                         <img src={item.image_url} alt={item.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center text-[var(--muted)] text-xs">NO IMG</div>
+                        <div className="w-full h-full flex items-center justify-center text-[var(--muted)] text-xs">{t('cart.page.noImg', 'NO IMG')}</div>
                       )}
                     </Link>
                     <Link href={`/product/${item.product_id}`} className="block">

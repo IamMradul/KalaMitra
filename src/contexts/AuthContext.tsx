@@ -3,6 +3,8 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { User, Session } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
+import { useTranslation } from 'react-i18next'
+import '@/lib/i18n'
 import { generateGoogleAuthURL } from '@/lib/google-oauth'
 import { generateMicrosoftAuthURL } from '@/lib/microsoft-oauth'
 import { Database } from '@/lib/supabase'
@@ -49,11 +51,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [showUpiModal, setShowUpiModal] = useState(false);
   const [upiInput, setUpiInput] = useState("");
   const [upiError, setUpiError] = useState("");
+  const { t } = useTranslation();
 
   useEffect(() => {
     // Mark that we're on the client side
     setIsClient(true)
-    
+
     const initializeAuth = async () => {
       try {
         // Check for Google user session in localStorage (client-side only)
@@ -95,9 +98,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Get initial Supabase session
         const { data: { session } } = await supabase.auth.getSession()
         console.log('Initial Supabase session check:', session?.user?.id)
+        if (session?.user) {
+          localStorage.removeItem('googleUserSession')
+          localStorage.removeItem('microsoftUserSession')
+        }
         setSession(session)
         setUser(session?.user ?? null)
-        
+
         if (session?.user) {
           await fetchProfile(session.user.id)
           // Sync anonymous cart if any exists (for restored sessions)
@@ -117,14 +124,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth state change:', event, session?.user?.id)
-      
+
+      if (session?.user) {
+        localStorage.removeItem('googleUserSession')
+        localStorage.removeItem('microsoftUserSession')
+      }
+
       // Only update if we don't have a Google or Microsoft user session
       const googleSession = localStorage.getItem('googleUserSession')
       const microsoftSession = localStorage.getItem('microsoftUserSession')
       if (!googleSession && !microsoftSession) {
         setSession(session)
         setUser(session?.user ?? null)
-        
+
         if (session?.user) {
           await fetchProfile(session.user.id)
           // Sync anonymous cart to database when user logs in
@@ -145,15 +157,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const syncAnonymousCartToDatabase = async (userId: string) => {
     if (typeof window === 'undefined') return
-    
+
     try {
       const { getAnonymousCart, clearAnonymousCart } = await import('@/utils/cart')
       const anonymousCart = getAnonymousCart()
-      
+
       if (anonymousCart.length === 0) return
-      
+
       console.log('Syncing anonymous cart to database for user:', userId)
-      
+
       // For each item in anonymous cart, check if it exists in database
       for (const item of anonymousCart) {
         const { data: existing, error: fetchError } = await supabase
@@ -162,12 +174,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           .eq('buyer_id', userId)
           .eq('product_id', item.product_id)
           .single()
-        
+
         if (fetchError && fetchError.code !== 'PGRST116') {
           console.error('Error checking existing cart item:', fetchError)
           continue
         }
-        
+
         if (existing) {
           // Update quantity (add anonymous quantity to existing)
           await supabase
@@ -185,7 +197,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             })
         }
       }
-      
+
       // Clear anonymous cart after syncing
       clearAnonymousCart()
       console.log('Anonymous cart synced successfully')
@@ -225,18 +237,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signUp = async (email: string, password: string, name: string, role: 'buyer' | 'seller') => {
     try {
       console.log('Starting signup process for:', email, 'role:', role)
-      
+
       // Check if user already exists in profiles table
       const { data: existingProfile, error: profileCheckError } = await supabase
         .from('profiles')
         .select('id')
         .eq('email', email)
         .single()
-      
+
       if (existingProfile) {
         throw new Error('An account with this email already exists. Please sign in instead.')
       }
-      
+
       // Create auth user with Supabase
       console.log('Step 1: Creating auth user...')
       const { data, error } = await supabase.auth.signUp({
@@ -256,7 +268,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       console.log('Auth signup successful:', data)
-      
+
       // Store user data in localStorage for profile creation after email confirmation
       if (data.user && isClient) {
         const pendingProfileData = {
@@ -268,7 +280,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         localStorage.setItem('pendingProfile', JSON.stringify(pendingProfileData))
         console.log('Pending profile stored:', pendingProfileData)
       }
-      
+
       console.log('Signup process completed successfully')
       console.log('Please check your email to confirm your account before signing in.')
     } catch (error) {
@@ -280,24 +292,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signIn = async (email: string, password: string) => {
     try {
       console.log('Signing in user:', email)
-      
+
       // Check if this email exists in our profiles table
       const { data: existingProfile, error: profileCheckError } = await supabase
         .from('profiles')
         .select('id')
         .eq('email', email)
         .single()
-      
+
       if (profileCheckError && (profileCheckError.code === 'PGRST116' || profileCheckError.message.includes('0 rows'))) {
         console.log('No profile found for email:', email)
         throw new Error('Invalid email or password. Please check your credentials and try again.')
       }
-      
+
       if (profileCheckError) {
         console.error('Error checking profile existence:', profileCheckError)
         throw new Error('Sign in failed. Please try again.')
       }
-      
+
       // Sign in with Supabase
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -319,13 +331,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signInWithGoogle = async (role: 'buyer' | 'seller') => {
     try {
       console.log('Starting Google sign in for role:', role)
-      
+
       // Create state parameter with role information
       const state = encodeURIComponent(JSON.stringify({ role }))
-      
+
       // Generate Google OAuth URL
       const authUrl = generateGoogleAuthURL(state)
-      
+
       // Redirect to Google OAuth
       window.location.href = authUrl
     } catch (error) {
@@ -337,13 +349,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signInWithMicrosoft = async (role: 'buyer' | 'seller') => {
     try {
       console.log('Starting Microsoft sign in for role:', role)
-      
+
       // Create state parameter with role information
       const state = encodeURIComponent(JSON.stringify({ role }))
-      
+
       // Generate Microsoft OAuth URL
       const authUrl = generateMicrosoftAuthURL(state)
-      
+
       // Redirect to Microsoft OAuth
       window.location.href = authUrl
     } catch (error) {
@@ -357,12 +369,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.log('Signout already in progress, ignoring duplicate call')
       return
     }
-    
+
     setIsSigningOut(true)
-    
+
     try {
       console.log('=== SIGNING OUT USER ===')
-      
+
       // Clear app data in localStorage (client-side only)
       if (isClient) {
         try {
@@ -377,17 +389,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           console.warn('Storage clear failed:', e)
         }
       }
-      
+
       // Clear local state
       setUser(null)
       setProfile(null)
       setSession(null)
-      
+
       // Sign out from Supabase (if it's a Supabase user)
       if (session) {
         await supabase.auth.signOut()
       }
-      
+
       console.log('Sign out completed successfully')
     } catch (error) {
       console.error('Error during signout:', error)
@@ -419,13 +431,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       {showUpiModal && (
         <div role="dialog" aria-modal="true" className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(0,0,0,0.4)]">
           <div className="p-8 rounded-xl min-w-[320px] shadow-[0_4px_32px_rgba(0,0,0,0.15)]" style={{ background: 'var(--bg-2)', color: 'var(--text)', border: '1px solid var(--border)' }}>
-            <h2 className="font-bold text-lg mb-3">Enter your UPI ID</h2>
-            <p className="mb-4 text-sm" style={{ color: 'var(--muted)' }}>To receive payments, please provide your UPI ID.</p>
+            <h2 className="font-bold text-lg mb-3">{t('auth.upiModal.title')}</h2>
+            <p className="mb-4 text-sm" style={{ color: 'var(--muted)' }}>{t('auth.upiModal.description')}</p>
             <input
               type="text"
               value={upiInput}
               onChange={e => { setUpiInput(e.target.value); setUpiError(""); }}
-              placeholder="e.g. yourname@upi"
+              placeholder={t('auth.upiModal.placeholder')}
               className="w-full p-2 rounded-lg mb-2"
               style={{ background: 'var(--card)', color: 'var(--text)', border: '1px solid var(--border)' }}
             />
@@ -436,12 +448,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 style={{ background: 'var(--saffron)', color: 'white' }}
                 onClick={async () => {
                   if (!upiInput.trim()) {
-                    setUpiError('UPI ID is required');
+                    setUpiError(t('auth.upiModal.requiredError'));
                     return;
                   }
                   // Basic UPI ID format check
                   if (!/^[\w.-]+@[\w.-]+$/.test(upiInput.trim())) {
-                    setUpiError('Invalid UPI ID format');
+                    setUpiError(t('auth.upiModal.formatError'));
                     return;
                   }
                   // Save UPI ID to profile
@@ -451,7 +463,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                       .update({ upi_id: upiInput.trim() })
                       .eq('id', profile?.id)
                     if (error) {
-                      setUpiError('Failed to save UPI ID');
+                      setUpiError(t('auth.upiModal.saveError'));
                     } else {
                       setShowUpiModal(false);
                       setUpiInput("");
@@ -460,15 +472,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                       if (profile?.id) await fetchProfile(profile.id);
                     }
                   } catch (err) {
-                    setUpiError('Failed to save UPI ID');
+                    setUpiError(t('auth.upiModal.saveError'));
                   }
                 }}
-              >Save</button>
+              >{t('common.save')}</button>
               <button
                 className="px-4 py-2 rounded-lg font-bold"
                 style={{ background: 'transparent', color: 'var(--text)', border: '1px solid var(--border)' }}
                 onClick={() => setShowUpiModal(false)}
-              >Cancel</button>
+              >{t('common.cancel')}</button>
             </div>
           </div>
         </div>

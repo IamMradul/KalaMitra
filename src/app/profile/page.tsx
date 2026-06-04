@@ -411,7 +411,7 @@ export default function ProfilePage() {
                     className="mt-6 w-full flex items-center justify-center gap-2 px-4 py-2 bg-[var(--text)] text-[var(--bg-1)] rounded-xl font-bold text-sm hover:bg-[var(--heritage-gold)] hover:text-white transition-all shadow-md"
                   >
                     <LayoutDashboard className="w-4 h-4" />
-                    Seller Dashboard
+                    {t('navbar.sellerDashboard')}
                   </Link>
                 )}
               </div>
@@ -421,7 +421,7 @@ export default function ProfilePage() {
                 <SidebarItem id="overview" icon={Home} label={t('profile.overview', { defaultValue: 'Overview' })} />
                 <SidebarItem id="orders" icon={Package} label={t('profile.myOrders', { defaultValue: 'Orders' })} />
                 <SidebarItem id="wishlist" icon={Heart} label={t('profile.wishlist', { defaultValue: 'Wishlist' })} />
-                <SidebarItem id="notifications" icon={Bell} label="Notifications" badge={unreadNotifCount} />
+                <SidebarItem id="notifications" icon={Bell} label={t('profile.notificationsTab')} badge={unreadNotifCount} />
                 <SidebarItem id="messages" icon={MessageCircle} label={t('navbar.messages', { defaultValue: 'Messages' })} />
                 <SidebarItem id="addresses" icon={MapPin} label={t('profile.addresses', { defaultValue: 'Addresses' })} />
                 <SidebarItem id="settings" icon={Settings} label={t('profile.settings', { defaultValue: 'Settings' })} />
@@ -466,7 +466,7 @@ export default function ProfilePage() {
 
             {activeTab === 'notifications' && (
               <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="max-w-3xl">
-                <h2 className="text-2xl font-bold heritage-title mb-6">Notifications</h2>
+                <h2 className="text-2xl font-bold heritage-title mb-6">{t('profile.notificationsTitle')}</h2>
                 <div className="card-glass rounded-2xl p-6 border border-[var(--border)] min-h-[400px]">
                   <NotificationsList />
                 </div>
@@ -479,7 +479,7 @@ export default function ProfilePage() {
                   <div className="text-center">
                     <MessageCircle className="w-12 h-12 text-[var(--heritage-gold)] mx-auto mb-4" />
                     <p className="text-lg font-semibold text-[var(--text)] mb-2">{t('navbar.messages', { defaultValue: 'Messages' })}</p>
-                    <p className="text-sm text-[var(--muted)]">Click here to view and send messages</p>
+                    <p className="text-sm text-[var(--muted)]">{t('profile.messagesClickDesc')}</p>
                   </div>
                 </Link>
               </motion.div>
@@ -505,22 +505,22 @@ export default function ProfilePage() {
                   <div className="card-glass p-5 rounded-xl border border-[var(--border)] flex flex-col items-center justify-center text-center">
                     <ShoppingBag className="w-8 h-8 text-[var(--heritage-gold)] mb-2" />
                     <span className="text-2xl font-bold">{orders.length}</span>
-                    <span className="text-xs text-[var(--muted)] uppercase tracking-wide">Orders</span>
+                    <span className="text-xs text-[var(--muted)] uppercase tracking-wide">{t('profile.orders')}</span>
                   </div>
                   <div className="card-glass p-5 rounded-xl border border-[var(--border)] flex flex-col items-center justify-center text-center">
                     <Heart className="w-8 h-8 text-[var(--heritage-red)] mb-2" />
                     <span className="text-2xl font-bold">{wishlistCount}</span>
-                    <span className="text-xs text-[var(--muted)] uppercase tracking-wide">Wishlist</span>
+                    <span className="text-xs text-[var(--muted)] uppercase tracking-wide">{t('profile.wishlistCountLabel')}</span>
                   </div>
                   <div className="card-glass p-5 rounded-xl border border-[var(--border)] flex flex-col items-center justify-center text-center">
                     <Truck className="w-8 h-8 text-blue-500 mb-2" />
                     <span className="text-2xl font-bold">1</span>
-                    <span className="text-xs text-[var(--muted)] uppercase tracking-wide">In Transit</span>
+                    <span className="text-xs text-[var(--muted)] uppercase tracking-wide">{t('profile.inTransit')}</span>
                   </div>
                   <div className="card-glass p-5 rounded-xl border border-[var(--border)] flex flex-col items-center justify-center text-center">
                     <CreditCard className="w-8 h-8 text-green-500 mb-2" />
                     <span className="text-2xl font-bold">₹0</span>
-                    <span className="text-xs text-[var(--muted)] uppercase tracking-wide">Credits</span>
+                    <span className="text-xs text-[var(--muted)] uppercase tracking-wide">{t('profile.credits')}</span>
                   </div>
                 </div>
 
@@ -529,10 +529,10 @@ export default function ProfilePage() {
                   <div className="flex items-center justify-between mb-6">
                     <h3 className="text-xl font-bold flex items-center gap-2">
                       <Package className="w-5 h-5 text-[var(--heritage-gold)]" />
-                      Recent Orders
+                      {t('profile.recentOrders')}
                     </h3>
                     <button onClick={() => setActiveTab('orders')} className="text-sm text-[var(--heritage-red)] font-semibold hover:underline">
-                      View All
+                      {t('common.viewAll')}
                     </button>
                   </div>
                   <div className="space-y-4">
@@ -544,7 +544,7 @@ export default function ProfilePage() {
                           </div>
                           <div>
                             <p className="font-bold text-sm">{order.items[0].name} {order.items.length > 1 && `+${order.items.length - 1} more`}</p>
-                            <p className="text-xs text-[var(--muted)]">Ordered on {order.date}</p>
+                            <p className="text-xs text-[var(--muted)]">{t('profile.orderedOn')} {order.date}</p>
                           </div>
                         </div>
                         <div className="text-right">
@@ -561,7 +561,7 @@ export default function ProfilePage() {
             {activeTab === 'orders' && (
               <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-2xl font-bold heritage-title">My Orders</h2>
+                  <h2 className="text-2xl font-bold heritage-title">{t('profile.myOrders')}</h2>
                   <div className="flex gap-2">
                     <button className="p-2 rounded-lg bg-[var(--bg-2)] border border-[var(--border)]"><Search className="w-4 h-4" /></button>
                     <button className="p-2 rounded-lg bg-[var(--bg-2)] border border-[var(--border)]"><Filter className="w-4 h-4" /></button>
@@ -573,15 +573,15 @@ export default function ProfilePage() {
                     <div key={order.id} className="card-glass rounded-2xl border border-[var(--border)] overflow-hidden">
                       <div className="p-4 bg-[var(--bg-2)]/30 border-b border-[var(--border)] flex flex-wrap gap-4 justify-between items-center">
                         <div>
-                          <p className="text-xs text-[var(--muted)] uppercase font-bold">Order Placed</p>
+                          <p className="text-xs text-[var(--muted)] uppercase font-bold">{t('profile.orderPlaced')}</p>
                           <p className="text-sm font-medium">{order.date}</p>
                         </div>
                         <div>
-                          <p className="text-xs text-[var(--muted)] uppercase font-bold">Total</p>
+                          <p className="text-xs text-[var(--muted)] uppercase font-bold">{t('profile.total')}</p>
                           <p className="text-sm font-medium">₹{order.total}</p>
                         </div>
                         <div>
-                          <p className="text-xs text-[var(--muted)] uppercase font-bold">Order ID</p>
+                          <p className="text-xs text-[var(--muted)] uppercase font-bold">{t('profile.orderId')}</p>
                           <p className="text-sm font-mono">{order.id}</p>
                         </div>
                         <div className="ml-auto">
@@ -598,10 +598,10 @@ export default function ProfilePage() {
                             </div>
                             <div>
                               <h4 className="font-bold">{item.name}</h4>
-                              <p className="text-sm text-[var(--muted)]">Qty: {item.quantity}</p>
+                              <p className="text-sm text-[var(--muted)]">{t('profile.qty')} {item.quantity}</p>
                             </div>
                             <button className="ml-auto text-sm text-[var(--heritage-gold)] font-semibold hover:underline">
-                              Write a Review
+                              {t('profile.writeReview')}
                             </button>
                           </div>
                         ))}
@@ -643,12 +643,12 @@ export default function ProfilePage() {
             {activeTab === 'addresses' && (
               <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-2xl font-bold heritage-title">Saved Addresses</h2>
+                  <h2 className="text-2xl font-bold heritage-title">{t('profile.savedAddresses')}</h2>
                   <button
                     onClick={() => setShowAddAddressModal(true)}
                     className="flex items-center gap-2 px-4 py-2 bg-[var(--heritage-gold)] text-white rounded-xl font-bold text-sm shadow-lg hover:bg-[var(--heritage-red)] transition-colors"
                   >
-                    <Plus className="w-4 h-4" /> Add New
+                    <Plus className="w-4 h-4" /> {t('profile.addNewAddressBtn')}
                   </button>
                 </div>
 
@@ -657,7 +657,7 @@ export default function ProfilePage() {
                 ) : addresses.length === 0 ? (
                   <div className="text-center py-12 card-glass rounded-2xl border border-[var(--border)]">
                     <MapPin className="w-12 h-12 text-[var(--muted)] mx-auto mb-3" />
-                    <p className="text-[var(--muted)]">No addresses saved yet.</p>
+                    <p className="text-[var(--muted)]">{t('profile.noAddresses')}</p>
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -666,7 +666,7 @@ export default function ProfilePage() {
                         <div className="flex justify-between items-start mb-4">
                           <div className="flex items-center gap-2">
                             <span className="px-2 py-1 bg-[var(--bg-3)] rounded text-xs font-bold uppercase">{addr.type}</span>
-                            {addr.is_default && <span className="text-xs text-[var(--heritage-gold)] font-bold flex items-center gap-1"><CheckCircle className="w-3 h-3" /> Default</span>}
+                            {addr.is_default && <span className="text-xs text-[var(--heritage-gold)] font-bold flex items-center gap-1"><CheckCircle className="w-3 h-3" /> {t('profile.defaultBadge')}</span>}
                           </div>
                           <div className="flex gap-2">
                             <button className="p-1.5 hover:bg-[var(--bg-2)] rounded transition-colors" title="Edit"><Edit3 className="w-4 h-4 text-[var(--muted)]" /></button>
@@ -697,7 +697,7 @@ export default function ProfilePage() {
                     className="bg-[var(--bg-2)] w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden border border-[var(--border)]"
                   >
                     <div className="p-6 border-b border-[var(--border)] flex justify-between items-center">
-                      <h3 className="text-xl font-bold heritage-title">Add New Address</h3>
+                      <h3 className="text-xl font-bold heritage-title">{t('profile.addNewAddressTitle')}</h3>
                       <button onClick={() => setShowAddAddressModal(false)} className="p-1 hover:bg-[var(--bg-3)] rounded-full transition-colors">
                         <X className="w-5 h-5" />
                       </button>
@@ -705,7 +705,7 @@ export default function ProfilePage() {
                     <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
                       <div className="grid grid-cols-2 gap-4">
                         <div className="col-span-2">
-                          <label className="block text-xs font-bold text-[var(--muted)] uppercase mb-1">Full Name</label>
+                          <label className="block text-xs font-bold text-[var(--muted)] uppercase mb-1">{t('profile.fullName')}</label>
                           <input
                             type="text"
                             className="w-full p-2.5 bg-[var(--bg-1)] border border-[var(--border)] rounded-lg focus:ring-2 focus:ring-[var(--heritage-gold)] focus:border-transparent outline-none"
@@ -715,7 +715,7 @@ export default function ProfilePage() {
                           />
                         </div>
                         <div className="col-span-2">
-                          <label className="block text-xs font-bold text-[var(--muted)] uppercase mb-1">Street Address</label>
+                          <label className="block text-xs font-bold text-[var(--muted)] uppercase mb-1">{t('profile.streetAddress')}</label>
                           <input
                             type="text"
                             className="w-full p-2.5 bg-[var(--bg-1)] border border-[var(--border)] rounded-lg focus:ring-2 focus:ring-[var(--heritage-gold)] focus:border-transparent outline-none"
@@ -725,7 +725,7 @@ export default function ProfilePage() {
                           />
                         </div>
                         <div>
-                          <label className="block text-xs font-bold text-[var(--muted)] uppercase mb-1">City</label>
+                          <label className="block text-xs font-bold text-[var(--muted)] uppercase mb-1">{t('profile.city')}</label>
                           <input
                             type="text"
                             className="w-full p-2.5 bg-[var(--bg-1)] border border-[var(--border)] rounded-lg focus:ring-2 focus:ring-[var(--heritage-gold)] focus:border-transparent outline-none"
@@ -735,7 +735,7 @@ export default function ProfilePage() {
                           />
                         </div>
                         <div>
-                          <label className="block text-xs font-bold text-[var(--muted)] uppercase mb-1">State</label>
+                          <label className="block text-xs font-bold text-[var(--muted)] uppercase mb-1">{t('profile.state')}</label>
                           <input
                             type="text"
                             className="w-full p-2.5 bg-[var(--bg-1)] border border-[var(--border)] rounded-lg focus:ring-2 focus:ring-[var(--heritage-gold)] focus:border-transparent outline-none"
@@ -745,7 +745,7 @@ export default function ProfilePage() {
                           />
                         </div>
                         <div>
-                          <label className="block text-xs font-bold text-[var(--muted)] uppercase mb-1">ZIP Code</label>
+                          <label className="block text-xs font-bold text-[var(--muted)] uppercase mb-1">{t('profile.zipCode')}</label>
                           <input
                             type="text"
                             className="w-full p-2.5 bg-[var(--bg-1)] border border-[var(--border)] rounded-lg focus:ring-2 focus:ring-[var(--heritage-gold)] focus:border-transparent outline-none"
@@ -755,7 +755,7 @@ export default function ProfilePage() {
                           />
                         </div>
                         <div>
-                          <label className="block text-xs font-bold text-[var(--muted)] uppercase mb-1">Phone</label>
+                          <label className="block text-xs font-bold text-[var(--muted)] uppercase mb-1">{t('profile.phone')}</label>
                           <input
                             type="text"
                             className="w-full p-2.5 bg-[var(--bg-1)] border border-[var(--border)] rounded-lg focus:ring-2 focus:ring-[var(--heritage-gold)] focus:border-transparent outline-none"
@@ -766,7 +766,7 @@ export default function ProfilePage() {
                         </div>
                         <div className="col-span-2 grid grid-cols-2 gap-4">
                           <div>
-                            <label className="block text-xs font-bold text-[var(--muted)] uppercase mb-1">Type</label>
+                            <label className="block text-xs font-bold text-[var(--muted)] uppercase mb-1">{t('profile.addressType')}</label>
                             <select
                               className="w-full p-2.5 bg-[var(--bg-1)] border border-[var(--border)] rounded-lg focus:ring-2 focus:ring-[var(--heritage-gold)] focus:border-transparent outline-none"
                               value={newAddress.type}
@@ -785,7 +785,7 @@ export default function ProfilePage() {
                                 checked={newAddress.is_default}
                                 onChange={e => setNewAddress({ ...newAddress, is_default: e.target.checked })}
                               />
-                              <span className="font-medium">Set as Default</span>
+                              <span className="font-medium">Set as {t('profile.defaultBadge')}</span>
                             </label>
                           </div>
                         </div>
@@ -796,13 +796,13 @@ export default function ProfilePage() {
                         onClick={() => setShowAddAddressModal(false)}
                         className="px-4 py-2 rounded-xl font-medium hover:bg-[var(--bg-3)] transition-colors"
                       >
-                        Cancel
+                        {t('common.cancel')}
                       </button>
                       <button
                         onClick={handleAddAddress}
                         className="px-6 py-2 bg-[var(--heritage-gold)] text-white rounded-xl font-bold hover:bg-[var(--heritage-red)] transition-colors shadow-lg"
                       >
-                        Save Address
+                        {t('profile.saveAddressBtn')}
                       </button>
                     </div>
                   </motion.div>
@@ -812,22 +812,22 @@ export default function ProfilePage() {
 
             {activeTab === 'settings' && (
               <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="max-w-2xl">
-                <h2 className="text-2xl font-bold heritage-title mb-6">Account Settings</h2>
+                <h2 className="text-2xl font-bold heritage-title mb-6">{t('profile.accountSettings')}</h2>
 
                 {/* Basic Info */}
                 <div className="card-glass p-6 rounded-2xl border border-[var(--border)] mb-6">
                   <div className="flex justify-between items-center mb-6">
-                    <h3 className="font-bold text-lg">Personal Information</h3>
+                    <h3 className="font-bold text-lg">{t('profile.personalInfo')}</h3>
                     <button
                       onClick={() => editMode ? handleSaveProfile() : setEditMode(true)}
                       className={`text-sm font-bold ${editMode ? 'text-green-600' : 'text-[var(--heritage-gold)]'}`}
                     >
-                      {editMode ? 'Save Changes' : 'Edit'}
+                      {editMode ? t('common.saveChanges') : t('common.edit')}
                     </button>
                   </div>
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-xs font-bold text-[var(--muted)] uppercase mb-1">Full Name</label>
+                      <label className="block text-xs font-bold text-[var(--muted)] uppercase mb-1">{t('profile.fullName')}</label>
                       {editMode ? (
                         <input
                           type="text"
@@ -860,14 +860,14 @@ export default function ProfilePage() {
 
                 {/* Notifications (Mock) */}
                 <div className="card-glass p-6 rounded-2xl border border-[var(--border)] mb-6">
-                  <h3 className="font-bold text-lg mb-4">Notifications</h3>
+                  <h3 className="font-bold text-lg mb-4">{t('profile.notificationsTitle')}</h3>
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <span className="font-medium">Order Updates</span>
+                      <span className="font-medium">{t('profile.orderUpdates')}</span>
                       <div className="w-10 h-6 bg-[var(--heritage-gold)] rounded-full relative cursor-pointer"><div className="w-4 h-4 bg-white rounded-full absolute right-1 top-1"></div></div>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="font-medium">Promotions</span>
+                      <span className="font-medium">{t('profile.promotions')}</span>
                       <div className="w-10 h-6 bg-[var(--border)] rounded-full relative cursor-pointer"><div className="w-4 h-4 bg-white rounded-full absolute left-1 top-1"></div></div>
                     </div>
                   </div>
@@ -875,9 +875,9 @@ export default function ProfilePage() {
 
                 {/* Danger Zone */}
                 <div className="card-glass p-6 rounded-2xl border border-red-200 dark:border-red-900/30">
-                  <h3 className="font-bold text-red-500 mb-4">Danger Zone</h3>
+                  <h3 className="font-bold text-red-500 mb-4">{t('profile.dangerZone')}</h3>
                   <button className="px-4 py-2 border border-red-500 text-red-500 rounded-lg text-sm font-bold hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors">
-                    Delete Account
+                    {t('profile.deleteAccount')}
                   </button>
                 </div>
               </motion.div>

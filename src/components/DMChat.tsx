@@ -56,7 +56,7 @@ export default function DMChat({ threadId, otherUser }: DMChatProps) {
   }, [messages]);
 
   if (!user) {
-    return <div className="flex items-center justify-center h-full text-[var(--muted)]">Sign in to chat.</div>;
+    return <div className="flex items-center justify-center h-full text-[var(--muted)]">{t('dm.chat.signInPrompt', 'Sign in to chat.')}</div>;
   }
 
   async function fetchMessages(isInitial = false) {
@@ -118,7 +118,7 @@ export default function DMChat({ threadId, otherUser }: DMChatProps) {
 
   if (isGroup(otherUser)) {
     headerName = otherUser.threadTitle || 'Group Chat';
-    headerSub = `${participants.length} members`;
+    headerSub = `${participants.length} ${t('dm.chat.membersCount', { count: participants.length, defaultValue: participants.length !== 1 ? 'members' : 'member' })}`;
     headerAvatarEl = (
       <div className="flex -space-x-2">
         {participants.slice(0, 3).map((p, idx) => (
@@ -130,7 +130,7 @@ export default function DMChat({ threadId, otherUser }: DMChatProps) {
     );
   } else if (isDM(otherUser)) {
     headerName = otherUser.name || 'Unknown User';
-    headerSub = 'Direct Message';
+    headerSub = t('dm.chat.directMessage', 'Direct Message');
     headerAvatarEl = otherUser.profile_image
       ? <img src={otherUser.profile_image} alt={otherUser.name} className="w-10 h-10 rounded-full object-cover ring-2 ring-[var(--heritage-gold)]/30" />
       : <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white" style={{ background: 'linear-gradient(135deg, var(--heritage-gold), var(--heritage-accent))' }}>{otherUser.name?.[0]?.toUpperCase()}</div>;
@@ -176,8 +176,8 @@ export default function DMChat({ threadId, otherUser }: DMChatProps) {
               {/* Panel header */}
               <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid var(--border)' }}>
                 <div>
-                  <h3 className="font-bold text-[var(--text)]" style={{ fontFamily: 'serif' }}>Members</h3>
-                  <p className="text-xs text-[var(--muted)] mt-0.5">{participants.length} participant{participants.length !== 1 ? 's' : ''}</p>
+                  <h3 className="font-bold text-[var(--text)]" style={{ fontFamily: 'serif' }}>{t('dm.chat.membersTitle', 'Members')}</h3>
+                  <p className="text-xs text-[var(--muted)] mt-0.5">{participants.length} {t('dm.chat.participantCount', { count: participants.length, defaultValue: participants.length !== 1 ? 'participants' : 'participant' })}</p>
                 </div>
                 <button
                   onClick={() => setShowMembers(false)}
@@ -236,7 +236,7 @@ export default function DMChat({ threadId, otherUser }: DMChatProps) {
               title="View group members"
             >
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-              Members
+              {t('dm.chat.membersTitle', 'Members')}
             </button>
           )}
           <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
@@ -248,15 +248,15 @@ export default function DMChat({ threadId, otherUser }: DMChatProps) {
         {loading ? (
           <div className="flex flex-col items-center justify-center h-full gap-3">
             <div className="w-8 h-8 rounded-full border-2 border-t-transparent animate-spin" style={{ borderColor: 'var(--heritage-gold)', borderTopColor: 'transparent' }} />
-            <p className="text-sm text-[var(--muted)]">Loading messages...</p>
+            <p className="text-sm text-[var(--muted)]">{t('dm.chat.loadingMessages', 'Loading messages...')}</p>
           </div>
         ) : messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center">
             <div className="w-16 h-16 rounded-full flex items-center justify-center mb-4" style={{ background: 'linear-gradient(135deg, var(--heritage-gold)/20, var(--heritage-accent)/10)' }}>
               <svg className="w-8 h-8" style={{ color: 'var(--heritage-gold)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
             </div>
-            <p className="font-semibold text-[var(--text)] mb-1">Start the conversation</p>
-            <p className="text-sm text-[var(--muted)]">Send a message to get started</p>
+            <p className="font-semibold text-[var(--text)] mb-1">{t('dm.chat.startConversation', 'Start the conversation')}</p>
+            <p className="text-sm text-[var(--muted)]">{t('dm.chat.sendToStart', 'Send a message to get started')}</p>
           </div>
         ) : (
           <AnimatePresence initial={false}>
@@ -344,7 +344,7 @@ export default function DMChat({ threadId, otherUser }: DMChatProps) {
             onClick={handleMicClick}
             className="shrink-0 w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200"
             style={isListening ? { background: 'rgba(239,68,68,0.15)', color: '#ef4444' } : { color: 'var(--muted)' }}
-            title={isListening ? 'Stop listening' : 'Voice input'}
+            title={isListening ? t('dm.chat.stopListening', 'Stop listening') : t('dm.chat.voiceInput', 'Voice input')}
           >
             {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
           </button>
@@ -355,7 +355,7 @@ export default function DMChat({ threadId, otherUser }: DMChatProps) {
             type="text"
             className="flex-1 bg-transparent outline-none text-sm py-1"
             style={{ color: 'var(--text)' }}
-            placeholder={isListening ? '🎙 Listening...' : 'Type a message...'}
+            placeholder={isListening ? t('dm.chat.listeningPlaceholder', '🎙 Listening...') : t('dm.chat.typeMessagePlaceholder', 'Type a message...')}
             value={input}
             onChange={e => setInput(e.target.value)}
             disabled={sending}
@@ -374,7 +374,7 @@ export default function DMChat({ threadId, otherUser }: DMChatProps) {
               ? { background: 'linear-gradient(135deg, var(--heritage-gold), var(--heritage-accent))', color: '#fff', boxShadow: '0 2px 8px rgba(176,141,85,0.35)' }
               : { background: 'var(--bg-1)', color: 'var(--muted)', opacity: 0.5, cursor: 'not-allowed' }
             }
-            title="Send message"
+            title={t('dm.chat.sendMessage', 'Send message')}
           >
             {sending ? <div className="w-4 h-4 rounded-full border-2 border-t-transparent animate-spin border-white" /> : <Send className="w-4 h-4" />}
           </motion.button>
@@ -386,7 +386,7 @@ export default function DMChat({ threadId, otherUser }: DMChatProps) {
                 <motion.div key={i} className="w-1 h-3 rounded-full bg-red-400" animate={{ scaleY: [1, 1.8, 1] }} transition={{ duration: 0.6, repeat: Infinity, delay: i * 0.15 }} />
               ))}
             </div>
-            <span className="text-xs text-red-400 font-medium">Listening...</span>
+            <span className="text-xs text-red-400 font-medium">{t('dm.chat.listeningStatus', 'Listening...')}</span>
           </motion.div>
         )}
       </div>

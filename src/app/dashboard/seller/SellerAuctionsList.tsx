@@ -79,7 +79,7 @@ export default function SellerAuctionsList({ sellerId }: { sellerId: string }) {
   if (auctions.length === 0) return (
     <div className="text-center py-12">
       <div className="text-6xl mb-4">📦</div>
-      <p className="text-base sm:text-lg font-semibold text-[var(--text)] mb-2">No Active Auctions</p>
+      <p className="text-base sm:text-lg font-semibold text-[var(--text)] mb-2">{t('auction.noActiveAuctions', 'No Active Auctions')}</p>
       <p className="text-sm text-[var(--muted)]">{t('seller.noProducts')}</p>
     </div>
   )
@@ -119,7 +119,7 @@ export default function SellerAuctionsList({ sellerId }: { sellerId: string }) {
                     <div className="flex items-center gap-2 text-sm">
                       <span className="text-lg">💰</span>
                       <div>
-                        <p className="text-xs text-gray-600 dark:text-[var(--muted)] font-medium">Starting Price</p>
+                        <p className="text-xs text-gray-600 dark:text-[var(--muted)] font-medium">{t('auction.startingPrice', 'Starting Price')}</p>
                         <p className="text-base font-bold text-amber-600 dark:text-amber-400">₹{a.starting_price || 'N/A'}</p>
                       </div>
                     </div>
@@ -128,7 +128,7 @@ export default function SellerAuctionsList({ sellerId }: { sellerId: string }) {
                       <div className="flex items-center gap-2 text-sm">
                         <span className="text-lg">🕐</span>
                         <div>
-                          <p className="text-xs text-gray-600 dark:text-[var(--muted)] font-medium">Starts</p>
+                           <p className="text-xs text-gray-600 dark:text-[var(--muted)] font-medium">{t('auction.startsLabel', 'Starts')}</p>
                           <p className="text-xs font-semibold text-gray-900 dark:text-[var(--text)]">{new Date(a.starts_at).toLocaleDateString()}</p>
                           <p className="text-xs text-gray-600 dark:text-[var(--muted)]">{new Date(a.starts_at).toLocaleTimeString()}</p>
                         </div>
@@ -139,7 +139,7 @@ export default function SellerAuctionsList({ sellerId }: { sellerId: string }) {
                       <div className="flex items-center gap-2 text-sm sm:col-span-2">
                         <span className="text-lg">⏰</span>
                         <div>
-                          <p className="text-xs text-gray-600 dark:text-[var(--muted)] font-medium">Ends</p>
+                           <p className="text-xs text-gray-600 dark:text-[var(--muted)] font-medium">{t('auction.endsLabel', 'Ends')}</p>
                           <p className="text-xs font-semibold text-gray-900 dark:text-[var(--text)]">{new Date(a.ends_at).toLocaleDateString()}</p>
                           <p className="text-xs text-gray-600 dark:text-[var(--muted)]">{new Date(a.ends_at).toLocaleTimeString()}</p>
                         </div>
@@ -156,7 +156,7 @@ export default function SellerAuctionsList({ sellerId }: { sellerId: string }) {
                       className="flex-1 lg:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-white rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-md hover:shadow-lg transform hover:scale-105 transition-all"
                     >
                       <span>🏁</span>
-                      <span>End Auction</span>
+                      <span>{t('auction.endAuctionButton', 'End Auction')}</span>
                     </button>
                   )}
                   <button 
@@ -164,7 +164,7 @@ export default function SellerAuctionsList({ sellerId }: { sellerId: string }) {
                     className="flex-1 lg:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-white rounded-lg bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 shadow-md hover:shadow-lg transform hover:scale-105 transition-all"
                   >
                     <span>🗑️</span>
-                    <span>Delete</span>
+                    <span>{t('common.delete', 'Delete')}</span>
                   </button>
                 </div>
               </div>

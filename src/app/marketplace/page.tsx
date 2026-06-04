@@ -107,32 +107,32 @@ function MarketplaceContent() {
     return [
       {
         element: isMobile ? '#navbar-brand-mobile' : 'a[href="/marketplace"]',
-        intro: '<span style="font-size:1.2em">💜 <b>Welcome to KalaMitra!</b></span><br/>This is the <b>marketplace</b> where you can explore unique products.',
+        intro: `<span style="font-size:1.2em">💜 <b>${t('marketplace.page.welcome', 'Welcome to KalaMitra!')}</b></span><br/>This is the <b>marketplace</b> where you can explore unique products.`,
       },
       {
         element: 'input[aria-label]',
-        intro: '<span style="font-size:1.1em">🔍 <b>Search</b></span><br/>Use this <b>search box</b> to find products by name, category, or description.',
+        intro: `<span style="font-size:1.1em">🔍 <b>${t('marketplace.page.searchTourTitle', 'Search')}</b></span><br/>Use this <b>search box</b> to find products by name, category, or description.`,
       },
       {
         element: '#joyride-3d-bazaar-btn',
-        intro: '<span style="font-size:1.1em">🛍️ <b>3D Bazaar</b></span><br/>Click here to view the <b>immersive 3D bazaar</b> experience.',
+        intro: `<span style="font-size:1.1em">🛍️ <b>${t('marketplace.page.bazaar3dTourTitle', '3D Bazaar')}</b></span><br/>Click here to view the <b>immersive 3D bazaar</b> experience.`,
       },
       {
         element: '#joyride-add-to-cart-btn',
-        intro: '<span style="font-size:1.1em">🛒 <b>Add to Cart</b></span><br/>Add products to your cart using this button.',
+        intro: `<span style="font-size:1.1em">🛒 <b>${t('marketplace.page.addToCartTourTitle', 'Add to Cart')}</b></span><br/>Add products to your cart using this button.`,
 
       },
       {
         element: '#joyride-wishlist-btn',
-        intro: '<span style="font-size:1.1em">💜 <b>Wishlist</b></span><br/>Add products to your wishlist using this button.',
+        intro: `<span style="font-size:1.1em">💜 <b>${t('marketplace.page.wishlistTourTitle', 'Wishlist')}</b></span><br/>Add products to your wishlist using this button.`,
       },
       {
         element: '#joyride-ar-btn',
-        intro: '<span style="font-size:1.1em">📱 <b>View in AR</b></span><br/>See the product in <b>Augmented Reality</b> using this button.',
+        intro: `<span style="font-size:1.1em">📱 <b>${t('marketplace.page.arTourTitle', 'View in AR')}</b></span><br/>See the product in <b>Augmented Reality</b> using this button.`,
       },
       {
         element: '#joyride-speaker-btn',
-        intro: '<span style="font-size:1.1em">🔊 <b>Listen</b></span><br/>Hear the product story using this speaker button.',
+        intro: `<span style="font-size:1.1em">🔊 <b>${t('marketplace.page.listenTourTitle', 'Listen')}</b></span><br/>Hear the product story using this speaker button.`,
       },
     ];
   };

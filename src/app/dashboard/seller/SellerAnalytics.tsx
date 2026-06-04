@@ -10,6 +10,19 @@ import { translateArray, translateText } from '@/lib/translate'
 
 type Props = { sellerId: string }
 
+// ─── Module-level cache (persists across tab switches, cleared after 5 min) ───
+type AnalyticsCache = {
+  totalViews: number
+  uniqueVisitors: number
+  topProducts: { id: string; title: string; views: number }[]
+  rawGuidance: string
+  guidance: string
+  collabStats: { activeCollaborations: number; collaborativeProducts: number; collaborativeRevenue: number }
+  cachedAt: number
+}
+const CACHE_TTL_MS = 5 * 60 * 1000 // 5 minutes
+const analyticsCache = new Map<string, AnalyticsCache>()
+
 export default function SellerAnalytics({ sellerId }: Props) {
   const { t } = useTranslation()
   const { currentLanguage } = useLanguage()
@@ -23,7 +36,7 @@ export default function SellerAnalytics({ sellerId }: Props) {
   const [question, setQuestion] = useState('')
   const [answer, setAnswer] = useState('')
   const [quotaCooldownUntil, setQuotaCooldownUntil] = useState<number>(0)
-  
+
   // Collaboration stats
   const [collabStats, setCollabStats] = useState({
     activeCollaborations: 0,
@@ -50,6 +63,20 @@ export default function SellerAnalytics({ sellerId }: Props) {
 
   useEffect(() => {
     const load = async () => {
+      // ── Check cache first ──────────────────────────────────────────────────
+      const cached = analyticsCache.get(sellerId)
+      if (cached && Date.now() - cached.cachedAt < CACHE_TTL_MS) {
+        setTotalViews(cached.totalViews)
+        setUniqueVisitors(cached.uniqueVisitors)
+        setTopProducts(cached.topProducts)
+        setRawGuidance(cached.rawGuidance)
+        setGuidance(cached.guidance)
+        setCollabStats(cached.collabStats)
+        setLoading(false)
+        return
+      }
+
+      // ── Fresh fetch ────────────────────────────────────────────────────────
       try {
         setLoading(true)
         const since = new Date(Date.now() - 1000 * 60 * 60 * 24 * 30).toISOString()
@@ -61,8 +88,10 @@ export default function SellerAnalytics({ sellerId }: Props) {
           .eq('stall_id', sellerId)
           .gte('timestamp', since)
 
-        setTotalViews(stallViews?.length || 0)
-        setUniqueVisitors(new Set((stallViews || []).map(r => r.user_id)).size)
+        const fetchedTotalViews = stallViews?.length || 0
+        const fetchedUniqueVisitors = new Set((stallViews || []).map(r => r.user_id)).size
+        setTotalViews(fetchedTotalViews)
+        setUniqueVisitors(fetchedUniqueVisitors)
 
         // Top products by views
         const { data: prodViews } = await supabase
@@ -93,10 +122,11 @@ export default function SellerAnalytics({ sellerId }: Props) {
           const titles = top.map(t => t.title)
           const tr = await translateArray(titles, lang)
           top = top.map((p, idx) => ({ ...p, title: tr[idx] || p.title }))
-        } catch {}
+        } catch { }
         setTopProducts(top)
 
         // Fetch collaboration statistics
+        let fetchedCollabStats = { activeCollaborations: 0, collaborativeProducts: 0, collaborativeRevenue: 0 }
         try {
           const { data: collaborations } = await supabase
             .from('collaborations')
@@ -104,7 +134,6 @@ export default function SellerAnalytics({ sellerId }: Props) {
             .or(`initiator_id.eq.${sellerId},partner_id.eq.${sellerId}`)
             .eq('status', 'accepted')
 
-          // Safer: count collaborative_products by collaboration_id using IN (...) to avoid join/filter edge cases
           let collabProductsCount = 0
           try {
             const collaborationIds = (collaborations || []).map((c) => c.id).filter(Boolean)
@@ -120,42 +149,55 @@ export default function SellerAnalytics({ sellerId }: Props) {
             console.error('Error fetching collaborative products count:', innerErr)
           }
 
-          setCollabStats({
+          fetchedCollabStats = {
             activeCollaborations: collaborations?.length || 0,
             collaborativeProducts: collabProductsCount,
-            collaborativeRevenue: 0 // Placeholder for future revenue tracking
-          })
+            collaborativeRevenue: 0
+          }
+          setCollabStats(fetchedCollabStats)
         } catch (err) {
           console.error('Error fetching collaboration stats:', err)
         }
 
         // AI Tips (fallback to rules if API fails)
+        let fetchedRawGuidance = ''
+        let fetchedGuidance = ''
         try {
           const ai = AIService.getInstance()
           const tips = await ai.generateSellerTips({
-            totalViews,
-            uniqueVisitors,
+            totalViews: fetchedTotalViews,
+            uniqueVisitors: fetchedUniqueVisitors,
             topProducts: top.map(t => ({ title: t.title, views: t.views }))
           })
-          // Save raw guidance and translate for display
-          setRawGuidance(tips)
-          // Translate AI tips text
+          fetchedRawGuidance = tips
           try {
             const tr = await translateText(tips, currentLanguage)
-            setGuidance(tr)
+            fetchedGuidance = tr
           } catch {
-            setGuidance(tips)
+            fetchedGuidance = tips
           }
         } catch {
           if (top.length > 0) {
-            const topTitles = top.map(t => t.title).join(', ')
-            setGuidance(t('seller.analyticsGuidance.audienceEngagingMost', { titles: topTitles }))
-          } else if (totalViews === 0) {
-            setGuidance(t('seller.analyticsGuidance.noRecentVisits'))
+            fetchedGuidance = t('seller.analyticsGuidance.audienceEngagingMost', { titles: top.map(tp => tp.title).join(', ') })
+          } else if (fetchedTotalViews === 0) {
+            fetchedGuidance = t('seller.analyticsGuidance.noRecentVisits')
           } else {
-            setGuidance(t('seller.analyticsGuidance.viewsStarting'))
+            fetchedGuidance = t('seller.analyticsGuidance.viewsStarting')
           }
         }
+        setRawGuidance(fetchedRawGuidance)
+        setGuidance(fetchedGuidance)
+
+        // ── Store in cache ───────────────────────────────────────────────────
+        analyticsCache.set(sellerId, {
+          totalViews: fetchedTotalViews,
+          uniqueVisitors: fetchedUniqueVisitors,
+          topProducts: top,
+          rawGuidance: fetchedRawGuidance,
+          guidance: fetchedGuidance,
+          collabStats: fetchedCollabStats,
+          cachedAt: Date.now(),
+        })
       } finally {
         setLoading(false)
       }
@@ -178,28 +220,28 @@ export default function SellerAnalytics({ sellerId }: Props) {
   }, [currentLanguage, rawGuidance])
 
   if (loading) {
-  return <div className="text-[var(--muted)]">{t('seller.analyticsShort.loading')}</div>
+    return <div className="text-[var(--muted)]">{t('seller.analyticsShort.loading')}</div>
   }
 
   return (
     <div className="space-y-6">
       {/* Main Analytics Grid - Modern Card Layout */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-  <div className="rounded-2xl shadow-lg border border-orange-200 dark:border-[var(--border)] bg-gradient-to-br from-orange-50/80 via-yellow-100/80 to-white/70 dark:from-orange-900/30 dark:via-yellow-900/30 dark:to-black/40 backdrop-blur-md bg-opacity-70 p-6 flex flex-col items-center justify-center">
+        <div className="rounded-2xl shadow-lg border border-orange-200 dark:border-[var(--border)] bg-gradient-to-br from-orange-50/80 via-yellow-100/80 to-white/70 dark:from-orange-900/30 dark:via-yellow-900/30 dark:to-black/40 backdrop-blur-md bg-opacity-70 p-6 flex flex-col items-center justify-center">
           <div className="mb-2 text-3xl sm:text-4xl text-orange-600 dark:text-orange-400 font-extrabold flex items-center gap-2">
             <span>👁️</span>
             {totalViews}
           </div>
           <div className="text-sm sm:text-base text-[var(--muted)] font-medium tracking-wide">{t('seller.analyticsShort.stallViews30d')}</div>
         </div>
-  <div className="rounded-2xl shadow-lg border border-yellow-200 dark:border-[var(--border)] bg-gradient-to-br from-yellow-50/80 via-orange-100/80 to-white/70 dark:from-yellow-900/30 dark:via-orange-900/30 dark:to-black/40 backdrop-blur-md bg-opacity-70 p-6 flex flex-col items-center justify-center">
+        <div className="rounded-2xl shadow-lg border border-yellow-200 dark:border-[var(--border)] bg-gradient-to-br from-yellow-50/80 via-orange-100/80 to-white/70 dark:from-yellow-900/30 dark:via-orange-900/30 dark:to-black/40 backdrop-blur-md bg-opacity-70 p-6 flex flex-col items-center justify-center">
           <div className="mb-2 text-3xl sm:text-4xl text-yellow-600 dark:text-yellow-400 font-extrabold flex items-center gap-2">
             <span>🧑‍🤝‍🧑</span>
             {uniqueVisitors}
           </div>
           <div className="text-sm sm:text-base text-[var(--muted)] font-medium tracking-wide">{t('seller.analyticsShort.uniqueVisitors30d')}</div>
         </div>
-  <div className="rounded-2xl shadow-lg border border-orange-100 dark:border-[var(--border)] bg-gradient-to-br from-orange-100/80 via-yellow-50/80 to-white/70 dark:from-orange-900/30 dark:via-yellow-900/30 dark:to-black/40 backdrop-blur-md bg-opacity-70 p-6 flex flex-col">
+        <div className="rounded-2xl shadow-lg border border-orange-100 dark:border-[var(--border)] bg-gradient-to-br from-orange-100/80 via-yellow-50/80 to-white/70 dark:from-orange-900/30 dark:via-yellow-900/30 dark:to-black/40 backdrop-blur-md bg-opacity-70 p-6 flex flex-col">
           <div className="mb-2 text-lg sm:text-xl font-bold text-orange-700 dark:text-orange-400 flex items-center gap-2">
             <span>🏆</span>
             {t('seller.analyticsShort.topProducts30d')}
@@ -221,7 +263,7 @@ export default function SellerAnalytics({ sellerId }: Props) {
 
       {/* Collaboration Stats - Modern Card with Bar */}
       {collabStats.activeCollaborations > 0 && (
-  <div className="rounded-2xl shadow-xl border border-yellow-200 dark:border-yellow-900 bg-gradient-to-br from-yellow-100/80 via-orange-50/80 to-white/70 dark:from-yellow-900/30 dark:via-orange-900/30 dark:to-black/40 backdrop-blur-md bg-opacity-70 p-6">
+        <div className="rounded-2xl shadow-xl border border-yellow-200 dark:border-yellow-900 bg-gradient-to-br from-yellow-100/80 via-orange-50/80 to-white/70 dark:from-yellow-900/30 dark:via-orange-900/30 dark:to-black/40 backdrop-blur-md bg-opacity-70 p-6">
           <div className="flex items-center gap-3 mb-4">
             <span className="text-3xl sm:text-4xl">🤝</span>
             <h3 className="text-lg sm:text-2xl font-bold text-yellow-700 dark:text-yellow-400 tracking-wide">
@@ -230,19 +272,19 @@ export default function SellerAnalytics({ sellerId }: Props) {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             <div className="flex flex-col items-center">
-              <div className="text-xs sm:text-sm text-[var(--muted)] mb-1">Active Collaborations</div>
+              <div className="text-xs sm:text-sm text-[var(--muted)] mb-1">{t('collaboration.activeCollaborations', 'Active Collaborations')}</div>
               <div className="text-2xl sm:text-3xl font-extrabold text-yellow-600 dark:text-yellow-400">
                 {collabStats.activeCollaborations}
               </div>
             </div>
             <div className="flex flex-col items-center">
-              <div className="text-xs sm:text-sm text-[var(--muted)] mb-1">Collaborative Products</div>
+              <div className="text-xs sm:text-sm text-[var(--muted)] mb-1">{t('collaboration.collaborativeProducts', 'Collaborative Products')}</div>
               <div className="text-2xl sm:text-3xl font-extrabold text-orange-600 dark:text-orange-400">
                 {collabStats.collaborativeProducts}
               </div>
             </div>
             <div className="flex flex-col items-center">
-              <div className="text-xs sm:text-sm text-[var(--muted)] mb-1">Partnership Impact</div>
+              <div className="text-xs sm:text-sm text-[var(--muted)] mb-1">{t('collaboration.partnershipImpact', 'Partnership Impact')}</div>
               <div className="w-full flex flex-col items-center">
                 {collabStats.collaborativeProducts > 0 ? (
                   <>
@@ -253,11 +295,11 @@ export default function SellerAnalytics({ sellerId }: Props) {
                       />
                     </div>
                     <div className="text-xs sm:text-sm text-yellow-700 dark:text-yellow-400 mt-2 font-semibold">
-                      {`${Math.round((collabStats.collaborativeProducts / (topProducts.length + collabStats.collaborativeProducts)) * 100)}% of portfolio`}
+                      {t('collaboration.portfolioPercentage', '{{percentage}}% of portfolio', { percentage: Math.round((collabStats.collaborativeProducts / (topProducts.length + collabStats.collaborativeProducts)) * 100) })}
                     </div>
                   </>
                 ) : (
-                  <div className="text-xs sm:text-sm text-[var(--muted)] mt-2">Just getting started</div>
+                  <div className="text-xs sm:text-sm text-[var(--muted)] mt-2">{t('collaboration.gettingStarted', 'Just getting started')}</div>
                 )}
               </div>
             </div>
@@ -266,7 +308,7 @@ export default function SellerAnalytics({ sellerId }: Props) {
       )}
 
       {/* AI Tips Section - Modern Card */}
-  <div className="rounded-2xl shadow-lg border border-orange-200 dark:border-[var(--border)] bg-gradient-to-br from-orange-50/80 via-yellow-100/80 to-white/70 dark:from-orange-900/30 dark:via-yellow-900/30 dark:to-black/40 backdrop-blur-md bg-opacity-70 p-6">
+      <div className="rounded-2xl shadow-lg border border-orange-200 dark:border-[var(--border)] bg-gradient-to-br from-orange-50/80 via-yellow-100/80 to-white/70 dark:from-orange-900/30 dark:via-yellow-900/30 dark:to-black/40 backdrop-blur-md bg-opacity-70 p-6">
         <div className="flex items-start gap-3">
           <div className="text-2xl sm:text-3xl text-orange-600 dark:text-orange-400">💡</div>
           <div className="flex-1 min-w-0">

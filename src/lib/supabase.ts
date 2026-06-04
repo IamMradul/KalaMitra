@@ -3,7 +3,21 @@ import { createClient } from '@supabase/supabase-js'
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+const isServer = typeof window === 'undefined'
+
+export const supabase = createClient(
+  supabaseUrl,
+  isServer && supabaseServiceKey ? supabaseServiceKey : supabaseAnonKey,
+  isServer
+    ? {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+      },
+    }
+    : undefined
+)
 
 export type Database = {
   public: {

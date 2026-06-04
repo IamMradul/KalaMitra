@@ -75,6 +75,25 @@ export async function GET(request: NextRequest) {
         // Use the existing profile ID (which is the Supabase Auth user ID)
         id: existingProfile.id
       }))
+      
+      try {
+        const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
+          type: 'magiclink',
+          email: googleUser.email,
+          options: {
+            redirectTo: `${request.nextUrl.origin}${redirectUrl}`
+          }
+        })
+        if (!linkError && linkData?.properties?.action_link) {
+          console.log('Generated native sign in link for existing Google user')
+          return NextResponse.redirect(linkData.properties.action_link)
+        } else if (linkError) {
+          console.warn('Failed to generate magiclink, falling back to query parameters:', linkError)
+        }
+      } catch (err) {
+        console.error('Error generating magiclink:', err)
+      }
+      
       return NextResponse.redirect(new URL(`${redirectUrl}?google_session=${sessionData}`, request.url))
     }
 
@@ -141,6 +160,25 @@ export async function GET(request: NextRequest) {
         ...googleUser,
         id: authUserId // Use the Supabase Auth user ID
       }))
+      
+      try {
+        const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
+          type: 'magiclink',
+          email: googleUser.email,
+          options: {
+            redirectTo: `${request.nextUrl.origin}${redirectUrl}`
+          }
+        })
+        if (!linkError && linkData?.properties?.action_link) {
+          console.log('Generated native sign in link for new Google user')
+          return NextResponse.redirect(linkData.properties.action_link)
+        } else if (linkError) {
+          console.warn('Failed to generate magiclink for new user, falling back:', linkError)
+        }
+      } catch (err) {
+        console.error('Error generating magiclink for new user:', err)
+      }
+      
       return NextResponse.redirect(new URL(`${redirectUrl}?google_session=${sessionData}`, request.url))
     }
 
