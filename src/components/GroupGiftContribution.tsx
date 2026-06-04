@@ -344,7 +344,7 @@ export default function GroupGiftContribution({ groupGiftId }: GroupGiftContribu
               </span>
             </div>
             <div>
-              <p className="text-[10px] text-muted font-bold uppercase tracking-wider">Organizer</p>
+              <p className="text-[10px] text-muted font-bold uppercase tracking-wider">{t('groupGiftContribution.organizerLabel')}</p>
               <h4 className="font-bold text-text text-lg leading-tight">{groupGift.initiator.name}</h4>
             </div>
           </div>
@@ -375,7 +375,7 @@ export default function GroupGiftContribution({ groupGiftId }: GroupGiftContribu
               </span>
             </div>
             <div>
-              <p className="text-[10px] text-muted font-bold uppercase tracking-wider">Recipient</p>
+              <p className="text-[10px] text-muted font-bold uppercase tracking-wider">{t('groupGiftContribution.recipientLabel')}</p>
               <h4 className="font-bold text-text text-lg leading-tight">{groupGift.recipient.name}</h4>
             </div>
           </div>
@@ -445,7 +445,7 @@ export default function GroupGiftContribution({ groupGiftId }: GroupGiftContribu
               </h3>
               {contributions.length > 0 && (
                 <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-heritage-blue/10 text-heritage-blue border border-heritage-blue/15">
-                  Active Contributors
+                  {t('groupGiftContribution.activeContributors')}
                 </span>
               )}
             </div>
@@ -453,7 +453,7 @@ export default function GroupGiftContribution({ groupGiftId }: GroupGiftContribu
             {contributions.length === 0 ? (
               <div className="bg-bg-2 border border-border-color rounded-2xl py-12 text-center shadow-inner">
                 <Users className="w-12 h-12 text-muted mx-auto mb-4 opacity-50" />
-                <p className="text-text font-bold text-lg">{t('groupGiftModal.noContributions', 'No contributions yet.')}</p>
+                <p className="text-text font-bold text-lg">{t('groupGiftModal.noContributions')}</p>
                 <p className="text-muted mt-1 text-sm">{t('groupGiftContribution.noContributionsPrompt')}</p>
               </div>
             ) : (
@@ -527,7 +527,7 @@ export default function GroupGiftContribution({ groupGiftId }: GroupGiftContribu
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-serif font-bold text-text flex items-center gap-2">
                 <DollarSign className="w-5 h-5 text-heritage-gold" />
-                {t('groupGiftModal.progressTitle', 'Progress')}
+                {t('groupGiftModal.progressTitle')}
               </h3>
               <span className="font-bold text-heritage-gold text-lg">
                 {t('groupGiftModal.progressComplete', { percent: progressPercentage.toFixed(1) })}
@@ -547,11 +547,11 @@ export default function GroupGiftContribution({ groupGiftId }: GroupGiftContribu
 
             <div className="flex items-center justify-between text-sm text-muted mb-6">
               <div>
-                <p className="text-[10px] uppercase tracking-wider font-semibold">Raised</p>
+                <p className="text-[10px] uppercase tracking-wider font-semibold">{t('groupGiftContribution.raisedLabel')}</p>
                 <p className="text-lg font-bold text-text">₹{groupGift.current_amount.toLocaleString()}</p>
               </div>
               <div className="text-right">
-                <p className="text-[10px] uppercase tracking-wider font-semibold">Goal</p>
+                <p className="text-[10px] uppercase tracking-wider font-semibold">{t('groupGiftContribution.goalLabel')}</p>
                 <p className="text-lg font-bold text-text">₹{groupGift.target_amount.toLocaleString()}</p>
               </div>
             </div>
@@ -561,8 +561,8 @@ export default function GroupGiftContribution({ groupGiftId }: GroupGiftContribu
                 <div className="w-12 h-12 bg-gradient-to-br from-heritage-green to-heritage-green/80 rounded-full flex items-center justify-center mx-auto mb-3 shadow-sm">
                   <Sparkles className="w-6 h-6 text-white animate-pulse" />
                 </div>
-                <p className="text-xl font-serif font-bold text-text mb-1">{t('groupGiftModal.progressTargetReached', 'Target Reached!')}</p>
-                <p className="text-xs text-muted font-medium">{t('groupGiftModal.progressReady', 'The gift is ready to be sent.')}</p>
+                <p className="text-xl font-serif font-bold text-text mb-1">{t('groupGiftModal.progressTargetReached')}</p>
+                <p className="text-xs text-muted font-medium">{t('groupGiftModal.progressReady')}</p>
               </div>
             ) : (
               <div className="text-center bg-bg-2 rounded-2xl p-4 border border-border-color shadow-inner">
@@ -590,7 +590,7 @@ export default function GroupGiftContribution({ groupGiftId }: GroupGiftContribu
             >
               <h3 className="text-lg font-serif font-bold text-text mb-6 flex items-center gap-2">
                 <Heart className="w-5 h-5 text-heritage-red fill-heritage-red/10" />
-                {t('groupGiftModal.contributeTitle', 'Make a Contribution')}
+                {t('groupGiftModal.contributeTitle')}
               </h3>
               
               <div className="space-y-6">
@@ -599,7 +599,7 @@ export default function GroupGiftContribution({ groupGiftId }: GroupGiftContribu
                 <div>
                   <div className="flex justify-between items-center mb-2">
                     <label className="text-sm font-bold text-text">
-                      {t('groupGiftModal.amountLabel', 'Amount (₹)')}
+                      {t('groupGiftModal.amountLabel')}
                     </label>
                     <span className="text-xs text-muted font-semibold">
                       Max ₹{remainingAmount.toLocaleString()}
@@ -633,7 +633,7 @@ export default function GroupGiftContribution({ groupGiftId }: GroupGiftContribu
                         : 'bg-bg-1 border-border-color text-heritage-gold hover:border-heritage-gold/40'
                     }`}
                   >
-                    Contribute Full Remaining (₹{remainingAmount.toLocaleString()})
+                    {t('groupGiftContribution.fullRemainingContribution', { amount: remainingAmount.toLocaleString() })}
                   </button>
 
                   <div className="relative">
@@ -661,14 +661,14 @@ export default function GroupGiftContribution({ groupGiftId }: GroupGiftContribu
                 {/* Contribution message block */}
                 <div>
                   <label className="block text-sm font-bold text-text mb-2">
-                    {t('groupGiftModal.messageLabel', 'Personal Message (Optional)')}
+                    {t('groupGiftModal.messageLabel')}
                   </label>
                   <textarea
                     value={contributionMessage}
                     onChange={(e) => setContributionMessage(e.target.value)}
                     className="w-full px-4 py-3 border border-border-color rounded-xl focus:ring-2 focus:ring-heritage-blue focus:outline-none focus:border-transparent bg-bg-1 text-text text-sm transition-all resize-none shadow-inner"
                     rows={3}
-                    placeholder={t('groupGiftModal.messagePlaceholder', 'Write a message to accompany your contribution...')}
+                    placeholder={t('groupGiftModal.messagePlaceholderContribution')}
                   />
                 </div>
 
@@ -680,7 +680,7 @@ export default function GroupGiftContribution({ groupGiftId }: GroupGiftContribu
                   {contributing ? (
                     <>
                       <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      {t('groupGiftModal.contributing', 'Processing...')}
+                      {t('groupGiftModal.contributing')}
                     </>
                   ) : (
                     <>

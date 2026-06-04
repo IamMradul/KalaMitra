@@ -118,7 +118,13 @@
     "receivedGiftBody": "Your friends contributed and sent you \"{{product}}\" as a group gift!",
     "thankYou": "Thank you for your contribution! 🎉",
     "failed": "Failed to contribute. Please try again.",
-    "noContributionsPrompt": "Be the first to contribute to this gift!"
+    "noContributionsPrompt": "Be the first to contribute to this gift!",
+    "organizerLabel": "Organizer",
+    "recipientLabel": "Recipient",
+    "raisedLabel": "Raised",
+    "goalLabel": "Goal",
+    "activeContributors": "Active Contributors",
+    "fullRemainingContribution": "Contribute Full Remaining (₹{{amount}})"
   },
   "groupGiftModal": {
     "title": "Group Gift",
