@@ -13,10 +13,18 @@
   },
   "donate": {
     "modalTitle": "Donate Item for NGO",
+    "badge": "Donation request",
+    "description": "Share the items you want to donate and where we can collect them.",
     "itemName": "Item Name",
     "itemCategory": "Category",
     "itemDescription": "Description",
     "images": "Images",
+    "uploadTitle": "Upload photos",
+    "uploadHint": "PNG, JPG, WEBP. Multiple files allowed.",
+    "selectedFiles": "{{count}} selected",
+    "noFileChosen": "No file chosen",
+    "detailsSectionTitle": "Donation details",
+    "contactSectionTitle": "Collection and contact",
     "pickupAddress": "Pickup Address",
     "donorName": "Your Name",
     "donorEmail": "Your Email",
@@ -25,6 +33,7 @@
     "submitBtn": "Donate Now",
     "submitting": "Submitting...",
     "successMsg": "Thank you for your donation! We appreciate your support.",
+    "successDescription": "Your donation request has been submitted successfully. Our team will contact you soon.",
     "closeModal": "Close",
     "title": "Donate Items for NGO"
   },
@@ -79,6 +88,44 @@
     "unknownRecipient": "Unknown Recipient",
     "unknownInitiator": "Unknown Initiator"
   },
+  "notificationsList": {
+    "signInPrompt": "Please sign in to see notifications",
+    "loading": "Loading notifications...",
+    "emptyTitle": "No notifications",
+    "emptyDescription": "You're all caught up!",
+    "unreadNotifications": "{{count}} unread notification",
+    "unreadNotifications_plural": "{{count}} unread notifications",
+    "markAllAsRead": "Mark all as read"
+  },
+  "notifications": {
+    "groupGiftInviteTitle": "You were invited to a group gift!",
+    "groupGiftInviteBody": "{{initiatorName}} invited you to contribute to a group gift for {{recipientName}}."
+  },
+  "aiShoppingChat": {
+    "speechNotSupported": "Speech recognition not supported in this browser.",
+    "deleteConversationConfirm": "🗑️ Delete this conversation permanently?\n\nThis will remove all messages from your history and cannot be undone.",
+    "deleteConversationFailed": "Failed to delete conversation. Please try again."
+  },
+  "dmChat": {
+    "speechNotSupported": "Speech recognition not supported."
+  },
+  "arViewer": {
+    "webxrNotSupported": "WebXR not supported on this device/browser.",
+    "startFailed": "Failed to start AR session: {{error}}"
+  },
+  "groupGiftContribution": {
+    "receivedGiftTitle": "You received a group gift!",
+    "receivedGiftBody": "Your friends contributed and sent you \"{{product}}\" as a group gift!",
+    "thankYou": "Thank you for your contribution! 🎉",
+    "failed": "Failed to contribute. Please try again.",
+    "noContributionsPrompt": "Be the first to contribute to this gift!",
+    "organizerLabel": "Organizer",
+    "recipientLabel": "Recipient",
+    "raisedLabel": "Raised",
+    "goalLabel": "Goal",
+    "activeContributors": "Active Contributors",
+    "fullRemainingContribution": "Contribute Full Remaining (₹{{amount}})"
+  },
   "groupGiftModal": {
     "title": "Group Gift",
     "subtitle": "Multiple people contribute to one gift",
@@ -109,6 +156,14 @@
     "createGroupGift": "Create Group Gift",
     "headerTitle": "Group Gift",
     "headerSubtitle": "Multiple people contributing to one special gift",
+    "inviteFriendsTitle": "Invite Friends",
+    "noFriendsInvitedYet": "No friends invited yet.",
+    "productRecipientRequired": "Please select a product and recipient for the group gift.",
+    "createFailed": "Failed to create group gift. Please try again.",
+    "someone": "Someone",
+    "yourFriend": "your friend",
+    "startedContributionMessage": "Started group gift for {{product}}{{contribution}}",
+    "startedContributionWithAmount": " (Contributed ₹{{amount}})",
     "productForRecipient": "For {{name}}",
     "progressTitle": "Progress",
     "progressComplete": "{{percent}}% complete",
@@ -131,6 +186,21 @@
     "fetchUnexpectedError": "An unexpected error occurred while loading the group gift.",
     "loading": "Loading...",
     "targetRaised": "of ₹{{target}} raised"
+  },
+  "errorBoundary": {
+    "title": "Something went wrong",
+    "description": "We encountered an error while loading this section.",
+    "retry": "Try again"
+  },
+  "messageInputModal": {
+    "title": "Send a Collaboration Message",
+    "description": "Share why you want to collaborate. (Max {{maxWords}} words)",
+    "placeholder": "Why do you want to collaborate?",
+    "wordsLeft": "{{count}} words left",
+    "send": "Send",
+    "close": "Close",
+    "emptyError": "Please enter a message.",
+    "maxWordsError": "Message cannot exceed {{maxWords}} words."
   },
   "common": {
     "loading": "Loading...",
@@ -1245,7 +1315,11 @@
     "comingSoonTitle": "Coming Soon",
     "comingSoonDesc": "KalaMitra is currently in its prototype phase. Once we are fully live, this space will be filled with the inspiring journeys of our community.",
     "shareStoryTitle": "Share Your Story",
-    "shareStoryDesc": "Join KalaMitra"
+    "shareStoryDesc": "Join KalaMitra",
+    "comingSoon": "Coming Soon",
+    "body": "KalaMitra is currently in its prototype phase. Once we are fully live, this space will be filled with the inspiring journeys of our community.",
+    "shareStory": "Share Your Story",
+    "join": "Join KalaMitra"
   },
   "support": {
     "title": "We’re Here to Help",

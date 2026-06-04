@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { useAuth } from '@/contexts/AuthContext'
 import { logActivity } from '@/lib/activity'
-import { ShoppingCart, Heart, ArrowLeft, Star, User, Sparkles } from 'lucide-react'
+import { ShoppingCart, Heart, ArrowLeft, Star, User, Sparkles, X, Gift, Users } from 'lucide-react'
 import GroupGiftModal from '@/components/GroupGiftModal'
 import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
@@ -937,55 +937,72 @@ export default function ProductDetail() {
           )
         }
 
-        {/* Gift Modal (simple) */}
+        {/* Gift Modal (Heritage Premium) */}
         {
           giftModalOpen && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-              <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full relative">
-                <button className="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-xl" onClick={() => { setGiftModalOpen(false); setGiftSuccess(false); }}>&times;</button>
-                <h2 className="text-2xl font-bold mb-4">{t('product.giftModalTitle')}</h2>
+            <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                className="bg-[var(--bg-1)] border border-[var(--border)] rounded-2xl shadow-2xl p-8 max-w-md w-full relative overflow-hidden"
+              >
+                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-[var(--heritage-gold)]/20 to-transparent rounded-bl-full pointer-events-none"></div>
 
-                {/* Gift Type Selection */}
-                <div className="mb-6">
-                  <label className="block mb-3 font-semibold">{t('product.chooseGiftType')}</label>
-                  <div className="flex gap-3">
+                <button className="absolute top-4 right-4 text-[var(--muted)] hover:text-[var(--text)] transition-colors p-2 rounded-full hover:bg-[var(--bg-2)] z-10" onClick={() => { setGiftModalOpen(false); setGiftSuccess(false); }}>
+                  <X className="w-5 h-5" />
+                </button>
+                
+                <h2 className="text-3xl font-display font-bold text-[var(--text)] mb-6">{t('product.giftModalTitle', 'Send a Gift')}</h2>
+
+                <div className="mb-8 relative z-10">
+                  <label className="block mb-4 font-serif text-[var(--text)] font-semibold">{t('product.chooseGiftType', 'How would you like to gift?')}</label>
+                  <div className="grid grid-cols-2 gap-4">
                     <button
                       onClick={() => setGiftType('individual')}
-                      className={`flex-1 p-3 rounded-lg border-2 transition-all ${giftType === 'individual'
-                        ? 'border-pink-500 bg-pink-50 text-pink-700'
-                        : 'border-gray-300 bg-white text-gray-700 hover:border-pink-300'
+                      className={`relative p-4 rounded-xl border transition-all duration-300 overflow-hidden group ${giftType === 'individual'
+                        ? 'border-[var(--heritage-gold)] bg-[var(--heritage-gold)]/10 text-[var(--heritage-gold)] shadow-[0_0_15px_rgba(176,141,85,0.2)]'
+                        : 'border-[var(--border)] bg-[var(--bg-2)] text-[var(--muted)] hover:border-[var(--heritage-gold)]/50'
                         }`}
                     >
-                      <div className="text-center">
-                        <div className="text-2xl mb-1">🎁</div>
-                        <div className="font-semibold">{t('product.individualGift')}</div>
-                        <div className="text-xs text-gray-500">{t('product.individualGiftDesc')}</div>
+                      {giftType === 'individual' && <div className="absolute inset-0 bg-gradient-to-br from-[var(--heritage-gold)]/5 to-transparent pointer-events-none"></div>}
+                      <div className="text-center relative z-10">
+                        <div className="flex justify-center mb-2">
+                          <Gift className={`w-8 h-8 ${giftType === 'individual' ? 'text-[var(--heritage-gold)]' : 'text-[var(--muted)] group-hover:text-[var(--heritage-gold)]/70'} transition-colors`} />
+                        </div>
+                        <div className="font-semibold text-[var(--text)]">{t('product.individualGift', 'Individual Gift')}</div>
+                        <div className="text-xs mt-1 opacity-80">{t('product.individualGiftDesc', 'Send directly to someone')}</div>
                       </div>
                     </button>
                     <button
                       onClick={() => setGiftType('group')}
-                      className={`flex-1 p-3 rounded-lg border-2 transition-all ${giftType === 'group'
-                        ? 'border-purple-500 bg-purple-50 text-purple-700'
-                        : 'border-gray-300 bg-white text-gray-700 hover:border-purple-300'
+                      className={`relative p-4 rounded-xl border transition-all duration-300 overflow-hidden group ${giftType === 'group'
+                        ? 'border-[var(--heritage-blue)] bg-[var(--heritage-blue)]/10 text-[var(--heritage-blue)] shadow-[0_0_15px_rgba(30,58,138,0.2)]'
+                        : 'border-[var(--border)] bg-[var(--bg-2)] text-[var(--muted)] hover:border-[var(--heritage-blue)]/50'
                         }`}
                     >
-                      <div className="text-center">
-                        <div className="text-2xl mb-1">👥</div>
-                        <div className="font-semibold">{t('product.groupGift')}</div>
-                        <div className="text-xs text-gray-500">{t('product.groupGiftDesc')}</div>
+                      {giftType === 'group' && <div className="absolute inset-0 bg-gradient-to-br from-[var(--heritage-blue)]/5 to-transparent pointer-events-none"></div>}
+                      <div className="text-center relative z-10">
+                        <div className="flex justify-center mb-2">
+                          <Users className={`w-8 h-8 ${giftType === 'group' ? 'text-[var(--heritage-blue)]' : 'text-[var(--muted)] group-hover:text-[var(--heritage-blue)]/70'} transition-colors`} />
+                        </div>
+                        <div className="font-semibold text-[var(--text)]">{t('product.groupGift', 'Group Gift')}</div>
+                        <div className="text-xs mt-1 opacity-80">{t('product.groupGiftDesc', 'Split cost with friends')}</div>
                       </div>
                     </button>
                   </div>
                 </div>
-                {giftError && <div className="mb-2 text-pink-700 bg-pink-100 border border-pink-300 rounded px-3 py-2 text-sm">{giftError}</div>}
+                {giftError && <div className="mb-4 text-[var(--heritage-red)] bg-[var(--heritage-red)]/10 border border-[var(--heritage-red)]/30 rounded-lg px-4 py-3 text-sm">{giftError}</div>}
 
                 {giftType === 'individual' ? (
-                  <>
+                  <div className="relative z-10">
                     {giftSuccess ? (
-                      <div className="text-center py-8">
-                        <div className="text-6xl mb-4">🎉</div>
-                        <h3 className="text-2xl font-bold text-green-600 mb-2">{t('product.giftSuccessTitle')}</h3>
-                        <p className="text-gray-600 mb-6">{t('product.giftSuccessDesc', { name: selectedRecipient?.name })}</p>
+                      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-center py-6">
+                        <div className="w-20 h-20 mx-auto bg-gradient-to-br from-[var(--heritage-gold)] to-[var(--heritage-red)] rounded-full flex items-center justify-center shadow-glow mb-6">
+                          <Sparkles className="w-10 h-10 text-white" />
+                        </div>
+                        <h3 className="text-2xl font-serif font-bold text-[var(--text)] mb-2">{t('product.giftSuccessTitle', 'Gift Sent Successfully!')}</h3>
+                        <p className="text-[var(--muted)] mb-8">{t('product.giftSuccessDesc', 'Your gift has been sent to {{name}}.', { name: selectedRecipient?.name || 'the recipient' })}</p>
                         <button
                           onClick={() => {
                             setGiftModalOpen(false);
@@ -995,34 +1012,36 @@ export default function ProductDetail() {
                             setRecipientQuery("");
                             setGiftMessage("");
                           }}
-                          className="w-full px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-green-200 shadow-lg hover:shadow-xl"
+                          className="w-full btn-primary hover-scale shadow-glow"
                         >
-                          {t('product.close')}
+                          {t('product.close', 'Close')}
                         </button>
-                      </div>
+                      </motion.div>
                     ) : (
-                      <>
+                      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
                         {!selectedRecipient ? (
-                          <>
-                            <label className="block mb-2 font-semibold">{t('product.recipientLabel')}</label>
-                            <input
-                              type="text"
-                              value={recipientQuery}
-                              onChange={e => {
-                                setRecipientQuery(e.target.value);
-                                setGiftRecipient("");
-                              }}
-                              className="w-full mb-1 p-2 border rounded-lg"
-                              placeholder={t('product.recipientPlaceholder')}
-                              disabled={gifting}
-                            />
-                            {recipientLoading && <div className="text-xs text-gray-400 mb-2">{t('product.recipientSearching')}</div>}
+                          <div>
+                            <label className="block mb-2 font-serif font-semibold text-[var(--text)]">{t('product.recipientLabel', 'Recipient')}</label>
+                            <div className="relative">
+                              <input
+                                type="text"
+                                value={recipientQuery}
+                                onChange={e => {
+                                  setRecipientQuery(e.target.value);
+                                  setGiftRecipient("");
+                                }}
+                                className="w-full p-3 bg-[var(--bg-2)] border border-[var(--border)] rounded-xl focus:ring-2 focus:ring-[var(--heritage-gold)] focus:border-transparent text-[var(--text)] transition-all"
+                                placeholder={t('product.recipientPlaceholder', 'Search by name or email...')}
+                                disabled={gifting}
+                              />
+                            </div>
+                            {recipientLoading && <div className="text-xs text-[var(--heritage-gold)] mt-2 animate-pulse">{t('product.recipientSearching', 'Searching...')}</div>}
                             {recipientResults.length > 0 && (
-                              <ul className="bg-white border rounded-lg shadow max-h-48 overflow-auto mb-2">
+                              <ul className="absolute z-20 w-full mt-1 bg-[var(--bg-1)] border border-[var(--border)] rounded-xl shadow-xl max-h-48 overflow-auto">
                                 {recipientResults.map(profile => (
                                   <li
                                     key={profile.id}
-                                    className="flex items-center px-3 py-2 hover:bg-pink-50 cursor-pointer gap-3"
+                                    className="flex items-center px-4 py-3 hover:bg-[var(--bg-2)] cursor-pointer gap-3 border-b border-[var(--border)] last:border-0 transition-colors"
                                     onClick={() => {
                                       setSelectedRecipient(profile);
                                       setGiftRecipient(profile.id);
@@ -1030,58 +1049,91 @@ export default function ProductDetail() {
                                       setRecipientResults([]);
                                     }}
                                   >
-                                    {profile.profile_image && (
-                                      <img src={profile.profile_image} alt="profile" className="w-7 h-7 rounded-full object-cover" />
+                                    {profile.profile_image ? (
+                                      <img src={profile.profile_image} alt="profile" className="w-8 h-8 rounded-full object-cover border border-[var(--border)]" />
+                                    ) : (
+                                      <div className="w-8 h-8 bg-[var(--bg-3)] rounded-full flex items-center justify-center border border-[var(--border)]">
+                                        <User className="w-4 h-4 text-[var(--muted)]" />
+                                      </div>
                                     )}
-                                    <span className="font-medium">{profile.name}</span>
-                                    <span className="text-xs text-gray-500">{profile.email}</span>
+                                    <div className="flex flex-col">
+                                      <span className="font-semibold text-[var(--text)]">{profile.name}</span>
+                                      <span className="text-xs text-[var(--muted)]">{profile.email}</span>
+                                    </div>
                                   </li>
                                 ))}
                               </ul>
                             )}
-                          </>
+                          </div>
                         ) : (
-                          <div className="mb-2 flex items-center gap-3 p-2 bg-pink-50 rounded">
-                            {selectedRecipient.profile_image && (
-                              <img src={selectedRecipient.profile_image} alt="profile" className="w-7 h-7 rounded-full object-cover" />
-                            )}
-                            <span className="font-medium">{selectedRecipient.name}</span>
-                            <span className="text-xs text-gray-500">{selectedRecipient.email}</span>
-                            <button className="ml-2 px-2 text-sm text-pink-500 underline" onClick={() => {
+                          <div className="flex items-center justify-between p-3 bg-[var(--bg-2)] border border-[var(--border)] rounded-xl">
+                            <div className="flex items-center gap-3">
+                              {selectedRecipient.profile_image ? (
+                                <img src={selectedRecipient.profile_image} alt="profile" className="w-10 h-10 rounded-full object-cover border border-[var(--border)]" />
+                              ) : (
+                                <div className="w-10 h-10 bg-[var(--bg-3)] rounded-full flex items-center justify-center border border-[var(--border)]">
+                                  <User className="w-5 h-5 text-[var(--muted)]" />
+                                </div>
+                              )}
+                              <div className="flex flex-col">
+                                <span className="font-semibold text-[var(--text)]">{selectedRecipient.name}</span>
+                                <span className="text-xs text-[var(--muted)]">{selectedRecipient.email}</span>
+                              </div>
+                            </div>
+                            <button className="text-sm text-[var(--heritage-gold)] hover:underline font-semibold" onClick={() => {
                               setSelectedRecipient(null); setGiftRecipient(""); setRecipientQuery("");
-                            }}>{t('product.changeRecipient')}</button>
+                            }}>{t('product.changeRecipient', 'Change')}</button>
                           </div>
                         )}
-                        <label className="block mb-2 font-semibold">{t('product.personalMessageLabel')}</label>
-                        <textarea value={giftMessage} onChange={e => setGiftMessage(e.target.value)} className="w-full mb-4 p-2 border rounded-lg" placeholder={t('product.personalMessagePlaceholder')} />
+                        <div>
+                          <label className="block mb-2 font-serif font-semibold text-[var(--text)]">{t('product.personalMessageLabel', 'Personal Message')}</label>
+                          <textarea 
+                            value={giftMessage} 
+                            onChange={e => setGiftMessage(e.target.value)} 
+                            className="w-full p-3 bg-[var(--bg-2)] border border-[var(--border)] rounded-xl focus:ring-2 focus:ring-[var(--heritage-gold)] focus:border-transparent text-[var(--text)] transition-all min-h-[100px] resize-none" 
+                            placeholder={t('product.personalMessagePlaceholder', 'Add a note to your gift...')} 
+                          />
+                        </div>
                         <button
-                          className="w-full px-6 py-3 bg-gradient-to-r from-pink-500 to-rose-600 text-white font-semibold rounded-xl hover:from-pink-600 hover:to-rose-700 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-pink-200 shadow-lg hover:shadow-xl disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
+                          className="w-full btn-primary mt-4 hover-scale shadow-glow disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none flex justify-center items-center gap-2"
                           onClick={handleSendGift}
                           disabled={gifting || !giftRecipient}
                         >
-                          {gifting ? t('product.sending') : t('product.sendIndividualGift')}
+                          {gifting ? (
+                            <>
+                              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                              {t('product.sending', 'Sending...')}
+                            </>
+                          ) : (
+                            <>
+                              <Gift className="w-5 h-5" />
+                              {t('product.sendIndividualGift', 'Send Gift')}
+                            </>
+                          )}
                         </button>
-                      </>
+                      </motion.div>
                     )}
-                  </>
+                  </div>
                 ) : (
-                  <div className="text-center py-8">
-                    <div className="text-6xl mb-4">👥</div>
-                    <h3 className="text-xl font-bold text-purple-700 mb-2">{t('product.groupGiftTitle')}</h3>
-                    <p className="text-gray-600 mb-6">{t('product.groupGiftDesc')}</p>
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-6 relative z-10">
+                    <div className="w-20 h-20 mx-auto bg-gradient-to-br from-[var(--heritage-blue)] to-[var(--heritage-green)] rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(30,58,138,0.3)] mb-6">
+                      <Users className="w-10 h-10 text-white" />
+                    </div>
+                    <h3 className="text-xl font-serif font-bold text-[var(--text)] mb-3">{t('product.groupGiftTitle', 'Start a Group Gift')}</h3>
+                    <p className="text-[var(--muted)] mb-8">{t('product.groupGiftDesc', 'Split the cost with friends and make gifting easier together.')}</p>
                     <button
                       onClick={() => {
-                        console.log('Opening group gift modal...');
                         setGiftModalOpen(false);
                         setGroupGiftModalOpen(true);
                       }}
-                      className="w-full px-6 py-3 bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-semibold rounded-xl hover:from-purple-600 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-purple-200 shadow-lg hover:shadow-xl"
+                      className="w-full py-3 px-6 bg-gradient-to-r from-[var(--heritage-blue)] to-[var(--heritage-green)] text-white font-bold rounded-xl hover:shadow-[0_0_20px_rgba(30,58,138,0.4)] transition-all duration-300 transform hover:-translate-y-1 flex justify-center items-center gap-2"
                     >
-                      {t('product.createGroupGift')}
+                      <Users className="w-5 h-5" />
+                      {t('product.createGroupGift', 'Create Group Gift')}
                     </button>
-                  </div>
+                  </motion.div>
                 )}
-              </div>
+              </motion.div>
             </div>
           )
         }
@@ -1096,20 +1148,40 @@ export default function ProductDetail() {
           productImage={product?.image_url}
         />
 
-        {/* Custom Request Modal */}
+        {/* Custom Request Modal (Heritage Premium) */}
         {
           customRequestModalOpen && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-              <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full relative">
-                <button className="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-xl" onClick={() => { setCustomRequestModalOpen(false); setCustomRequestSuccess(false); setCustomRequestMessage(""); setCustomRequestError(null); }}>&times;</button>
-                <h2 className="text-2xl font-bold mb-4">{t('product.customRequestModalTitle')}</h2>
-                {customRequestError && <div className="mb-2 text-teal-700 bg-teal-100 border border-teal-300 rounded px-3 py-2 text-sm">{customRequestError}</div>}
+            <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                className="bg-[var(--bg-1)] border border-[var(--border)] rounded-2xl shadow-2xl p-8 max-w-md w-full relative overflow-hidden"
+              >
+                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-[#b08d55]/20 to-transparent rounded-bl-full pointer-events-none"></div>
+
+                <button 
+                  className="absolute top-4 right-4 text-[var(--muted)] hover:text-[var(--text)] transition-colors p-2 rounded-full hover:bg-[var(--bg-2)] z-10" 
+                  onClick={() => { setCustomRequestModalOpen(false); setCustomRequestSuccess(false); setCustomRequestMessage(""); setCustomRequestError(null); }}
+                >
+                  <X className="w-5 h-5" />
+                </button>
+                
+                <h2 className="text-3xl font-display font-bold text-[var(--text)] mb-6 flex items-center gap-3 relative z-10">
+                  <Sparkles className="w-8 h-8 text-[#b08d55]" />
+                  {t('product.customRequestModalTitle', 'Custom Request')}
+                </h2>
+                
+                {customRequestError && <div className="mb-4 text-red-500 bg-red-500/10 border border-red-500/30 rounded-lg px-4 py-3 text-sm relative z-10">{customRequestError}</div>}
+                
                 {customRequestSuccess ? (
-                  <div className="text-center py-8">
-                    <div className="text-6xl mb-4">🎉</div>
-                    <h3 className="text-2xl font-bold text-green-600 mb-2">Request Sent!</h3>
-                    <p className="text-gray-600 mb-2">Your custom craft request has been sent to the seller.</p>
-                    <p className="text-teal-700 bg-teal-50 border border-teal-200 rounded px-3 py-2 text-sm mb-4">The seller will reach out to you through DM (Direct Message) for further details and updates.</p>
+                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-center py-6 relative z-10">
+                    <div className="w-20 h-20 mx-auto bg-gradient-to-br from-[#b08d55] to-[#8c6b30] rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(176,141,85,0.3)] mb-6">
+                      <Sparkles className="w-10 h-10 text-white" />
+                    </div>
+                    <h3 className="text-2xl font-serif font-bold text-[var(--text)] mb-2">Request Sent Successfully!</h3>
+                    <p className="text-[var(--muted)] mb-4">Your custom craft request has been sent to the artisan.</p>
+                    <p className="text-[#b08d55] bg-[#b08d55]/10 border border-[#b08d55]/30 rounded-lg px-4 py-3 text-sm mb-6">The artisan will reach out to you through Direct Message for further details.</p>
                     <button
                       onClick={() => {
                         setCustomRequestModalOpen(false);
@@ -1117,70 +1189,69 @@ export default function ProductDetail() {
                         setCustomRequestMessage("");
                         setCustomRequestError(null);
                       }}
-                      className="w-full px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-green-200 shadow-lg hover:shadow-xl"
+                      className="w-full btn-primary hover-scale shadow-glow"
                     >
                       Close
                     </button>
-                  </div>
+                  </motion.div>
                 ) : (
-                  <>
-                    <label className="block mb-2 font-semibold">{t('product.customRequestLabel')}</label>
-                    <div className="relative mb-4">
-                      <textarea
-                        value={customRequestMessage}
-                        onChange={e => setCustomRequestMessage(e.target.value)}
-                        className="w-full p-2 border rounded-lg pr-12"
-                        placeholder={t('product.customRequestPlaceholder')}
-                        disabled={customRequestLoading}
-                        rows={4}
-                      />
-                      <button
-                        type="button"
-                        className="absolute top-2 right-2 bg-teal-100 hover:bg-teal-200 text-teal-700 rounded-full p-2 shadow focus:outline-none"
-                        title={t('product.speakYourRequest')}
-                        onClick={() => {
-                          if (typeof window !== 'undefined' && ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
-                            const win = window as typeof window & {
-                              SpeechRecognition?: typeof SpeechRecognition;
-                              webkitSpeechRecognition?: typeof SpeechRecognition;
-                            };
-                            const SpeechRecognitionCtor: typeof SpeechRecognition | undefined = win.SpeechRecognition || win.webkitSpeechRecognition;
-                            if (!SpeechRecognitionCtor) {
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="relative z-10 space-y-4">
+                    <div>
+                      <label className="block mb-2 font-serif font-semibold text-[var(--text)]">{t('product.customRequestLabel', 'Describe Your Vision')}</label>
+                      <div className="relative">
+                        <textarea
+                          value={customRequestMessage}
+                          onChange={e => setCustomRequestMessage(e.target.value)}
+                          className="w-full p-4 bg-[var(--bg-2)] border border-[var(--border)] rounded-xl focus:ring-2 focus:ring-[#b08d55] focus:border-transparent text-[var(--text)] transition-all min-h-[120px] resize-none pr-14"
+                          placeholder={t('product.customRequestPlaceholder', 'E.g. I would like this in a darker shade of blue, with my initials engraved...')}
+                          disabled={customRequestLoading}
+                        />
+                        <button
+                          type="button"
+                          className="absolute bottom-4 right-4 bg-[#b08d55]/10 hover:bg-[#b08d55]/20 text-[#b08d55] rounded-full p-2.5 transition-colors focus:outline-none focus:ring-2 focus:ring-[#b08d55] group"
+                          title={t('product.speakYourRequest', 'Speak your request')}
+                          onClick={() => {
+                            if (typeof window !== 'undefined' && ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+                              const win = window as typeof window & {
+                                SpeechRecognition?: typeof SpeechRecognition;
+                                webkitSpeechRecognition?: typeof SpeechRecognition;
+                              };
+                              const SpeechRecognitionCtor: typeof SpeechRecognition | undefined = win.SpeechRecognition || win.webkitSpeechRecognition;
+                              if (!SpeechRecognitionCtor) {
+                                setCustomRequestError('Speech recognition not supported in this browser.');
+                                return;
+                              }
+                              const recognition = new SpeechRecognitionCtor();
+                              const langMap: Record<string, string> = {
+                                en: 'en-IN', hi: 'hi-IN', assamese: 'as-IN', bengali: 'bn-IN', bodo: 'brx-IN', dogri: 'doi-IN', gujarati: 'gu-IN', kannad: 'kn-IN', kannada: 'kn-IN', kashmiri: 'ks-IN', konkani: 'kok-IN', maithili: 'mai-IN', malyalam: 'ml-IN', malayalam: 'ml-IN', manipuri: 'mni-IN', marathi: 'mr-IN', nepali: 'ne-NP', oriya: 'or-IN', punjabi: 'pa-IN', sanskrit: 'sa-IN', santhali: 'sat-IN', sindhi: 'sd-IN', tamil: 'ta-IN', telgu: 'te-IN', telugu: 'te-IN', urdu: 'ur-IN', as: 'as-IN', bn: 'bn-IN', brx: 'brx-IN', doi: 'doi-IN', gu: 'gu-IN', kn: 'kn-IN', ks: 'ks-IN', kok: 'kok-IN', mai: 'mai-IN', ml: 'ml-IN', mni: 'mni-IN', mr: 'mr-IN', ne: 'ne-NP', or: 'or-IN', pa: 'pa-IN', sa: 'sa-IN', sat: 'sat-IN', sd: 'sd-IN', ta: 'ta-IN', te: 'te-IN', ur: 'ur-IN',
+                              };
+                              const appLang = (typeof currentLanguage !== 'undefined' && currentLanguage) ? currentLanguage : (typeof i18n !== 'undefined' && i18n.language ? i18n.language : 'en');
+                              recognition.lang = langMap[appLang] || appLang || 'en-IN';
+                              recognition.interimResults = false;
+                              recognition.maxAlternatives = 1;
+                              recognition.onresult = (event: SpeechRecognitionEvent) => {
+                                const transcript = event.results[0][0].transcript;
+                                setCustomRequestMessage(prev => prev ? prev + ' ' + transcript : transcript);
+                              };
+                              recognition.onerror = (event: Event) => {
+                                const error = (event as { error?: string }).error;
+                                setCustomRequestError('Voice input error: ' + (error || 'Unknown error'));
+                              };
+                              recognition.start();
+                            } else {
                               setCustomRequestError('Speech recognition not supported in this browser.');
-                              return;
                             }
-                            const recognition = new SpeechRecognitionCtor();
-                            // Map app language to BCP-47 code
-                            const langMap: Record<string, string> = {
-                              en: 'en-IN', hi: 'hi-IN', assamese: 'as-IN', bengali: 'bn-IN', bodo: 'brx-IN', dogri: 'doi-IN', gujarati: 'gu-IN', kannad: 'kn-IN', kannada: 'kn-IN', kashmiri: 'ks-IN', konkani: 'kok-IN', maithili: 'mai-IN', malyalam: 'ml-IN', malayalam: 'ml-IN', manipuri: 'mni-IN', marathi: 'mr-IN', nepali: 'ne-NP', oriya: 'or-IN', punjabi: 'pa-IN', sanskrit: 'sa-IN', santhali: 'sat-IN', sindhi: 'sd-IN', tamil: 'ta-IN', telgu: 'te-IN', telugu: 'te-IN', urdu: 'ur-IN', as: 'as-IN', bn: 'bn-IN', brx: 'brx-IN', doi: 'doi-IN', gu: 'gu-IN', kn: 'kn-IN', ks: 'ks-IN', kok: 'kok-IN', mai: 'mai-IN', ml: 'ml-IN', mni: 'mni-IN', mr: 'mr-IN', ne: 'ne-NP', or: 'or-IN', pa: 'pa-IN', sa: 'sa-IN', sat: 'sat-IN', sd: 'sd-IN', ta: 'ta-IN', te: 'te-IN', ur: 'ur-IN',
-                            };
-                            // Use currentLanguage or i18n.language
-                            const appLang = (typeof currentLanguage !== 'undefined' && currentLanguage) ? currentLanguage : (typeof i18n !== 'undefined' && i18n.language ? i18n.language : 'en');
-                            recognition.lang = langMap[appLang] || appLang || 'en-IN';
-                            recognition.interimResults = false;
-                            recognition.maxAlternatives = 1;
-                            recognition.onresult = (event: SpeechRecognitionEvent) => {
-                              const transcript = event.results[0][0].transcript;
-                              setCustomRequestMessage(prev => prev ? prev + ' ' + transcript : transcript);
-                            };
-                            recognition.onerror = (event: Event) => {
-                              const error = (event as { error?: string }).error;
-                              setCustomRequestError('Voice input error: ' + (error || 'Unknown error'));
-                            };
-                            recognition.start();
-                          } else {
-                            setCustomRequestError('Speech recognition not supported in this browser.');
-                          }
-                        }}
-                        disabled={customRequestLoading}
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 18.75v-1.5m0-13.5a3.75 3.75 0 013.75 3.75v6a3.75 3.75 0 01-7.5 0v-6A3.75 3.75 0 0112 3.75zm0 0v13.5m6-6a6 6 0 11-12 0" />
-                        </svg>
-                      </button>
+                          }}
+                          disabled={customRequestLoading}
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 group-hover:scale-110 transition-transform">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 18.75v-1.5m0-13.5a3.75 3.75 0 013.75 3.75v6a3.75 3.75 0 01-7.5 0v-6A3.75 3.75 0 0112 3.75zm0 0v13.5m6-6a6 6 0 11-12 0" />
+                          </svg>
+                        </button>
+                      </div>
                     </div>
                     <button
-                      className="w-full px-6 py-3 bg-gradient-to-r from-teal-500 to-emerald-600 text-white font-semibold rounded-xl hover:from-teal-600 hover:to-emerald-700 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-teal-200 shadow-lg hover:shadow-xl disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
+                      className="w-full btn-primary mt-6 hover-scale shadow-glow disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none flex justify-center items-center gap-2"
                       onClick={async () => {
                         setCustomRequestLoading(true);
                         setCustomRequestError(null);
@@ -1220,11 +1291,21 @@ export default function ProductDetail() {
                       }}
                       disabled={customRequestLoading || !customRequestMessage.trim()}
                     >
-                      {customRequestLoading ? t('product.sending') : t('product.sendCustomRequest')}
+                      {customRequestLoading ? (
+                        <>
+                          <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                          {t('product.sending', 'Sending...')}
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="w-5 h-5" />
+                          {t('product.sendCustomRequest', 'Send Request')}
+                        </>
+                      )}
                     </button>
-                  </>
+                  </motion.div>
                 )}
-              </div>
+              </motion.div>
             </div>
           )
         }

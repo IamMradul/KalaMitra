@@ -306,7 +306,7 @@ export default function ProfilePage() {
 
   // --- Render Components ---
 
-  const SidebarItem = ({ id, icon: Icon, label, badge }: { id: Tab, icon: React.ComponentType<{className?: string}>, label: string, badge?: number }) => (
+  const SidebarItem = ({ id, icon: Icon, label, badge }: { id: Tab, icon: React.ComponentType<{ className?: string }>, label: string, badge?: number }) => (
     <button
       onClick={() => { setActiveTab(id); setIsSidebarOpen(false) }}
       className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${activeTab === id
@@ -353,7 +353,7 @@ export default function ProfilePage() {
 
           {/* Mobile Sidebar Overlay Backdrop */}
           {isSidebarOpen && (
-            <div 
+            <div
               className="fixed inset-0 bg-black/50 z-40 lg:hidden"
               onClick={() => setIsSidebarOpen(false)}
             />
