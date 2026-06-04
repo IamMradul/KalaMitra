@@ -1,6 +1,27 @@
 @import "tailwindcss";
 @import 'intro.js/introjs.css';
 
+@theme {
+  --color-bg-1: var(--bg-1);
+  --color-bg-2: var(--bg-2);
+  --color-bg-3: var(--bg-3);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-heritage-gold: var(--heritage-gold);
+  --color-heritage-red: var(--heritage-red);
+  --color-heritage-green: var(--heritage-green);
+  --color-heritage-blue: var(--heritage-blue);
+  --color-heritage-brown: var(--heritage-brown);
+  --color-heritage-accent: var(--heritage-accent);
+  --color-border-color: var(--border);
+
+  --font-sans: var(--font-nunito), Arial, sans-serif;
+  --font-mono: var(--font-geist-mono), monospace;
+  --font-cormorant: var(--font-cormorant), serif;
+  --font-tiro: var(--font-tiro), serif;
+}
+
+
 /* Hindi Custom Font */
 @font-face {
   font-family: 'AmsHindi';

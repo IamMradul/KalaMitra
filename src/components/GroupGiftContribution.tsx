@@ -263,8 +263,8 @@ export default function GroupGiftContribution({ groupGiftId }: GroupGiftContribu
             .from('notifications')
             .insert({
               user_id: recipientId,
-              title: 'You received a group gift!',
-              body: `Your friends contributed and sent you "${groupGift?.product?.title || 'a product'}" as a group gift!`,
+              title: t('groupGiftContribution.receivedGiftTitle'),
+              body: t('groupGiftContribution.receivedGiftBody', { product: groupGift?.product?.title || 'a product' }),
               read: false,
               metadata: {
                 type: 'group_gift_received',
@@ -282,10 +282,10 @@ export default function GroupGiftContribution({ groupGiftId }: GroupGiftContribu
 
       setContributionAmount(0)
       setContributionMessage('')
-      alert('Thank you for your contribution! 🎉')
+      alert(t('groupGiftContribution.thankYou'))
     } catch (err) {
       console.error('Error contributing:', err)
-      alert('Failed to contribute. Please try again.')
+      alert(t('groupGiftContribution.failed'))
     }
     setContributing(false)
   }
@@ -310,227 +310,390 @@ export default function GroupGiftContribution({ groupGiftId }: GroupGiftContribu
   const progressPercentage = Math.min((groupGift.current_amount / groupGift.target_amount) * 100, 100)
   const remainingAmount = Math.max(groupGift.target_amount - groupGift.current_amount, 0)
 
+  const handlePresetClick = (amount: number) => {
+    setContributionAmount(Math.min(amount, remainingAmount))
+  }
+
   return (
-    <div className="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8">
-      {/* Header */}
+    <div className="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8 space-y-8">
+      {/* Header connection banner */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-gradient-to-br from-heritage-blue to-heritage-green rounded-3xl p-8 text-white mb-8 shadow-[0_10px_30px_rgba(30,58,138,0.2)] relative overflow-hidden"
+        className="bg-bg-1 border border-border-color rounded-3xl p-6 shadow-md transition-colors duration-300 relative overflow-hidden"
       >
-        <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl transform translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
-        <div className="flex items-center gap-5 mb-8 relative z-10">
-          <div className="w-16 h-16 bg-white/20 backdrop-blur-md border border-white/30 rounded-2xl flex items-center justify-center shadow-lg">
-            <Gift className="w-8 h-8 text-white" />
-          </div>
-          <div>
-            <h1 className="text-3xl sm:text-4xl font-serif font-bold tracking-tight">{t('groupGiftModal.headerTitle', 'Group Gift Contribution')}</h1>
-            <p className="text-white/80 mt-1 font-medium">{t('groupGiftModal.headerSubtitle', 'Help your friend get their dream item')}</p>
-          </div>
-        </div>
-
-        <div className="grid md:grid-cols-2 gap-8 relative z-10">
-          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/20">
-            <h2 className="text-xl font-bold mb-2">{groupGift.product.title}</h2>
-            <p className="text-white/80 text-sm font-medium">{t('groupGiftModal.productForRecipient', { name: groupGift.recipient.name })}</p>
-            {groupGift.message && (
-              <p className="mt-3 text-sm italic border-l-2 border-white/40 pl-3">&quot;{groupGift.message}&quot;</p>
-            )}
-          </div>
-          <div className="flex flex-col justify-center items-end bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/20">
-            <p className="text-3xl font-bold mb-1">₹{groupGift.current_amount.toLocaleString()}</p>
-            <p className="text-white/80 text-sm font-medium">of ₹{groupGift.target_amount.toLocaleString()} raised</p>
-          </div>
-        </div>
-      </motion.div>
-
-      {/* Progress Bar */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="bg-bg-1 border border-border-color rounded-3xl p-6 sm:p-8 shadow-xl mb-8 transition-colors duration-300"
-      >
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-xl font-serif font-bold text-text flex items-center gap-2">
-            <DollarSign className="w-5 h-5 text-heritage-gold" />
-            {t('groupGiftModal.progressTitle', 'Progress')}
-          </h3>
-          <span className="font-bold text-heritage-gold">
-            {t('groupGiftModal.progressComplete', { percent: progressPercentage.toFixed(1) })}
-          </span>
-        </div>
-
-        <div className="w-full bg-bg-2 border border-border-color rounded-full h-5 mb-6 overflow-hidden p-1">
-          <motion.div
-            className="bg-gradient-to-r from-heritage-blue to-heritage-green h-full rounded-full relative"
-            initial={{ width: 0 }}
-            animate={{ width: `${progressPercentage}%` }}
-            transition={{ duration: 1.5, ease: "easeOut" }}
-          >
-            <div className="absolute inset-0 bg-white/20 w-full h-full" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)' }}></div>
-          </motion.div>
-        </div>
-
-        {groupGift.status === 'completed' ? (
-          <div className="text-center py-6 bg-heritage-green/10 border border-heritage-green/30 rounded-2xl">
-            <div className="w-16 h-16 bg-gradient-to-br from-heritage-green to-[#2ecc71] rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg shadow-heritage-green/30">
-              <Sparkles className="w-8 h-8 text-white" />
-            </div>
-            <p className="text-2xl font-serif font-bold text-text mb-2">{t('groupGiftModal.progressTargetReached', 'Target Reached!')}</p>
-            <p className="text-muted font-medium">{t('groupGiftModal.progressReady', 'The gift is ready to be sent to the recipient.')}</p>
-          </div>
-        ) : (
-          <div className="text-center bg-bg-2 rounded-2xl p-4 border border-border-color">
-            <p className="text-text font-medium text-lg">
-              {t('groupGiftModal.progressStillNeeded', { amount: 'SPLIT_HERE' }).split('SPLIT_HERE').map((part, i, arr) => (
-                <span key={i}>
-                  {part}
-                  {i < arr.length - 1 && (
-                    <span className="font-bold text-heritage-gold">₹{remainingAmount.toLocaleString()}</span>
-                  )}
-                </span>
-              ))}
-            </p>
-          </div>
-        )}
-      </motion.div>
-
-      {/* Contribution Form */}
-      {groupGift.status !== 'completed' && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="bg-bg-1 border border-border-color rounded-3xl p-6 sm:p-8 shadow-xl mb-8 transition-colors duration-300"
-        >
-          <h3 className="text-xl font-serif font-bold text-text mb-6 flex items-center gap-2">
-            <Heart className="w-5 h-5 text-heritage-red" />
-            {t('groupGiftModal.contributeTitle', 'Make a Contribution')}
-          </h3>
-          <div className="space-y-6">
-            <div>
-              <label className="block text-sm font-semibold text-text mb-2">
-                {t('groupGiftModal.amountLabel', 'Amount (₹)')}
-              </label>
-              <div className="relative">
-                <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted w-5 h-5 font-bold text-lg">₹</span>
-                <input
-                  type="number"
-                  value={contributionAmount === 0 ? '' : contributionAmount}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    const maxAmount = Math.max(1, Math.min(Number(val), remainingAmount));
-                    setContributionAmount(val === '' ? 0 : maxAmount);
-                  }}
-                  className="w-full pl-10 pr-4 py-3 sm:py-4 border border-border-color rounded-xl focus:ring-2 focus:ring-heritage-blue focus:outline-none focus:border-transparent bg-bg-2 text-text font-bold text-lg transition-all"
-                  placeholder={t('groupGiftModal.amountPlaceholder', { max: remainingAmount })}
-                  min="1"
-                  max={remainingAmount}
+        <div className="absolute top-0 right-0 w-32 h-32 bg-heritage-blue/5 rounded-full blur-2xl pointer-events-none"></div>
+        <div className="absolute bottom-0 left-0 w-32 h-32 bg-heritage-green/5 rounded-full blur-2xl pointer-events-none"></div>
+        
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              {groupGift.initiator.profile_image ? (
+                <img
+                  src={groupGift.initiator.profile_image}
+                  alt={groupGift.initiator.name}
+                  className="w-14 h-14 rounded-full object-cover border-2 border-heritage-blue/30 shadow-sm"
                 />
+              ) : (
+                <div className="w-14 h-14 bg-gradient-to-br from-heritage-blue to-heritage-blue/60 rounded-full flex items-center justify-center shadow-sm">
+                  <User className="w-6 h-6 text-white" />
+                </div>
+              )}
+              <span className="absolute -bottom-1 -right-1 bg-heritage-blue text-white rounded-full p-1 shadow-sm">
+                <Users className="w-3 h-3" />
+              </span>
+            </div>
+            <div>
+              <p className="text-[10px] text-muted font-bold uppercase tracking-wider">Organizer</p>
+              <h4 className="font-bold text-text text-lg leading-tight">{groupGift.initiator.name}</h4>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div className="h-[2px] w-12 md:w-20 bg-gradient-to-r from-heritage-blue/30 via-heritage-gold/50 to-heritage-green/30 hidden sm:block"></div>
+            <div className="w-10 h-10 rounded-full bg-heritage-gold/10 flex items-center justify-center shadow-inner">
+              <Heart className="w-5 h-5 text-heritage-gold fill-heritage-gold/25 animate-pulse" />
+            </div>
+            <div className="h-[2px] w-12 md:w-20 bg-gradient-to-r from-heritage-blue/30 via-heritage-gold/50 to-heritage-green/30 hidden sm:block"></div>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              {groupGift.recipient.profile_image ? (
+                <img
+                  src={groupGift.recipient.profile_image}
+                  alt={groupGift.recipient.name}
+                  className="w-14 h-14 rounded-full object-cover border-2 border-heritage-green/30 shadow-sm"
+                />
+              ) : (
+                <div className="w-14 h-14 bg-gradient-to-br from-heritage-green to-heritage-green/60 rounded-full flex items-center justify-center shadow-sm">
+                  <User className="w-6 h-6 text-white" />
+                </div>
+              )}
+              <span className="absolute -bottom-1 -right-1 bg-heritage-green text-white rounded-full p-1 shadow-sm">
+                <Gift className="w-3 h-3" />
+              </span>
+            </div>
+            <div>
+              <p className="text-[10px] text-muted font-bold uppercase tracking-wider">Recipient</p>
+              <h4 className="font-bold text-text text-lg leading-tight">{groupGift.recipient.name}</h4>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Main content grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        {/* Left Column: Product Info & Contributors */}
+        <div className="lg:col-span-7 space-y-8">
+          
+          {/* Product Detail Card */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="bg-bg-1 border border-border-color rounded-3xl p-6 shadow-md hover-lift transition-all duration-300 relative overflow-hidden"
+          >
+            <div className="flex flex-col md:flex-row gap-6">
+              {groupGift.product.image_url ? (
+                <div className="w-full md:w-48 h-48 rounded-2xl overflow-hidden shadow-sm border border-border-color/30 flex-shrink-0 group">
+                  <img
+                    src={groupGift.product.image_url}
+                    alt={groupGift.product.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                </div>
+              ) : (
+                <div className="w-full md:w-48 h-48 rounded-2xl bg-bg-3 border border-border-color/30 flex items-center justify-center flex-shrink-0">
+                  <Gift className="w-12 h-12 text-muted" />
+                </div>
+              )}
+              <div className="flex-1 flex flex-col justify-between">
+                <div>
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold bg-heritage-blue/10 text-heritage-blue mb-3 border border-heritage-blue/15 uppercase tracking-wider">
+                    <Sparkles className="w-3 h-3" />
+                    {t('groupGiftModal.title')}
+                  </div>
+                  <h2 className="text-2xl font-serif font-bold text-text mb-2 tracking-tight">
+                    {groupGift.product.title}
+                  </h2>
+                  <p className="text-sm text-muted font-medium mb-4">
+                    {t('groupGiftModal.productForRecipient', { name: groupGift.recipient.name })}
+                  </p>
+                </div>
+                
+                {groupGift.message && (
+                  <div className="relative mt-2 p-4 rounded-2xl bg-bg-2 border-l-4 border-heritage-gold/70 italic text-sm text-text opacity-90 shadow-inner">
+                    &ldquo;{groupGift.message}&rdquo;
+                  </div>
+                )}
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Contributors List */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="bg-bg-1 border border-border-color rounded-3xl p-6 sm:p-8 shadow-md transition-colors duration-300"
+          >
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-serif font-bold text-text flex items-center gap-2">
+                <Users className="w-5 h-5 text-heritage-blue" />
+                {t('groupGiftModal.contributorsTitle', { count: contributions.length })}
+              </h3>
+              {contributions.length > 0 && (
+                <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-heritage-blue/10 text-heritage-blue border border-heritage-blue/15">
+                  Active Contributors
+                </span>
+              )}
+            </div>
+
+            {contributions.length === 0 ? (
+              <div className="bg-bg-2 border border-border-color rounded-2xl py-12 text-center shadow-inner">
+                <Users className="w-12 h-12 text-muted mx-auto mb-4 opacity-50" />
+                <p className="text-text font-bold text-lg">{t('groupGiftModal.noContributions', 'No contributions yet.')}</p>
+                <p className="text-muted mt-1 text-sm">{t('groupGiftContribution.noContributionsPrompt')}</p>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {contributions.map((contribution, index) => (
+                  <motion.div
+                    key={contribution.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.05 * index }}
+                    className="flex flex-col p-5 bg-bg-2 border border-border-color rounded-2xl hover:border-heritage-blue/30 hover:shadow-sm transition-all duration-200 group"
+                  >
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full overflow-hidden border border-border-color/60 group-hover:border-heritage-blue/40 transition-colors flex-shrink-0">
+                          {contribution.contributor.profile_image ? (
+                            <img
+                              src={contribution.contributor.profile_image}
+                              alt={contribution.contributor.name}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-gradient-to-br from-heritage-blue to-heritage-green flex items-center justify-center">
+                              <User className="w-5 h-5 text-white" />
+                            </div>
+                          )}
+                        </div>
+                        <div>
+                          <p className="font-bold text-text leading-snug">
+                            {contribution.contributor.name}
+                          </p>
+                          <p className="text-[10px] text-muted font-medium">
+                            {new Date(contribution.created_at).toLocaleString(undefined, {
+                              year: 'numeric', month: 'short', day: 'numeric',
+                              hour: '2-digit', minute: '2-digit'
+                            })}
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="text-right">
+                        <p className="font-bold text-lg text-heritage-gold font-serif">
+                          ₹{contribution.amount.toLocaleString()}
+                        </p>
+                      </div>
+                    </div>
+                    
+                    {contribution.message && (
+                      <div className="relative mt-3 p-3 bg-bg-1 rounded-xl border border-border-color/60 italic text-sm text-text opacity-95 shadow-sm before:content-[''] before:absolute before:-top-1.5 before:left-5 before:w-3 before:h-3 before:bg-bg-1 before:border-t before:border-l before:border-border-color/60 before:rotate-45">
+                        &ldquo;{contribution.message}&rdquo;
+                      </div>
+                    )}
+                  </motion.div>
+                ))}
+              </div>
+            )}
+          </motion.div>
+
+        </div>
+
+        {/* Right Column: Progress & Contribution Form */}
+        <div className="lg:col-span-5 space-y-8 lg:sticky lg:top-24">
+          
+          {/* Progress Card */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 }}
+            className="bg-bg-1 border border-border-color rounded-3xl p-6 sm:p-8 shadow-md transition-colors duration-300"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-serif font-bold text-text flex items-center gap-2">
+                <DollarSign className="w-5 h-5 text-heritage-gold" />
+                {t('groupGiftModal.progressTitle', 'Progress')}
+              </h3>
+              <span className="font-bold text-heritage-gold text-lg">
+                {t('groupGiftModal.progressComplete', { percent: progressPercentage.toFixed(1) })}
+              </span>
+            </div>
+
+            <div className="w-full bg-bg-3 border border-border-color/20 rounded-full h-4 mb-6 overflow-hidden p-0.5">
+              <motion.div
+                className="bg-gradient-to-r from-heritage-blue to-heritage-green h-full rounded-full relative"
+                initial={{ width: 0 }}
+                animate={{ width: `${progressPercentage}%` }}
+                transition={{ duration: 1.5, ease: "easeOut" }}
+              >
+                <div className="absolute inset-0 bg-white/20 w-full h-full" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)' }}></div>
+              </motion.div>
+            </div>
+
+            <div className="flex items-center justify-between text-sm text-muted mb-6">
+              <div>
+                <p className="text-[10px] uppercase tracking-wider font-semibold">Raised</p>
+                <p className="text-lg font-bold text-text">₹{groupGift.current_amount.toLocaleString()}</p>
+              </div>
+              <div className="text-right">
+                <p className="text-[10px] uppercase tracking-wider font-semibold">Goal</p>
+                <p className="text-lg font-bold text-text">₹{groupGift.target_amount.toLocaleString()}</p>
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-semibold text-text mb-2">
-                {t('groupGiftModal.messageLabel', 'Personal Message (Optional)')}
-              </label>
-              <textarea
-                value={contributionMessage}
-                onChange={(e) => setContributionMessage(e.target.value)}
-                className="w-full px-4 py-3 sm:py-4 border border-border-color rounded-xl focus:ring-2 focus:ring-heritage-blue focus:outline-none focus:border-transparent bg-bg-2 text-text transition-all resize-none"
-                rows={3}
-                placeholder={t('groupGiftModal.messagePlaceholder', 'Write a message to accompany your contribution...')}
-              />
-            </div>
+            {groupGift.status === 'completed' ? (
+              <div className="text-center py-6 bg-heritage-green/10 border border-heritage-green/20 rounded-2xl">
+                <div className="w-12 h-12 bg-gradient-to-br from-heritage-green to-heritage-green/80 rounded-full flex items-center justify-center mx-auto mb-3 shadow-sm">
+                  <Sparkles className="w-6 h-6 text-white animate-pulse" />
+                </div>
+                <p className="text-xl font-serif font-bold text-text mb-1">{t('groupGiftModal.progressTargetReached', 'Target Reached!')}</p>
+                <p className="text-xs text-muted font-medium">{t('groupGiftModal.progressReady', 'The gift is ready to be sent.')}</p>
+              </div>
+            ) : (
+              <div className="text-center bg-bg-2 rounded-2xl p-4 border border-border-color shadow-inner">
+                <p className="text-text font-medium text-base">
+                  {t('groupGiftModal.progressStillNeeded', { amount: 'SPLIT_HERE' }).split('SPLIT_HERE').map((part, i, arr) => (
+                    <span key={i}>
+                      {part}
+                      {i < arr.length - 1 && (
+                        <span className="font-bold text-heritage-gold ml-1">₹{remainingAmount.toLocaleString()}</span>
+                      )}
+                    </span>
+                  ))}
+                </p>
+              </div>
+            )}
+          </motion.div>
 
-            <button
-              onClick={handleContribute}
-              disabled={contributing || typeof contributionAmount !== 'number' || contributionAmount <= 0}
-              className="w-full bg-gradient-to-r from-heritage-blue to-heritage-green text-white py-4 px-6 rounded-xl font-bold hover:shadow-[0_10px_25px_rgba(30,58,138,0.3)] transition-all transform hover:-translate-y-1 disabled:opacity-50 disabled:hover:transform-none disabled:hover:shadow-none flex items-center justify-center gap-2 text-lg"
+          {/* Contribution Form */}
+          {groupGift.status !== 'completed' && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.25 }}
+              className="bg-gradient-to-b from-bg-1 to-bg-2 border border-border-color rounded-3xl p-6 sm:p-8 shadow-lg transition-colors duration-300"
             >
-              {contributing ? (
-                <>
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  {t('groupGiftModal.contributing', 'Processing...')}
-                </>
-              ) : (
-                <>
-                  <Gift className="w-5 h-5" />
-                  {t('groupGiftModal.contributeButton', { amount: contributionAmount || 0 })}
-                </>
-              )}
-            </button>
-          </div>
-        </motion.div>
-      )}
-
-      {/* Contributors List */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-        className="bg-bg-1 border border-border-color rounded-3xl p-6 sm:p-8 shadow-xl transition-colors duration-300"
-      >
-        <h3 className="text-xl font-serif font-bold text-text mb-6 flex items-center gap-2">
-          <Users className="w-5 h-5 text-heritage-blue" />
-          {t('groupGiftModal.contributorsTitle', { count: contributions.length })}
-        </h3>
-        {contributions.length === 0 ? (
-          <div className="bg-bg-2 border border-border-color rounded-2xl py-12 text-center">
-            <Users className="w-12 h-12 text-muted mx-auto mb-4 opacity-50" />
-            <p className="text-text font-medium text-lg">{t('groupGiftModal.noContributions', 'No contributions yet.')}</p>
-            <p className="text-muted mt-1">Be the first to contribute to this gift!</p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {contributions.map((contribution, index) => (
-              <motion.div
-                key={contribution.id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.1 * index }}
-                className="flex items-center gap-4 p-5 bg-bg-2 border border-border-color rounded-2xl hover:border-heritage-blue/30 hover:shadow-md transition-all group"
-              >
-                {contribution.contributor.profile_image ? (
-                  <img
-                    src={contribution.contributor.profile_image}
-                    alt={contribution.contributor.name}
-                    className="w-12 h-12 rounded-full object-cover border-2 border-border-color group-hover:border-heritage-blue/50 transition-colors"
-                  />
-                ) : (
-                  <div className="w-12 h-12 bg-gradient-to-br from-heritage-blue to-heritage-green rounded-full flex items-center justify-center shadow-inner">
-                    <User className="w-6 h-6 text-white" />
+              <h3 className="text-lg font-serif font-bold text-text mb-6 flex items-center gap-2">
+                <Heart className="w-5 h-5 text-heritage-red fill-heritage-red/10" />
+                {t('groupGiftModal.contributeTitle', 'Make a Contribution')}
+              </h3>
+              
+              <div className="space-y-6">
+                
+                {/* Contribution amount block */}
+                <div>
+                  <div className="flex justify-between items-center mb-2">
+                    <label className="text-sm font-bold text-text">
+                      {t('groupGiftModal.amountLabel', 'Amount (₹)')}
+                    </label>
+                    <span className="text-xs text-muted font-semibold">
+                      Max ₹{remainingAmount.toLocaleString()}
+                    </span>
                   </div>
-                )}
+                  
+                  {/* Preset Quick Select Buttons */}
+                  <div className="grid grid-cols-4 gap-2 mb-2">
+                    {[250, 500, 1000, 2000].map((val) => (
+                      <button
+                        key={val}
+                        type="button"
+                        onClick={() => handlePresetClick(val)}
+                        disabled={val > remainingAmount}
+                        className={`py-2 px-1 text-xs font-bold rounded-xl border transition-all active:scale-95 cursor-pointer text-center ${
+                          contributionAmount === val
+                            ? 'bg-heritage-blue text-white border-transparent shadow-sm'
+                            : 'bg-bg-1 border-border-color text-text hover:border-heritage-blue/40 disabled:opacity-40 disabled:pointer-events-none'
+                        }`}
+                      >
+                        +₹{val}
+                      </button>
+                    ))}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handlePresetClick(remainingAmount)}
+                    className={`w-full py-2.5 mb-4 text-xs font-bold rounded-xl border transition-all active:scale-95 cursor-pointer text-center ${
+                      contributionAmount === remainingAmount
+                        ? 'bg-heritage-gold text-white border-transparent shadow-sm'
+                        : 'bg-bg-1 border-border-color text-heritage-gold hover:border-heritage-gold/40'
+                    }`}
+                  >
+                    Contribute Full Remaining (₹{remainingAmount.toLocaleString()})
+                  </button>
 
-                <div className="flex-1 min-w-0">
-                  <p className="font-bold text-lg text-text truncate">
-                    {contribution.contributor.name}
-                  </p>
-                  {contribution.message && (
-                    <p className="text-sm text-text italic opacity-90 truncate">
-                      &quot;{contribution.message}&quot;
-                    </p>
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted font-bold text-lg select-none">₹</span>
+                    <input
+                      type="number"
+                      value={contributionAmount === 0 ? '' : contributionAmount}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (val === '') {
+                          setContributionAmount(0);
+                        } else {
+                          const num = Number(val);
+                          setContributionAmount(Math.max(1, Math.min(num, remainingAmount)));
+                        }
+                      }}
+                      className="w-full pl-10 pr-4 py-3 sm:py-3.5 border border-border-color rounded-xl focus:ring-2 focus:ring-heritage-blue focus:outline-none focus:border-transparent bg-bg-1 text-text font-bold text-lg transition-all"
+                      placeholder={t('groupGiftModal.amountPlaceholder', { max: remainingAmount })}
+                      min="1"
+                      max={remainingAmount}
+                    />
+                  </div>
+                </div>
+
+                {/* Contribution message block */}
+                <div>
+                  <label className="block text-sm font-bold text-text mb-2">
+                    {t('groupGiftModal.messageLabel', 'Personal Message (Optional)')}
+                  </label>
+                  <textarea
+                    value={contributionMessage}
+                    onChange={(e) => setContributionMessage(e.target.value)}
+                    className="w-full px-4 py-3 border border-border-color rounded-xl focus:ring-2 focus:ring-heritage-blue focus:outline-none focus:border-transparent bg-bg-1 text-text text-sm transition-all resize-none shadow-inner"
+                    rows={3}
+                    placeholder={t('groupGiftModal.messagePlaceholder', 'Write a message to accompany your contribution...')}
+                  />
+                </div>
+
+                <button
+                  onClick={handleContribute}
+                  disabled={contributing || typeof contributionAmount !== 'number' || contributionAmount <= 0}
+                  className="w-full bg-gradient-to-r from-heritage-blue to-heritage-green text-white py-4 px-6 rounded-xl font-bold hover:shadow-md transition-all transform hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.99] disabled:opacity-50 disabled:hover:transform-none disabled:hover:shadow-none flex items-center justify-center gap-2 text-lg cursor-pointer border border-transparent"
+                >
+                  {contributing ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      {t('groupGiftModal.contributing', 'Processing...')}
+                    </>
+                  ) : (
+                    <>
+                      <Gift className="w-5 h-5" />
+                      {t('groupGiftModal.contributeButton', { amount: contributionAmount || 0 })}
+                    </>
                   )}
-                  <p className="text-xs text-muted mt-1">
-                    {new Date(contribution.created_at).toLocaleString(undefined, {
-                      year: 'numeric', month: 'short', day: 'numeric',
-                      hour: '2-digit', minute: '2-digit'
-                    })}
-                  </p>
-                </div>
-
-                <div className="text-right whitespace-nowrap pl-4">
-                  <p className="font-bold text-xl text-heritage-gold">
-                    ₹{contribution.amount.toLocaleString()}
-                  </p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        )}
-      </motion.div>
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </div>
+      </div>
     </div>
   )
 }
