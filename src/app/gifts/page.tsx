@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 
 import { Gift, User, Heart, ArrowRight, Sparkles, Users } from 'lucide-react';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'react-i18next';
 
 export default function GiftsPage() {
   const { t } = useTranslation();
@@ -256,7 +256,7 @@ export default function GiftsPage() {
                 .from('notifications')
                 .insert({
                   user_id: contributor.id,
-                  title: 'You were thanked for your group gift!',
+                  title: t('gifts.notification.thankedGroup', 'You were thanked for your group gift!'),
                   body: `${profile.name || 'Recipient'} thanked you for contributing to "${gift.product?.title || 'a product'}"!`,
                   read: false,
                   metadata: {
@@ -274,7 +274,7 @@ export default function GiftsPage() {
             .from('notifications')
             .insert({
               user_id: gift.sender.id,
-              title: 'You were thanked for your gift!',
+              title: t('gifts.notification.thankedIndividual', 'You were thanked for your gift!'),
               body: `${profile.name || 'Recipient'} thanked you for gifting "${gift.product?.title || 'a product'}"!`,
               read: false,
               metadata: {
@@ -318,7 +318,7 @@ export default function GiftsPage() {
                 {t('gifts.centerSubtitle', 'Celebrate craftsmanship and shared heritage with every present.')}
               </p>
               <p className="mx-auto max-w-2xl text-sm leading-6 text-[var(--muted)]/90 lg:mx-0">
-                One place for received surprises, sent moments, and shared celebrations.
+                {t('gifts.heroDescription', 'One place for received surprises, sent moments, and shared celebrations.')}
               </p>
             </div>
 
@@ -346,22 +346,22 @@ export default function GiftsPage() {
             <div className="grid grid-cols-3 gap-3 text-center">
               <div className="rounded-2xl border border-[var(--border)] bg-[linear-gradient(180deg,var(--bg-2)_0%,var(--bg-1)_100%)] px-4 py-5 shadow-sm">
                 <div className="text-2xl font-bold text-[var(--heritage-red)]">{giftsR.length}</div>
-                <div className="mt-1 text-xs uppercase tracking-[0.18em] text-[var(--muted)]">Received</div>
+                <div className="mt-1 text-xs uppercase tracking-[0.18em] text-[var(--muted)]">{t('gifts.received', 'Received')}</div>
               </div>
               <div className="rounded-2xl border border-[var(--border)] bg-[linear-gradient(180deg,var(--bg-2)_0%,var(--bg-1)_100%)] px-4 py-5 shadow-sm">
                 <div className="text-2xl font-bold text-[var(--heritage-gold)]">{giftsS.length}</div>
-                <div className="mt-1 text-xs uppercase tracking-[0.18em] text-[var(--muted)]">Sent</div>
+                <div className="mt-1 text-xs uppercase tracking-[0.18em] text-[var(--muted)]">{t('gifts.sent', 'Sent')}</div>
               </div>
               <div className="rounded-2xl border border-[var(--border)] bg-[linear-gradient(180deg,var(--bg-2)_0%,var(--bg-1)_100%)] px-4 py-5 shadow-sm">
                 <div className="text-2xl font-bold text-[var(--heritage-blue)]">{groupGifts.length}</div>
-                <div className="mt-1 text-xs uppercase tracking-[0.18em] text-[var(--muted)]">Group</div>
+                <div className="mt-1 text-xs uppercase tracking-[0.18em] text-[var(--muted)]">{t('gifts.group', 'Group')}</div>
               </div>
             </div>
 
             <div className="rounded-2xl border border-white/10 bg-[linear-gradient(135deg,var(--heritage-blue)_0%,var(--heritage-green)_100%)] p-5 text-white shadow-[0_18px_40px_rgba(59,89,152,0.16)]">
-              <p className="text-sm uppercase tracking-[0.2em] text-white/70">Gift pulse</p>
+              <p className="text-sm uppercase tracking-[0.2em] text-white/70">{t('gifts.pulse', 'Gift pulse')}</p>
               <p className="mt-2 text-lg font-semibold">
-                Track every gift, open surprises cleanly, and keep shared gifts readable at a glance.
+                {t('gifts.pulseDescription', 'Track every gift, open surprises cleanly, and keep shared gifts readable at a glance.')}
               </p>
             </div>
           </div>
@@ -372,9 +372,9 @@ export default function GiftsPage() {
 
   function GiftTabs() {
     const tabs = [
-      { id: 'received', label: 'Received', icon: Gift, hint: 'Open what arrived for you', tone: 'from-[var(--heritage-red)] to-[var(--heritage-gold)]' },
-      { id: 'sent', label: 'Sent', icon: Heart, hint: 'Review your outgoing gifts', tone: 'from-[var(--heritage-gold)] to-[var(--heritage-accent)]' },
-      { id: 'group', label: 'Group', icon: Users, hint: 'Shared gifts and contributions', tone: 'from-[var(--heritage-blue)] to-[var(--heritage-green)]' },
+      { id: 'received', label: t('gifts.received', 'Received'), icon: Gift, hint: t('gifts.receivedHint', 'Open what arrived for you'), tone: 'from-[var(--heritage-red)] to-[var(--heritage-gold)]' },
+      { id: 'sent', label: t('gifts.sent', 'Sent'), icon: Heart, hint: t('gifts.sentHint', 'Review your outgoing gifts'), tone: 'from-[var(--heritage-gold)] to-[var(--heritage-accent)]' },
+      { id: 'group', label: t('gifts.group', 'Group'), icon: Users, hint: t('gifts.groupHint', 'Shared gifts and contributions'), tone: 'from-[var(--heritage-blue)] to-[var(--heritage-green)]' },
     ] as const;
 
     return (
@@ -476,11 +476,11 @@ export default function GiftsPage() {
             <div className="min-w-0 flex-1 space-y-2.5">
               <div className="flex flex-wrap items-center gap-2">
                 <span className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] ring-1 ${gift.viewed ? 'bg-[var(--success)]/10 text-[var(--success)] ring-[var(--success)]/15' : 'bg-[var(--heritage-gold)]/12 text-[var(--heritage-gold)] ring-[var(--heritage-gold)]/15'}`}>
-                  {gift.viewed ? 'Opened' : 'New gift'}
+                  {gift.viewed ? t('gifts.openedStatus', 'Opened') : t('gifts.newGiftStatus', 'New gift')}
                 </span>
                 {gift.metadata?.type === 'group_gift' && (
                   <span className="rounded-full bg-[var(--heritage-blue)]/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--heritage-blue)] ring-1 ring-[var(--heritage-blue)]/15">
-                    Group gift
+                    {t('gifts.groupGiftTag', 'Group gift')}
                   </span>
                 )}
               </div>
@@ -533,7 +533,7 @@ export default function GiftsPage() {
                   </div>
                 )}
                 <div>
-                  <div className="text-[10px] uppercase tracking-[0.22em] text-[var(--muted)]">From</div>
+                  <div className="text-[10px] uppercase tracking-[0.22em] text-[var(--muted)]">{t('gifts.fromLabel', 'From')}</div>
                   <div className="font-semibold text-[var(--text)]">
                     {gift.viewed ? (gift.metadata?.type === 'group_gift' && Array.isArray(gift.contributors) && gift.contributors.length > 0 ? gift.contributors.map((c: any) => c.name).join(', ') : (gift.sender?.name || t('gifts.unknownSender', 'Unknown Sender'))) : t('gifts.senderHidden', 'Someone Special')}
                   </div>
@@ -612,7 +612,7 @@ export default function GiftsPage() {
                 </div>
               )}
               <div>
-                <div className="text-[10px] uppercase tracking-[0.22em] text-[var(--muted)]">To</div>
+                <div className="text-[10px] uppercase tracking-[0.22em] text-[var(--muted)]">{t('gifts.toLabel', 'To')}</div>
                 <div className="font-semibold text-[var(--text)]">{gift.recipient?.name || t('gifts.unknownRecipient', 'Unknown Recipient')}</div>
               </div>
             </div>
@@ -670,7 +670,7 @@ export default function GiftsPage() {
                   </div>
                 )}
                 <div>
-                  <div className="text-[10px] uppercase tracking-[0.22em] text-[var(--muted)]">Organized by</div>
+                  <div className="text-[10px] uppercase tracking-[0.22em] text-[var(--muted)]">{t('gifts.organizedByLabel', 'Organized By')}</div>
                   <div className="font-semibold text-[var(--text)]">{gift.initiator?.name || t('gifts.unknownInitiator', 'Unknown')}</div>
                 </div>
               </div>
@@ -679,11 +679,11 @@ export default function GiftsPage() {
 
           <div className="grid grid-cols-2 gap-3 sm:gap-4">
             <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg-1)] p-3.5">
-              <div className="text-[10px] uppercase tracking-[0.22em] text-[var(--muted)]">Target amount</div>
+              <div className="text-[10px] uppercase tracking-[0.22em] text-[var(--muted)]">{t('gifts.targetAmountLabel', 'Target Amount')}</div>
               <div className="mt-1 text-lg font-bold text-[var(--text)]">₹{gift.target_amount}</div>
             </div>
             <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg-1)] p-3.5">
-              <div className="text-[10px] uppercase tracking-[0.22em] text-[var(--muted)]">Recipient</div>
+              <div className="text-[10px] uppercase tracking-[0.22em] text-[var(--muted)]">{t('gifts.recipientLabel', 'Recipient')}</div>
               <div className="mt-1 truncate text-lg font-bold text-[var(--text)]">{gift.recipient?.name || t('gifts.unknownRecipient', 'Unknown')}</div>
             </div>
           </div>

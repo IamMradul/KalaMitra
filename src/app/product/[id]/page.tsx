@@ -547,7 +547,7 @@ export default function ProductDetail() {
                 )}
                 {product.is_virtual && (
                   <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase shadow-sm border border-blue-200">
-                    🧩 Virtual Asset
+                    {t('product.virtualAsset', '🧩 Virtual Asset')}
                   </span>
                 )}
               </div>
@@ -601,7 +601,7 @@ export default function ProductDetail() {
                     <div className="h-[2px] w-12 bg-gradient-to-r from-transparent to-[#b08d55]"></div>
                     <Sparkles className="w-6 h-6 text-[#b08d55]" />
                     <h3 className="font-serif text-2xl text-[#3d0000] [:root[data-theme=dark]_&]:text-orange-100 tracking-wide">
-                      Artisan&apos;s Story
+                      {t('product.artisanStory', "Artisan's Story")}
                     </h3>
                     <Sparkles className="w-6 h-6 text-[#b08d55]" />
                     <div className="h-[2px] w-12 bg-gradient-to-l from-transparent to-[#b08d55]"></div>
@@ -644,7 +644,7 @@ export default function ProductDetail() {
                         className="flex items-center gap-2 px-5 py-2 bg-[#b08d55] text-white rounded-full font-serif font-bold text-sm hover:bg-[#8c6b30] transition-colors shadow-sm hover:shadow-md"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
-                        Listen
+                        {t('product.listen', 'Listen')}
                       </button>
                     ) : (
                       <button
@@ -655,7 +655,7 @@ export default function ProductDetail() {
                         className="flex items-center gap-2 px-5 py-2 bg-[#8c6b30] text-white rounded-full font-serif font-bold text-sm animate-pulse"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
-                        Stop
+                        {t('product.stop', 'Stop')}
                       </button>
                     )}
                   </div>
@@ -722,7 +722,7 @@ export default function ProductDetail() {
                   className="w-full bg-gradient-to-r from-[#b08d55] to-[#8c6b30] hover:from-[#8c6b30] hover:to-[#6b4c1e] text-white py-3 rounded-lg font-bold text-base shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center gap-2 border border-[#b08d55]/50 relative overflow-hidden group"
                 >
                   <span className="relative z-10 flex items-center gap-2">
-                    {hasActiveAuction ? 'On Auction' : t('product.addToCart')}
+                    {hasActiveAuction ? t('product.onAuction', 'On Auction') : t('product.addToCart')}
                     {!hasActiveAuction && <ShoppingCart className="w-5 h-5 group-hover:scale-110 transition-transform" />}
                   </span>
                   <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 rounded-xl pointer-events-none"></div>
@@ -790,12 +790,12 @@ export default function ProductDetail() {
                     utter.onend = () => setIsNarrating(false);
                   }} className="text-orange-600 text-sm font-medium flex items-center gap-2 mt-2 hover:underline">
                     <Sparkles className="w-4 h-4" />
-                    Listen to the Artisan&apos;s Story
+                    Listen to the {t('product.artisanStory', "Artisan's Story")}
                   </button>
                 )}
                 {isNarrating && (
                   <button onClick={() => { window.speechSynthesis.cancel(); setIsNarrating(false) }} className="text-red-500 text-sm font-medium flex items-center gap-2 mt-2">
-                    Stop Narration
+                    {t('product.stopNarration', 'Stop Narration')}
                   </button>
                 )}
               </div>
@@ -844,7 +844,7 @@ export default function ProductDetail() {
                             </div>
                             {index === 0 && (
                               <span className="absolute -bottom-1 -right-1 bg-[#b08d55] text-white text-[10px] uppercase font-bold px-2 py-0.5 rounded-full border border-white">
-                                Lead
+                                {t('product.leadRole', 'Lead')}
                               </span>
                             )}
                           </div>
@@ -852,7 +852,7 @@ export default function ProductDetail() {
                           <div className="flex-1 min-w-0">
                             <h4 className="font-bold text-gray-900 truncate group-hover:text-[#b08d55] transition-colors">{collaborator.name}</h4>
                             <p className="text-xs text-[#b08d55] font-medium uppercase tracking-wider mb-1">
-                              {index === 0 ? "Master Artisan" : "Collaborator"}
+                              {index === 0 ? t('product.masterArtisan', 'Master Artisan') : t('product.collaborator', 'Collaborator')}
                             </p>
                             <p className="text-sm text-gray-500 line-clamp-2 leading-relaxed">
                               {collaborator.store_description || collaborator.bio || t('product.artisanBioFallback')}
@@ -862,7 +862,7 @@ export default function ProductDetail() {
                               href={`/stall/${collaborator.id}`}
                               className="inline-flex items-center gap-1 text-xs font-bold text-[#3d0000] [:root[data-theme=dark]_&]:text-orange-200 mt-2 hover:underline decoration-[#b08d55]"
                             >
-                              Visit Stall <ArrowLeft className="w-3 h-3 rotate-180" />
+                              {t('product.visitStall', 'Visit Stall')} <ArrowLeft className="w-3 h-3 rotate-180" />
                             </Link>
                           </div>
                         </div>
@@ -900,7 +900,7 @@ export default function ProductDetail() {
                         </h4>
                         <div className="flex items-center gap-2 mb-2">
                           <span className="text-xs bg-[#fdfbf7] text-[#8c6b30] px-2 py-0.5 rounded border border-[#e6dcc5]">
-                            Verified Artisan
+                            {t('product.verifiedArtisan', 'Verified Artisan')}
                           </span>
                         </div>
                         <p className="text-sm text-gray-500 line-clamp-2 mb-3">
@@ -910,7 +910,7 @@ export default function ProductDetail() {
                           href={`/stall/${product.seller_id}`}
                           className="text-sm font-bold text-[#b08d55] hover:text-[#8c6b30] flex items-center gap-1"
                         >
-                          View Collection <ArrowLeft className="w-4 h-4 rotate-180" />
+                          {t('product.viewCollection', 'View Collection')} <ArrowLeft className="w-4 h-4 rotate-180" />
                         </Link>
                       </div>
                     </div>
@@ -1179,9 +1179,9 @@ export default function ProductDetail() {
                     <div className="w-20 h-20 mx-auto bg-gradient-to-br from-[#b08d55] to-[#8c6b30] rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(176,141,85,0.3)] mb-6">
                       <Sparkles className="w-10 h-10 text-white" />
                     </div>
-                    <h3 className="text-2xl font-serif font-bold text-[var(--text)] mb-2">Request Sent Successfully!</h3>
-                    <p className="text-[var(--muted)] mb-4">Your custom craft request has been sent to the artisan.</p>
-                    <p className="text-[#b08d55] bg-[#b08d55]/10 border border-[#b08d55]/30 rounded-lg px-4 py-3 text-sm mb-6">The artisan will reach out to you through Direct Message for further details.</p>
+                    <h3 className="text-2xl font-serif font-bold text-[var(--text)] mb-2">{t('product.requestSuccessTitle', 'Request Sent Successfully!')}</h3>
+                    <p className="text-[var(--muted)] mb-4">{t('product.requestSuccessDesc', 'Your custom craft request has been sent to the artisan.')}</p>
+                    <p className="text-[#b08d55] bg-[#b08d55]/10 border border-[#b08d55]/30 rounded-lg px-4 py-3 text-sm mb-6">{t('product.requestSuccessDetail', 'The artisan will reach out to you through Direct Message for further details.')}</p>
                     <button
                       onClick={() => {
                         setCustomRequestModalOpen(false);
@@ -1381,7 +1381,7 @@ export default function ProductDetail() {
                     ? 'text-green-600'
                     : 'text-red-600'
                 }`}>
-                  {cartModalStatus === 'success' ? 'Added to Cart!' : 'Error'}
+                  {cartModalStatus === 'success' ? t('cart.addedSuccessTitle', 'Added to Cart!') : t('common.error', 'Error')}
                 </h3>
                 <p className="text-[var(--text)] mb-6">
                   {cartModalMessage}
@@ -1399,7 +1399,7 @@ export default function ProductDetail() {
                       : 'bg-gradient-to-r from-red-500 to-rose-600 text-white hover:from-red-600 hover:to-rose-700 focus:ring-red-200'
                   } shadow-lg hover:shadow-xl`}
                 >
-                  {cartModalStatus === 'success' ? 'Continue Shopping' : 'Close'}
+                  {cartModalStatus === 'success' ? t('cart.continueShopping', 'Continue Shopping') : t('common.close', 'Close')}
                 </button>
                 {cartModalStatus === 'success' && (
                   <Link
@@ -1407,7 +1407,7 @@ export default function ProductDetail() {
                     onClick={() => setCartModalOpen(false)}
                     className="mt-3 block w-full px-6 py-3 bg-[var(--text)] text-[var(--bg-1)] font-semibold rounded-xl hover:bg-[#b08d55] transition-all duration-300 transform hover:scale-105"
                   >
-                    View Cart
+                    {t('cart.viewCart', 'View Cart')}
                   </Link>
                 )}
               </div>

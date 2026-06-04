@@ -53,39 +53,39 @@ export default function SellerDashboard() {
   const getTourSteps = (): TourStep[] => [
     {
       element: '#seller-dashboard-header',
-      intro: '<span style="font-size:1.2em">👋 <b>Welcome Seller!</b></span><br/>This is your dashboard where you manage products, analytics, and more.',
+      intro: `<span style="font-size:1.2em">👋 <b>${t('seller.dashboard.welcomeSeller', 'Welcome Seller!')}</b></span><br/>This is your dashboard where you manage products, analytics, and more.`,
     },
     {
       element: '#seller-dashboard-tabs',
-      intro: 'Navigate between <b>Products</b>, <b>Analytics</b>, <b>Collaborations</b>, <b>Scheme Connect</b>, and <b>Custom Requests</b> using these tabs.',
+      intro: `Navigate between <b>${t('seller.dashboard.products', 'Products')}</b>, <b>${t('seller.analytics', 'Analytics')}</b>, <b>${t('collaboration.title', 'Collaborations')}</b>, <b>${t('seller.schemeConnectTab', 'Scheme Connect')}</b>, and <b>${t('seller.customRequestsTab', 'Custom Requests')}</b> using these tabs.`,
     },
     {
       element: '#quick-action-add-product',
-      intro: 'Add a new product using AI assistance.',
+      intro: t('seller.tour.addProduct', 'Add a new product using AI assistance.'),
     },
     {
       element: '#quick-action-add-virtual',
-      intro: 'No Resource- No Limit! Add a virtual product to your stall.',
+      intro: t('seller.tour.addVirtualProduct', 'No Resource- No Limit! Add a virtual product to your stall.'),
     },
     {
       element: '#quick-action-view-stall',
-      intro: 'View your public stall as buyers see it.',
+      intro: t('seller.tour.viewStall', 'View your public stall as buyers see it.'),
     },
     {
       element: '#quick-action-customize-stall',
-      intro: 'Customize your 3D stall appearance and features.',
+      intro: t('seller.tour.customizeStall', 'Customize your 3D stall appearance and features.'),
     },
     {
       element: '#launch-auction-btn',
-      intro: 'Launch a new auction for your product here.',
+      intro: t('seller.tour.launchAuction', 'Launch a new auction for your product here.'),
     },
     {
       element: '#your-active-auctions-text',
-      intro: 'This shows your <b>Active Auctions</b> and their progress.',
+      intro: `This shows your <b>${t('seller.tour.activeAuctions', 'Active Auctions')}</b> and their progress.`,
     },
     {
       element: '#seller-products-section',
-      intro: 'Manage your products here. Edit, delete, or add new products using the buttons provided.',
+      intro: t('seller.tour.manageProducts', 'Manage your products here. Edit, delete, or add new products using the buttons provided.'),
     },
   ];
 
@@ -980,8 +980,8 @@ export default function SellerDashboard() {
             transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
             className="w-12 h-12 border-4 border-orange-200 border-t-orange-600 rounded-full mx-auto mb-4"
           />
-          <p className="text-[var(--muted)]">Loading dashboard...</p>
-          <p className="text-sm text-[var(--muted)] mt-2">Please wait while we verify your account</p>
+          <p className="text-[var(--muted)]">{t('seller.dashboard.loadingDashboard', 'Loading dashboard...')}</p>
+          <p className="text-sm text-[var(--muted)] mt-2">{t('seller.dashboard.verifyingAccount', 'Please wait while we verify your account')}</p>
         </div>
       </div>
     )
@@ -991,9 +991,9 @@ export default function SellerDashboard() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <p className="text-[var(--muted)]">Access denied or user not found</p>
+          <p className="text-[var(--muted)]">{t('seller.dashboard.accessDenied', 'Access denied or user not found')}</p>
           <p className="text-sm text-[var(--muted)] mt-2">
-            User: {user ? 'Yes' : 'No'} | Profile: {profile ? 'Yes' : 'No'} | Role: {profile?.role}
+            {t('seller.dashboard.userLabel', 'User:')} {user ? t('common.yes', 'Yes') : t('common.no', 'No')} | {t('seller.dashboard.profileStatus', 'Profile:')} {profile ? t('common.yes', 'Yes') : t('common.no', 'No')} | {t('seller.dashboard.roleStatus', 'Role:')} {profile?.role}
           </p>
         </div>
       </div>

@@ -3,6 +3,8 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { User, Session } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
+import { useTranslation } from 'react-i18next'
+import '@/lib/i18n'
 import { generateGoogleAuthURL } from '@/lib/google-oauth'
 import { generateMicrosoftAuthURL } from '@/lib/microsoft-oauth'
 import { Database } from '@/lib/supabase'
@@ -49,6 +51,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [showUpiModal, setShowUpiModal] = useState(false);
   const [upiInput, setUpiInput] = useState("");
   const [upiError, setUpiError] = useState("");
+  const { t } = useTranslation();
 
   useEffect(() => {
     // Mark that we're on the client side
@@ -419,13 +422,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       {showUpiModal && (
         <div role="dialog" aria-modal="true" className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(0,0,0,0.4)]">
           <div className="p-8 rounded-xl min-w-[320px] shadow-[0_4px_32px_rgba(0,0,0,0.15)]" style={{ background: 'var(--bg-2)', color: 'var(--text)', border: '1px solid var(--border)' }}>
-            <h2 className="font-bold text-lg mb-3">Enter your UPI ID</h2>
-            <p className="mb-4 text-sm" style={{ color: 'var(--muted)' }}>To receive payments, please provide your UPI ID.</p>
+            <h2 className="font-bold text-lg mb-3">{t('auth.upiModal.title')}</h2>
+            <p className="mb-4 text-sm" style={{ color: 'var(--muted)' }}>{t('auth.upiModal.description')}</p>
             <input
               type="text"
               value={upiInput}
               onChange={e => { setUpiInput(e.target.value); setUpiError(""); }}
-              placeholder="e.g. yourname@upi"
+              placeholder={t('auth.upiModal.placeholder')}
               className="w-full p-2 rounded-lg mb-2"
               style={{ background: 'var(--card)', color: 'var(--text)', border: '1px solid var(--border)' }}
             />
@@ -436,12 +439,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 style={{ background: 'var(--saffron)', color: 'white' }}
                 onClick={async () => {
                   if (!upiInput.trim()) {
-                    setUpiError('UPI ID is required');
+                    setUpiError(t('auth.upiModal.requiredError'));
                     return;
                   }
                   // Basic UPI ID format check
                   if (!/^[\w.-]+@[\w.-]+$/.test(upiInput.trim())) {
-                    setUpiError('Invalid UPI ID format');
+                    setUpiError(t('auth.upiModal.formatError'));
                     return;
                   }
                   // Save UPI ID to profile
@@ -451,7 +454,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                       .update({ upi_id: upiInput.trim() })
                       .eq('id', profile?.id)
                     if (error) {
-                      setUpiError('Failed to save UPI ID');
+                      setUpiError(t('auth.upiModal.saveError'));
                     } else {
                       setShowUpiModal(false);
                       setUpiInput("");
@@ -460,15 +463,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                       if (profile?.id) await fetchProfile(profile.id);
                     }
                   } catch (err) {
-                    setUpiError('Failed to save UPI ID');
+                    setUpiError(t('auth.upiModal.saveError'));
                   }
                 }}
-              >Save</button>
+              >{t('common.save')}</button>
               <button
                 className="px-4 py-2 rounded-lg font-bold"
                 style={{ background: 'transparent', color: 'var(--text)', border: '1px solid var(--border)' }}
                 onClick={() => setShowUpiModal(false)}
-              >Cancel</button>
+              >{t('common.cancel')}</button>
             </div>
           </div>
         </div>

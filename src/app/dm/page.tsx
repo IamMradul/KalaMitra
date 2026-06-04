@@ -119,7 +119,7 @@ function DMPageContent() {
       <div className="flex items-center justify-center h-screen" style={{ background: 'var(--bg-1)' }}>
         <div className="text-center">
           <div className="text-6xl mb-4">💬</div>
-          <p className="text-[var(--muted)] text-lg font-serif">Sign in to view your messages.</p>
+          <p className="text-[var(--muted)] text-lg font-serif">{t('dm.page.signInPrompt', 'Sign in to view your messages.')}</p>
         </div>
       </div>
     );
@@ -205,8 +205,8 @@ function DMPageContent() {
         <div className="px-5 pt-6 pb-4">
           <div className="flex items-center justify-between mb-5">
             <div>
-              <h1 className="text-xl font-bold text-[var(--text)]" style={{ fontFamily: 'serif' }}>Messages</h1>
-              <p className="text-xs text-[var(--muted)] mt-0.5">{threads.length} conversation{threads.length !== 1 ? 's' : ''}</p>
+              <h1 className="text-xl font-bold text-[var(--text)]" style={{ fontFamily: 'serif' }}>{t('dm.page.messages', 'Messages')}</h1>
+              <p className="text-xs text-[var(--muted)] mt-0.5">{threads.length} {t('dm.page.conversationCount', { count: threads.length, defaultValue: threads.length !== 1 ? 'conversations' : 'conversation' })}</p>
             </div>
             <button
               onClick={() => setShowGroupModal(true)}
@@ -214,7 +214,7 @@ function DMPageContent() {
               style={{ background: 'linear-gradient(135deg, var(--heritage-gold), var(--heritage-accent))' }}
             >
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" /></svg>
-              New Group
+              {t('dm.page.newGroup', 'New Group')}
             </button>
           </div>
           {/* Search */}
@@ -222,7 +222,7 @@ function DMPageContent() {
             <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--muted)]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
             <input
               type="text"
-              placeholder="Search conversations..."
+              placeholder={t('dm.page.searchConversations', 'Search conversations...')}
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               className="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm outline-none transition-all"
@@ -236,8 +236,8 @@ function DMPageContent() {
           {filteredThreads.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-center px-4">
               <div className="text-4xl mb-3">💬</div>
-              <p className="text-sm font-medium text-[var(--text)]">No conversations yet</p>
-              <p className="text-xs text-[var(--muted)] mt-1">Start a new chat or group conversation</p>
+              <p className="text-sm font-medium text-[var(--text)]">{t('dm.page.noConversations', 'No conversations yet')}</p>
+              <p className="text-xs text-[var(--muted)] mt-1">{t('dm.page.startChatPrompt', 'Start a new chat or group conversation')}</p>
             </div>
           ) : (
             filteredThreads.map(thread => (
@@ -265,8 +265,8 @@ function DMPageContent() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
             </svg>
           </div>
-          <h3 className="text-lg font-bold text-[var(--text)] mb-2" style={{ fontFamily: 'serif' }}>Select a conversation</h3>
-          <p className="text-sm text-[var(--muted)]">Choose from your existing conversations or start a new one</p>
+          <h3 className="text-lg font-bold text-[var(--text)] mb-2" style={{ fontFamily: 'serif' }}>{t('dm.page.selectConversation', 'Select a conversation')}</h3>
+          <p className="text-sm text-[var(--muted)]">{t('dm.page.chooseConversationDesc', 'Choose from your existing conversations or start a new one')}</p>
         </div>
       </div>
     );
@@ -278,7 +278,7 @@ function DMPageContent() {
         <div className="w-full max-w-md rounded-2xl shadow-2xl overflow-hidden" style={{ background: 'var(--card)', border: '1px solid var(--border)' }}>
           <div className="px-6 py-5" style={{ borderBottom: '1px solid var(--border)' }}>
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-bold text-[var(--text)]" style={{ fontFamily: 'serif' }}>Create Group Chat</h2>
+              <h2 className="text-lg font-bold text-[var(--text)]" style={{ fontFamily: 'serif' }}>{t('dm.page.createGroupChatTitle', 'Create Group Chat')}</h2>
               <button onClick={() => setShowGroupModal(false)} className="w-8 h-8 rounded-full flex items-center justify-center transition-colors hover:bg-[var(--bg-2)] text-[var(--muted)]">
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
@@ -286,15 +286,15 @@ function DMPageContent() {
           </div>
           <div className="p-6 space-y-4">
             <div>
-              <label className="text-xs font-semibold text-[var(--muted)] uppercase tracking-wide mb-1.5 block">Group Name</label>
+              <label className="text-xs font-semibold text-[var(--muted)] uppercase tracking-wide mb-1.5 block">{t('dm.page.groupNameLabel', 'Group Name')}</label>
               <input type="text" className="w-full px-4 py-3 rounded-xl text-sm outline-none transition-all" style={{ background: 'var(--bg-2)', border: '1px solid var(--border)', color: 'var(--text)' }}
-                placeholder="e.g. Art Collective" value={groupTitle} onChange={e => setGroupTitle(e.target.value)}
+                placeholder={t('dm.page.groupNamePlaceholder', 'e.g. Art Collective')} value={groupTitle} onChange={e => setGroupTitle(e.target.value)}
                 onFocus={e => { e.target.style.borderColor = 'var(--heritage-gold)'; }} onBlur={e => { e.target.style.borderColor = 'var(--border)'; }} />
             </div>
             <div>
-              <label className="text-xs font-semibold text-[var(--muted)] uppercase tracking-wide mb-1.5 block">Add Participants</label>
+              <label className="text-xs font-semibold text-[var(--muted)] uppercase tracking-wide mb-1.5 block">{t('dm.page.addParticipantsLabel', 'Add Participants')}</label>
               <input type="text" className="w-full px-4 py-2.5 rounded-xl text-sm outline-none mb-2 transition-all" style={{ background: 'var(--bg-2)', border: '1px solid var(--border)', color: 'var(--text)' }}
-                placeholder="Search people..." value={userSearch} onChange={e => setUserSearch(e.target.value)} />
+                placeholder={t('dm.page.searchPeoplePlaceholder', 'Search people...')} value={userSearch} onChange={e => setUserSearch(e.target.value)} />
               <div className="max-h-48 overflow-y-auto space-y-1 rounded-xl" style={{ border: '1px solid var(--border)' }}>
                 {allUsers.filter(u => u.name && u.name.toLowerCase() !== 'sus').filter(u => !userSearch.trim() || u.name?.toLowerCase().includes(userSearch.toLowerCase())).map(u => (
                   <label key={u.id} className="flex items-center gap-3 px-3 py-2.5 cursor-pointer transition-colors hover:bg-[var(--bg-2)]">
@@ -311,7 +311,7 @@ function DMPageContent() {
             </div>
           </div>
           <div className="px-6 py-4 flex gap-3 justify-end" style={{ borderTop: '1px solid var(--border)' }}>
-            <button onClick={() => setShowGroupModal(false)} className="px-5 py-2.5 rounded-xl text-sm font-semibold transition-all hover:bg-[var(--bg-2)]" style={{ color: 'var(--muted)', border: '1px solid var(--border)' }}>Cancel</button>
+            <button onClick={() => setShowGroupModal(false)} className="px-5 py-2.5 rounded-xl text-sm font-semibold transition-all hover:bg-[var(--bg-2)]" style={{ color: 'var(--muted)', border: '1px solid var(--border)' }}>{t('common.cancel', 'Cancel')}</button>
             <button
               disabled={groupParticipants.length < 2 || !groupTitle}
               className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition-all hover:scale-105 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
@@ -322,7 +322,7 @@ function DMPageContent() {
                 const json = await res.json();
                 if (json.threadId) { setShowGroupModal(false); setGroupParticipants([]); setGroupTitle(''); fetchThreads(); }
               }}
-            >Create Group</button>
+            >{t('dm.page.createGroupButton', 'Create Group')}</button>
           </div>
         </div>
       </div>
@@ -377,12 +377,13 @@ function DMPageContent() {
 }
 
 export default function DMPage() {
+  const { t } = useTranslation();
   return (
     <Suspense fallback={
       <div className="flex items-center justify-center h-screen" style={{ background: 'var(--bg-1)' }}>
         <div className="flex flex-col items-center gap-3">
           <div className="w-10 h-10 rounded-full border-2 border-t-transparent animate-spin" style={{ borderColor: 'var(--heritage-gold)', borderTopColor: 'transparent' }} />
-          <p className="text-sm text-[var(--muted)]">Loading messages...</p>
+          <p className="text-sm text-[var(--muted)]">{t('dm.page.loadingMessages', 'Loading messages...')}</p>
         </div>
       </div>
     }>

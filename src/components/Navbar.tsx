@@ -961,7 +961,7 @@ export default function Navbar() {
                                   <div className="w-8 h-8 rounded-full bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center border border-amber-100 dark:border-amber-800 group-hover:border-amber-400 transition-colors">
                                     <LayoutDashboard className="w-4 h-4 text-amber-600 dark:text-amber-400 group-hover:text-amber-500" />
                                   </div>
-                                  <span className="text-[var(--text)] font-medium">Seller Dashboard</span>
+                                  <span className="text-[var(--text)] font-medium">{t('navbar.sellerDashboard')}</span>
                                 </Link>
                               )}
 
@@ -973,7 +973,7 @@ export default function Navbar() {
                                 <div className="w-8 h-8 rounded-full bg-[var(--bg-1)] flex items-center justify-center border border-[var(--border)] group-hover:border-[var(--heritage-gold)] transition-colors">
                                   <User className="w-4 h-4 text-[var(--muted)] group-hover:text-[var(--heritage-gold)]" />
                                 </div>
-                                <span className="text-[var(--text)] font-medium">My Profile</span>
+                                <span className="text-[var(--text)] font-medium">{t('navbar.myProfile')}</span>
                               </Link>
 
                               <Link
@@ -984,7 +984,7 @@ export default function Navbar() {
                                 <div className="w-8 h-8 rounded-full bg-[var(--bg-1)] flex items-center justify-center border border-[var(--border)] group-hover:border-[var(--heritage-gold)] transition-colors">
                                   <Package className="w-4 h-4 text-[var(--muted)] group-hover:text-[var(--heritage-gold)]" />
                                 </div>
-                                <span className="text-[var(--text)] font-medium">My Orders</span>
+                                <span className="text-[var(--text)] font-medium">{t('navbar.myOrders')}</span>
                               </Link>
 
                               <Link
@@ -1028,7 +1028,7 @@ export default function Navbar() {
                                 <div className="w-8 h-8 rounded-full bg-red-50 dark:bg-red-900/10 flex items-center justify-center border border-transparent group-hover:border-red-200 dark:group-hover:border-red-800 transition-colors">
                                   <LogOut className="w-4 h-4 text-red-500" />
                                 </div>
-                                <span className="text-red-600 font-medium">Sign Out</span>
+                                <span className="text-red-600 font-medium">{t('navbar.signOut')}</span>
                               </button>
                             </div>
                           </div>

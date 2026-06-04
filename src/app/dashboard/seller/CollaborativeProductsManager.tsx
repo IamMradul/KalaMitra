@@ -227,13 +227,13 @@ export default function CollaborativeProductsManager({
         {/* Stats */}
         <div className="grid grid-cols-2 gap-4 mb-6">
           <div className="bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-900/10 dark:to-orange-900/10 rounded-lg p-4 border border-yellow-200 dark:border-yellow-800">
-            <div className="text-sm text-gray-600 dark:text-gray-400">Collaborative Products</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">{t('collaboration.collaborativeProducts', 'Collaborative Products')}</div>
             <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
               {collaborativeProducts.length}
             </div>
           </div>
           <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/10 dark:to-indigo-900/10 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
-            <div className="text-sm text-gray-600 dark:text-gray-400">Your Available Products</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">{t('collaboration.availableProducts', 'Your Available Products')}</div>
             <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
               {availableProducts.length}
             </div>
@@ -399,7 +399,7 @@ export default function CollaborativeProductsManager({
                         <div className="flex items-center gap-2 mt-2">
                           <DollarSign className="h-3 w-3 text-gray-400" />
                           <span className="text-xs text-gray-600 dark:text-gray-400">
-                            Split: {collabProduct.revenue_split_override?.initiator || 50}% / {collabProduct.revenue_split_override?.partner || 50}%
+                            {t('collaboration.splitDisplay', 'Split: {{initiator}}% / {{partner}}%', { initiator: collabProduct.revenue_split_override?.initiator || 50, partner: collabProduct.revenue_split_override?.partner || 50 })}
                           </span>
                         </div>
                       </div>
@@ -416,7 +416,7 @@ export default function CollaborativeProductsManager({
                         className="flex-1 px-3 py-2 bg-gradient-to-r from-yellow-100 to-orange-100 dark:from-yellow-900/30 dark:to-orange-900/30 text-yellow-700 dark:text-yellow-400 rounded-lg hover:from-yellow-200 hover:to-orange-200 dark:hover:from-yellow-900/50 dark:hover:to-orange-900/50 transition-all flex items-center justify-center gap-2 text-sm font-medium"
                       >
                         <DollarSign className="h-4 w-4" />
-                        Manage Split
+                        {t('collaboration.manageSplitButton', 'Manage Split')}
                       </button>
                       <button
                         onClick={() => handleRemoveProduct(collabProduct.product.id)}

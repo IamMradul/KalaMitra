@@ -351,7 +351,7 @@ export default function SellerReelsPage() {
           <span className="inline-block align-middle mr-2">
             <svg width="22" height="22" fill="none" viewBox="0 0 24 24"><path fill="currentColor" d="M12 4v16m8-8H4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
           </span>
-          Upload New Reel
+          {t('reels.uploadNew', 'Upload New Reel')}
           <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-1 bg-white opacity-0 group-hover:w-3/4 group-hover:opacity-60 transition-all duration-200 rounded-full"></span>
         </button>
       </div>
@@ -371,7 +371,7 @@ export default function SellerReelsPage() {
             >
               ×
             </button>
-            <h2 className="text-xl font-semibold mb-4" style={{ color: 'var(--text)' }}>Upload New Reel</h2>
+            <h2 className="text-xl font-semibold mb-4" style={{ color: 'var(--text)' }}>{t('reels.uploadNew', 'Upload New Reel')}</h2>
             <form onSubmit={handleUpload} className="flex flex-col gap-4">
               <input
                 ref={fileInputRef}
@@ -384,7 +384,7 @@ export default function SellerReelsPage() {
               />
               <input
                 type="text"
-                placeholder="Caption (optional)"
+                placeholder={t('reels.captionOptionalPlaceholder', 'Caption (optional)')}
                 value={caption}
                 onChange={e => setCaption(e.target.value)}
                 className="border rounded px-3 py-2 border-[var(--border)] focus:outline-none focus:border-purple-500"
@@ -398,7 +398,7 @@ export default function SellerReelsPage() {
                 onChange={e => setSelectedProduct(e.target.value)}
                 disabled={uploading || products.length === 0}
               >
-                <option value="">No Product (Just a Reel)</option>
+                <option value="">{t('reels.noProduct', 'No Product (Just a Reel)')}</option>
                 {products.map(p => (
                   <option key={p.id} value={p.id}>{p.title}</option>
                 ))}
@@ -409,9 +409,9 @@ export default function SellerReelsPage() {
                 className="bg-gradient-to-r from-purple-500 via-fuchsia-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold py-2 px-4 rounded shadow disabled:opacity-60 transition-all"
                 disabled={uploading || !uploadFile}
               >
-                {uploading ? 'Uploading...' : 'Upload Reel'}
+                {uploading ? t('common.uploading', 'Uploading...') : t('reels.uploadButton', 'Upload Reel')}
               </button>
-              <div className="text-xs text-[var(--muted)]">Max file size: 10MB. Only video files allowed. You can link a product to this reel.</div>
+              <div className="text-xs text-[var(--muted)]">{t('reels.uploadHint', 'Max file size: 10MB. Only video files allowed. You can link a product to this reel.')}</div>
             </form>
           </div>
         </div>
@@ -455,7 +455,7 @@ export default function SellerReelsPage() {
                     className="flex items-center gap-1 text-purple-600 hover:text-purple-800"
                     onClick={() => openEditModal(reel)}
                   >
-                    ✏️ Edit
+                    ✏️ {t('common.edit', 'Edit')}
                   </button>
                   <button
                     className="flex items-center gap-1 text-red-600 hover:text-red-800"
@@ -479,11 +479,11 @@ export default function SellerReelsPage() {
                             >
                               ×
                             </button>
-                            <h2 className="text-xl font-semibold mb-4" style={{ color: 'var(--text)' }}>Edit Reel</h2>
+                            <h2 className="text-xl font-semibold mb-4" style={{ color: 'var(--text)' }}>{t('reels.editReel', 'Edit Reel')}</h2>
                             <form onSubmit={handleEdit} className="flex flex-col gap-4">
                               <input
                                 type="text"
-                                placeholder="Caption"
+                                placeholder={t('reels.captionPlaceholder', 'Caption')}
                                 value={editCaption}
                                 onChange={e => setEditCaption(e.target.value)}
                                 className="border rounded px-3 py-2 border-[var(--border)] focus:outline-none focus:border-purple-500"
@@ -497,7 +497,7 @@ export default function SellerReelsPage() {
                                 onChange={e => setEditProduct(e.target.value)}
                                 disabled={editLoading || products.length === 0}
                               >
-                                <option value="">No Product (Just a Reel)</option>
+                                <option value="">{t('reels.noProduct', 'No Product (Just a Reel)')}</option>
                                 {products.map(p => (
                                   <option key={p.id} value={p.id}>{p.title}</option>
                                 ))}
@@ -508,7 +508,7 @@ export default function SellerReelsPage() {
                                 className="bg-gradient-to-r from-purple-500 via-fuchsia-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold py-2 px-4 rounded shadow disabled:opacity-60 transition-all"
                                 disabled={editLoading}
                               >
-                                {editLoading ? 'Saving...' : 'Save Changes'}
+                                {editLoading ? t('common.saving', 'Saving...') : t('common.saveChanges', 'Save Changes')}
                               </button>
                             </form>
                           </div>

@@ -267,7 +267,7 @@ const ReelsPage = () => {
                   >
                     ×
                   </button>
-                  <h2 className="text-lg sm:text-xl font-semibold mb-4" style={{ color: 'var(--text)' }}>Upload New Reel</h2>
+                  <h2 className="text-lg sm:text-xl font-semibold mb-4" style={{ color: 'var(--text)' }}>{t('reels.uploadNew', 'Upload New Reel')}</h2>
                   <form
                     onSubmit={async (e: FormEvent) => {
                       e.preventDefault();
@@ -334,7 +334,7 @@ const ReelsPage = () => {
                     }}
                     className="flex flex-col gap-3 sm:gap-4"
                   >
-                    <label className="text-sm font-medium mb-1" htmlFor="reel-upload-file" style={{ color: 'var(--text)' }}>Video File</label>
+                    <label className="text-sm font-medium mb-1" htmlFor="reel-upload-file" style={{ color: 'var(--text)' }}>{t('reels.videoFileLabel', 'Video File')}</label>
                     <input
                       id="reel-upload-file"
                       ref={fileInputRef}
@@ -356,18 +356,18 @@ const ReelsPage = () => {
                       style={{ background: 'var(--bg-2)', color: 'var(--text)' }}
                       disabled={uploading}
                     />
-                    <label className="text-sm font-medium mb-1" htmlFor="reel-upload-caption" style={{ color: 'var(--text)' }}>Caption (optional)</label>
+                    <label className="text-sm font-medium mb-1" htmlFor="reel-upload-caption" style={{ color: 'var(--text)' }}>{t('reels.captionOptionalLabel', 'Caption (optional)')}</label>
                     <input
                       id="reel-upload-caption"
                       type="text"
-                      placeholder="Caption (optional)"
+                      placeholder={t('reels.captionOptionalPlaceholder', 'Caption (optional)')}
                       value={caption}
                       onChange={e => setCaption(e.target.value)}
                       className="border rounded px-3 py-2 text-base border-[var(--border)] focus:outline-none focus:border-purple-500"
                       style={{ background: 'var(--bg-2)', color: 'var(--text)' }}
                       disabled={uploading}
                     />
-                    <label className="text-sm font-medium mb-1" htmlFor="reel-upload-product" style={{ color: 'var(--text)' }}>Link Product</label>
+                    <label className="text-sm font-medium mb-1" htmlFor="reel-upload-product" style={{ color: 'var(--text)' }}>{t('reels.linkProductLabel', 'Link Product')}</label>
                     <select
                       id="reel-upload-product"
                       className="border rounded px-3 py-2 text-base border-[var(--border)] focus:outline-none focus:border-purple-500"
@@ -376,7 +376,7 @@ const ReelsPage = () => {
                       onChange={e => setSelectedProduct(e.target.value)}
                       disabled={uploading || products.length === 0}
                     >
-                      <option value="">No Product (Just a Reel)</option>
+                      <option value="">{t('reels.noProduct', 'No Product (Just a Reel)')}</option>
                       {products.map(p => (
                         <option key={p.id} value={p.id}>{p.title}</option>
                       ))}
@@ -387,9 +387,9 @@ const ReelsPage = () => {
                       className="bg-gradient-to-r from-purple-500 via-fuchsia-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold py-3 rounded shadow disabled:opacity-60 transition-all text-base mt-2"
                       disabled={uploading || !uploadFile}
                     >
-                      {uploading ? 'Uploading...' : 'Upload Reel'}
+                      {uploading ? t('common.uploading', 'Uploading...') : t('reels.uploadButton', 'Upload Reel')}
                     </button>
-                    <div className="text-xs text-[var(--muted)] mt-1">Max file size: 10MB. Only video files allowed.</div>
+                    <div className="text-xs text-[var(--muted)] mt-1">{t('reels.uploadLimitHint', 'Max file size: 10MB. Only video files allowed.')}</div>
                   </form>
                 </div>
               </div>

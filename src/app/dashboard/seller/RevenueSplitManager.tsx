@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom'
 import { motion } from 'framer-motion'
 // translations not currently used in this component
 import { DollarSign, X, TrendingUp, AlertCircle, Check, Clock, XCircle, Loader2 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 // supabase not used in this component; API calls use fetch to server routes
 
 interface RevenueSplitManagerProps {
@@ -56,7 +57,7 @@ export default function RevenueSplitManager({
   userId: userIdProp,
   onClose
 }: RevenueSplitManagerProps) {
-  // translation hook not used here
+  const { t } = useTranslation()
   const [mounted, setMounted] = useState(false)
   const [loading, setLoading] = useState(true)
   const [proposals, setProposals] = useState<SplitProposal[]>([])
@@ -222,7 +223,7 @@ export default function RevenueSplitManager({
           <div>
             <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
               <DollarSign className="h-6 w-6" />
-              Revenue Split Manager
+              {t('seller.revenue.title', 'Revenue Split Manager')}
             </h2>
             <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
               {productTitle}
@@ -246,12 +247,12 @@ export default function RevenueSplitManager({
             <div className="bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 rounded-xl p-6 border border-yellow-200 dark:border-yellow-700">
               <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
                 <TrendingUp className="h-5 w-5" />
-                Current Revenue Split
+                {t('seller.revenue.currentSplit', 'Current Revenue Split')}
               </h3>
               <div className="grid grid-cols-2 gap-4">
                 <div className="text-center">
                   <p className="text-sm text-gray-600 dark:text-gray-400">
-                    {isInitiator ? 'You' : partnerName}
+                    {isInitiator ? t('common.you', 'You') : partnerName}
                   </p>
                   <p className="text-3xl font-bold text-yellow-600">
                     {currentSplit?.initiator || 50}%
@@ -259,7 +260,7 @@ export default function RevenueSplitManager({
                 </div>
                 <div className="text-center">
                   <p className="text-sm text-gray-600 dark:text-gray-400">
-                    {isInitiator ? partnerName : 'You'}
+                    {isInitiator ? partnerName : t('common.you', 'You')}
                   </p>
                   <p className="text-3xl font-bold text-orange-600">
                     {currentSplit?.partner || 50}%
@@ -268,12 +269,12 @@ export default function RevenueSplitManager({
               </div>
             </div>
 
-            {/* Pending Proposals */}
+            {/* {t('seller.revenue.pendingProposals', 'Pending Proposals')} */}
             {pendingProposals.length > 0 && (
               <div>
                 <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2">
                   <Clock className="h-5 w-5" />
-                  Pending Proposals
+                  {t('seller.revenue.pendingProposals', 'Pending Proposals')}
                 </h3>
                 <div className="space-y-3">
                   {pendingProposals.map((proposal) => {
@@ -287,15 +288,15 @@ export default function RevenueSplitManager({
                         <div className="flex items-start justify-between mb-3">
                           <div>
                             <p className="font-medium text-gray-900 dark:text-gray-100">
-                              {isMyProposal ? 'Your Proposal' : `Proposal from ${proposal.proposer.name}`}
+                              {isMyProposal ? t('seller.revenue.yourProposal', 'Your Proposal') : `${t('seller.revenue.proposalFrom', 'Proposal from')} ${proposal.proposer.name}`}
                             </p>
                             <p className="text-xs text-gray-500 dark:text-gray-400">
-                              Expires: {new Date(proposal.expires_at).toLocaleDateString()}
+                              {t('seller.revenue.expires', 'Expires:')} {new Date(proposal.expires_at).toLocaleDateString()}
                             </p>
                           </div>
                           {isMyProposal && (
                             <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs rounded">
-                              Waiting
+                              {t('seller.revenue.waiting', 'Waiting')}
                             </span>
                           )}
                         </div>
@@ -303,7 +304,7 @@ export default function RevenueSplitManager({
                         <div className="grid grid-cols-2 gap-4 mb-3">
                           <div className="text-center p-3 bg-white dark:bg-gray-800 rounded">
                             <p className="text-xs text-gray-600 dark:text-gray-400">
-                              {isInitiator ? 'You' : partnerName}
+                              {isInitiator ? t('common.you', 'You') : partnerName}
                             </p>
                             <p className="text-xl font-bold text-yellow-600">
                               {proposal.proposed_split.initiator}%
@@ -311,7 +312,7 @@ export default function RevenueSplitManager({
                           </div>
                           <div className="text-center p-3 bg-white dark:bg-gray-800 rounded">
                             <p className="text-xs text-gray-600 dark:text-gray-400">
-                              {isInitiator ? partnerName : 'You'}
+                              {isInitiator ? partnerName : t('common.you', 'You')}
                             </p>
                             <p className="text-xl font-bold text-orange-600">
                               {proposal.proposed_split.partner}%
@@ -332,14 +333,14 @@ export default function RevenueSplitManager({
                               className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center gap-2"
                             >
                               <Check className="h-4 w-4" />
-                              Approve
+                              {t('common.approve', 'Approve')}
                             </button>
                             <button
                               onClick={() => handleRespondToProposal(proposal.id, 'reject')}
                               className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center gap-2"
                             >
                               <XCircle className="h-4 w-4" />
-                              Reject
+                              {t('common.reject', 'Reject')}
                             </button>
                           </div>
                         )}
@@ -350,14 +351,14 @@ export default function RevenueSplitManager({
               </div>
             )}
 
-            {/* Propose New Split */}
+            {/* {t('seller.revenue.proposeSplit', 'Propose New Split')} */}
             {!showProposalForm && pendingProposals.length === 0 && (
               <button
                 onClick={() => setShowProposalForm(true)}
                 className="w-full px-4 py-3 bg-gradient-to-r from-yellow-500 to-orange-500 text-white rounded-lg hover:from-yellow-600 hover:to-orange-600 transition-all flex items-center justify-center gap-2 font-medium"
               >
                 <TrendingUp className="h-5 w-5" />
-                Propose New Split
+                {t('seller.revenue.proposeSplit', 'Propose New Split')}
               </button>
             )}
 
@@ -365,18 +366,18 @@ export default function RevenueSplitManager({
             {showProposalForm && (
               <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-6 border border-gray-200 dark:border-gray-600">
                 <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">
-                  Propose New Revenue Split
+                  {t('seller.revenue.proposeSplitTitle', 'Propose New Revenue Split')}
                 </h3>
 
                 <div className="space-y-4">
                   {/* Split Slider */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Adjust Split Percentage
+                      {t('seller.revenue.adjustSplit', 'Adjust Split Percentage')}
                     </label>
                     <div className="flex items-center gap-4">
                       <span className="text-sm text-gray-600 dark:text-gray-400 min-w-[60px]">
-                        {isInitiator ? 'You' : partnerName}: {initiatorPercentage}%
+                        {isInitiator ? t('common.you', 'You') : partnerName}: {initiatorPercentage}%
                       </span>
                       <input
                         type="range"
@@ -388,7 +389,7 @@ export default function RevenueSplitManager({
                         className="flex-1"
                       />
                       <span className="text-sm text-gray-600 dark:text-gray-400 min-w-[60px] text-right">
-                        {isInitiator ? partnerName : 'You'}: {partnerPercentage}%
+                        {isInitiator ? partnerName : t('common.you', 'You')}: {partnerPercentage}%
                       </span>
                     </div>
                   </div>
@@ -397,7 +398,7 @@ export default function RevenueSplitManager({
                   <div className="grid grid-cols-2 gap-4">
                     <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-lg">
                       <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">
-                        {isInitiator ? 'You' : partnerName}
+                        {isInitiator ? t('common.you', 'You') : partnerName}
                       </p>
                       <p className="text-2xl font-bold text-yellow-600">
                         {initiatorPercentage}%
@@ -405,7 +406,7 @@ export default function RevenueSplitManager({
                     </div>
                     <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-lg">
                       <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">
-                        {isInitiator ? partnerName : 'You'}
+                        {isInitiator ? partnerName : t('common.you', 'You')}
                       </p>
                       <p className="text-2xl font-bold text-orange-600">
                         {partnerPercentage}%
@@ -416,12 +417,12 @@ export default function RevenueSplitManager({
                   {/* Reason */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Reason for Change (Optional)
+                      {t('seller.revenue.reasonLabel', 'Reason for Change (Optional)')}
                     </label>
                     <textarea
                       value={reason}
                       onChange={(e) => setReason(e.target.value)}
-                      placeholder="Explain why this split makes sense..."
+                      placeholder={t('seller.revenue.reasonPlaceholder', 'Explain why this split makes sense...')}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 resize-none"
                       rows={3}
                     />
@@ -431,7 +432,7 @@ export default function RevenueSplitManager({
                   <div className="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-400 bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
                     <AlertCircle className="h-5 w-5 flex-shrink-0 text-blue-600" />
                     <p>
-                      Your partner will receive a notification and must approve this change before it takes effect. The proposal expires in 7 days.
+                      {t('seller.revenue.proposalWarning', 'Your partner will receive a notification and must approve this change before it takes effect. The proposal expires in 7 days.')}
                     </p>
                   </div>
 
@@ -450,7 +451,7 @@ export default function RevenueSplitManager({
                       ) : (
                         <>
                           <Check className="h-4 w-4" />
-                          Submit Proposal
+                          {t('seller.revenue.submitProposal', 'Submit Proposal')}
                         </>
                       )}
                     </button>
@@ -463,7 +464,7 @@ export default function RevenueSplitManager({
                       disabled={submitting}
                       className="px-4 py-3 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors disabled:opacity-50"
                     >
-                      Cancel
+                      {t('common.cancel', 'Cancel')}
                     </button>
                   </div>
                 </div>
@@ -474,7 +475,7 @@ export default function RevenueSplitManager({
             {historyProposals.length > 0 && (
               <div>
                 <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">
-                  Proposal History
+                  {t('seller.revenue.proposalHistory', 'Proposal History')}
                 </h3>
                 <div className="space-y-2">
                   {historyProposals.map((proposal) => (

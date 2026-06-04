@@ -1,11 +1,13 @@
 'use client'
 
 import Link from 'next/link'
+import { useTranslation } from 'react-i18next'
 import { Home, Search } from 'lucide-react'
 import HideNavbar from '@/components/HideNavbar'
 import Image from 'next/image'
 
 export default function NotFound() {
+    const { t } = useTranslation()
     return (
         <div className="relative min-h-screen overflow-hidden flex items-center justify-center bg-black">
             <HideNavbar />
@@ -14,7 +16,7 @@ export default function NotFound() {
             <div className="absolute inset-0 z-0">
                 <Image
                     src="/notfound.png"
-                    alt="Broken pot in desert"
+                    alt={t('notfound.brokenPotAlt', 'Broken pot in desert')}
                     fill
                     className="object-cover object-center scale-105 animate-subtle-zoom"
                     priority
@@ -48,16 +50,16 @@ export default function NotFound() {
 
                 {/* Main Heading */}
                 <h1 className="text-4xl md:text-6xl font-bold mb-6 text-white drop-shadow-2xl tracking-tight">
-                    Lost in the Sands
+                    {t('notfound.title', 'Lost in the Sands')}
                 </h1>
 
                 {/* Description */}
                 <p className="text-lg md:text-xl text-white/90 font-medium mb-4 leading-relaxed max-w-md mx-auto">
-                    Like fragments of a broken pot, this page has scattered into the digital desert.
+                    {t('notfound.description', 'Like fragments of a broken pot, this page has scattered into the digital desert.')}
                 </p>
                 
                 <p className="text-sm md:text-base text-white/70 mb-10 max-w-sm mx-auto">
-                    The path you seek doesn&apos;t exist, but we can guide you back home.
+                    {t('notfound.guide', "The path you seek doesn't exist, but we can guide you back home.")}
                 </p>
 
                 {/* Action Buttons */}
@@ -68,7 +70,7 @@ export default function NotFound() {
                     >
                         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
                         <Home className="w-5 h-5 group-hover:scale-110 transition-transform relative z-10" />
-                        <span className="relative z-10">Return Home</span>
+                        <span className="relative z-10">{t('notfound.returnHome', 'Return Home')}</span>
                     </Link>
 
                     
@@ -76,22 +78,22 @@ export default function NotFound() {
 
                 {/* Alternative Navigation */}
                 <div className="mt-12 pt-8 border-t border-white/10">
-                    <p className="text-sm text-white/60 mb-4">Or explore these sections:</p>
+                    <p className="text-sm text-white/60 mb-4">{t('notfound.explore', 'Or explore these sections:')}</p>
                     <div className="flex flex-wrap gap-3 justify-center">
                         <Link href="/marketplace" className="text-sm text-white/80 hover:text-[var(--heritage-gold)] transition-colors duration-200 hover:underline underline-offset-4">
-                            Marketplace
+                            {t('notfound.marketplace', 'Marketplace')}
                         </Link>
                         <span className="text-white/30">•</span>
                         <Link href="/auth/signin" className="text-sm text-white/80 hover:text-[var(--heritage-gold)] transition-colors duration-200 hover:underline underline-offset-4">
-                            Join Us
+                            {t('notfound.joinUs', 'Join Us')}
                         </Link>
                         <span className="text-white/30">•</span>
                         <Link href="/about" className="text-sm text-white/80 hover:text-[var(--heritage-gold)] transition-colors duration-200 hover:underline underline-offset-4">
-                            About Us
+                            {t('notfound.aboutUs', 'About Us')}
                         </Link>
                         <span className="text-white/30">•</span>
                         <Link href="/contact" className="text-sm text-white/80 hover:text-[var(--heritage-gold)] transition-colors duration-200 hover:underline underline-offset-4">
-                            Contact
+                            {t('notfound.contact', 'Contact')}
                         </Link>
                     </div>
                 </div>
