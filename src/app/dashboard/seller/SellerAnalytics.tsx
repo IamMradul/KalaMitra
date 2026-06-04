@@ -10,6 +10,19 @@ import { translateArray, translateText } from '@/lib/translate'
 
 type Props = { sellerId: string }
 
+// ─── Module-level cache (persists across tab switches, cleared after 5 min) ───
+type AnalyticsCache = {
+  totalViews: number
+  uniqueVisitors: number
+  topProducts: { id: string; title: string; views: number }[]
+  rawGuidance: string
+  guidance: string
+  collabStats: { activeCollaborations: number; collaborativeProducts: number; collaborativeRevenue: number }
+  cachedAt: number
+}
+const CACHE_TTL_MS = 5 * 60 * 1000 // 5 minutes
+const analyticsCache = new Map<string, AnalyticsCache>()
+
 export default function SellerAnalytics({ sellerId }: Props) {
   const { t } = useTranslation()
   const { currentLanguage } = useLanguage()
@@ -50,6 +63,20 @@ export default function SellerAnalytics({ sellerId }: Props) {
 
   useEffect(() => {
     const load = async () => {
+      // ── Check cache first ──────────────────────────────────────────────────
+      const cached = analyticsCache.get(sellerId)
+      if (cached && Date.now() - cached.cachedAt < CACHE_TTL_MS) {
+        setTotalViews(cached.totalViews)
+        setUniqueVisitors(cached.uniqueVisitors)
+        setTopProducts(cached.topProducts)
+        setRawGuidance(cached.rawGuidance)
+        setGuidance(cached.guidance)
+        setCollabStats(cached.collabStats)
+        setLoading(false)
+        return
+      }
+
+      // ── Fresh fetch ────────────────────────────────────────────────────────
       try {
         setLoading(true)
         const since = new Date(Date.now() - 1000 * 60 * 60 * 24 * 30).toISOString()
@@ -61,8 +88,10 @@ export default function SellerAnalytics({ sellerId }: Props) {
           .eq('stall_id', sellerId)
           .gte('timestamp', since)
 
-        setTotalViews(stallViews?.length || 0)
-        setUniqueVisitors(new Set((stallViews || []).map(r => r.user_id)).size)
+        const fetchedTotalViews = stallViews?.length || 0
+        const fetchedUniqueVisitors = new Set((stallViews || []).map(r => r.user_id)).size
+        setTotalViews(fetchedTotalViews)
+        setUniqueVisitors(fetchedUniqueVisitors)
 
         // Top products by views
         const { data: prodViews } = await supabase
@@ -97,6 +126,7 @@ export default function SellerAnalytics({ sellerId }: Props) {
         setTopProducts(top)
 
         // Fetch collaboration statistics
+        let fetchedCollabStats = { activeCollaborations: 0, collaborativeProducts: 0, collaborativeRevenue: 0 }
         try {
           const { data: collaborations } = await supabase
             .from('collaborations')
@@ -104,7 +134,6 @@ export default function SellerAnalytics({ sellerId }: Props) {
             .or(`initiator_id.eq.${sellerId},partner_id.eq.${sellerId}`)
             .eq('status', 'accepted')
 
-          // Safer: count collaborative_products by collaboration_id using IN (...) to avoid join/filter edge cases
           let collabProductsCount = 0
           try {
             const collaborationIds = (collaborations || []).map((c) => c.id).filter(Boolean)
@@ -120,42 +149,55 @@ export default function SellerAnalytics({ sellerId }: Props) {
             console.error('Error fetching collaborative products count:', innerErr)
           }
 
-          setCollabStats({
+          fetchedCollabStats = {
             activeCollaborations: collaborations?.length || 0,
             collaborativeProducts: collabProductsCount,
-            collaborativeRevenue: 0 // Placeholder for future revenue tracking
-          })
+            collaborativeRevenue: 0
+          }
+          setCollabStats(fetchedCollabStats)
         } catch (err) {
           console.error('Error fetching collaboration stats:', err)
         }
 
         // AI Tips (fallback to rules if API fails)
+        let fetchedRawGuidance = ''
+        let fetchedGuidance = ''
         try {
           const ai = AIService.getInstance()
           const tips = await ai.generateSellerTips({
-            totalViews,
-            uniqueVisitors,
+            totalViews: fetchedTotalViews,
+            uniqueVisitors: fetchedUniqueVisitors,
             topProducts: top.map(t => ({ title: t.title, views: t.views }))
           })
-          // Save raw guidance and translate for display
-          setRawGuidance(tips)
-          // Translate AI tips text
+          fetchedRawGuidance = tips
           try {
             const tr = await translateText(tips, currentLanguage)
-            setGuidance(tr)
+            fetchedGuidance = tr
           } catch {
-            setGuidance(tips)
+            fetchedGuidance = tips
           }
         } catch {
           if (top.length > 0) {
-            const topTitles = top.map(t => t.title).join(', ')
-            setGuidance(t('seller.analyticsGuidance.audienceEngagingMost', { titles: topTitles }))
-          } else if (totalViews === 0) {
-            setGuidance(t('seller.analyticsGuidance.noRecentVisits'))
+            fetchedGuidance = t('seller.analyticsGuidance.audienceEngagingMost', { titles: top.map(tp => tp.title).join(', ') })
+          } else if (fetchedTotalViews === 0) {
+            fetchedGuidance = t('seller.analyticsGuidance.noRecentVisits')
           } else {
-            setGuidance(t('seller.analyticsGuidance.viewsStarting'))
+            fetchedGuidance = t('seller.analyticsGuidance.viewsStarting')
           }
         }
+        setRawGuidance(fetchedRawGuidance)
+        setGuidance(fetchedGuidance)
+
+        // ── Store in cache ───────────────────────────────────────────────────
+        analyticsCache.set(sellerId, {
+          totalViews: fetchedTotalViews,
+          uniqueVisitors: fetchedUniqueVisitors,
+          topProducts: top,
+          rawGuidance: fetchedRawGuidance,
+          guidance: fetchedGuidance,
+          collabStats: fetchedCollabStats,
+          cachedAt: Date.now(),
+        })
       } finally {
         setLoading(false)
       }

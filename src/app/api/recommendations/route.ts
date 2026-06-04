@@ -66,13 +66,13 @@ export async function GET(req: NextRequest) {
             viewedCategories.add(product.category)
           }
         }
-        
+
         if (a.activity_type === 'search' && a.query) {
           const q = String(a.query).toLowerCase()
           for (const p of allProducts) {
             // Skip products user has already viewed
             if (viewedProductIds.has(p.id)) continue
-            
+
             const title = (p.title || '').toLowerCase()
             const desc = (p.description || '').toLowerCase()
             const cat = (p.category || '').toLowerCase()
@@ -88,7 +88,7 @@ export async function GET(req: NextRequest) {
         for (const p of allProducts) {
           // Skip products user has already viewed
           if (viewedProductIds.has(p.id)) continue
-          
+
           if (p.category && viewedCategories.has(p.category)) {
             scores.set(p.id, (scores.get(p.id) || 0) + 3)
           }

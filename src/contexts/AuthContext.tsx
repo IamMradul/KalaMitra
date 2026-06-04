@@ -56,7 +56,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     // Mark that we're on the client side
     setIsClient(true)
-    
+
     const initializeAuth = async () => {
       try {
         // Check for Google user session in localStorage (client-side only)
@@ -98,9 +98,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Get initial Supabase session
         const { data: { session } } = await supabase.auth.getSession()
         console.log('Initial Supabase session check:', session?.user?.id)
+        if (session?.user) {
+          localStorage.removeItem('googleUserSession')
+          localStorage.removeItem('microsoftUserSession')
+        }
         setSession(session)
         setUser(session?.user ?? null)
-        
+
         if (session?.user) {
           await fetchProfile(session.user.id)
           // Sync anonymous cart if any exists (for restored sessions)
@@ -120,14 +124,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth state change:', event, session?.user?.id)
-      
+
+      if (session?.user) {
+        localStorage.removeItem('googleUserSession')
+        localStorage.removeItem('microsoftUserSession')
+      }
+
       // Only update if we don't have a Google or Microsoft user session
       const googleSession = localStorage.getItem('googleUserSession')
       const microsoftSession = localStorage.getItem('microsoftUserSession')
       if (!googleSession && !microsoftSession) {
         setSession(session)
         setUser(session?.user ?? null)
-        
+
         if (session?.user) {
           await fetchProfile(session.user.id)
           // Sync anonymous cart to database when user logs in
@@ -148,15 +157,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const syncAnonymousCartToDatabase = async (userId: string) => {
     if (typeof window === 'undefined') return
-    
+
     try {
       const { getAnonymousCart, clearAnonymousCart } = await import('@/utils/cart')
       const anonymousCart = getAnonymousCart()
-      
+
       if (anonymousCart.length === 0) return
-      
+
       console.log('Syncing anonymous cart to database for user:', userId)
-      
+
       // For each item in anonymous cart, check if it exists in database
       for (const item of anonymousCart) {
         const { data: existing, error: fetchError } = await supabase
@@ -165,12 +174,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           .eq('buyer_id', userId)
           .eq('product_id', item.product_id)
           .single()
-        
+
         if (fetchError && fetchError.code !== 'PGRST116') {
           console.error('Error checking existing cart item:', fetchError)
           continue
         }
-        
+
         if (existing) {
           // Update quantity (add anonymous quantity to existing)
           await supabase
@@ -188,7 +197,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             })
         }
       }
-      
+
       // Clear anonymous cart after syncing
       clearAnonymousCart()
       console.log('Anonymous cart synced successfully')
@@ -228,18 +237,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signUp = async (email: string, password: string, name: string, role: 'buyer' | 'seller') => {
     try {
       console.log('Starting signup process for:', email, 'role:', role)
-      
+
       // Check if user already exists in profiles table
       const { data: existingProfile, error: profileCheckError } = await supabase
         .from('profiles')
         .select('id')
         .eq('email', email)
         .single()
-      
+
       if (existingProfile) {
         throw new Error('An account with this email already exists. Please sign in instead.')
       }
-      
+
       // Create auth user with Supabase
       console.log('Step 1: Creating auth user...')
       const { data, error } = await supabase.auth.signUp({
@@ -259,7 +268,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       console.log('Auth signup successful:', data)
-      
+
       // Store user data in localStorage for profile creation after email confirmation
       if (data.user && isClient) {
         const pendingProfileData = {
@@ -271,7 +280,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         localStorage.setItem('pendingProfile', JSON.stringify(pendingProfileData))
         console.log('Pending profile stored:', pendingProfileData)
       }
-      
+
       console.log('Signup process completed successfully')
       console.log('Please check your email to confirm your account before signing in.')
     } catch (error) {
@@ -283,24 +292,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signIn = async (email: string, password: string) => {
     try {
       console.log('Signing in user:', email)
-      
+
       // Check if this email exists in our profiles table
       const { data: existingProfile, error: profileCheckError } = await supabase
         .from('profiles')
         .select('id')
         .eq('email', email)
         .single()
-      
+
       if (profileCheckError && (profileCheckError.code === 'PGRST116' || profileCheckError.message.includes('0 rows'))) {
         console.log('No profile found for email:', email)
         throw new Error('Invalid email or password. Please check your credentials and try again.')
       }
-      
+
       if (profileCheckError) {
         console.error('Error checking profile existence:', profileCheckError)
         throw new Error('Sign in failed. Please try again.')
       }
-      
+
       // Sign in with Supabase
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -322,13 +331,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signInWithGoogle = async (role: 'buyer' | 'seller') => {
     try {
       console.log('Starting Google sign in for role:', role)
-      
+
       // Create state parameter with role information
       const state = encodeURIComponent(JSON.stringify({ role }))
-      
+
       // Generate Google OAuth URL
       const authUrl = generateGoogleAuthURL(state)
-      
+
       // Redirect to Google OAuth
       window.location.href = authUrl
     } catch (error) {
@@ -340,13 +349,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signInWithMicrosoft = async (role: 'buyer' | 'seller') => {
     try {
       console.log('Starting Microsoft sign in for role:', role)
-      
+
       // Create state parameter with role information
       const state = encodeURIComponent(JSON.stringify({ role }))
-      
+
       // Generate Microsoft OAuth URL
       const authUrl = generateMicrosoftAuthURL(state)
-      
+
       // Redirect to Microsoft OAuth
       window.location.href = authUrl
     } catch (error) {
@@ -360,12 +369,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.log('Signout already in progress, ignoring duplicate call')
       return
     }
-    
+
     setIsSigningOut(true)
-    
+
     try {
       console.log('=== SIGNING OUT USER ===')
-      
+
       // Clear app data in localStorage (client-side only)
       if (isClient) {
         try {
@@ -380,17 +389,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           console.warn('Storage clear failed:', e)
         }
       }
-      
+
       // Clear local state
       setUser(null)
       setProfile(null)
       setSession(null)
-      
+
       // Sign out from Supabase (if it's a Supabase user)
       if (session) {
         await supabase.auth.signOut()
       }
-      
+
       console.log('Sign out completed successfully')
     } catch (error) {
       console.error('Error during signout:', error)

@@ -16,9 +16,14 @@ const nextConfig: NextConfig = {
   output: 'standalone',
   // Ignore ESLint errors during build
   eslint: {
-    // Warning: This allows production builds to successfully complete even if
-    // your project has ESLint errors.
     ignoreDuringBuilds: true,
+  },
+  // Strip console.log / info / debug at build time in production.
+  // console.error and console.warn are preserved so real issues stay visible.
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production'
+      ? { exclude: ['error', 'warn'] }
+      : false,
   },
   images: {
     // allow external hosts we commonly use for product images
@@ -30,7 +35,7 @@ const nextConfig: NextConfig = {
       'images.unsplash.com',
       'cdn.shopify.com',
       'i.imgur.com',
-      'upload.wikimedia.org', // allow Wikimedia images
+      'upload.wikimedia.org',
       // Supabase storage host used in product images
       'dejyoyoctsfyjixfhfgd.supabase.co',
       // include Supabase project hostname dynamically when provided via env
