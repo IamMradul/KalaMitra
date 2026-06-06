@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useState, useRef } from 'react'
 import { User, Session } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
 import { useTranslation } from 'react-i18next'
@@ -52,6 +52,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [upiInput, setUpiInput] = useState("");
   const [upiError, setUpiError] = useState("");
   const { t } = useTranslation();
+  const authInitializedRef = useRef(false)
 
   useEffect(() => {
     // Mark that we're on the client side
@@ -69,6 +70,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             await fetchProfile(googleUser.id)
             // Sync anonymous cart if any exists
             await syncAnonymousCartToDatabase(googleUser.id)
+            authInitializedRef.current = true
             setLoading(false)
             return
           } catch (error) {
@@ -87,6 +89,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             await fetchProfile(microsoftUser.id)
             // Sync anonymous cart if any exists
             await syncAnonymousCartToDatabase(microsoftUser.id)
+            authInitializedRef.current = true
             setLoading(false)
             return
           } catch (error) {
@@ -110,9 +113,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           // Sync anonymous cart if any exists (for restored sessions)
           await syncAnonymousCartToDatabase(session.user.id)
         }
+        authInitializedRef.current = true
         setLoading(false)
       } catch (error) {
         console.error('Error initializing auth:', error)
+        authInitializedRef.current = true
         setLoading(false)
       }
     }
@@ -124,6 +129,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth state change:', event, session?.user?.id)
+
+      if (event === 'INITIAL_SESSION' && !authInitializedRef.current) {
+        console.log('Skipping INITIAL_SESSION event until initializeAuth completes')
+        return
+      }
+
+      if (!authInitializedRef.current) {
+        console.log('Skipping auth listener callback because auth is not initialized')
+        return
+      }
 
       if (session?.user) {
         localStorage.removeItem('googleUserSession')
