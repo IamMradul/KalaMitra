@@ -28,6 +28,7 @@ const nextConfig: NextConfig = {
   images: {
     // allow external hosts we commonly use for product images
     domains: [
+      'kalamitra.store',
       'm.media-amazon.com',
       'tiimg.tistatic.com',
       'encrypted-tbn0.gstatic.com',

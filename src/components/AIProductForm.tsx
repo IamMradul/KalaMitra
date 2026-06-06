@@ -20,6 +20,7 @@ import { supabase } from '@/lib/supabase'
 import { useTranslation } from 'react-i18next'
 import { useLanguage } from './LanguageProvider'
 import { useAuth } from '@/contexts/AuthContext'
+import { moderateProductImage, compressImageForUpload } from '@/lib/moderate-product-image-client'
 
 interface AIProductFormProps {
   onSubmit: (formData: FormData) => void
@@ -214,6 +215,25 @@ export default function AIProductForm({
   const [error, setError] = useState('')
   const [adVideoUrl, setAdVideoUrl] = useState('')
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const [isModerating, setIsModerating] = useState(false)
+
+  const ensureModerationPassed = async () => {
+    setIsModerating(true)
+    try {
+      const isVirtual = [title, description, category].some(text => 
+        /\b(recipe|cook|culinary|artisan|technique|pottery|clay|craft|tutorial|guide|pattern|clothes|design|sew|paint|art|diy|instruction|digital|pdf)\b/i.test(text || '')
+      );
+      if (uploadedFile) {
+        await moderateProductImage({ file: uploadedFile, title, description, userId: user?.id, isVirtual })
+      } else if (imageUrl && !imageUrl.startsWith('blob:')) {
+        await moderateProductImage({ imageUrl, title, description, userId: user?.id, isVirtual })
+      } else {
+        throw new Error(t('ai.form.errors.invalidImage'))
+      }
+    } finally {
+      setIsModerating(false)
+    }
+  }
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -369,15 +389,19 @@ export default function AIProductForm({
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const form = e.currentTarget;
     setIsUploading(true);
     setError('');
 
     try {
-      const formData = new FormData(e.currentTarget);
+      await ensureModerationPassed();
+
+      const formData = new FormData(form);
 
       let uploadedImageUrl = imageUrl;
       if (uploadedFile) {
-        uploadedImageUrl = await uploadImageToSupabase(uploadedFile);
+        const compressedFile = await compressImageForUpload(uploadedFile);
+        uploadedImageUrl = await uploadImageToSupabase(compressedFile);
         formData.set('imageUrl', uploadedImageUrl);
       } else if (imageUrl && !imageUrl.startsWith('blob:')) {
         formData.set('imageUrl', imageUrl);
@@ -837,10 +861,15 @@ export default function AIProductForm({
             </button>
             <button
               type="submit"
-              disabled={loading || isUploading}
+              disabled={loading || isUploading || isModerating}
               className="flex-1 px-4 py-2 bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-lg hover:from-orange-600 hover:to-red-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isUploading ? (
+              {isModerating ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Verifying image...
+                </>
+              ) : isUploading ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                   {t('ai.form.uploadingImage')}

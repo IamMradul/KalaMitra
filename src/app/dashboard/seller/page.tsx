@@ -20,6 +20,7 @@ import SellerAuctionsList from './SellerAuctionsList'
 import CollaborationManager from './CollaborationManager'
 import StallCustomizationModal, { StallCustomizationSettings } from '@/components/StallCustomizationModal'
 import { useLanguage } from '@/components/LanguageProvider'
+import { moderateProductImage } from '@/lib/moderate-product-image-client'
 
 type Product = Database['public']['Tables']['products']['Row']
 type Profile = Database['public']['Tables']['profiles']['Row']
@@ -921,6 +922,9 @@ export default function SellerDashboard() {
     }
 
     try {
+      const isVirtual = editingProduct?.is_virtual || formData.get('is_virtual') === 'true';
+      await moderateProductImage({ imageUrl, title, description, userId: user?.id, isVirtual })
+
       console.log('Updating product:', { productId, title, category, description, price, imageUrl, product_story, product_type, virtual_type, virtual_file_url })
       const updateObj: {
         title: string;
