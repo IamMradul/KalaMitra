@@ -23,7 +23,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { moderateProductImage, compressImageForUpload } from '@/lib/moderate-product-image-client'
 
 interface AIProductFormProps {
-  onSubmit: (formData: FormData) => void
+  onSubmit: (formData: FormData) => Promise<string | null | void> | any
   onCancel: () => void
   loading?: boolean
   initialData?: {

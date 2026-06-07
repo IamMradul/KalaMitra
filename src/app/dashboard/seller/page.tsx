@@ -736,35 +736,33 @@ export default function SellerDashboard() {
 
     setAddProductLoading(true)
 
-    const formData = new FormData(e.currentTarget)
-    const title = formData.get('title') as string
-    const category = formData.get('category') as string
-    const description = formData.get('description') as string
-    const price = parseFloat(formData.get('price') as string)
-    const imageUrl = formData.get('imageUrl') as string
-    const product_story = formData.get('product_story') as string | null
-    const product_type = formData.get('product_type') as 'vertical' | 'horizontal' | null
-    const moderation_status = (formData.get('moderation_status') as string) || 'approved'
-
-    // Debug: Log all form data
-    console.log('=== FORM DATA DEBUG ===')
-    for (const [key, value] of formData.entries()) {
-      console.log(`${key}: ${value}`)
-    }
-    console.log('Extracted product_type:', product_type)
-
-    // Fallback if product_type is not found
-    const finalProductType = product_type || 'vertical'
-    console.log('Final product_type to save:', finalProductType)
-
-    // Basic validation
-    if (!title || !category || !description || isNaN(price) || price <= 0) {
-      alert('Please fill in all required fields with valid values.')
-      setAddProductLoading(false)
-      return
-    }
-
     try {
+      const formData = new FormData(e.currentTarget)
+      const title = formData.get('title') as string
+      const category = formData.get('category') as string
+      const description = formData.get('description') as string
+      const price = parseFloat(formData.get('price') as string)
+      const imageUrl = formData.get('imageUrl') as string
+      const product_story = formData.get('product_story') as string | null
+      const product_type = formData.get('product_type') as 'vertical' | 'horizontal' | null
+      const moderation_status = (formData.get('moderation_status') as string) || 'approved'
+
+      // Debug: Log all form data
+      console.log('=== FORM DATA DEBUG ===')
+      for (const [key, value] of formData.entries()) {
+        console.log(`${key}: ${value}`)
+      }
+      console.log('Extracted product_type:', product_type)
+
+      // Fallback if product_type is not found
+      const finalProductType = product_type || 'vertical'
+      console.log('Final product_type to save:', finalProductType)
+
+      // Basic validation
+      if (!title || !category || !description || isNaN(price) || price <= 0) {
+        alert('Please fill in all required fields with valid values.')
+        return
+      }
       console.log('=== ADDING PRODUCT ===')
       console.log('User ID:', user.id)
       console.log('User email:', user.email)
@@ -916,24 +914,22 @@ export default function SellerDashboard() {
 
     setEditProductLoading(true)
 
-    const title = formData.get('title') as string
-    const category = formData.get('category') as string
-    const description = formData.get('description') as string
-    const price = parseFloat(formData.get('price') as string)
-    const imageUrl = formData.get('imageUrl') as string
-    const product_story = formData.get('product_story') as string | null
-    const product_type = formData.get('product_type') as 'vertical' | 'horizontal' | null
-    const virtual_type = formData.get('virtual_type') as string | null
-    const virtual_file_url = formData.get('virtual_file_url') as string | null
-
-    // Basic validation
-    if (!title || !category || !description || isNaN(price) || price <= 0) {
-      alert('Please fill in all required fields with valid values.')
-      setEditProductLoading(false)
-      return
-    }
-
     try {
+      const title = formData.get('title') as string
+      const category = formData.get('category') as string
+      const description = formData.get('description') as string
+      const price = parseFloat(formData.get('price') as string)
+      const imageUrl = formData.get('imageUrl') as string
+      const product_story = formData.get('product_story') as string | null
+      const product_type = formData.get('product_type') as 'vertical' | 'horizontal' | null
+      const virtual_type = formData.get('virtual_type') as string | null
+      const virtual_file_url = formData.get('virtual_file_url') as string | null
+
+      // Basic validation
+      if (!title || !category || !description || isNaN(price) || price <= 0) {
+        alert('Please fill in all required fields with valid values.')
+        return
+      }
       const isVirtual = editingProduct?.is_virtual || formData.get('is_virtual') === 'true';
       await moderateProductImage({ imageUrl, title, description, userId: user?.id, isVirtual })
 
@@ -1363,7 +1359,10 @@ export default function SellerDashboard() {
                   </div>
                   <button
                     id="quick-action-add-product"
-                    onClick={() => setShowAIProductForm(true)}
+                    onClick={() => {
+                      setAddProductLoading(false)
+                      setShowAIProductForm(true)
+                    }}
                     className="w-full flex items-center justify-center px-5 py-3 text-base font-bold bg-gradient-to-r from-teal-500 via-cyan-500 to-blue-500 text-white rounded-lg hover:from-teal-600 hover:via-cyan-600 hover:to-blue-600 shadow-lg transition-all duration-200"
                   >
                     <Sparkles className="w-5 h-5 mr-2 animate-pulse" />
@@ -1381,7 +1380,10 @@ export default function SellerDashboard() {
                   </div>
                   <button
                     id="quick-action-add-virtual"
-                    onClick={() => setShowVirtualProductForm(true)}
+                    onClick={() => {
+                      setAddProductLoading(false)
+                      setShowVirtualProductForm(true)
+                    }}
                     className="w-full flex items-center justify-center px-5 py-3 text-base font-bold bg-gradient-to-r from-cyan-500 via-teal-500 to-blue-500 text-white rounded-lg hover:from-cyan-600 hover:via-teal-600 hover:to-blue-600 shadow-lg transition-all duration-200"
                   >
                     <Puzzle className="w-5 h-5 mr-2 animate-pulse" />
@@ -1658,7 +1660,10 @@ export default function SellerDashboard() {
                   <span className="sm:hidden">{t('seller.productsReelsMobile')}</span>
                 </Link>
                 <button
-                  onClick={() => setShowAIProductForm(true)}
+                  onClick={() => {
+                    setAddProductLoading(false)
+                    setShowAIProductForm(true)
+                  }}
                   className="flex items-center px-3 sm:px-4 py-2 text-sm sm:text-base bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-lg hover:from-orange-600 hover:to-red-700 transition-all duration-200"
                 >
                   <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
@@ -1713,6 +1718,7 @@ export default function SellerDashboard() {
                       <div className="flex flex-col xs:flex-row gap-2 mt-3">
                         <button
                           onClick={() => {
+                            setEditProductLoading(false)
                             setEditingProduct(product)
                           }}
                           className="flex-1 flex items-center justify-center px-3 py-2 text-xs sm:text-sm border border-[var(--border)] rounded-md text-[var(--text)] hover:bg-[var(--bg-2)] transition-colors"
@@ -1760,10 +1766,14 @@ export default function SellerDashboard() {
                   return editingProduct.id;
                 } catch (error) {
                   console.error('Error saving edited product:', error);
+                  setEditProductLoading(false);
                   return null;
                 }
               }}
-              onCancel={() => setEditingProduct(null)}
+              onCancel={() => {
+                setEditingProduct(null);
+                setEditProductLoading(false);
+              }}
               loading={editProductLoading}
             />
           ) : (
@@ -1784,10 +1794,14 @@ export default function SellerDashboard() {
                   return editingProduct.id;
                 } catch (error) {
                   console.error('Error saving edited product:', error);
+                  setEditProductLoading(false);
                   return null;
                 }
               }}
-              onCancel={() => setEditingProduct(null)}
+              onCancel={() => {
+                setEditingProduct(null);
+                setEditProductLoading(false);
+              }}
               loading={editProductLoading}
             />
           )
@@ -1821,10 +1835,14 @@ export default function SellerDashboard() {
               } catch (error) {
                 console.error('Error submitting AI form:', error)
                 alert(`Error submitting form: ${error instanceof Error ? error.message : String(error)}`)
+                setAddProductLoading(false)
                 throw error;
               }
             }}
-            onCancel={() => setShowAIProductForm(false)}
+            onCancel={() => {
+              setShowAIProductForm(false)
+              setAddProductLoading(false)
+            }}
             loading={addProductLoading}
           />
         )}
@@ -1857,10 +1875,14 @@ export default function SellerDashboard() {
               } catch (error) {
                 console.error('Error submitting virtual product form:', error)
                 alert(`Error submitting form: ${error instanceof Error ? error.message : String(error)}`)
+                setAddProductLoading(false)
                 throw error;
               }
             }}
-            onCancel={() => setShowVirtualProductForm(false)}
+            onCancel={() => {
+              setShowVirtualProductForm(false)
+              setAddProductLoading(false)
+            }}
             loading={addProductLoading}
           />
         )}

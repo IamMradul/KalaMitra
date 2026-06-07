@@ -18,17 +18,24 @@ const MAX_BASE64_LENGTH = 14_000_000; // ~10 MB image as base64
  * Accepts either { imageBase64, mimeType } or { imageUrl }.
  */
 export async function POST(req: NextRequest) {
+  let body: any;
   try {
-    const body = await req.json();
-    const { imageBase64, mimeType, imageUrl, title, description, userId, isVirtual } = body as {
-      imageBase64?: string;
-      mimeType?: string;
-      imageUrl?: string;
-      title?: string;
-      description?: string;
-      userId?: string;
-      isVirtual?: boolean;
-    };
+    body = await req.json();
+  } catch (err) {
+    return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
+  }
+
+  const { imageBase64, mimeType, imageUrl, title, description, userId, isVirtual } = body as {
+    imageBase64?: string;
+    mimeType?: string;
+    imageUrl?: string;
+    title?: string;
+    description?: string;
+    userId?: string;
+    isVirtual?: boolean;
+  };
+
+  try {
 
     const VIRTUAL_KEYWORD_REGEX = /\b(recipe|pdf|tutorial|guide|pattern|instruction|digital|download|ebook|course|kolam|rangoli|template|templates)\b/i;
     const detectedVirtual = VIRTUAL_KEYWORD_REGEX.test((title || '') + ' ' + (description || ''));
