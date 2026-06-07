@@ -30,9 +30,9 @@ export async function POST(req: NextRequest) {
       isVirtual?: boolean;
     };
 
-    const VIRTUAL_KEYWORD_REGEX = /\b(recipe|cook|culinary|artisan|technique|pottery|clay|craft|tutorial|guide|pattern|clothes|design|sew|paint|art|diy|instruction|digital|pdf)\b/i;
+    const VIRTUAL_KEYWORD_REGEX = /\b(recipe|pdf|tutorial|guide|pattern|instruction|digital|download|ebook|course|kolam|rangoli|template|templates)\b/i;
     const detectedVirtual = VIRTUAL_KEYWORD_REGEX.test((title || '') + ' ' + (description || ''));
-    const resolvedIsVirtual = isVirtual || detectedVirtual;
+    const resolvedIsVirtual = isVirtual !== undefined ? isVirtual : detectedVirtual;
 
     let base64 = imageBase64;
     let resolvedMimeType = mimeType || 'image/jpeg';
@@ -59,14 +59,14 @@ export async function POST(req: NextRequest) {
 
     // Offline pre-check: immediately reject if vulgarity/nudity/inappropriate terms are found in title or description
     if ((title && scanTextForVulgarity(title)) || (description && scanTextForVulgarity(description))) {
-      const msg = `❌ Product Upload Rejected\n\nThis marketplace only accepts genuine handmade products.\n\nReason:\nInappropriate or vulgar content detected.\n\nPlease upload an appropriate handmade product and try again.`;
+      const msg = `❌ Product Upload Rejected\n\nAdult products or sex toys are not allowed on this marketplace.\n\nReason:\nInappropriate or adult-related content detected.\n\nPlease upload an appropriate product and try again.`;
       
       // Server-side notification insertion to bypass RLS policies
       if (userId) {
         const { error: notifError } = await supabase.from('notifications').insert({
           user_id: userId,
-          title: 'Inappropriate Content Uploaded',
-          body: 'Your product upload was rejected because it contains inappropriate or vulgar content.',
+          title: 'Inappropriate Content Upload Rejected',
+          body: 'Inappropriate content upload rejected. For further info, contact talkto.kalamitra@gmail.com',
         });
         if (notifError) {
           console.error('[product-moderation] Failed to create server-side rejection notification:', notifError);
@@ -92,7 +92,7 @@ export async function POST(req: NextRequest) {
       resolvedIsVirtual
     );
 
-    const approved = isModerationApproved(result, resolvedIsVirtual);
+    const approved = isModerationApproved(result, resolvedIsVirtual, title, description);
 
     // Log moderation outcome for debugging (no image data logged)
     console.log('[product-moderation]', {
@@ -120,14 +120,14 @@ export async function POST(req: NextRequest) {
     // STEP 4: Enforce rejection rules
     if (!approved) {
       const reason = result.reason || 'Violates safety guidelines.';
-      const msg = `❌ Product Upload Rejected\n\nThis marketplace only accepts genuine handmade products.\n\nReason:\n${reason}\n\nPlease upload an appropriate handmade product and try again.`;
+      const msg = `❌ Product Upload Rejected\n\nAdult products or sex toys are not allowed on this marketplace.\n\nReason:\n${reason}\n\nPlease upload an appropriate product and try again.`;
       
       // Server-side notification insertion to bypass RLS policies
       if (userId) {
         const { error: notifError } = await supabase.from('notifications').insert({
           user_id: userId,
-          title: 'Inappropriate Content Uploaded',
-          body: 'Your product upload was rejected because it contains inappropriate or vulgar content.',
+          title: 'Inappropriate Content Upload Rejected',
+          body: 'Inappropriate content upload rejected. For further info, contact talkto.kalamitra@gmail.com',
         });
         if (notifError) {
           console.error('[product-moderation] Failed to create server-side rejection notification:', notifError);
@@ -150,6 +150,53 @@ export async function POST(req: NextRequest) {
     });
   } catch (error) {
     console.error('[product-moderation] Moderation failed:', error);
+
+    // Check if the error is due to a safety block
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    const isSafetyBlock = /safety|block|candidate|finishReason|unsuitable|inappropriate|explicit|harm/i.test(errorMsg);
+
+    if (isSafetyBlock) {
+      const msg = `❌ Product Upload Rejected\n\nAdult products or sex toys are not allowed on this marketplace.\n\nReason:\nContent violated safety or moderation guidelines.\n\nPlease upload an appropriate product and try again.`;
+
+      if (userId) {
+        const { error: notifError } = await supabase.from('notifications').insert({
+          user_id: userId,
+          title: 'Inappropriate Content Upload Rejected',
+          body: 'Inappropriate content upload rejected. For further info, contact talkto.kalamitra@gmail.com',
+        });
+        if (notifError) {
+          console.error('[product-moderation] Failed to create server-side safety rejection notification:', notifError);
+        }
+      }
+      return NextResponse.json(
+        {
+          approved: false,
+          result: {
+            approved: false,
+            confidence: 99,
+            category: 'other',
+            handmade_product: false,
+            contains_nudity: true,
+            contains_sexual_content: true,
+            contains_sex_toys: true,
+            contains_profanity: true,
+            contains_hate_speech: false,
+            contains_violence: false,
+            contains_gore: false,
+            contains_weapons: false,
+            contains_drugs: false,
+            contains_extremism: false,
+            contains_spam: false,
+            contains_deceptive_content: false,
+            marketplace_safe: false,
+            reason: 'Content violated safety or moderation guidelines.',
+          },
+          message: msg,
+        },
+        { status: 403 }
+      );
+    }
+
     return NextResponse.json(
       {
         approved: false,

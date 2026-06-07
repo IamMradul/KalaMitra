@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
 import { motion } from 'framer-motion'
-import { Edit, Trash2, Eye, Palette, LogOut, Sparkles } from 'lucide-react'
+import { Edit, Trash2, Eye, Palette, LogOut, Sparkles, Puzzle } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { Database } from '@/lib/supabase'
 import { extractImageFeatures } from '@/lib/image-similarity'
@@ -1363,7 +1363,7 @@ export default function SellerDashboard() {
                 <div className="rounded-xl bg-transparent p-5 shadow-md flex flex-col gap-3">
                   <div className="flex items-center gap-3 mb-1">
                     <div className="p-2 sm:p-3 rounded-xl bg-gradient-to-br from-cyan-500 to-teal-500 shadow-lg">
-                      <span className="text-2xl">🧩</span>
+                      <Puzzle className="w-5 h-5 text-white" />
                     </div>
                     <h3 className="text-lg sm:text-xl font-semibold text-gray-900">{t('seller.virtualProductManagement')}</h3>
                   </div>
@@ -1372,7 +1372,7 @@ export default function SellerDashboard() {
                     onClick={() => setShowVirtualProductForm(true)}
                     className="w-full flex items-center justify-center px-5 py-3 text-base font-bold bg-gradient-to-r from-cyan-500 via-teal-500 to-blue-500 text-white rounded-lg hover:from-cyan-600 hover:via-teal-600 hover:to-blue-600 shadow-lg transition-all duration-200"
                   >
-                    <span className="text-xl mr-2 animate-pulse">🧩</span>
+                    <Puzzle className="w-5 h-5 mr-2 animate-pulse" />
                     {t('seller.addVirtualProduct')}
                   </button>
                   <div className="text-xs text-gray-600 text-center mt-2">{t('seller.virtualProductHint')}</div>
@@ -1801,12 +1801,15 @@ export default function SellerDashboard() {
                 } as React.FormEvent<HTMLFormElement>
                 // Call handleAddProduct and return productId
                 const productId = await handleAddProduct(syntheticEvent)
+                if (!productId) {
+                  throw new Error('Failed to save product in database.')
+                }
                 setShowAIProductForm(false)
                 return productId;
               } catch (error) {
                 console.error('Error submitting AI form:', error)
-                // Don't close the form if there's an error
-                return null;
+                alert(`Error submitting form: ${error instanceof Error ? error.message : String(error)}`)
+                throw error;
               }
             }}
             onCancel={() => setShowAIProductForm(false)}
@@ -1834,12 +1837,15 @@ export default function SellerDashboard() {
                 } as React.FormEvent<HTMLFormElement>
                 // Call handleAddProduct and return productId
                 const productId = await handleAddProduct(syntheticEvent)
+                if (!productId) {
+                  throw new Error('Failed to save virtual product in database.')
+                }
                 setShowVirtualProductForm(false)
                 return productId;
               } catch (error) {
                 console.error('Error submitting virtual product form:', error)
-                // Don't close the form if there's an error
-                return null;
+                alert(`Error submitting form: ${error instanceof Error ? error.message : String(error)}`)
+                throw error;
               }
             }}
             onCancel={() => setShowVirtualProductForm(false)}
