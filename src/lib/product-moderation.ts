@@ -271,7 +271,7 @@ export async function moderateImageWithGemini(
     },
   };
 
-  const modelsToTry = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-flash-latest'];
+  const modelsToTry = ['gemini-3.1-flash-lite', 'gemini-flash-lite-latest', 'gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-flash-latest'];
   let lastError: unknown;
   let allRateLimited = true;
 
@@ -300,48 +300,6 @@ export async function moderateImageWithGemini(
   }
 
   console.error('[product-moderation] All models failed:', lastError);
-
-  // Fallback: if ALL models were rate-limited (429), perform a local-only safety check.
-  // This allows legitimate craft uploads to proceed when the API quota is exhausted,
-  // while still blocking obviously vulgar/inappropriate content via text scanning.
-  if (allRateLimited) {
-    console.warn('[product-moderation] All models rate-limited — falling back to local keyword safety check.');
-
-    // Reject if title or description contain vulgar text
-    if ((title && scanTextForVulgarity(title)) || (description && scanTextForVulgarity(description))) {
-      return vulgarDetectedResult('Inappropriate text detected in product listing.');
-    }
-
-    // Build a local-approved result
-    const localResult: ProductModerationResult = {
-      approved: true,
-      confidence: 60,
-      category: 'other',
-      handmade_product: true,
-      contains_nudity: false,
-      contains_sexual_content: false,
-      contains_sex_toys: false,
-      contains_profanity: false,
-      contains_hate_speech: false,
-      contains_violence: false,
-      contains_gore: false,
-      contains_weapons: false,
-      contains_drugs: false,
-      contains_extremism: false,
-      contains_spam: false,
-      contains_deceptive_content: false,
-      marketplace_safe: true,
-      reason: 'Approved via local safety check (API quota exceeded).',
-    };
-
-    // Double-check with isModerationApproved
-    if (!isModerationApproved(localResult, isVirtual, title, description)) {
-      localResult.approved = false;
-      localResult.reason = 'Content did not pass local safety rules.';
-    }
-
-    return localResult;
-  }
 
   throw lastError instanceof Error ? lastError : new Error('Moderation service unavailable');
 }

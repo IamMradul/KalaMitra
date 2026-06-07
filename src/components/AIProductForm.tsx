@@ -240,7 +240,7 @@ export default function AIProductForm({
     }
   }
 
-  const ensureModerationPassed = async () => {
+  const ensureModerationPassed = async (): Promise<'approved' | 'pending'> => {
     setIsModerating(true)
     try {
       let res;
@@ -252,11 +252,9 @@ export default function AIProductForm({
         throw new Error(t('ai.form.errors.invalidImage'))
       }
 
-      if (res && res.moderation_status === 'pending') {
-        setModerationStatus('pending')
-      } else {
-        setModerationStatus('approved')
-      }
+      const status = res && res.moderation_status === 'pending' ? 'pending' : 'approved';
+      setModerationStatus(status);
+      return status;
     } finally {
       setIsModerating(false)
     }
@@ -421,9 +419,10 @@ export default function AIProductForm({
     setError('');
 
     try {
-      await ensureModerationPassed();
+      const modStatus = await ensureModerationPassed();
 
       const formData = new FormData(form);
+      formData.set('moderation_status', modStatus);
 
       let uploadedImageUrl = imageUrl;
       if (uploadedFile) {
