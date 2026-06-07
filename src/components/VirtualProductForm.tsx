@@ -270,13 +270,19 @@ export default function AIProductForm({
       if (uploadedFile && uploadedFile.type !== 'application/pdf') {
         res = await moderateProductImage({ file: uploadedFile, title, description, userId: user?.id, isVirtual: true })
       } else if ((uploadedFile && uploadedFile.type === 'application/pdf') || (file && file.type === 'application/pdf')) {
+        const pdfFile = uploadedFile || file;
         if (imageUrl && imageUrl.startsWith('blob:')) {
           const response = await fetch(imageUrl);
           const imageBlob = await response.blob();
           const previewFile = new File([imageBlob], 'pdf-preview.png', { type: 'image/png' });
           res = await moderateProductImage({ file: previewFile, title, description, userId: user?.id, isVirtual: true })
+        } else if (imageUrl && !imageUrl.startsWith('blob:')) {
+          res = await moderateProductImage({ imageUrl, title, description, userId: user?.id, isVirtual: true })
+        } else if (pdfFile && pdfFile.size < 4_000_000) {
+          res = await moderateProductImage({ file: pdfFile, title, description, userId: user?.id, isVirtual: true })
         } else {
-          throw new Error('No preview image generated for PDF')
+          console.warn('[VirtualProductForm] No preview image for PDF, falling back to pending moderation');
+          res = { approved: true, moderation_status: 'pending' };
         }
       } else if (imageUrl && !imageUrl.startsWith('blob:')) {
         res = await moderateProductImage({ imageUrl, title, description, userId: user?.id, isVirtual: true })
@@ -557,9 +563,16 @@ export default function AIProductForm({
             previewImageUrl = await uploadImageToSupabase(previewFile);
             formData.set('imageUrl', previewImageUrl); // Use preview image for imageUrl
           } catch (err) {
-            // Fallback: use PDF URL if preview upload fails
-            formData.set('imageUrl', pdfUrl);
+            // Fallback: use remote image if available, else PDF URL
+            if (imageUrl && !imageUrl.startsWith('blob:')) {
+              formData.set('imageUrl', imageUrl);
+            } else {
+              formData.set('imageUrl', pdfUrl);
+            }
           }
+        } else if (imageUrl && !imageUrl.startsWith('blob:')) {
+          // Keep the existing remote image URL
+          formData.set('imageUrl', imageUrl);
         } else {
           // Fallback: use PDF URL if no preview
           formData.set('imageUrl', pdfUrl);
