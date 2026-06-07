@@ -77,6 +77,7 @@ export interface ModerationClientResponse {
   approved: boolean;
   result?: ProductModerationResult;
   message?: string;
+  moderation_status?: 'approved' | 'pending';
 }
 
 export function isModerationResponseAllowed(
@@ -242,7 +243,7 @@ export async function moderateProductImage(params: {
     if (isVulgar) {
       throw new Error(`❌ Product Upload Rejected\n\nAdult products or sex toys are not allowed on this marketplace.\n\nReason:\nInappropriate or adult-related content detected.\n\nPlease upload an appropriate product and try again.`);
     }
-    return { approved: true, message: 'Moderation check skipped due to service unavailability.' } as ModerationClientResponse;
+    return { approved: true, moderation_status: 'pending', message: 'Moderation check skipped due to service unavailability.' } as ModerationClientResponse;
   } finally {
     clearTimeout(timeoutId);
   }

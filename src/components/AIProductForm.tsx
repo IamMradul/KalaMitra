@@ -217,6 +217,7 @@ export default function AIProductForm({
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [isModerating, setIsModerating] = useState(false)
   const [rejectionError, setRejectionError] = useState<string | null>(null)
+  const [moderationStatus, setModerationStatus] = useState('approved')
 
   const resetForm = () => {
     setImageUrl(initialData.imageUrl || '')
@@ -233,6 +234,7 @@ export default function AIProductForm({
     setAdVideoUrl('')
     setCtaText('Shop Now')
     setWebsite(profile?.name?.trim() ? profile.name : 'https://yourwebsite.com')
+    setModerationStatus('approved')
     if (fileInputRef.current) {
       fileInputRef.current.value = ''
     }
@@ -241,12 +243,19 @@ export default function AIProductForm({
   const ensureModerationPassed = async () => {
     setIsModerating(true)
     try {
+      let res;
       if (uploadedFile) {
-        await moderateProductImage({ file: uploadedFile, title, description, userId: user?.id, isVirtual: false })
+        res = await moderateProductImage({ file: uploadedFile, title, description, userId: user?.id, isVirtual: false })
       } else if (imageUrl && !imageUrl.startsWith('blob:')) {
-        await moderateProductImage({ imageUrl, title, description, userId: user?.id, isVirtual: false })
+        res = await moderateProductImage({ imageUrl, title, description, userId: user?.id, isVirtual: false })
       } else {
         throw new Error(t('ai.form.errors.invalidImage'))
+      }
+
+      if (res && res.moderation_status === 'pending') {
+        setModerationStatus('pending')
+      } else {
+        setModerationStatus('approved')
       }
     } finally {
       setIsModerating(false)
@@ -502,6 +511,7 @@ export default function AIProductForm({
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          <input type="hidden" name="moderation_status" value={moderationStatus} />
           {/* Image Upload Section */}
           <div className="space-y-4">
             <label className="block text-sm font-medium text-gray-700">

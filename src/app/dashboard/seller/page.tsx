@@ -579,6 +579,12 @@ export default function SellerDashboard() {
       } else {
         console.log('User is seller, fetching products and setting stall profile')
         setStallProfile(profile)
+        
+        // Trigger background pending moderation check (async fallback review)
+        fetch('/api/moderate-pending-products').catch(err => {
+          console.warn('Failed to trigger background pending moderation check:', err)
+        })
+
         // Only fetch products if not already fetched
         if (!productsFetchedRef.current) {
           fetchProducts()
@@ -738,6 +744,7 @@ export default function SellerDashboard() {
     const imageUrl = formData.get('imageUrl') as string
     const product_story = formData.get('product_story') as string | null
     const product_type = formData.get('product_type') as 'vertical' | 'horizontal' | null
+    const moderation_status = (formData.get('moderation_status') as string) || 'approved'
 
     // Debug: Log all form data
     console.log('=== FORM DATA DEBUG ===')
@@ -798,28 +805,33 @@ export default function SellerDashboard() {
 
 
 
+      let finalDescription = description
+      if (moderation_status === 'pending') {
+        finalDescription = `${description}\n<!-- moderation_status: pending -->`
+      }
+
       // Add timeout to prevent hanging
+      const insertObj = {
+        seller_id: user.id,
+        title,
+        category,
+        description: finalDescription,
+        price,
+        image_url: imageUrl || null,
+        product_story: product_story || null,
+        product_type: finalProductType,
+        is_virtual: formData.get('is_virtual') === 'true',
+        virtual_type: formData.get('virtual_type'),
+        virtual_file_url: formData.get('virtual_file_url') || null,
+        image_avg_r: features?.avgColor.r ?? null,
+        image_avg_g: features?.avgColor.g ?? null,
+        image_avg_b: features?.avgColor.b ?? null,
+        image_ahash: features?.aHash ?? null,
+      }
+
       const insertPromise = supabase
         .from('products')
-        .insert([
-          {
-            seller_id: user.id,
-            title,
-            category,
-            description,
-            price,
-            image_url: imageUrl || null,
-            product_story: product_story || null,
-            product_type: finalProductType,
-            is_virtual: formData.get('is_virtual') === 'true',
-            virtual_type: formData.get('virtual_type'),
-            virtual_file_url: formData.get('virtual_file_url') || null,
-            image_avg_r: features?.avgColor.r ?? null,
-            image_avg_g: features?.avgColor.g ?? null,
-            image_avg_b: features?.avgColor.b ?? null,
-            image_ahash: features?.aHash ?? null,
-          },
-        ])
+        .insert([insertObj])
         .select()
 
       const timeoutPromise = new Promise<never>((_, reject) => {

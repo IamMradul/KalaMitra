@@ -197,12 +197,31 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    return NextResponse.json(
-      {
-        approved: false,
-        message: '⚠ Unable to verify product content at the moment.\nPlease try again later.',
-      },
-      { status: 503 }
-    );
+    // Fallback: If it's a model rate limit, network issue, or API key issue, allow the upload to proceed in 'pending' moderation status
+    console.warn('[product-moderation] API or Key failure detected. Fallback to pending moderation.');
+    return NextResponse.json({
+      approved: true,
+      moderation_status: 'pending',
+      result: {
+        approved: true,
+        confidence: 0,
+        category: 'other',
+        handmade_product: true,
+        contains_nudity: false,
+        contains_sexual_content: false,
+        contains_sex_toys: false,
+        contains_profanity: false,
+        contains_hate_speech: false,
+        contains_violence: false,
+        contains_gore: false,
+        contains_weapons: false,
+        contains_drugs: false,
+        contains_extremism: false,
+        contains_spam: false,
+        contains_deceptive_content: false,
+        marketplace_safe: true,
+        reason: 'Moderation check skipped due to service unavailability.',
+      }
+    });
   }
 }

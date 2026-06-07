@@ -236,6 +236,7 @@ export default function AIProductForm({
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [isModerating, setIsModerating] = useState(false)
   const [rejectionError, setRejectionError] = useState<string | null>(null)
+  const [moderationStatus, setModerationStatus] = useState('approved')
 
   const resetForm = () => {
     setImageUrl(initialData.imageUrl || '')
@@ -256,6 +257,7 @@ export default function AIProductForm({
     setCtaText('Shop Now')
     setWebsite(profile?.name?.trim() ? profile.name : 'https://yourwebsite.com')
     setStep(initialData && Object.keys(initialData).length > 0 ? 1 : 0)
+    setModerationStatus('approved')
     if (fileInputRef.current) {
       fileInputRef.current.value = ''
     }
@@ -264,21 +266,28 @@ export default function AIProductForm({
   const ensureModerationPassed = async () => {
     setIsModerating(true)
     try {
+      let res;
       if (uploadedFile && uploadedFile.type !== 'application/pdf') {
-        await moderateProductImage({ file: uploadedFile, title, description, userId: user?.id, isVirtual: true })
+        res = await moderateProductImage({ file: uploadedFile, title, description, userId: user?.id, isVirtual: true })
       } else if ((uploadedFile && uploadedFile.type === 'application/pdf') || (file && file.type === 'application/pdf')) {
         if (imageUrl && imageUrl.startsWith('blob:')) {
           const response = await fetch(imageUrl);
           const imageBlob = await response.blob();
           const previewFile = new File([imageBlob], 'pdf-preview.png', { type: 'image/png' });
-          await moderateProductImage({ file: previewFile, title, description, userId: user?.id, isVirtual: true })
+          res = await moderateProductImage({ file: previewFile, title, description, userId: user?.id, isVirtual: true })
         } else {
           throw new Error('No preview image generated for PDF')
         }
       } else if (imageUrl && !imageUrl.startsWith('blob:')) {
-        await moderateProductImage({ imageUrl, title, description, userId: user?.id, isVirtual: true })
+        res = await moderateProductImage({ imageUrl, title, description, userId: user?.id, isVirtual: true })
       } else {
         throw new Error(t('ai.form.errors.invalidImage'))
+      }
+
+      if (res && res.moderation_status === 'pending') {
+        setModerationStatus('pending')
+      } else {
+        setModerationStatus('approved')
       }
     } finally {
       setIsModerating(false)
@@ -977,6 +986,7 @@ export default function AIProductForm({
           </p>
         </div>
         <form onSubmit={handleSubmit} className="space-y-6">
+          <input type="hidden" name="moderation_status" value={moderationStatus} />
           {/* Gemini PDF Analysis Section */}
           {/* Image/PDF Upload Section */}
           <div className="space-y-4">
