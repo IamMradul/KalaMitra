@@ -26,21 +26,15 @@ const nextConfig: NextConfig = {
       : false,
   },
   images: {
-    // allow external hosts we commonly use for product images
-    domains: [
-      'kalamitra.store',
-      'm.media-amazon.com',
-      'tiimg.tistatic.com',
-      'encrypted-tbn0.gstatic.com',
-      'lh3.googleusercontent.com',
-      'images.unsplash.com',
-      'cdn.shopify.com',
-      'i.imgur.com',
-      'upload.wikimedia.org',
-      // Supabase storage host used in product images
-      'dejyoyoctsfyjixfhfgd.supabase.co',
-      // include Supabase project hostname dynamically when provided via env
-      ...(getSupabaseHost() ? [getSupabaseHost() as string] : []),
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
+      {
+        protocol: 'http',
+        hostname: '**',
+      },
     ],
   },
   // Ensure proper handling of dynamic imports

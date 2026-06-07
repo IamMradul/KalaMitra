@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
 import { motion } from 'framer-motion'
-import { Edit, Trash2, Eye, Palette, LogOut, Sparkles } from 'lucide-react'
+import { Edit, Trash2, Eye, Palette, LogOut, Sparkles, Puzzle } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { Database } from '@/lib/supabase'
 import { extractImageFeatures } from '@/lib/image-similarity'
@@ -579,6 +579,12 @@ export default function SellerDashboard() {
       } else {
         console.log('User is seller, fetching products and setting stall profile')
         setStallProfile(profile)
+        
+        // Trigger background pending moderation check (async fallback review)
+        fetch('/api/moderate-pending-products').catch(err => {
+          console.warn('Failed to trigger background pending moderation check:', err)
+        })
+
         // Only fetch products if not already fetched
         if (!productsFetchedRef.current) {
           fetchProducts()
@@ -730,34 +736,33 @@ export default function SellerDashboard() {
 
     setAddProductLoading(true)
 
-    const formData = new FormData(e.currentTarget)
-    const title = formData.get('title') as string
-    const category = formData.get('category') as string
-    const description = formData.get('description') as string
-    const price = parseFloat(formData.get('price') as string)
-    const imageUrl = formData.get('imageUrl') as string
-    const product_story = formData.get('product_story') as string | null
-    const product_type = formData.get('product_type') as 'vertical' | 'horizontal' | null
-
-    // Debug: Log all form data
-    console.log('=== FORM DATA DEBUG ===')
-    for (const [key, value] of formData.entries()) {
-      console.log(`${key}: ${value}`)
-    }
-    console.log('Extracted product_type:', product_type)
-
-    // Fallback if product_type is not found
-    const finalProductType = product_type || 'vertical'
-    console.log('Final product_type to save:', finalProductType)
-
-    // Basic validation
-    if (!title || !category || !description || isNaN(price) || price <= 0) {
-      alert('Please fill in all required fields with valid values.')
-      setAddProductLoading(false)
-      return
-    }
-
     try {
+      const formData = new FormData(e.currentTarget)
+      const title = formData.get('title') as string
+      const category = formData.get('category') as string
+      const description = formData.get('description') as string
+      const price = parseFloat(formData.get('price') as string)
+      const imageUrl = formData.get('imageUrl') as string
+      const product_story = formData.get('product_story') as string | null
+      const product_type = formData.get('product_type') as 'vertical' | 'horizontal' | null
+      const moderation_status = (formData.get('moderation_status') as string) || 'approved'
+
+      // Debug: Log all form data
+      console.log('=== FORM DATA DEBUG ===')
+      for (const [key, value] of formData.entries()) {
+        console.log(`${key}: ${value}`)
+      }
+      console.log('Extracted product_type:', product_type)
+
+      // Fallback if product_type is not found
+      const finalProductType = product_type || 'vertical'
+      console.log('Final product_type to save:', finalProductType)
+
+      // Basic validation
+      if (!title || !category || !description || isNaN(price) || price <= 0) {
+        alert('Please fill in all required fields with valid values.')
+        return
+      }
       console.log('=== ADDING PRODUCT ===')
       console.log('User ID:', user.id)
       console.log('User email:', user.email)
@@ -798,28 +803,33 @@ export default function SellerDashboard() {
 
 
 
+      let finalDescription = description
+      if (moderation_status === 'pending') {
+        finalDescription = `${description}\n<!-- moderation_status: pending -->`
+      }
+
       // Add timeout to prevent hanging
+      const insertObj = {
+        seller_id: user.id,
+        title,
+        category,
+        description: finalDescription,
+        price,
+        image_url: imageUrl || null,
+        product_story: product_story || null,
+        product_type: finalProductType,
+        is_virtual: formData.get('is_virtual') === 'true',
+        virtual_type: formData.get('virtual_type'),
+        virtual_file_url: formData.get('virtual_file_url') || null,
+        image_avg_r: features?.avgColor.r ?? null,
+        image_avg_g: features?.avgColor.g ?? null,
+        image_avg_b: features?.avgColor.b ?? null,
+        image_ahash: features?.aHash ?? null,
+      }
+
       const insertPromise = supabase
         .from('products')
-        .insert([
-          {
-            seller_id: user.id,
-            title,
-            category,
-            description,
-            price,
-            image_url: imageUrl || null,
-            product_story: product_story || null,
-            product_type: finalProductType,
-            is_virtual: formData.get('is_virtual') === 'true',
-            virtual_type: formData.get('virtual_type'),
-            virtual_file_url: formData.get('virtual_file_url') || null,
-            image_avg_r: features?.avgColor.r ?? null,
-            image_avg_g: features?.avgColor.g ?? null,
-            image_avg_b: features?.avgColor.b ?? null,
-            image_ahash: features?.aHash ?? null,
-          },
-        ])
+        .insert([insertObj])
         .select()
 
       const timeoutPromise = new Promise<never>((_, reject) => {
@@ -904,24 +914,22 @@ export default function SellerDashboard() {
 
     setEditProductLoading(true)
 
-    const title = formData.get('title') as string
-    const category = formData.get('category') as string
-    const description = formData.get('description') as string
-    const price = parseFloat(formData.get('price') as string)
-    const imageUrl = formData.get('imageUrl') as string
-    const product_story = formData.get('product_story') as string | null
-    const product_type = formData.get('product_type') as 'vertical' | 'horizontal' | null
-    const virtual_type = formData.get('virtual_type') as string | null
-    const virtual_file_url = formData.get('virtual_file_url') as string | null
-
-    // Basic validation
-    if (!title || !category || !description || isNaN(price) || price <= 0) {
-      alert('Please fill in all required fields with valid values.')
-      setEditProductLoading(false)
-      return
-    }
-
     try {
+      const title = formData.get('title') as string
+      const category = formData.get('category') as string
+      const description = formData.get('description') as string
+      const price = parseFloat(formData.get('price') as string)
+      const imageUrl = formData.get('imageUrl') as string
+      const product_story = formData.get('product_story') as string | null
+      const product_type = formData.get('product_type') as 'vertical' | 'horizontal' | null
+      const virtual_type = formData.get('virtual_type') as string | null
+      const virtual_file_url = formData.get('virtual_file_url') as string | null
+
+      // Basic validation
+      if (!title || !category || !description || isNaN(price) || price <= 0) {
+        alert('Please fill in all required fields with valid values.')
+        return
+      }
       const isVirtual = editingProduct?.is_virtual || formData.get('is_virtual') === 'true';
       await moderateProductImage({ imageUrl, title, description, userId: user?.id, isVirtual })
 
@@ -1351,7 +1359,10 @@ export default function SellerDashboard() {
                   </div>
                   <button
                     id="quick-action-add-product"
-                    onClick={() => setShowAIProductForm(true)}
+                    onClick={() => {
+                      setAddProductLoading(false)
+                      setShowAIProductForm(true)
+                    }}
                     className="w-full flex items-center justify-center px-5 py-3 text-base font-bold bg-gradient-to-r from-teal-500 via-cyan-500 to-blue-500 text-white rounded-lg hover:from-teal-600 hover:via-cyan-600 hover:to-blue-600 shadow-lg transition-all duration-200"
                   >
                     <Sparkles className="w-5 h-5 mr-2 animate-pulse" />
@@ -1363,16 +1374,19 @@ export default function SellerDashboard() {
                 <div className="rounded-xl bg-transparent p-5 shadow-md flex flex-col gap-3">
                   <div className="flex items-center gap-3 mb-1">
                     <div className="p-2 sm:p-3 rounded-xl bg-gradient-to-br from-cyan-500 to-teal-500 shadow-lg">
-                      <span className="text-2xl">🧩</span>
+                      <Puzzle className="w-5 h-5 text-white" />
                     </div>
                     <h3 className="text-lg sm:text-xl font-semibold text-gray-900">{t('seller.virtualProductManagement')}</h3>
                   </div>
                   <button
                     id="quick-action-add-virtual"
-                    onClick={() => setShowVirtualProductForm(true)}
+                    onClick={() => {
+                      setAddProductLoading(false)
+                      setShowVirtualProductForm(true)
+                    }}
                     className="w-full flex items-center justify-center px-5 py-3 text-base font-bold bg-gradient-to-r from-cyan-500 via-teal-500 to-blue-500 text-white rounded-lg hover:from-cyan-600 hover:via-teal-600 hover:to-blue-600 shadow-lg transition-all duration-200"
                   >
-                    <span className="text-xl mr-2 animate-pulse">🧩</span>
+                    <Puzzle className="w-5 h-5 mr-2 animate-pulse" />
                     {t('seller.addVirtualProduct')}
                   </button>
                   <div className="text-xs text-gray-600 text-center mt-2">{t('seller.virtualProductHint')}</div>
@@ -1646,7 +1660,10 @@ export default function SellerDashboard() {
                   <span className="sm:hidden">{t('seller.productsReelsMobile')}</span>
                 </Link>
                 <button
-                  onClick={() => setShowAIProductForm(true)}
+                  onClick={() => {
+                    setAddProductLoading(false)
+                    setShowAIProductForm(true)
+                  }}
                   className="flex items-center px-3 sm:px-4 py-2 text-sm sm:text-base bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-lg hover:from-orange-600 hover:to-red-700 transition-all duration-200"
                 >
                   <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
@@ -1701,6 +1718,7 @@ export default function SellerDashboard() {
                       <div className="flex flex-col xs:flex-row gap-2 mt-3">
                         <button
                           onClick={() => {
+                            setEditProductLoading(false)
                             setEditingProduct(product)
                           }}
                           className="flex-1 flex items-center justify-center px-3 py-2 text-xs sm:text-sm border border-[var(--border)] rounded-md text-[var(--text)] hover:bg-[var(--bg-2)] transition-colors"
@@ -1748,10 +1766,14 @@ export default function SellerDashboard() {
                   return editingProduct.id;
                 } catch (error) {
                   console.error('Error saving edited product:', error);
+                  setEditProductLoading(false);
                   return null;
                 }
               }}
-              onCancel={() => setEditingProduct(null)}
+              onCancel={() => {
+                setEditingProduct(null);
+                setEditProductLoading(false);
+              }}
               loading={editProductLoading}
             />
           ) : (
@@ -1772,10 +1794,14 @@ export default function SellerDashboard() {
                   return editingProduct.id;
                 } catch (error) {
                   console.error('Error saving edited product:', error);
+                  setEditProductLoading(false);
                   return null;
                 }
               }}
-              onCancel={() => setEditingProduct(null)}
+              onCancel={() => {
+                setEditingProduct(null);
+                setEditProductLoading(false);
+              }}
               loading={editProductLoading}
             />
           )
@@ -1801,15 +1827,22 @@ export default function SellerDashboard() {
                 } as React.FormEvent<HTMLFormElement>
                 // Call handleAddProduct and return productId
                 const productId = await handleAddProduct(syntheticEvent)
+                if (!productId) {
+                  throw new Error('Failed to save product in database.')
+                }
                 setShowAIProductForm(false)
                 return productId;
               } catch (error) {
                 console.error('Error submitting AI form:', error)
-                // Don't close the form if there's an error
-                return null;
+                alert(`Error submitting form: ${error instanceof Error ? error.message : String(error)}`)
+                setAddProductLoading(false)
+                throw error;
               }
             }}
-            onCancel={() => setShowAIProductForm(false)}
+            onCancel={() => {
+              setShowAIProductForm(false)
+              setAddProductLoading(false)
+            }}
             loading={addProductLoading}
           />
         )}
@@ -1834,15 +1867,22 @@ export default function SellerDashboard() {
                 } as React.FormEvent<HTMLFormElement>
                 // Call handleAddProduct and return productId
                 const productId = await handleAddProduct(syntheticEvent)
+                if (!productId) {
+                  throw new Error('Failed to save virtual product in database.')
+                }
                 setShowVirtualProductForm(false)
                 return productId;
               } catch (error) {
                 console.error('Error submitting virtual product form:', error)
-                // Don't close the form if there's an error
-                return null;
+                alert(`Error submitting form: ${error instanceof Error ? error.message : String(error)}`)
+                setAddProductLoading(false)
+                throw error;
               }
             }}
-            onCancel={() => setShowVirtualProductForm(false)}
+            onCancel={() => {
+              setShowVirtualProductForm(false)
+              setAddProductLoading(false)
+            }}
             loading={addProductLoading}
           />
         )}
