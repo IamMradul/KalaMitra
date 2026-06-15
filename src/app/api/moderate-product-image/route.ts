@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
     let resolvedMimeType = mimeType || 'image/jpeg';
 
     if (!base64 && imageUrl) {
-      const fetched = await fetchImageAsBase64(imageUrl);
+      const fetched = await fetchImageAsBase64(imageUrl as string);
       base64 = fetched.base64;
       resolvedMimeType = fetched.mimeType;
     }
@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (base64.length > MAX_BASE64_LENGTH) {
+    if (base64!.length > MAX_BASE64_LENGTH) {
       return NextResponse.json(
         { error: 'Image is too large for moderation' },
         { status: 413 }
@@ -65,9 +65,9 @@ export async function POST(req: NextRequest) {
     }
 
     // Offline pre-check: immediately reject if vulgarity/nudity/inappropriate terms are found in title or description
-    if ((title && scanTextForVulgarity(title)) || (description && scanTextForVulgarity(description))) {
+    if ((title && scanTextForVulgarity(title as string)) || (description && scanTextForVulgarity(description as string))) {
       const msg = `❌ Product Upload Rejected\n\nAdult products or sex toys are not allowed on this marketplace.\n\nReason:\nInappropriate or adult-related content detected.\n\nPlease upload an appropriate product and try again.`;
-      
+
       // Server-side notification insertion to bypass RLS policies
       if (userId) {
         const { error: notifError } = await supabase.from('notifications').insert({
@@ -92,7 +92,7 @@ export async function POST(req: NextRequest) {
 
     // STEP 1–3: Gemini Vision analysis evaluating both image and text inputs
     const result: ProductModerationResult = await moderateImageWithGemini(
-      base64,
+      base64 as string,
       resolvedMimeType,
       title,
       description,
@@ -128,7 +128,7 @@ export async function POST(req: NextRequest) {
     if (!approved) {
       const reason = result.reason || 'Violates safety guidelines.';
       const msg = `❌ Product Upload Rejected\n\nAdult products or sex toys are not allowed on this marketplace.\n\nReason:\n${reason}\n\nPlease upload an appropriate product and try again.`;
-      
+
       // Server-side notification insertion to bypass RLS policies
       if (userId) {
         const { error: notifError } = await supabase.from('notifications').insert({
@@ -159,7 +159,7 @@ export async function POST(req: NextRequest) {
     console.error('[product-moderation] Moderation failed:', error);
 
     // Check if the error is due to a safety block
-    const errorMsg = error instanceof Error ? error.message : String(error);
+    const errorMsg = error instanceof Error ? (error as Error).message : String(error);
     const isSafetyBlock = /safety|block|candidate|finishReason|unsuitable|inappropriate|explicit|harm/i.test(errorMsg);
 
     if (isSafetyBlock) {

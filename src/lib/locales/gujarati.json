@@ -301,7 +301,12 @@
     "videoFileLabel": "વિડિઓ ફાઇલ",
     "addComment": "ટિપ્પણી ઉમેરો...",
     "post": "પોસ્ટ કરો",
-    "endOfList": "હવે કોઈ રીલ નથી."
+    "endOfList": "હવે કોઈ રીલ નથી.",
+    "captionOptionalLabel": "શીર્ષક (વૈકલ્પિક)",
+    "captionOptionalPlaceholder": "શીર્ષક (વૈકલ્પિક)",
+    "linkProductLabel": "ઉત્પાદન લિંક કરો",
+    "uploadButton": "રીલ અપલોડ કરો",
+    "uploadLimitHint": "મહત્તમ ફાઇલ કદ: 10MB. ફક્ત વિડિઓ ફાઇલોને મંજૂરી છે."
   },
   "auth": {
     "signupTitle": "તમારું એકાઉન્ટ બનાવો",
@@ -492,7 +497,8 @@
     "requestSuccessDesc": "તમારી કસ્ટમ ક્રાફ્ટ વિનંતી કારીગરને મોકલવામાં આવી છે.",
     "requestSuccessDetail": "કારીગર વધુ વિગતો માટે સીધા સંદેશ દ્વારા તમારો સંપર્ક કરશે.",
     "youMightAlsoLike": "તમને આ પણ ગમશે",
-    "item": "આઇટમ"
+    "item": "આઇટમ",
+    "title": "ઉત્પાદન જુઓ"
   },
   "auction": {
     "title": "નિલામી",

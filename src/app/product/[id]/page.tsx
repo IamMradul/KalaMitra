@@ -93,10 +93,7 @@ export default function ProductDetail() {
     urdu: 'ur',
   };
   const lang = langMap[typeof window !== 'undefined' ? window.localStorage.getItem('i18nextLng') || '' : ''] || '';
-  if (typeof window !== 'undefined') {
-    // eslint-disable-next-line no-console
-    console.log('[ProductDetail] Translating with language code:', lang, 'for app language:', window.localStorage.getItem('i18nextLng'));
-  }
+
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
 
 
@@ -244,10 +241,7 @@ export default function ProductDetail() {
       urdu: 'ur',
     };
     const lang = langMap[currentLanguage] || currentLanguage;
-    if (typeof window !== 'undefined') {
-      // eslint-disable-next-line no-console
-      console.log('[ProductDetail] Translating with language code:', lang, 'for app language:', currentLanguage);
-    }
+
     if (params.id) {
       fetchProduct(params.id as string)
     }
@@ -288,7 +282,7 @@ export default function ProductDetail() {
         `)
         .eq('product_id', productId)
         .eq('collaboration.status', 'accepted')
-        .single()
+        .maybeSingle()
 
 
       // Map app language keys to Google Translate codes
@@ -318,11 +312,7 @@ export default function ProductDetail() {
         urdu: 'ur',
       };
       const lang = langMap[currentLanguage] || currentLanguage;
-      // Debug: log language mapping for translation
-      if (typeof window !== 'undefined') {
-        // eslint-disable-next-line no-console
-        console.log('[ProductDetail] Translating with language code:', lang, 'for app language:', currentLanguage);
-      }
+
       const translated = { ...data }
       translated.title = await translateText(data.title || '', lang)
       translated.category = await translateText(data.category || '', lang)

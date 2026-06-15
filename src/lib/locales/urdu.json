@@ -301,7 +301,12 @@
     "videoFileLabel": "ویڈیو فائل",
     "addComment": "تبصرہ شامل کریں...",
     "post": "پوسٹ کریں",
-    "endOfList": "مزید ریلیں نہیں ہیں۔"
+    "endOfList": "مزید ریلیں نہیں ہیں۔",
+    "captionOptionalLabel": "کیپشن (اختیاری)",
+    "captionOptionalPlaceholder": "کیپشن (اختیاری)",
+    "linkProductLabel": "پروڈکٹ لنک کریں",
+    "uploadButton": "ریل اپلوڈ کریں",
+    "uploadLimitHint": "زیادہ سے زیادہ فائل سائز: 10MB۔ صرف ویڈیو فائلز کی اجازت ہے۔"
   },
   "auth": {
     "signupTitle": "اپنا اکاؤنٹ بنائیں",
@@ -492,7 +497,8 @@
     "requestSuccessDesc": "آپ کی حسب ضرورت دستکاری کی درخواست کاریگر کو بھیج دی گئی ہے۔",
     "requestSuccessDetail": "کاریگر مزید تفصیلات کے لیے آپ سے براہ راست پیغام کے ذریعے رابطہ کرے گا۔",
     "youMightAlsoLike": "آپ کو یہ بھی پسند آ سکتا ہے",
-    "item": "آئٹم"
+    "item": "آئٹم",
+    "title": "پروڈکٹ دیکھیں"
   },
   "auction": {
     "title": "نیلامی",

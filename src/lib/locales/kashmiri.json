@@ -301,7 +301,12 @@
     "videoFileLabel": "वीडियो फ़ाइल",
     "addComment": "एक टिप्पणी जोड़ें...",
     "post": "पोस्ट करें",
-    "endOfList": "कोई और रील नहीं है।"
+    "endOfList": "कोई और रील नहीं है।",
+    "captionOptionalLabel": "کیپشن (اختیاری)",
+    "captionOptionalPlaceholder": "کیپشن (اختیاری)",
+    "linkProductLabel": "پروڈکٹ لنک کریو",
+    "uploadButton": "ریل اپلوڈ کریو",
+    "uploadLimitHint": "زیادہ سے زیادہ فائل سائز: 10MB۔ صرف ویڈیو فائلز الاؤڈ۔"
   },
   "auth": {
     "signupTitle": "اپنا اکاؤنٹ بنائیں",
@@ -492,7 +497,8 @@
     "requestSuccessDesc": "आपका कस्टम शिल्प अनुरोध कारीगर को भेज दिया गया है।",
     "requestSuccessDetail": "कारीगर आगे के विवरण के लिए सीधे संदेश के माध्यम से आपसे संपर्क करेंगे।",
     "youMightAlsoLike": "आपको यह भी पसंद आ सकता है",
-    "item": "वस्तु"
+    "item": "वस्तु",
+    "title": "پروڈکٹ وچھو"
   },
   "auction": {
     "title": "نیلام",

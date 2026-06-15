@@ -79,6 +79,11 @@ const ReelsPage = () => {
 
 
   // Fetch reels with cursor-based pagination
+  const isMountedRef = useRef(true);
+  useEffect(() => {
+    return () => { isMountedRef.current = false; };
+  }, []);
+
   const fetchReels = async (cursorValue: string | null, isInitial = false, retryAttempt = 0) => {
     if (loading) return;
     if (!isInitial && !hasMore) return;
@@ -94,38 +99,44 @@ const ReelsPage = () => {
     try {
       const { data, error } = await query;
       if (!error && data) {
-        if (isInitial) {
-          setReels(data);
-          setCursor(data.length ? data[data.length - 1].created_at : cursorValue);
-          setHasMore(data.length === 6 || data.length > 0);
-        } else if (data.length > 0) {
-          setReels(prev => [...prev, ...data]);
-          setCursor(data.length ? data[data.length - 1].created_at : cursorValue);
-          setHasMore(data.length === 6);
-        } else {
-          // No more new reels, repeat the current reels to simulate endless scroll
-          setReels(prev => {
-            if (prev.length === 0) return prev;
-            // Shuffle the repeated reels for variety
-            const shuffled = [...prev].sort(() => Math.random() - 0.5);
-            return [...prev, ...shuffled];
-          });
-          setHasMore(true); // Keep infinite scroll going
+        if (isMountedRef.current) {
+          if (isInitial) {
+            setReels(data);
+            setCursor(data.length ? data[data.length - 1].created_at : cursorValue);
+            setHasMore(data.length === 6 || data.length > 0);
+          } else if (data.length > 0) {
+            setReels(prev => [...prev, ...data]);
+            setCursor(data.length ? data[data.length - 1].created_at : cursorValue);
+            setHasMore(data.length === 6);
+          } else {
+            // No more new reels, repeat the current reels to simulate endless scroll
+            setReels(prev => {
+              if (prev.length === 0) return prev;
+              // Shuffle the repeated reels for variety
+              const shuffled = [...prev].sort(() => Math.random() - 0.5);
+              return [...prev, ...shuffled];
+            });
+            setHasMore(true); // Keep infinite scroll going
+          }
         }
       } else {
         throw error || new Error('Unknown error');
       }
     } catch (err: any) {
-      setFetchError(t('reels.fetchError', { defaultValue: 'Failed to load reels. Please check your connection and try again.' }));
+      if (isMountedRef.current) {
+        setFetchError(t('reels.fetchError', { defaultValue: 'Failed to load reels. Please check your connection and try again.' }));
+      }
       // Retry automatically up to 2 times with exponential backoff
       if (retryAttempt < 2) {
         setTimeout(() => {
-          fetchReels(cursorValue, isInitial, retryAttempt + 1);
+          if (isMountedRef.current) fetchReels(cursorValue, isInitial, retryAttempt + 1);
         }, 1000 * Math.pow(2, retryAttempt));
       }
     } finally {
-      setLoading(false);
-      if (isInitial) setInitialLoading(false);
+      if (isMountedRef.current) {
+        setLoading(false);
+        if (isInitial) setInitialLoading(false);
+      }
     }
   };
 

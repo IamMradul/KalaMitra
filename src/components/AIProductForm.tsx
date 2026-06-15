@@ -23,7 +23,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { moderateProductImage, compressImageForUpload } from '@/lib/moderate-product-image-client'
 
 interface AIProductFormProps {
-  onSubmit: (formData: FormData) => Promise<string | null | void> | any
+  onSubmit: (formData: FormData) => Promise<string | null | void>
   onCancel: () => void
   loading?: boolean
   initialData?: {
@@ -451,6 +451,14 @@ export default function AIProductForm({
       const productId = await onSubmit(formData); // onSubmit should return productId
       if (!productId) {
         throw new Error(t('ai.form.errors.uploadFailed') || 'Failed to save product in the database.');
+      }
+
+      if (modStatus === 'pending' && user) {
+        await supabase.from('notifications').insert({
+          user_id: user.id,
+          title: 'Product Under Review',
+          body: 'Your product is currently under review due to high server load. It will automatically become visible on your stall once approved!',
+        });
       }
 
       // If adVideoUrl exists, insert reel into Supabase

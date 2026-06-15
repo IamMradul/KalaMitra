@@ -26,15 +26,21 @@ const nextConfig: NextConfig = {
       : false,
   },
   images: {
+    // Strictly allow only external hosts we use for product images
     remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: '**',
-      },
-      {
-        protocol: 'http',
-        hostname: '**',
-      },
+      { protocol: 'https', hostname: 'kalamitra.store' },
+      { protocol: 'https', hostname: 'm.media-amazon.com' },
+      { protocol: 'https', hostname: 'tiimg.tistatic.com' },
+      { protocol: 'https', hostname: 'encrypted-tbn0.gstatic.com' },
+      { protocol: 'https', hostname: 'lh3.googleusercontent.com' },
+      { protocol: 'https', hostname: 'images.unsplash.com' },
+      { protocol: 'https', hostname: 'cdn.shopify.com' },
+      { protocol: 'https', hostname: 'i.imgur.com' },
+      { protocol: 'https', hostname: 'upload.wikimedia.org' },
+      // Supabase storage host used in product images
+      { protocol: 'https', hostname: 'dejyoyoctsfyjixfhfgd.supabase.co' },
+      // Include Supabase project hostname dynamically when provided via env
+      ...(getSupabaseHost() ? [{ protocol: 'https' as const, hostname: getSupabaseHost() as string }] : []),
     ],
   },
   // Ensure proper handling of dynamic imports

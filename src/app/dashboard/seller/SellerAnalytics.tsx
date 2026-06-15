@@ -62,17 +62,20 @@ export default function SellerAnalytics({ sellerId }: Props) {
   }
 
   useEffect(() => {
+    let isMounted = true;
     const load = async () => {
       // ── Check cache first ──────────────────────────────────────────────────
       const cached = analyticsCache.get(sellerId)
       if (cached && Date.now() - cached.cachedAt < CACHE_TTL_MS) {
-        setTotalViews(cached.totalViews)
-        setUniqueVisitors(cached.uniqueVisitors)
-        setTopProducts(cached.topProducts)
-        setRawGuidance(cached.rawGuidance)
-        setGuidance(cached.guidance)
-        setCollabStats(cached.collabStats)
-        setLoading(false)
+        if (isMounted) {
+          setTotalViews(cached.totalViews)
+          setUniqueVisitors(cached.uniqueVisitors)
+          setTopProducts(cached.topProducts)
+          setRawGuidance(cached.rawGuidance)
+          setGuidance(cached.guidance)
+          setCollabStats(cached.collabStats)
+          setLoading(false)
+        }
         return
       }
 
@@ -90,8 +93,10 @@ export default function SellerAnalytics({ sellerId }: Props) {
 
         const fetchedTotalViews = stallViews?.length || 0
         const fetchedUniqueVisitors = new Set((stallViews || []).map(r => r.user_id)).size
-        setTotalViews(fetchedTotalViews)
-        setUniqueVisitors(fetchedUniqueVisitors)
+        if (isMounted) {
+          setTotalViews(fetchedTotalViews)
+          setUniqueVisitors(fetchedUniqueVisitors)
+        }
 
         // Top products by views
         const { data: prodViews } = await supabase
@@ -123,7 +128,7 @@ export default function SellerAnalytics({ sellerId }: Props) {
           const tr = await translateArray(titles, lang)
           top = top.map((p, idx) => ({ ...p, title: tr[idx] || p.title }))
         } catch { }
-        setTopProducts(top)
+        if (isMounted) setTopProducts(top)
 
         // Fetch collaboration statistics
         let fetchedCollabStats = { activeCollaborations: 0, collaborativeProducts: 0, collaborativeRevenue: 0 }
@@ -149,12 +154,14 @@ export default function SellerAnalytics({ sellerId }: Props) {
             console.error('Error fetching collaborative products count:', innerErr)
           }
 
-          fetchedCollabStats = {
-            activeCollaborations: collaborations?.length || 0,
-            collaborativeProducts: collabProductsCount,
-            collaborativeRevenue: 0
+          if (isMounted) {
+            fetchedCollabStats = {
+              activeCollaborations: collaborations?.length || 0,
+              collaborativeProducts: collabProductsCount,
+              collaborativeRevenue: 0
+            }
+            setCollabStats(fetchedCollabStats)
           }
-          setCollabStats(fetchedCollabStats)
         } catch (err) {
           console.error('Error fetching collaboration stats:', err)
         }
@@ -185,25 +192,29 @@ export default function SellerAnalytics({ sellerId }: Props) {
             fetchedGuidance = t('seller.analyticsGuidance.viewsStarting')
           }
         }
-        setRawGuidance(fetchedRawGuidance)
-        setGuidance(fetchedGuidance)
+        if (isMounted) {
+          setRawGuidance(fetchedRawGuidance)
+          setGuidance(fetchedGuidance)
+        }
 
-        // ── Store in cache ───────────────────────────────────────────────────
-        analyticsCache.set(sellerId, {
-          totalViews: fetchedTotalViews,
-          uniqueVisitors: fetchedUniqueVisitors,
-          topProducts: top,
-          rawGuidance: fetchedRawGuidance,
-          guidance: fetchedGuidance,
-          collabStats: fetchedCollabStats,
-          cachedAt: Date.now(),
-        })
+        if (isMounted) {
+          analyticsCache.set(sellerId, {
+            totalViews: fetchedTotalViews,
+            uniqueVisitors: fetchedUniqueVisitors,
+            topProducts: top,
+            rawGuidance: fetchedRawGuidance,
+            guidance: fetchedGuidance,
+            collabStats: fetchedCollabStats,
+            cachedAt: Date.now(),
+          })
+        }
       } finally {
-        setLoading(false)
+        if (isMounted) setLoading(false)
       }
     }
     load()
-  }, [sellerId])
+    return () => { isMounted = false }
+  }, [sellerId, currentLanguage, t])
 
   // Re-translate cached guidance when language changes to avoid re-calling AI
   useEffect(() => {

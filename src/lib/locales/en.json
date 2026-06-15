@@ -343,6 +343,11 @@
   },
   "reels": {
     "yourReels": "Your Reels",
+    "captionOptionalLabel": "Caption (optional)",
+    "captionOptionalPlaceholder": "Caption (optional)",
+    "linkProductLabel": "Link Product",
+    "uploadButton": "Upload Reel",
+    "uploadLimitHint": "Max file size: 10MB. Only video files allowed.",
     "noReels": "No reels found.",
     "likes": "Likes",
     "delete": "Delete",
@@ -477,6 +482,7 @@
     "browse": "Browse Marketplace"
   },
   "product": {
+    "title": "View Product",
     "addToCart": "Add to Cart",
     "relatedProducts": "Related Products",
     "artisanInfo": "Artisan Information",

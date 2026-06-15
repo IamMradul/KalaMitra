@@ -166,6 +166,7 @@ export default function SellerDashboard() {
   const router = useRouter()
   const [products, setProducts] = useState<Product[]>([])
   const [showAIProductForm, setShowAIProductForm] = useState(false)
+  const [auctionsRefreshTrigger, setAuctionsRefreshTrigger] = useState(0)
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
   const [showStallCustomization, setShowStallCustomization] = useState(false)
   const [stallCustomizationSettings, setStallCustomizationSettings] = useState<StallCustomizationSettings | undefined>(undefined)
@@ -307,7 +308,7 @@ export default function SellerDashboard() {
         const createRes = await fetch('/api/chat/thread', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userA: user.id, userB: respondingRequest.buyer_id }),
+          body: JSON.stringify({ participantIds: [user.id, respondingRequest.buyer_id] }),
         });
         if (createRes.ok) {
           const createData = await createRes.json();
@@ -440,51 +441,67 @@ export default function SellerDashboard() {
   // Fetch custom requests for seller
   useEffect(() => {
     if (activeSection !== 'customRequests' || !user) return;
-    setCustomRequestsLoading(true);
-    // Fetch custom requests
-    fetch(`/api/custom-request?seller_id=${user!.id}`)
-      .then(res => res.json())
-      .then(({ data }) => {
-        setCustomRequests(data || []);
-        const buyerIds = Array.from(new Set((data || []).map((r: CustomRequest) => r.buyer_id).filter(Boolean)));
-        const productIds = Array.from(new Set((data || []).map((r: CustomRequest) => r.product_id).filter(Boolean)));
-        if (buyerIds.length > 0) {
-          supabase.from('profiles').select('id, name').in('id', buyerIds).then(({ data }) => {
-            if (data) {
-              type BuyerProfile = { id: string; name: string };
-              const map: Record<string, string> = {};
-              (data as BuyerProfile[]).forEach((p) => { map[p.id] = p.name; });
-              setBuyerNames(map);
-            }
-          });
-        }
-        if (productIds.length > 0) {
-          supabase.from('products').select('id, title').in('id', productIds).then(({ data }) => {
-            if (data) {
-              type ProductProfile = { id: string; title: string };
-              const map: Record<string, string> = {};
-              (data as ProductProfile[]).forEach((p) => { map[p.id] = p.title; });
-              setProductNames(map);
-            }
-          });
-        }
-      })
-      .catch(() => setCustomRequests([]));
-    // Fetch live donations (status = 'new')
-    (async () => {
+    let isMounted = true;
+
+    const loadCustomRequestsAndDonations = async () => {
+      setCustomRequestsLoading(true);
       try {
-        const { data, error } = await supabase
-          .from('donations')
-          .select('*')
-          .eq('status', 'new');
-        if (!error) setDonations(data || []);
-        else setDonations([]);
-      } catch {
-        setDonations([]);
+        const [customRes, donationsRes] = await Promise.all([
+          fetch(`/api/custom-request?seller_id=${user.id}`).then(res => res.ok ? res.json() : { data: [] }).catch(() => ({ data: [] })),
+          supabase.from('donations').select('*').eq('status', 'new')
+        ]);
+
+        if (!isMounted) return;
+
+        // Process Custom Requests
+        const reqData = customRes.data || [];
+        setCustomRequests(reqData);
+
+        const buyerIds = Array.from(new Set(reqData.map((r: CustomRequest) => r.buyer_id).filter(Boolean)));
+        const productIds = Array.from(new Set(reqData.map((r: CustomRequest) => r.product_id).filter(Boolean)));
+
+        if (buyerIds.length > 0) {
+          const { data } = await supabase.from('profiles').select('id, name').in('id', buyerIds);
+          if (data && isMounted) {
+            type BuyerProfile = { id: string; name: string };
+            const map: Record<string, string> = {};
+            (data as BuyerProfile[]).forEach((p) => { map[p.id] = p.name; });
+            setBuyerNames(map);
+          }
+        }
+
+        if (productIds.length > 0) {
+          const { data } = await supabase.from('products').select('id, title').in('id', productIds);
+          if (data && isMounted) {
+            type ProductProfile = { id: string; title: string };
+            const map: Record<string, string> = {};
+            (data as ProductProfile[]).forEach((p) => { map[p.id] = p.title; });
+            setProductNames(map);
+          }
+        }
+
+        // Process Donations
+        if (!donationsRes.error && isMounted) {
+          setDonations(donationsRes.data || []);
+        } else if (isMounted) {
+          setDonations([]);
+        }
+
+      } catch (err) {
+        if (isMounted) {
+          setCustomRequests([]);
+          setDonations([]);
+        }
       } finally {
-        setCustomRequestsLoading(false);
+        if (isMounted) setCustomRequestsLoading(false);
       }
-    })();
+    };
+
+    loadCustomRequestsAndDonations();
+
+    return () => {
+      isMounted = false;
+    };
   }, [activeSection, user]);
   const hasInitialized = useRef(false)
   const dbTestedRef = useRef(false)
@@ -579,11 +596,8 @@ export default function SellerDashboard() {
       } else {
         console.log('User is seller, fetching products and setting stall profile')
         setStallProfile(profile)
-        
-        // Trigger background pending moderation check (async fallback review)
-        fetch('/api/moderate-pending-products').catch(err => {
-          console.warn('Failed to trigger background pending moderation check:', err)
-        })
+
+        // Background pending moderation is now handled exclusively by the Vercel cron job
 
         // Only fetch products if not already fetched
         if (!productsFetchedRef.current) {
@@ -1542,6 +1556,7 @@ export default function SellerDashboard() {
                       if (!res.ok) throw new Error(j.error || 'Failed')
                       alert(t('auction.created'))
                       fetchProducts()
+                      setAuctionsRefreshTrigger(c => c + 1)
                     } catch (err: unknown) {
                       const message = err instanceof Error ? err.message : String(err)
                       alert(t('errors.general') + ': ' + message)
@@ -1644,7 +1659,7 @@ export default function SellerDashboard() {
                       <p className="text-xs sm:text-sm text-gray-600 dark:text-[var(--muted)]">{t('seller.auctionActiveDesc')}</p>
                     </div>
                   </div>
-                  <SellerAuctionsList sellerId={user.id} />
+                  <SellerAuctionsList sellerId={user.id} refreshTrigger={auctionsRefreshTrigger} />
                 </div>
               </div>
             </div>

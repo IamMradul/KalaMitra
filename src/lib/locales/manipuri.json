@@ -301,7 +301,12 @@
     "videoFileLabel": "वीडियो फ़ाइल",
     "addComment": "एक टिप्पणी जोड़ें...",
     "post": "पोस्ट करें",
-    "endOfList": "कोई और रील नहीं है।"
+    "endOfList": "कोई और रील नहीं है।",
+    "captionOptionalLabel": "ক্যাপশন (অপশনাল)",
+    "captionOptionalPlaceholder": "ক্যাপশন (অপশনাল)",
+    "linkProductLabel": "পোথোক লিংক তৌউ",
+    "uploadButton": "রীল আপলোড তৌউ",
+    "uploadLimitHint": "ম্যাক্সিমাম ফাইল সাইজ: 10MB। শুংন ভিডিও ফাইল খক্তং এভেইলেবল।"
   },
   "auth": {
     "signupTitle": "ꯅꯍꯥꯛꯀꯤ ꯑꯦꯀꯥꯎꯟꯠ ꯁꯦꯝꯒꯜ",
@@ -492,7 +497,8 @@
     "requestSuccessDesc": "आपका कस्टम शिल्प अनुरोध कारीगर को भेज दिया गया है।",
     "requestSuccessDetail": "कारीगर आगे के विवरण के लिए सीधे संदेश के माध्यम से आपसे संपर्क करेंगे।",
     "youMightAlsoLike": "आपको यह भी पसंद आ सकता है",
-    "item": "वस्तु"
+    "item": "वस्तु",
+    "title": "পোথোক য়েংউ"
   },
   "auction": {
     "title": "ꯑꯣꯛꯁꯟ",

@@ -301,7 +301,12 @@
     "videoFileLabel": "दृश्यमुद्रिका सञ्चिका",
     "addComment": "टिप्पणीं योजयतु...",
     "post": "प्रेषयतु",
-    "endOfList": "अधिकं रीलं नास्ति।"
+    "endOfList": "अधिकं रीलं नास्ति।",
+    "captionOptionalLabel": "शीर्षकम् (वैकल्पिकम्)",
+    "captionOptionalPlaceholder": "शीर्षकम् (वैकल्पिकम्)",
+    "linkProductLabel": "उत्पादं संयोजयन्तु",
+    "uploadButton": "रील अपलोड कुर्वन्तु",
+    "uploadLimitHint": "अधिकतमसञ्चिकाकारः: 10MB. केवलं चलचित्रसञ्चिकाः अनुमताः।"
   },
   "auth": {
     "signupTitle": "तव खाता सृजतु",
@@ -492,7 +497,8 @@
     "requestSuccessDesc": "भवतः विशेषानुरोधः शिल्पकाराय प्रेषितः।",
     "requestSuccessDetail": "शिल्पकारः अग्रे विवरणात् साक्षात् संदेशमाध्यमेन भवता सह सम्पर्कं करिष्यति।",
     "youMightAlsoLike": "भवते इदमपि रोचेत",
-    "item": "वस्तु"
+    "item": "वस्तु",
+    "title": "उत्पादं पश्यन्तु"
   },
   "auction": {
     "title": "नीलामी",

@@ -273,23 +273,17 @@ export async function moderateImageWithGemini(
 
   const modelsToTry = ['gemini-3.1-flash-lite', 'gemini-flash-lite-latest', 'gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-flash-latest'];
   let lastError: unknown;
-  let allRateLimited = true;
 
   for (const modelName of modelsToTry) {
     try {
       const text = await callGeminiVision(modelName, imagePart, title, description, isVirtual);
       if (!text) {
         lastError = new Error('Empty moderation response from Gemini');
-        allRateLimited = false;
         continue;
       }
       return parseModerationResponse(text, isVirtual, title, description);
     } catch (err) {
       lastError = err;
-      const errMsg = err instanceof Error ? err.message : String(err);
-      if (!errMsg.includes('429') && !errMsg.includes('Too Many Requests') && !errMsg.includes('quota')) {
-        allRateLimited = false;
-      }
       console.warn(
         `[product-moderation] ${modelName} failed:`,
         err

@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next'
 
 type AuctionRow = Database['public']['Tables']['auctions']['Row'] & { product_title?: string }
 
-export default function SellerAuctionsList({ sellerId }: { sellerId: string }) {
+export default function SellerAuctionsList({ sellerId, refreshTrigger }: { sellerId: string, refreshTrigger?: number }) {
   const { t } = useTranslation()
   const [auctions, setAuctions] = useState<AuctionRow[]>([])
   const [loading, setLoading] = useState(true)
@@ -33,7 +33,7 @@ export default function SellerAuctionsList({ sellerId }: { sellerId: string }) {
 
   useEffect(() => {
     fetchAuctions()
-  }, [fetchAuctions])
+  }, [fetchAuctions, refreshTrigger])
 
   const endAuction = async (id: string) => {
     if (!confirm(t('common.confirm')) ) return

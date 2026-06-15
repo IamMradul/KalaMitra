@@ -126,17 +126,20 @@ export default function SellerReelsPage() {
   }, [user?.id, showUploadModal]);
 
   useEffect(() => {
+    let isMounted = true;
     const fetchReels = async () => {
       if (!user?.id) return;
+      setLoading(true);
       const { data, error } = await supabase
         .from('reel')
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
-      if (!error && data) setReels(data);
-      setLoading(false);
+      if (!error && data && isMounted) setReels(data);
+      if (isMounted) setLoading(false);
     };
     fetchReels();
+    return () => { isMounted = false; };
   }, [user?.id]);
 
   // Handle file input change

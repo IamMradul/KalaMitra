@@ -301,7 +301,12 @@
     "videoFileLabel": "ভিডিও ফাইল",
     "addComment": "একটি মন্তব্য যোগ করুন...",
     "post": "পোস্ট করুন",
-    "endOfList": "আর কোনো রিল নেই।"
+    "endOfList": "আর কোনো রিল নেই।",
+    "captionOptionalLabel": "ଶୀର୍ଷକ (ବୈକଳ୍ପିକ)",
+    "captionOptionalPlaceholder": "ଶୀର୍ଷକ (ବୈକଳ୍ପିକ)",
+    "linkProductLabel": "ଉତ୍ପାଦ ଲିଙ୍କ୍ କରନ୍ତୁ",
+    "uploadButton": "ରିଲ୍ ଅପଲୋଡ୍ କରନ୍ତୁ",
+    "uploadLimitHint": "ସର୍ବାଧିକ ଫାଇଲ୍ ଆକାର: 10MB। କେବଳ ଭିଡିଓ ଫାଇଲ୍ ଅନୁମତିପ୍ରାପ୍ତ।"
   },
   "auth": {
     "signupTitle": "ଆପଣଙ୍କର ଆକାଉଣ୍ଟ୍ ସୃଷ୍ଟି କରନ୍ତୁ",
@@ -492,7 +497,8 @@
     "requestSuccessDesc": "আপনার কাস্টম ক্রাফট অনুরোধ কারিগরের কাছে পাঠানো হয়েছে।",
     "requestSuccessDetail": "কারিগর আরও বিশদ বিবরণের জন্য সরাসরি বার্তার মাধ্যমে আপনার সাথে যোগাযোগ করবেন।",
     "youMightAlsoLike": "আপনার এটিও পছন্দ হতে পারে",
-    "item": "আইটেম"
+    "item": "আইটেম",
+    "title": "ଉତ୍ପାଦ ଦେଖନ୍ତୁ"
   },
   "auction": {
     "title": "ନିଲାମ",

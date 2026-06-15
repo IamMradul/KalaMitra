@@ -27,12 +27,12 @@ export async function compressImageForUpload(
       URL.revokeObjectURL(url);
       const maxDim = 1200;
       let { width, height } = img;
-      
+
       if (Math.max(width, height) <= maxDim && file.size < 600_000) {
         resolve(file);
         return;
       }
-      
+
       const scale = Math.min(1, maxDim / Math.max(width, height));
       width = Math.round(width * scale);
       height = Math.round(height * scale);
@@ -217,13 +217,17 @@ export async function moderateProductImage(params: {
     }
 
     if (!response.ok) {
+      if (response.status === 400 || response.status === 413 || response.status === 415) {
+        throw new Error(`Image Validation Error: ${data.message || 'The image is too large or has an invalid format.'}`);
+      }
+
       // Service error (503, 429, etc.) — allow upload through with a warning unless text contains vulgarity
       console.warn('[moderation-client] Moderation service returned error:', response.status, data.message);
       const isVulgar = (title && scanTextForVulgarity(title)) || (description && scanTextForVulgarity(description));
       if (isVulgar) {
         throw new Error(`❌ Product Upload Rejected\n\nAdult products or sex toys are not allowed on this marketplace.\n\nReason:\nInappropriate or adult-related content detected.\n\nPlease upload an appropriate product and try again.`);
       }
-      return { approved: true, message: 'Moderation service unavailable — upload allowed.' } as ModerationClientResponse;
+      return { approved: true, moderation_status: 'pending', message: 'Moderation service unavailable — upload allowed pending later review.' } as ModerationClientResponse;
     }
 
     if (!isModerationResponseAllowed(data, isVirtual)) {
@@ -234,7 +238,7 @@ export async function moderateProductImage(params: {
 
     return data;
   } catch (err) {
-    if (err instanceof Error && err.message.includes('Product Upload Rejected')) {
+    if (err instanceof Error && (err.message.includes('Product Upload Rejected') || err.message.includes('Image Validation Error'))) {
       throw err;
     }
     // Timeout, network error, or service unavailability — allow upload through unless text is vulgar

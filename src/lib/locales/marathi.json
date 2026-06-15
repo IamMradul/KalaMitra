@@ -301,7 +301,12 @@
     "videoFileLabel": "व्हिडिओ फाईल",
     "addComment": "कमेंट जोडा...",
     "post": "पोस्ट करा",
-    "endOfList": "आणखी रील नाहीत."
+    "endOfList": "आणखी रील नाहीत.",
+    "captionOptionalLabel": "शीर्षक (पर्यायी)",
+    "captionOptionalPlaceholder": "शीर्षक (पर्यायी)",
+    "linkProductLabel": "उत्पादन लिंक करा",
+    "uploadButton": "रील अपलोड करा",
+    "uploadLimitHint": "कमाल फाईल आकार: 10MB. फक्त व्हिडिओ फाइल्सना परवानगी आहे."
   },
   "auth": {
     "signupTitle": "तुमचे खाते तयार करा",
@@ -492,7 +497,8 @@
     "requestSuccessDesc": "तुमची सानुकूल क्राफ्ट विनंती कारागिराकडे पाठवली गेली आहे.",
     "requestSuccessDetail": "कारागीर पुढील तपशीलांसाठी थेट संदेशाद्वारे तुमच्याशी संपर्क साधेल.",
     "youMightAlsoLike": "तुम्हाला हे देखील आवडेल",
-    "item": "वस्तू"
+    "item": "वस्तू",
+    "title": "उत्पादन पहा"
   },
   "auction": {
     "title": "लिलाव",

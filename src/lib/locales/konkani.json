@@ -301,7 +301,12 @@
     "videoFileLabel": "वीडियो फ़ाइल",
     "addComment": "एक टिप्पणी जोड़ें...",
     "post": "पोस्ट करें",
-    "endOfList": "कोई और रील नहीं है।"
+    "endOfList": "कोई और रील नहीं है।",
+    "captionOptionalLabel": "शीर्षक (पर्यायी)",
+    "captionOptionalPlaceholder": "शीर्षक (पर्यायी)",
+    "linkProductLabel": "उत्पादन लिंक करात",
+    "uploadButton": "रील अपलोड करात",
+    "uploadLimitHint": "कमाल फाईल आकार: 10MB. फक्त व्हिडिओ फाईल मान्य."
   },
   "auth": {
     "signupTitle": "तुजो खातो तयार कर",
@@ -492,7 +497,8 @@
     "requestSuccessDesc": "आपका कस्टम शिल्प अनुरोध कारीगर को भेज दिया गया है।",
     "requestSuccessDetail": "कारीगर आगे के विवरण के लिए सीधे संदेश के माध्यम से आपसे संपर्क करेंगे।",
     "youMightAlsoLike": "आपको यह भी पसंद आ सकता है",
-    "item": "वस्तु"
+    "item": "वस्तु",
+    "title": "उत्पादन पळयात"
   },
   "auction": {
     "title": "लिलाम",

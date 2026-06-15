@@ -32,7 +32,7 @@ export interface ProductModerationResult {
 
 /** Profanity / vulgar terms related to sex products / adult content */
 const VULGAR_PATTERN =
-  /\b(porn|xxx|nude|naked|sex|dildo|vibrator|sex\s+toy|sex\s+toys|adult\s+toy|adult\s+toys|hentai|erotic|erotica|penis|vagina|clitoris|boobs|tits|breasts|nudity|pornography|dick|pussy|cock|masturbator|masturbate)\b/i;
+  /\b(porn|pornography|xxx|dildo|vibrator|sex\s+toy|sex\s+toys|adult\s+toy|adult\s+toys|hentai|erotica|masturbator|masturbate)\b/i;
 
 /**
  * Allow upload unless the product contains adult content, nudity, sexual content, or sex toys.
