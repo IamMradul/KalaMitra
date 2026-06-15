@@ -111,10 +111,33 @@ export default function ProfilePage() {
   const [unreadNotifCount, setUnreadNotifCount] = useState(0)
 
   useEffect(() => {
-    if (profile) {
-      fetchUnreadNotifs()
-    }
-  }, [profile])
+    if (!user) return;
+    
+    // Fetch initial count
+    fetchUnreadNotifs();
+
+    // Subscribe to real-time notification changes
+    const channel = supabase
+      .channel(`unread-notifications-count:${user.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'notifications',
+          filter: `user_id=eq.${user.id}`,
+        },
+        () => {
+          // Re-fetch the unread notifications count whenever there's a change
+          fetchUnreadNotifs();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      channel.unsubscribe();
+    };
+  }, [user])
 
   const fetchUnreadNotifs = async () => {
     if (!user) return;

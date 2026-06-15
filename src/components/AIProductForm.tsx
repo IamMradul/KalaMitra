@@ -23,7 +23,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { moderateProductImage, compressImageForUpload } from '@/lib/moderate-product-image-client'
 
 interface AIProductFormProps {
-  onSubmit: (formData: FormData) => void
+  onSubmit: (formData: FormData) => Promise<string | null | void> | any
   onCancel: () => void
   loading?: boolean
   initialData?: {
@@ -216,20 +216,45 @@ export default function AIProductForm({
   const [adVideoUrl, setAdVideoUrl] = useState('')
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [isModerating, setIsModerating] = useState(false)
+  const [rejectionError, setRejectionError] = useState<string | null>(null)
+  const [moderationStatus, setModerationStatus] = useState('approved')
 
-  const ensureModerationPassed = async () => {
+  const resetForm = () => {
+    setImageUrl(initialData.imageUrl || '')
+    setTitle(initialData.title || '')
+    setCategory(initialData.category || '')
+    setDescription(initialData.description || '')
+    setPrice(initialData.price ? String(initialData.price) : '')
+    setStory(initialData.product_story || '')
+    setProductType(initialData.product_type || 'vertical')
+    setUploadedFile(null)
+    setAiResult(null)
+    setShowAiResult(false)
+    setError('')
+    setAdVideoUrl('')
+    setCtaText('Shop Now')
+    setWebsite(profile?.name?.trim() ? profile.name : 'https://yourwebsite.com')
+    setModerationStatus('approved')
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
+    }
+  }
+
+  const ensureModerationPassed = async (): Promise<'approved' | 'pending'> => {
     setIsModerating(true)
     try {
-      const isVirtual = [title, description, category].some(text => 
-        /\b(recipe|cook|culinary|artisan|technique|pottery|clay|craft|tutorial|guide|pattern|clothes|design|sew|paint|art|diy|instruction|digital|pdf)\b/i.test(text || '')
-      );
+      let res;
       if (uploadedFile) {
-        await moderateProductImage({ file: uploadedFile, title, description, userId: user?.id, isVirtual })
+        res = await moderateProductImage({ file: uploadedFile, title, description, userId: user?.id, isVirtual: false })
       } else if (imageUrl && !imageUrl.startsWith('blob:')) {
-        await moderateProductImage({ imageUrl, title, description, userId: user?.id, isVirtual })
+        res = await moderateProductImage({ imageUrl, title, description, userId: user?.id, isVirtual: false })
       } else {
         throw new Error(t('ai.form.errors.invalidImage'))
       }
+
+      const status = res && res.moderation_status === 'pending' ? 'pending' : 'approved';
+      setModerationStatus(status);
+      return status;
     } finally {
       setIsModerating(false)
     }
@@ -394,9 +419,10 @@ export default function AIProductForm({
     setError('');
 
     try {
-      await ensureModerationPassed();
+      const modStatus = await ensureModerationPassed();
 
       const formData = new FormData(form);
+      formData.set('moderation_status', modStatus);
 
       let uploadedImageUrl = imageUrl;
       if (uploadedFile) {
@@ -423,6 +449,9 @@ export default function AIProductForm({
 
       // Save product and get productId from result
       const productId = await onSubmit(formData); // onSubmit should return productId
+      if (!productId) {
+        throw new Error(t('ai.form.errors.uploadFailed') || 'Failed to save product in the database.');
+      }
 
       // If adVideoUrl exists, insert reel into Supabase
       if (adVideoUrl && user && productId) {
@@ -449,13 +478,19 @@ export default function AIProductForm({
       onCancel();
     } catch (err) {
       console.error('Error in handleSubmit:', err);
-      setError(err instanceof Error ? err.message : t('ai.form.errors.uploadFailed'));
+      const errMsg = err instanceof Error ? err.message : t('ai.form.errors.uploadFailed');
+      if (errMsg.includes('Product Upload Rejected')) {
+        setRejectionError(errMsg);
+      } else {
+        setError(errMsg);
+      }
       setIsUploading(false);
     }
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <>
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -475,6 +510,7 @@ export default function AIProductForm({
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          <input type="hidden" name="moderation_status" value={moderationStatus} />
           {/* Image Upload Section */}
           <div className="space-y-4">
             <label className="block text-sm font-medium text-gray-700">
@@ -896,5 +932,44 @@ export default function AIProductForm({
         </div>
       </motion.div>
     </div>
+
+    <AnimatePresence>
+      {rejectionError && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-[60]">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9, y: -20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+            className="bg-white rounded-2xl border border-red-100 shadow-2xl p-6 max-w-md w-full text-center relative overflow-hidden"
+          >
+            <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-red-500 to-orange-500" />
+            
+            <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-50 mb-4">
+              <AlertCircle className="h-8 w-8 text-red-600 animate-bounce" />
+            </div>
+            
+            <h3 className="text-xl font-bold text-gray-900 mb-2">
+              {t('ai.moderation.failedTitle', { defaultValue: 'Product Moderation Failed' })}
+            </h3>
+            
+            <div className="text-sm text-gray-600 mb-6 whitespace-pre-line text-left bg-gray-50 p-4 rounded-xl border border-gray-100 max-h-[250px] overflow-y-auto">
+              {rejectionError}
+            </div>
+            
+            <button
+              type="button"
+              onClick={() => {
+                resetForm();
+                setRejectionError(null);
+              }}
+              className="w-full py-3 px-4 bg-gradient-to-r from-red-500 to-orange-500 text-white font-medium rounded-xl hover:from-red-600 hover:to-orange-600 shadow-lg shadow-red-500/20 active:scale-[0.98] transition-all duration-150 cursor-pointer"
+            >
+              {t('common.ok', { defaultValue: 'OK' })}
+            </button>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
+  </>
   )
 }
