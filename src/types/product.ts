@@ -8,6 +8,7 @@ export interface Product {
   is_virtual?: boolean;
   virtual_type?: string | null;
   virtual_file_url?: string | null;
+  additional_images?: string[];
 }
 
 export interface StallProps {

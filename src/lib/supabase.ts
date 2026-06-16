@@ -121,6 +121,7 @@ export type Database = {
           is_virtual?: boolean
           virtual_type?: string | null
           virtual_file_url?: string | null
+          additional_images?: string[] | null
         }
         Insert: {
           id?: string
@@ -136,6 +137,7 @@ export type Database = {
           is_virtual?: boolean
           virtual_type?: string | null
           virtual_file_url?: string | null
+          additional_images?: string[] | null
         }
         Update: {
           id?: string
@@ -151,6 +153,7 @@ export type Database = {
           is_virtual?: boolean
           virtual_type?: string | null
           virtual_file_url?: string | null
+          additional_images?: string[] | null
         }
       }
       auctions: {

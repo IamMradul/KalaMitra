@@ -13,7 +13,10 @@ import {
   Upload,
   X,
   Video,
-  Mic
+  Mic,
+  ChevronLeft,
+  ChevronRight,
+  Trash2
 } from 'lucide-react'
 import AIService, { AIAnalysisResult } from '@/lib/ai-service'
 import { supabase } from '@/lib/supabase'
@@ -32,6 +35,7 @@ interface AIProductFormProps {
     description?: string
     price?: number
     imageUrl?: string
+    additional_images?: string[]
     product_story?: string
     product_type?: 'vertical' | 'horizontal'
   }
@@ -54,7 +58,19 @@ export default function AIProductForm({
   const { t } = useTranslation()
   const { currentLanguage } = useLanguage()
   const { user, profile } = useAuth()
-  const [imageUrl, setImageUrl] = useState(initialData.imageUrl || '')
+  type ImageItem = { id: string; type: 'url' | 'file'; url: string; file?: File; }
+  const [images, setImages] = useState<ImageItem[]>(() => {
+    const initialImages: ImageItem[] = [];
+    if (initialData.imageUrl) {
+      initialImages.push({ id: Math.random().toString(), type: 'url', url: initialData.imageUrl });
+    }
+    if (initialData.additional_images) {
+      initialData.additional_images.forEach(img => {
+        initialImages.push({ id: Math.random().toString(), type: 'url', url: img });
+      });
+    }
+    return initialImages;
+  });
   const [title, setTitle] = useState(initialData.title || '')
   const [category, setCategory] = useState(initialData.category || '')
   const [description, setDescription] = useState(initialData.description || '')
@@ -205,8 +221,7 @@ export default function AIProductForm({
   const [website, setWebsite] = useState(profile?.name?.trim() ? profile.name : 'https://yourwebsite.com')
 
   // Check if all required fields for ad generation are filled
-  const isAdGenerationReady = !!(imageUrl && title && category && description && price && ctaText && website)
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null)
+  const isAdGenerationReady = !!(images.length > 0 && title && category && description && price && ctaText && website)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
   const [isGeneratingAd, setIsGeneratingAd] = useState(false)
@@ -261,11 +276,14 @@ export default function AIProductForm({
   }
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
-      const url = URL.createObjectURL(file)
-      setImageUrl(url)
-      setUploadedFile(file)
+    if (e.target.files && e.target.files.length > 0) {
+      const newImages: ImageItem[] = Array.from(e.target.files).map(file => ({
+        id: Math.random().toString(),
+        type: 'file',
+        url: URL.createObjectURL(file),
+        file
+      }));
+      setImages(prev => [...prev, ...newImages]);
       setAiResult(null)
       setShowAiResult(false)
       setError('')
@@ -275,12 +293,47 @@ export default function AIProductForm({
 
   const handleImageUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const url = e.target.value
-    setImageUrl(url)
-    setUploadedFile(null)
-    setAiResult(null)
-    setShowAiResult(false)
-    setError('')
-    setAdVideoUrl('')
+    if (url) {
+      setImages(prev => [...prev, { id: Math.random().toString(), type: 'url', url }])
+      setAiResult(null)
+      setShowAiResult(false)
+      setError('')
+      setAdVideoUrl('')
+      e.target.value = ''
+    }
+  }
+
+  const [draggedIdx, setDraggedIdx] = useState<number | null>(null);
+
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    setDraggedIdx(index);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleDrop = (e: React.DragEvent, dropIdx: number) => {
+    e.preventDefault();
+    if (draggedIdx === null || draggedIdx === dropIdx) return;
+    setImages(prev => {
+      const newImages = [...prev];
+      const draggedItem = newImages[draggedIdx];
+      newImages.splice(draggedIdx, 1);
+      newImages.splice(dropIdx, 0, draggedItem);
+      return newImages;
+    });
+    setDraggedIdx(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedIdx(null);
+  };
+
+  const removeImage = (index: number) => {
+    setImages(prev => prev.filter((_, i) => i !== index));
   }
 
   const uploadImageToSupabase = async (file: File): Promise<string> => {
@@ -291,28 +344,27 @@ export default function AIProductForm({
       const fileName = `product-images/${Math.random().toString(36).substring(2)}.${fileExt}`
       const filePath = fileName
 
-      console.log('Uploading to path:', filePath)
+      console.log('Uploading to path via API:', filePath)
 
-      const { data, error } = await supabase.storage
-        .from('images')
-        .upload(filePath, file, {
-          cacheControl: '3600',
-          upsert: false
-        })
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('filePath', filePath)
+      console.log(`Uploading to path via API: ${filePath}`)
+      
+      const response = await fetch('/api/marketplace/products', {
+        method: 'POST',
+        body: formData
+      })
 
-      if (error) {
-        console.error('Upload error:', error)
-        throw new Error(`Failed to upload image: ${error.message}`)
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(`Failed to upload image: ${errorData.error}`)
       }
 
-      console.log('Upload successful, getting public URL...')
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('images')
-        .getPublicUrl(filePath)
-
-      console.log('Public URL generated:', publicUrl)
-      return publicUrl
+      const data = await response.json()
+      console.log('Upload successful, URL:', data.url)
+      
+      return data.url
     } catch (error) {
       console.error('Error in uploadImageToSupabase:', error)
       throw error
@@ -320,8 +372,8 @@ export default function AIProductForm({
   }
 
   const analyzeImage = async () => {
-    if (!imageUrl) {
-  setError(t('ai.form.errors.noImage'))
+    if (images.length === 0) {
+      setError(t('ai.form.errors.noImage'))
       return
     }
 
@@ -330,25 +382,25 @@ export default function AIProductForm({
 
     try {
       const aiService = AIService.getInstance()
-      
-      if (uploadedFile) {
-        const result = await aiService.analyzeProductImageFromFile(uploadedFile)
+      const primaryImage = images[0]
+      if (primaryImage.type === 'file' && primaryImage.file) {
+        const result = await aiService.analyzeProductImageFromFile(primaryImage.file)
         setAiResult(result)
         setShowAiResult(true)
       } else {
-        const result = await aiService.analyzeProductImage(imageUrl)
+        const result = await aiService.analyzeProductImage(primaryImage.url)
         setAiResult(result)
         setShowAiResult(true)
       }
     } catch (err) {
-  setError(err instanceof Error ? err.message : t('ai.form.errors.analyzeFailed'))
+      setError(err instanceof Error ? err.message : t('ai.form.errors.analyzeFailed'))
     } finally {
       setIsAnalyzing(false)
     }
   }
 
   const generateAd = async () => {
-    if (!imageUrl) {
+    if (images.length === 0) {
       setError(t('ai.form.errors.noImage'));
       return;
     }
@@ -371,7 +423,10 @@ export default function AIProductForm({
         ? profile.store_description
         : (document.querySelector('input[name="website"]') as HTMLInputElement)?.value || 'https://yourwebsite.com';
 
-      const uploadedImageUrl = uploadedFile ? await uploadImageToSupabase(uploadedFile) : imageUrl;
+      const primaryImage = images[0];
+      const uploadedImageUrl = (primaryImage.type === 'file' && primaryImage.file) 
+        ? await uploadImageToSupabase(primaryImage.file) 
+        : primaryImage.url;
 
       const response = await fetch('/api/generate-ad', {
         method: 'POST',
@@ -424,17 +479,32 @@ export default function AIProductForm({
       const formData = new FormData(form);
       formData.set('moderation_status', modStatus);
 
-      let uploadedImageUrl = imageUrl;
-      if (uploadedFile) {
-        const compressedFile = await compressImageForUpload(uploadedFile);
-        uploadedImageUrl = await uploadImageToSupabase(compressedFile);
-        formData.set('imageUrl', uploadedImageUrl);
-      } else if (imageUrl && !imageUrl.startsWith('blob:')) {
-        formData.set('imageUrl', imageUrl);
-      } else {
+      if (images.length === 0) {
         setError(t('ai.form.errors.invalidImage'));
         setIsUploading(false);
         return;
+      }
+
+      const uploadedUrls: string[] = [];
+      for (const img of images) {
+        if (img.type === 'file' && img.file) {
+          const compressedFile = await compressImageForUpload(img.file);
+          const url = await uploadImageToSupabase(compressedFile);
+          uploadedUrls.push(url);
+        } else if (img.url && !img.url.startsWith('blob:')) {
+          uploadedUrls.push(img.url);
+        }
+      }
+
+      if (uploadedUrls.length === 0) {
+        setError(t('ai.form.errors.invalidImage'));
+        setIsUploading(false);
+        return;
+      }
+
+      formData.set('imageUrl', uploadedUrls[0]);
+      if (uploadedUrls.length > 1) {
+        formData.set('additional_images', JSON.stringify(uploadedUrls.slice(1)));
       }
 
       if (adVideoUrl) {
@@ -530,6 +600,7 @@ export default function AIProductForm({
                 ref={fileInputRef}
                 type="file"
                 accept="image/*"
+                multiple
                 onChange={handleImageUpload}
                 className="hidden"
               />
@@ -545,54 +616,99 @@ export default function AIProductForm({
               <input
                 name="imageUrl"
                 type="url"
-                value={imageUrl}
                 onChange={handleImageUrlChange}
                 className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                 placeholder={t('ai.form.pasteImageUrl')}
               />
             </div>
 
-            {imageUrl && (
-              <div className="relative">
-                <img
-                  src={imageUrl}
-                  alt={t('ai.form.productPreviewAlt')}
-                  className="w-full h-48 object-cover rounded-lg border border-gray-200"
-                />
-                <div className="absolute top-2 right-2 flex space-x-2">
-                  <button
-                    type="button"
-                    onClick={analyzeImage}
-                    disabled={isAnalyzing}
-                    className="flex items-center px-3 py-2 bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-lg hover:from-orange-600 hover:to-red-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {isAnalyzing ? (
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    ) : (
-                      <Camera className="w-4 h-4 mr-2" />
-                    )}
-                    {isAnalyzing ? t('ai.analyzing') : t('ai.analyzeWithAI')}
-                  </button>
-                  <div className="relative group inline-block">
+            {images.length > 0 && (
+              <div className="space-y-4">
+                {/* Primary Image Preview (First Image) */}
+                <div className="relative">
+                  <img
+                    src={images[0].url}
+                    alt={t('ai.form.productPreviewAlt')}
+                    className="w-full h-48 object-cover rounded-lg border border-gray-200"
+                  />
+                  <div className="absolute top-2 right-2 flex space-x-2">
                     <button
                       type="button"
-                      onClick={generateAd}
-                      disabled={isGeneratingAd || !isAdGenerationReady}
-                      className="flex items-center px-3 py-2 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-lg hover:from-purple-600 hover:to-indigo-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                      onClick={analyzeImage}
+                      disabled={isAnalyzing}
+                      className="flex items-center px-3 py-2 bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-lg hover:from-orange-600 hover:to-red-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      {isGeneratingAd ? (
+                      {isAnalyzing ? (
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                       ) : (
-                        <Video className="w-4 h-4 mr-2" />
+                        <Camera className="w-4 h-4 mr-2" />
                       )}
-                      {isGeneratingAd ? t('ai.generatingAd') : t('ai.generateAdWithAI')}
+                      {isAnalyzing ? t('ai.analyzing') : t('ai.analyzeWithAI')}
                     </button>
-                    {!isAdGenerationReady && (
-                      <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-56 bg-gray-800 text-white text-xs rounded-lg px-3 py-2 z-10 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200">
-                        {t('ai.form.fillAllFieldsForAd', { defaultValue: 'Please fill all product details (image, title, description, price, CTA, website) before generating an ad.' })}
-                      </div>
-                    )}
+                    <div className="relative group inline-block">
+                      <button
+                        type="button"
+                        onClick={generateAd}
+                        disabled={isGeneratingAd || !isAdGenerationReady}
+                        className="flex items-center px-3 py-2 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-lg hover:from-purple-600 hover:to-indigo-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {isGeneratingAd ? (
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        ) : (
+                          <Video className="w-4 h-4 mr-2" />
+                        )}
+                        {isGeneratingAd ? t('ai.generatingAd') : t('ai.generateAdWithAI')}
+                      </button>
+                      {!isAdGenerationReady && (
+                        <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-56 bg-gray-800 text-white text-xs rounded-lg px-3 py-2 z-10 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200">
+                          {t('ai.form.fillAllFieldsForAd', { defaultValue: 'Please fill all product details (image, title, description, price, CTA, website) before generating an ad.' })}
+                        </div>
+                      )}
+                    </div>
                   </div>
+                </div>
+
+                {/* Thumbnails Gallery */}
+                <div className="flex gap-2 overflow-x-auto pb-2 items-center">
+                  {images.map((img, idx) => (
+                    <div 
+                      key={img.id} 
+                      draggable
+                      onDragStart={(e) => handleDragStart(e, idx)}
+                      onDragOver={(e) => handleDragOver(e, idx)}
+                      onDrop={(e) => handleDrop(e, idx)}
+                      onDragEnd={handleDragEnd}
+                      className={`relative flex-shrink-0 w-24 h-24 rounded-lg border-2 ${idx === 0 ? 'border-orange-500' : 'border-gray-200'} overflow-hidden group cursor-grab active:cursor-grabbing ${draggedIdx === idx ? 'opacity-50' : 'opacity-100'}`}
+                    >
+                      <img src={img.url} alt={`Preview ${idx + 1}`} className="w-full h-full object-cover pointer-events-none" />
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-1">
+                        <div className="flex justify-end">
+                          <button
+                            type="button"
+                            onClick={() => removeImage(idx)}
+                            className="bg-white/80 p-1 rounded-full text-red-500 hover:bg-white"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </div>
+                      </div>
+                      {idx === 0 && (
+                        <div className="absolute bottom-0 left-0 right-0 bg-orange-500 text-white text-[10px] text-center font-semibold py-0.5 pointer-events-none">
+                          Primary
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                  
+                  {/* Add New Photo Square */}
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="flex-shrink-0 w-24 h-24 rounded-lg border-2 border-dashed border-gray-300 flex flex-col items-center justify-center text-gray-500 hover:text-orange-500 hover:border-orange-500 hover:bg-orange-50 transition-colors"
+                  >
+                    <span className="text-3xl font-light mb-1">+</span>
+                    <span className="text-[10px] font-medium uppercase tracking-wide">Add Photo</span>
+                  </button>
                 </div>
               </div>
             )}

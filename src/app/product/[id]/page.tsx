@@ -109,6 +109,7 @@ export default function ProductDetail() {
   const [translatedStory, setTranslatedStory] = useState<string | null>(null);
   const [loading, setLoading] = useState(true)
   const [quantity, setQuantity] = useState(1)
+  const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [hasActiveAuction, setHasActiveAuction] = useState(false)
   const [arOpen, setArOpen] = useState(false)
 
@@ -542,19 +543,24 @@ export default function ProductDetail() {
                 )}
               </div>
 
-              {product.image_url ? (
-                <Image
-                  src={product.image_url}
-                  alt={product.title}
-                  fill
-                  className="object-cover object-center"
-                  priority
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center bg-gray-100">
-                  <span className="text-6xl text-gray-300">🖼️</span>
-                </div>
-              )}
+              {(() => {
+                const allImages = [product.image_url, ...(product.additional_images || [])].filter(Boolean) as string[];
+                const currentImg = allImages[currentImageIndex] || product.image_url;
+                
+                return currentImg ? (
+                  <Image
+                    src={currentImg}
+                    alt={product.title}
+                    fill
+                    className="object-cover object-center transition-opacity duration-300"
+                    priority
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                    <span className="text-6xl text-gray-300">🖼️</span>
+                  </div>
+                );
+              })()}
 
               {/* AR Trigger */}
               <button
@@ -576,7 +582,26 @@ export default function ProductDetail() {
               </button>
             </motion.div>
 
-            {/* Thumbnails (Mockup since DB only has 1 image usually) */}
+            {/* Thumbnails */}
+            {(() => {
+              const allImages = [product.image_url, ...(product.additional_images || [])].filter(Boolean) as string[];
+              if (allImages.length > 1) {
+                return (
+                  <div className="flex gap-2 overflow-x-auto py-2 px-1 scrollbar-hide">
+                    {allImages.map((img, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => setCurrentImageIndex(idx)}
+                        className={`relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden border-2 transition-all ${currentImageIndex === idx ? 'border-orange-500 scale-105 shadow-md' : 'border-transparent hover:border-orange-300'}`}
+                      >
+                        <Image src={img} alt={`Thumbnail ${idx + 1}`} fill className="object-cover" />
+                      </button>
+                    ))}
+                  </div>
+                );
+              }
+              return null;
+            })()}
 
             {/* Product Story (Heritage Redesign - Moved to Left Column) */}
             {product.product_story && (

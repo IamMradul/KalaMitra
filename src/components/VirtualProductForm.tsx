@@ -331,28 +331,26 @@ export default function AIProductForm({
       const fileName = `product-images/${Math.random().toString(36).substring(2)}.${fileExt}`
       const filePath = fileName
 
-      console.log('Uploading to path:', filePath)
+      console.log('Uploading to path via API:', filePath)
 
-      const { data, error } = await supabase.storage
-        .from('images')
-        .upload(filePath, file, {
-          cacheControl: '3600',
-          upsert: false
-        })
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('filePath', filePath)
 
-      if (error) {
-        console.error('Upload error:', error)
-        throw new Error(`Failed to upload image: ${error.message}`)
+      const response = await fetch('/api/marketplace/products', {
+        method: 'POST',
+        body: formData
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(`Failed to upload image: ${errorData.error}`)
       }
 
-      console.log('Upload successful, getting public URL...')
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('images')
-        .getPublicUrl(filePath)
-
-      console.log('Public URL generated:', publicUrl)
-      return publicUrl
+      const data = await response.json()
+      console.log('Upload successful, URL:', data.url)
+      
+      return data.url
     } catch (error) {
       console.error('Error in uploadImageToSupabase:', error)
       throw error
