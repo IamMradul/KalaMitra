@@ -242,7 +242,6 @@ export default function AIProductForm({
     setPrice(initialData.price ? String(initialData.price) : '')
     setStory(initialData.product_story || '')
     setProductType(initialData.product_type || 'vertical')
-    setUploadedFile(null)
     setAiResult(null)
     setShowAiResult(false)
     setError('')
@@ -259,10 +258,11 @@ export default function AIProductForm({
     setIsModerating(true)
     try {
       let res;
-      if (uploadedFile) {
-        res = await moderateProductImage({ file: uploadedFile, title, description, userId: user?.id, isVirtual: false })
-      } else if (imageUrl && !imageUrl.startsWith('blob:')) {
-        res = await moderateProductImage({ imageUrl, title, description, userId: user?.id, isVirtual: false })
+      const primaryImage = images[0];
+      if (primaryImage?.type === 'file' && primaryImage.file) {
+        res = await moderateProductImage({ file: primaryImage.file, title, description, userId: user?.id, isVirtual: false })
+      } else if (primaryImage?.type === 'url' && primaryImage.url && !primaryImage.url.startsWith('blob:')) {
+        res = await moderateProductImage({ imageUrl: primaryImage.url, title, description, userId: user?.id, isVirtual: false })
       } else {
         throw new Error(t('ai.form.errors.invalidImage'))
       }

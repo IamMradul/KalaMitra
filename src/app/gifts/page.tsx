@@ -141,27 +141,15 @@ export default function GiftsPage() {
         return;
       }
 
-      const [receivedResult, sentResult, groupResult] = await Promise.all([
-        supabase
-          .from('gifts')
-          .select('id, product_id, sender_id, recipient_id, message, created_at, status, viewed, metadata')
-          .eq('recipient_id', userId)
-          .order('created_at', { ascending: false }),
-        supabase
-          .from('gifts')
-          .select('id, product_id, sender_id, recipient_id, message, created_at, status, viewed, metadata')
-          .eq('sender_id', userId)
-          .order('created_at', { ascending: false }),
-        supabase
-          .from('group_gifts')
-          .select('id, product_id, recipient_id, initiator_id, message, created_at, target_amount, member_ids')
-          .or(`initiator_id.eq.${userId},member_ids.cs.{${userId}}`)
-          .not('recipient_id', 'eq', userId),
-      ]);
+      const response = await fetch(`/api/gift?userId=${userId}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch gifts');
+      }
+      const data = await response.json();
 
-      const received = receivedResult.data || [];
-      const sent = sentResult.data || [];
-      const group = groupResult.data || [];
+      const received = data.received || [];
+      const sent = data.sent || [];
+      const group = data.group || [];
 
       const productIds = uniqueIds([
         ...received.map((gift) => gift.product_id),
@@ -183,16 +171,6 @@ export default function GiftsPage() {
       const receivedEnriched: Gift[] = received.map((gift) => enrichGift(gift, productMap, profileMap));
       const sentEnriched: Gift[] = sent.map((gift) => enrichGift(gift, productMap, profileMap));
       const groupEnriched: GroupGift[] = group.map((gift) => enrichGroupGift(gift, productMap, profileMap));
-
-      if (receivedResult.error) {
-        throw receivedResult.error;
-      }
-      if (sentResult.error) {
-        throw sentResult.error;
-      }
-      if (groupResult.error) {
-        throw groupResult.error;
-      }
 
       setGiftsR(receivedEnriched);
       setGiftsS(sentEnriched);
@@ -226,14 +204,22 @@ export default function GiftsPage() {
 
   const handleUnbox = async (giftId: string) => {
     if (!profile) return;
-    await supabase.from('gifts').update({ viewed: true }).eq('id', giftId).eq('recipient_id', profile.id);
-    // Update local state for the unwrapped gift
-    setGiftsR(prev => prev.map(g => g.id === giftId ? { ...g, viewed: true } : g));
-    setConfettiGiftId(giftId);
-    setTimeout(() => setConfettiGiftId(null), 1500);
-    // Dispatch event so Navbar and this page update immediately
-    if (typeof window !== 'undefined') {
-      window.dispatchEvent(new Event('giftUpdated'));
+    try {
+      await fetch('/api/gift', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: giftId, recipient_id: profile.id, viewed: true })
+      });
+      // Update local state for the unwrapped gift
+      setGiftsR(prev => prev.map(g => g.id === giftId ? { ...g, viewed: true } : g));
+      setConfettiGiftId(giftId);
+      setTimeout(() => setConfettiGiftId(null), 1500);
+      // Dispatch event so Navbar and this page update immediately
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('giftUpdated'));
+      }
+    } catch (err) {
+      console.error('Failed to unbox gift', err);
     }
   };
 
@@ -250,29 +236,33 @@ export default function GiftsPage() {
     (async () => {
       if (gift && profile?.id) {
         if (gift.metadata?.type === 'group_gift' && Array.isArray(gift.contributors) && gift.contributors.length > 0) {
-          await Promise.all(gift.contributors.map((contributor: Contributor) => {
-            if (contributor.id) {
-              return supabase
-                .from('notifications')
-                .insert({
-                  user_id: contributor.id,
-                  title: t('gifts.notification.thankedGroup', 'You were thanked for your group gift!'),
-                  body: `${profile.name || 'Recipient'} thanked you for contributing to "${gift.product?.title || 'a product'}"!`,
-                  read: false,
-                  metadata: {
-                    type: 'gift_thanked',
-                    gift_id: gift.id,
-                    product_id: gift.product?.id,
-                    recipient_id: profile.id
-                  }
-                });
-            }
-            return Promise.resolve();
-          }));
+          const notifications = gift.contributors
+            .filter((c: Contributor) => c.id)
+            .map((contributor: Contributor) => ({
+              user_id: contributor.id,
+              title: t('gifts.notification.thankedGroup', 'You were thanked for your group gift!'),
+              body: `${profile.name || 'Recipient'} thanked you for contributing to "${gift.product?.title || 'a product'}"!`,
+              read: false,
+              metadata: {
+                type: 'gift_thanked',
+                gift_id: gift.id,
+                product_id: gift.product?.id,
+                recipient_id: profile.id
+              }
+            }));
+          
+          if (notifications.length > 0) {
+            await fetch('/api/notifications', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(notifications)
+            });
+          }
         } else if (gift.sender?.id) {
-          await supabase
-            .from('notifications')
-            .insert({
+          await fetch('/api/notifications', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
               user_id: gift.sender.id,
               title: t('gifts.notification.thankedIndividual', 'You were thanked for your gift!'),
               body: `${profile.name || 'Recipient'} thanked you for gifting "${gift.product?.title || 'a product'}"!`,
@@ -283,7 +273,8 @@ export default function GiftsPage() {
                 product_id: gift.product?.id,
                 recipient_id: profile.id
               }
-            });
+            })
+          });
         }
       }
     })();

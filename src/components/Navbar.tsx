@@ -170,12 +170,10 @@ export default function Navbar() {
     let unsubscribed = false;
     const fetchUnwrappedGifts = async () => {
       try {
-        const { count, error } = await supabase
-          .from('gifts')
-          .select('*', { count: 'exact', head: true })
-          .eq('recipient_id', user.id)
-          .eq('viewed', false);
-        if (error) throw error;
+        const response = await fetch(`/api/gift?userId=${user.id}`);
+        if (!response.ok) throw new Error('Failed to fetch gifts');
+        const data = await response.json();
+        const count = data.received?.filter((g: any) => !g.viewed).length || 0;
         if (!unsubscribed) {
           setUnwrappedGiftsCount(count || 0);
           if ((count || 0) > 0) setShowMobileGiftDot(true);
@@ -251,12 +249,10 @@ export default function Navbar() {
 
     const fetchUnreadNotifications = async () => {
       try {
-        const { count, error } = await supabase
-          .from('notifications')
-          .select('id', { count: 'exact', head: true })
-          .eq('user_id', user.id)
-          .eq('read', false);
-        if (error) throw error;
+        const response = await fetch(`/api/notifications?userId=${user.id}`);
+        if (!response.ok) throw new Error('Failed to fetch notifications');
+        const data = await response.json();
+        const count = data.notifications?.filter((n: any) => !n.read).length || 0;
         const unreadCount = count || 0;
         setUnreadNotificationsCount(unreadCount);
         // Show mobile red dot if there are unread notifications
@@ -336,14 +332,10 @@ export default function Navbar() {
     const fetchNotifications = async () => {
       setNotificationsLoading(true);
       try {
-        const { data, error } = await supabase
-          .from('notifications')
-          .select('*')
-          .eq('user_id', user.id)
-          .order('created_at', { ascending: false })
-          .limit(10);
-        if (error) throw error;
-        if (isMounted) setNotifications(data || []);
+        const response = await fetch(`/api/notifications?userId=${user.id}`);
+        if (!response.ok) throw new Error('Failed to fetch notifications');
+        const data = await response.json();
+        if (isMounted) setNotifications(data.notifications?.slice(0, 10) || []);
       } catch (err) {
         console.error('Error fetching notifications:', err);
         if (isMounted) setNotifications([]);
@@ -401,27 +393,20 @@ export default function Navbar() {
 
   const markNotificationRead = async (notificationId: string) => {
     try {
-      await supabase
-        .from('notifications')
-        .update({ read: true })
-        .eq('id', notificationId);
+      await fetch('/api/notifications', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'mark_read', id: notificationId })
+      });
       // Refetch notifications
-      const { data } = await supabase
-        .from('notifications')
-        .select('*')
-        .eq('user_id', user?.id)
-        .order('created_at', { ascending: false })
-        .limit(10);
-      setNotifications(data || []);
+      const response = await fetch(`/api/notifications?userId=${user?.id}`);
+      if (!response.ok) throw new Error('Failed to fetch notifications');
+      const data = await response.json();
+      setNotifications(data.notifications?.slice(0, 10) || []);
 
       // Refetch exact count since data only has 10 items
       if (user?.id) {
-        const { count } = await supabase
-          .from('notifications')
-          .select('*', { count: 'exact', head: true })
-          .eq('user_id', user.id)
-          .eq('read', false);
-        const unreadCount = count || 0;
+        const unreadCount = data.notifications?.filter((n: any) => !n.read).length || 0;
         setUnreadNotificationsCount(unreadCount);
         if (unreadCount === 0) setShowMobileNotificationDot(false);
       }

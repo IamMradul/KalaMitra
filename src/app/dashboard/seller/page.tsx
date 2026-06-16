@@ -916,36 +916,6 @@ export default function SellerDashboard() {
 
     setEditProductLoading(true)
 
-<<<<<<< HEAD
-=======
-    const title = formData.get('title') as string
-    const category = formData.get('category') as string
-    const description = formData.get('description') as string
-    const price = parseFloat(formData.get('price') as string)
-    const imageUrl = formData.get('imageUrl') as string
-    const product_story = formData.get('product_story') as string | null
-    const product_type = formData.get('product_type') as 'vertical' | 'horizontal' | null
-    const virtual_type = formData.get('virtual_type') as string | null
-    const virtual_file_url = formData.get('virtual_file_url') as string | null
-
-    const additionalImagesRaw = formData.get('additional_images') as string | null
-    let additional_images: string[] | null = null
-    if (additionalImagesRaw) {
-      try {
-        additional_images = JSON.parse(additionalImagesRaw)
-      } catch (e) {
-        console.error('Failed to parse additional_images:', e)
-      }
-    }
-
-    // Basic validation
-    if (!title || !category || !description || isNaN(price) || price <= 0) {
-      alert('Please fill in all required fields with valid values.')
-      setEditProductLoading(false)
-      return
-    }
-
->>>>>>> a84c44d ((feat) Now one can add product with multiple photos)
     try {
       const title = formData.get('title') as string
       const category = formData.get('category') as string
@@ -956,10 +926,20 @@ export default function SellerDashboard() {
       const product_type = formData.get('product_type') as 'vertical' | 'horizontal' | null
       const virtual_type = formData.get('virtual_type') as string | null
       const virtual_file_url = formData.get('virtual_file_url') as string | null
+      const additionalImagesRaw = formData.get('additional_images') as string | null
+      let additional_images: string[] | null = null
+      if (additionalImagesRaw) {
+        try {
+          additional_images = JSON.parse(additionalImagesRaw)
+        } catch (e) {
+          console.error('Failed to parse additional_images:', e)
+        }
+      }
 
       // Basic validation
       if (!title || !category || !description || isNaN(price) || price <= 0) {
         alert('Please fill in all required fields with valid values.')
+        setEditProductLoading(false)
         return
       }
       const isVirtual = editingProduct?.is_virtual || formData.get('is_virtual') === 'true';
@@ -1749,11 +1729,8 @@ export default function SellerDashboard() {
                       <div className="flex flex-col xs:flex-row gap-2 mt-3">
                         <button
                           onClick={() => {
-<<<<<<< HEAD
                             setEditProductLoading(false)
-=======
                             console.log('Editing product:', product);
->>>>>>> a84c44d ((feat) Now one can add product with multiple photos)
                             setEditingProduct(product)
                           }}
                           className="flex-1 flex items-center justify-center px-3 py-2 text-xs sm:text-sm border border-[var(--border)] rounded-md text-[var(--text)] hover:bg-[var(--bg-2)] transition-colors"
