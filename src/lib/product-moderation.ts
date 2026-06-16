@@ -127,7 +127,7 @@ function parseModerationResponse(
   description?: string
 ): ProductModerationResult {
   const cleaned = stripCodeFence(raw);
-  
+
   // Quick fallback if completely broken JSON or truncated
   if (scanTextForVulgarity(raw)) {
     return vulgarDetectedResult('Profanity or inappropriate content detected in image text');
@@ -141,7 +141,7 @@ function parseModerationResponse(
     parsed = JSON.parse(jsonString) as Partial<ProductModerationResult>;
   } catch (parseErr) {
     console.warn('[product-moderation] JSON parse error:', parseErr);
-    
+
     // Fallback: Check if it explicitly rejected the image before truncation
     if (jsonString.includes('"approved": false') || jsonString.includes('"approved":false')) {
       return vulgarDetectedResult('Image does not meet handmade marketplace guidelines.');

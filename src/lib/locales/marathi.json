@@ -278,11 +278,12 @@
     "reels": "रील्स",
     "mitraPoints": "एमपी",
     "gifts": "भेटवस्तू",
-    "messages": "मेसेजेस",
+    "messages": "संदेश",
     "ads": "जाहिराती",
     "sellerDashboard": "विक्रेता डॅशबोर्ड",
     "myProfile": "माझी प्रोफाइल",
-    "myOrders": "माझे ऑर्डर्स"
+    "myOrders": "माझे ऑर्डर्स",
+    "wishlist": "विशलिस्ट"
   },
   "reels": {
     "yourReels": "तुमचे रील्स",

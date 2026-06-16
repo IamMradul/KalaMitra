@@ -286,11 +286,12 @@
     "reels": "रिल्स",
     "mitraPoints": "MP",
     "gifts": "उपहार फोर",
-    "messages": "सन्देश फोर",
+    "messages": "खौरां",
     "ads": "बिज्ञापन",
     "sellerDashboard": "विक्रेता डैशबोर्ड",
     "myProfile": "मेरी प्रोफ़ाइल",
-    "myOrders": "मेरे ऑर्डर"
+    "myOrders": "मेरे ऑर्डर",
+    "wishlist": "विशलिस्ट"
   },
   "reels": {
     "yourReels": "नोंसोरनि रिल्स फोर",

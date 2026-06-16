@@ -58,6 +58,8 @@ export async function GET(req: NextRequest) {
   const virtualOnly = searchParams.get('virtualOnly') === 'true';
   const lang = sanitizeLang(searchParams.get('lang'));
   const includeCategories = searchParams.get('includeCategories') === 'true';
+  const bypassCache = searchParams.get('bypassCache') === 'true';
+
   const cacheKey = JSON.stringify({
     page,
     pageSize,
@@ -70,7 +72,7 @@ export async function GET(req: NextRequest) {
   });
 
   const cached = responseCache.get(cacheKey);
-  if (cached && Date.now() - cached.ts < RESPONSE_CACHE_TTL_MS) {
+  if (!bypassCache && cached && Date.now() - cached.ts < RESPONSE_CACHE_TTL_MS) {
     return NextResponse.json(cached.data);
   }
 
@@ -230,4 +232,9 @@ export async function GET(req: NextRequest) {
   };
   responseCache.set(cacheKey, { data: payload, ts: Date.now() });
   return NextResponse.json(payload);
+}
+
+export async function DELETE() {
+  responseCache.clear();
+  return NextResponse.json({ success: true, message: 'Cache cleared' });
 }

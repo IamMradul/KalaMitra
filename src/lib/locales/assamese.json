@@ -280,9 +280,10 @@
     "gifts": "উপহাৰ",
     "messages": "বাৰ্তা",
     "ads": "বিজ্ঞাপন",
-    "sellerDashboard": "বিক্রেতা ড্যাশবোর্ড",
-    "myProfile": "আমার প্রোফাইল",
-    "myOrders": "আমার অর্ডার"
+    "sellerDashboard": "বিক্ৰেতা ডেশ্ববোৰ্ড",
+    "myProfile": "মোৰ প্ৰ'ফাইল",
+    "myOrders": "মোৰ অৰ্ডাৰসমূহ",
+    "wishlist": "ৱিশলিষ্ট"
   },
   "reels": {
     "yourReels": "আপোনাৰ ৰীলছ",
@@ -304,9 +305,9 @@
     "endOfList": "আর কোনো রিল নেই।",
     "captionOptionalLabel": "শীৰ্ষক (ঐচ্ছিক)",
     "captionOptionalPlaceholder": "শীৰ্ষক (ঐচ্ছিক)",
-    "linkProductLabel": "উৎপাদন সংযোগ কৰক",
+    "linkProductLabel": "সামগ্ৰী সংযোগ কৰক",
     "uploadButton": "ৰীল আপলোড কৰক",
-    "uploadLimitHint": "সৰ্বাধিক ফাইলৰ আকাৰ: 10MB। কেৱল ভিডিঅ' ফাইল অনুমোদিত।"
+    "uploadLimitHint": "সৰ্বাধিক ফাইলৰ আকাৰ: 10MB। কেৱল ভিডিঅ' ফাইলৰ অনুমতি আছে।"
   },
   "auth": {
     "signupTitle": "আপোনাৰ একাউণ্ট সৃষ্টি কৰক",
@@ -498,7 +499,7 @@
     "requestSuccessDetail": "কারিগর আরও বিশদ বিবরণের জন্য সরাসরি বার্তার মাধ্যমে আপনার সাথে যোগাযোগ করবেন।",
     "youMightAlsoLike": "আপনার এটিও পছন্দ হতে পারে",
     "item": "আইটেম",
-    "title": "উৎপাদন চাওক"
+    "title": "সামগ্ৰী চাওক"
   },
   "auction": {
     "title": "নিলাম",

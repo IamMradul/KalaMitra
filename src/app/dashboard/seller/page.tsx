@@ -885,6 +885,7 @@ export default function SellerDashboard() {
         formElement.reset()
       }
       fetchProducts()
+      fetch('/api/marketplace/products', { method: 'DELETE' }).catch(console.error);
       // Trigger embedding backfill for all products (including new one)
       try {
         await fetch('/api/backfill-embeddings', { method: 'GET' });
@@ -918,6 +919,7 @@ export default function SellerDashboard() {
 
       if (error) throw error
       fetchProducts()
+      fetch('/api/marketplace/products', { method: 'DELETE' }).catch(console.error);
     } catch (error) {
       console.error('Error deleting product:', error)
     }
@@ -985,6 +987,7 @@ export default function SellerDashboard() {
       alert('Product updated successfully!')
       setEditingProduct(null)
       fetchProducts()
+      fetch('/api/marketplace/products', { method: 'DELETE' }).catch(console.error);
     } catch (error) {
       console.error('Error updating product:', error)
       if (error instanceof Error) {

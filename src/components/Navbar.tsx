@@ -227,13 +227,10 @@ export default function Navbar() {
         }
       )
       .subscribe();
-    // Fallback polling for custom OAuth users who lack a Supabase session
-    let pollInterval: NodeJS.Timeout;
-    if (user && !session) {
-      pollInterval = setInterval(() => {
-        if (!unsubscribed) fetchUnwrappedGifts();
-      }, 3000);
-    }
+    // Reliable polling fallback for all users to ensure UI syncs
+    const pollInterval = setInterval(() => {
+      if (!unsubscribed) fetchUnwrappedGifts();
+    }, 5000);
 
     return () => {
       unsubscribed = true;
@@ -241,7 +238,7 @@ export default function Navbar() {
       if (typeof window !== 'undefined') {
         window.removeEventListener('giftUpdated', handleGiftUpdate);
       }
-      if (pollInterval) clearInterval(pollInterval);
+      clearInterval(pollInterval);
     };
   }, [user?.id, session]);
 
@@ -254,13 +251,13 @@ export default function Navbar() {
 
     const fetchUnreadNotifications = async () => {
       try {
-        const { data, error } = await supabase
+        const { count, error } = await supabase
           .from('notifications')
-          .select('id', { count: 'exact' })
+          .select('id', { count: 'exact', head: true })
           .eq('user_id', user.id)
           .eq('read', false);
         if (error) throw error;
-        const unreadCount = data?.length || 0;
+        const unreadCount = count || 0;
         setUnreadNotificationsCount(unreadCount);
         // Show mobile red dot if there are unread notifications
         if (unreadCount > 0 && !showMobileNotificationDot) {
@@ -319,18 +316,15 @@ export default function Navbar() {
       window.addEventListener('notificationUpdated', handleNotificationUpdate);
     }
 
-    // Fallback polling for custom OAuth users who lack a Supabase session
-    let pollInterval: NodeJS.Timeout;
-    if (user && !session) {
-      pollInterval = setInterval(fetchUnreadNotifications, 3000);
-    }
+    // Reliable polling fallback for all users to ensure UI syncs
+    const pollInterval = setInterval(fetchUnreadNotifications, 5000);
 
     return () => {
       channel.unsubscribe();
       if (typeof window !== 'undefined') {
         window.removeEventListener('notificationUpdated', handleNotificationUpdate);
       }
-      if (pollInterval) clearInterval(pollInterval);
+      clearInterval(pollInterval);
     };
   }, [user?.id, session]);
 
@@ -1035,7 +1029,7 @@ export default function Navbar() {
                                 <div className="w-8 h-8 rounded-full bg-[var(--bg-1)] flex items-center justify-center border border-[var(--border)] group-hover:border-[var(--heritage-gold)] transition-colors">
                                   <Heart className="w-4 h-4 text-[var(--muted)] group-hover:text-[var(--heritage-gold)]" />
                                 </div>
-                                <span className="text-[var(--text)] font-medium">Wishlist</span>
+                                <span className="text-[var(--text)] font-medium">{t('navbar.wishlist', { defaultValue: 'Wishlist' })}</span>
                               </Link>
 
                               <Link
@@ -1046,7 +1040,7 @@ export default function Navbar() {
                                 <div className="w-8 h-8 rounded-full bg-[var(--bg-1)] flex items-center justify-center border border-[var(--border)] group-hover:border-[var(--heritage-gold)] transition-colors">
                                   <MessageCircle className="w-4 h-4 text-[var(--muted)] group-hover:text-[var(--heritage-gold)]" />
                                 </div>
-                                <span className="text-[var(--text)] font-medium">Messages</span>
+                                <span className="text-[var(--text)] font-medium">{t('navbar.messages', { defaultValue: 'Messages' })}</span>
                               </Link>
 
                               {/* Language Selector */}
