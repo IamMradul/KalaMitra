@@ -235,7 +235,16 @@ export default function AIProductForm({
   const [moderationStatus, setModerationStatus] = useState('approved')
 
   const resetForm = () => {
-    setImageUrl(initialData.imageUrl || '')
+    const initialImages: ImageItem[] = [];
+    if (initialData.imageUrl) {
+      initialImages.push({ id: Math.random().toString(), type: 'url', url: initialData.imageUrl });
+    }
+    if (initialData.additional_images) {
+      initialData.additional_images.forEach((img: string) => {
+        initialImages.push({ id: Math.random().toString(), type: 'url', url: img });
+      });
+    }
+    setImages(initialImages);
     setTitle(initialData.title || '')
     setCategory(initialData.category || '')
     setDescription(initialData.description || '')

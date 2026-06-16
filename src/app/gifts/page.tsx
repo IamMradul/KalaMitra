@@ -147,9 +147,9 @@ export default function GiftsPage() {
       }
       const data = await response.json();
 
-      const received = data.received || [];
-      const sent = data.sent || [];
-      const group = data.group || [];
+      const received: any[] = data.received || [];
+      const sent: any[] = data.sent || [];
+      const group: any[] = data.group || [];
 
       const productIds = uniqueIds([
         ...received.map((gift) => gift.product_id),
