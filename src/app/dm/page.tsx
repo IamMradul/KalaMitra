@@ -50,6 +50,7 @@ function DMPageContent() {
     fetchThreads();
     const channel = supabase.channel('dm_sidebar')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages' }, () => { fetchThreads(); })
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_participants', filter: `user_id=eq.${user.id}` }, () => { fetchThreads(); })
       .subscribe();
     return () => { supabase.removeChannel(channel); };
   }, [user]);
@@ -82,6 +83,7 @@ function DMPageContent() {
       }
       if (json.threadId) {
         setSelectedThread({ id: json.threadId, type: 'dm', created_at: new Date().toISOString(), participants: [user as UserProfile, recipient as UserProfile], other: recipient as UserProfile, lastMessage: undefined, isUnread: false });
+        fetchThreads();
       }
     };
     fetchOrCreateThread();
@@ -89,9 +91,17 @@ function DMPageContent() {
 
   async function fetchThreads() {
     if (!user) return;
-    const { data: participantRows } = await supabase.from('chat_participants').select('thread_id').eq('user_id', user.id);
+    const { data: participantRows, error: pError } = await supabase.from('chat_participants').select('thread_id').eq('user_id', user.id);
+    if (pError) console.error('Error fetching chat_participants:', pError);
+
     const threadIds = (participantRows as { thread_id: string }[] | undefined)?.map(row => row.thread_id) || [];
-    const { data: threadRows } = await supabase.from('chat_threads').select('id, type, created_at, title').in('id', threadIds).order('created_at', { ascending: false });
+    if (threadIds.length === 0) {
+      setThreads([]);
+      return;
+    }
+
+    const { data: threadRows, error: tError } = await supabase.from('chat_threads').select('id, type, created_at, title').in('id', threadIds).order('created_at', { ascending: false });
+    if (tError) console.error('Error fetching chat_threads:', tError);
     if (!threadRows) { setThreads([]); return; }
     const threadsWithDetails = await Promise.all((threadRows as Thread[]).map(async (thread) => {
       const { data: pRows } = await supabase.from('chat_participants').select('user_id').eq('thread_id', thread.id);
@@ -107,9 +117,21 @@ function DMPageContent() {
       }
       return { ...thread, participants: (profiles as ThreadParticipant[]) || [], other, lastMessage, isUnread };
     }));
-    setThreads(threadsWithDetails);
+    
+    // Deduplicate DMs by other user ID
+    const uniqueThreads: Thread[] = [];
+    const seenDMs = new Set<string>();
+    for (const t of threadsWithDetails) {
+      if (t.type === 'dm' && t.other) {
+        if (seenDMs.has(t.other.id)) continue;
+        seenDMs.add(t.other.id);
+      }
+      uniqueThreads.push(t);
+    }
+    
+    setThreads(uniqueThreads);
     if (targetUserId && user && targetUserId !== user.id) {
-      const found = threadsWithDetails.find(thread => thread.type === 'dm' && thread.other && thread.other.id === targetUserId);
+      const found = uniqueThreads.find(thread => thread.type === 'dm' && thread.other && thread.other.id === targetUserId);
       if (found) setSelectedThread(found);
     }
   }

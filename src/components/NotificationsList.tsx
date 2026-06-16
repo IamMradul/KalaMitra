@@ -11,12 +11,31 @@ type NotificationRow = Database['public']['Tables']['notifications']['Row']
 
 export default function NotificationsList() {
   const { t } = useTranslation()
-  const { user } = useAuth()
+  const { user, session } = useAuth()
   const [notes, setNotes] = useState<NotificationRow[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     if (!user) return
+
+    let isMounted = true;
+
+    const fetchNotes = async () => {
+      setLoading(true)
+      try {
+        const { data } = await supabase
+          .from('notifications')
+          .select('*')
+          .eq('user_id', user?.id)
+          .order('created_at', { ascending: false })
+        if (isMounted) setNotes((data || []) as NotificationRow[])
+      } catch (err: unknown) {
+        console.error('fetch notifications', err)
+      } finally {
+        if (isMounted) setLoading(false)
+      }
+    }
+
     fetchNotes()
 
     // Subscribe to real-time notifications
@@ -33,19 +52,29 @@ export default function NotificationsList() {
         (payload: any) => {
           // Refetch after a small delay to ensure data consistency
           setTimeout(() => {
-            fetchNotes();
+            if (isMounted) fetchNotes();
           }, 100);
         }
       )
       .subscribe();
 
-    return () => {
-      channel.unsubscribe();
-    };
-  }, [user])
 
-  const fetchNotes = async () => {
-    setLoading(true)
+    // Fallback polling for custom OAuth users who lack a Supabase session
+    let pollInterval: NodeJS.Timeout;
+    if (user && !session) {
+      pollInterval = setInterval(() => {
+        if (isMounted) fetchNotes();
+      }, 3000);
+    }
+
+    return () => {
+      isMounted = false;
+      channel.unsubscribe();
+      if (pollInterval) clearInterval(pollInterval);
+    };
+  }, [user, session])
+
+  const fetchNotesForActions = async () => {
     try {
       const { data } = await supabase
         .from('notifications')
@@ -53,16 +82,18 @@ export default function NotificationsList() {
         .eq('user_id', user?.id)
         .order('created_at', { ascending: false })
       setNotes((data || []) as NotificationRow[])
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('notificationUpdated'));
+      }
     } catch (err: unknown) {
       console.error('fetch notifications', err)
     }
-    setLoading(false)
   }
 
   const markRead = async (id: string) => {
     try {
       await supabase.from('notifications').update({ read: true }).eq('id', id)
-      fetchNotes()
+      fetchNotesForActions()
     } catch (err: unknown) {
       console.error('mark read', err)
     }
@@ -71,7 +102,7 @@ export default function NotificationsList() {
   const deleteNotification = async (id: string) => {
     try {
       await supabase.from('notifications').delete().eq('id', id)
-      fetchNotes()
+      fetchNotesForActions()
     } catch (err: unknown) {
       console.error('delete notification', err)
     }
@@ -81,12 +112,12 @@ export default function NotificationsList() {
     try {
       const unreadIds = notes.filter(n => !n.read).map(n => n.id)
       if (unreadIds.length === 0) return
-      
+
       await supabase
         .from('notifications')
         .update({ read: true })
         .in('id', unreadIds)
-      fetchNotes()
+      fetchNotesForActions()
     } catch (err: unknown) {
       console.error('mark all as read', err)
     }

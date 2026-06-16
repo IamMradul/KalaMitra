@@ -37,22 +37,22 @@ Inputs:
 * Product title
 * Product description
 
-Determine whether this listing is appropriate for a handmade crafts marketplace.
+Determine whether this listing contains adult products, sex toys, nudity, or sexually explicit content.
 
 Evaluate:
-1. Is the image genuinely showing a handmade product?
-2. Is it related to crafts, pottery, paintings, artisan work, handmade decor, handmade jewelry, or similar handmade goods?
-3. Does the image contain adult, sexual, vulgar, offensive, violent, hateful, deceptive, illegal, or unrelated content?
-4. Does the title contain profanity, abuse, sexual references, hate speech, or spam?
-5. Does the description contain profanity, abuse, sexual references, hate speech, scams, spam, or inappropriate intent?
-6. Is there any attempt to bypass marketplace rules?
+1. Is the product a sex toy (e.g., vibrator, dildos, adult novelty items)?
+2. Does the image, title, or description contain nudity or sexually explicit/erotic content?
+3. Set approved to false ONLY if it is a sex toy, adult/sex product, or contains nudity/sexually explicit content. Otherwise, set approved to true.
 
-Return ONLY valid JSON.
+Constraints:
+* Do NOT reject general products, crafts, recipes, clothes, art, tutorials, guides, books, or electronics unless they are sex toys/sex products.
+* Return ONLY valid JSON.
+* Keep the "reason" field extremely short (1 to 5 words maximum) to prevent truncation.
 
 {
 "approved": true,
 "confidence": 95,
-"category": "pottery",
+"category": "other",
 "handmade_product": true,
 "contains_nudity": false,
 "contains_sexual_content": false,
@@ -67,7 +67,7 @@ Return ONLY valid JSON.
 "contains_spam": false,
 "contains_deceptive_content": false,
 "marketplace_safe": true,
-"reason": "Suitable handmade pottery product."
+"reason": "Safe listing."
 }`;
 
 const GEMINI_API_KEY =
@@ -120,9 +120,14 @@ function stripCodeFence(text: string): string {
   return text.trim();
 }
 
-function parseModerationResponse(raw: string, isVirtual?: boolean): ProductModerationResult {
+function parseModerationResponse(
+  raw: string,
+  isVirtual?: boolean,
+  title?: string,
+  description?: string
+): ProductModerationResult {
   const cleaned = stripCodeFence(raw);
-  
+
   // Quick fallback if completely broken JSON or truncated
   if (scanTextForVulgarity(raw)) {
     return vulgarDetectedResult('Profanity or inappropriate content detected in image text');
@@ -136,7 +141,7 @@ function parseModerationResponse(raw: string, isVirtual?: boolean): ProductModer
     parsed = JSON.parse(jsonString) as Partial<ProductModerationResult>;
   } catch (parseErr) {
     console.warn('[product-moderation] JSON parse error:', parseErr);
-    
+
     // Fallback: Check if it explicitly rejected the image before truncation
     if (jsonString.includes('"approved": false') || jsonString.includes('"approved":false')) {
       return vulgarDetectedResult('Image does not meet handmade marketplace guidelines.');
@@ -145,9 +150,7 @@ function parseModerationResponse(raw: string, isVirtual?: boolean): ProductModer
   }
 
   const reason = typeof parsed.reason === 'string' ? parsed.reason : '';
-  const vulgarInText =
-    scanTextForVulgarity(reason) ||
-    scanTextForVulgarity(raw);
+  const vulgarInText = scanTextForVulgarity(reason);
 
   const result: ProductModerationResult = {
     approved: vulgarInText ? false : Boolean(parsed.approved),
@@ -157,9 +160,9 @@ function parseModerationResponse(raw: string, isVirtual?: boolean): ProductModer
         : vulgarInText ? 95 : 0,
     category: typeof parsed.category === 'string' ? parsed.category : 'other',
     handmade_product: Boolean(parsed.handmade_product),
-    contains_nudity: Boolean(parsed.contains_nudity) || raw.toLowerCase().includes('nude') || raw.toLowerCase().includes('naked'),
-    contains_sexual_content: Boolean(parsed.contains_sexual_content) || raw.toLowerCase().includes('sex'),
-    contains_sex_toys: Boolean(parsed.contains_sex_toys) || raw.toLowerCase().includes('toy') || raw.toLowerCase().includes('dildo') || raw.toLowerCase().includes('vibrator'),
+    contains_nudity: Boolean(parsed.contains_nudity),
+    contains_sexual_content: Boolean(parsed.contains_sexual_content),
+    contains_sex_toys: Boolean(parsed.contains_sex_toys),
     contains_profanity: Boolean(parsed.contains_profanity) || vulgarInText,
     contains_hate_speech: Boolean(parsed.contains_hate_speech),
     contains_violence: Boolean(parsed.contains_violence),
@@ -175,14 +178,9 @@ function parseModerationResponse(raw: string, isVirtual?: boolean): ProductModer
       : reason,
   };
 
-  // Double check that we reject sex toys
-  if (result.contains_sex_toys || result.contains_sexual_content || result.contains_nudity) {
-    result.approved = false;
+  result.approved = isModerationApproved(result, isVirtual, title, description);
+  if (!result.approved) {
     result.marketplace_safe = false;
-  }
-
-  if (!isModerationApproved(result, isVirtual)) {
-    result.approved = false;
   }
 
   return result;
@@ -226,15 +224,13 @@ async function callGeminiVision(
   let prompt = PRODUCT_MODERATION_PROMPT;
   if (isVirtual) {
     prompt += `\n\n**CRITICAL ADDITIONAL REQUIREMENT FOR VIRTUAL PRODUCT**:\n` +
-      `This is a virtual or digital product. The marketplace ONLY allows virtual products that are recipes, artisan techniques, pottery guides/tutorials, clothes patterns, or DIY creative guides.\n` +
-      `- Because it is a digital/virtual product, the image does NOT need to show a physical handmade item. It can show text, graphics, a PDF cover page, or a food/recipe photo.\n` +
-      `- Set "handmade_product" to true for this virtual product if it is a recipe, artisan technique, pottery guide, clothes pattern, or DIY creative guide.\n` +
-      `- You MUST reject ("approved": false) any other virtual product categories or unrelated digital content (e.g. business/marketing guides, generic ebooks, software, templates unrelated to crafts/cooking).\n` +
-      `- You MUST reject ("approved": false) anything that is inappropriate, vulgar, profane, sexual, offensive, violent, or hateful. Nudity, violence, drugs, weapons, or hate speech are strictly prohibited.`;
+      `This is a virtual or digital product.\n` +
+      `- You MUST reject ("approved": false) ONLY if the product is a sex toy, sex product, or contains nudity/sexually explicit/erotic content.\n` +
+      `- Do NOT reject other virtual product categories (e.g. recipes, guides, templates, tutorials, books). All non-sex-related digital products are allowed.`;
   } else {
     prompt += `\n\n**CRITICAL SAFETY REQUIREMENT**:\n` +
-      `- You MUST strictly reject ("approved": false) any adult content, sex toys (like vibrators, dildos, etc.), nudity, vulgarity, violence, gore, weapons, or illicit drugs.\n` +
-      `- Set "contains_sex_toys" and "contains_sexual_content" to true if the product is a sex toy or contains adult/erotic imagery.`;
+      `- You MUST reject ("approved": false) ONLY if it is a sex toy (like vibrators, dildos, etc.), adult/sex product, or contains nudity/sexually explicit/erotic content.\n` +
+      `- Set "contains_sex_toys", "contains_sexual_content", or "contains_nudity" to true if it is a sex toy/product or contains adult/erotic/naked imagery.`;
   }
 
   const textContext = `
@@ -275,7 +271,7 @@ export async function moderateImageWithGemini(
     },
   };
 
-  const modelsToTry = ['gemini-2.5-flash', 'gemini-2.0-flash'];
+  const modelsToTry = ['gemini-3.1-flash-lite', 'gemini-flash-lite-latest', 'gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-flash-latest'];
   let lastError: unknown;
 
   for (const modelName of modelsToTry) {
@@ -285,7 +281,7 @@ export async function moderateImageWithGemini(
         lastError = new Error('Empty moderation response from Gemini');
         continue;
       }
-      return parseModerationResponse(text, isVirtual);
+      return parseModerationResponse(text, isVirtual, title, description);
     } catch (err) {
       lastError = err;
       console.warn(
@@ -298,6 +294,7 @@ export async function moderateImageWithGemini(
   }
 
   console.error('[product-moderation] All models failed:', lastError);
+
   throw lastError instanceof Error ? lastError : new Error('Moderation service unavailable');
 }
 

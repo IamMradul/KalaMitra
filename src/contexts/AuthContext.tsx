@@ -149,11 +149,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const googleSession = localStorage.getItem('googleUserSession')
       const microsoftSession = localStorage.getItem('microsoftUserSession')
       if (!googleSession && !microsoftSession) {
-        setSession(session)
-        setUser(session?.user ?? null)
+        setSession(prev => {
+          if (prev?.access_token === session?.access_token && prev?.user?.id === session?.user?.id) return prev;
+          return session;
+        })
+
+        setUser(prev => {
+          if (prev?.id === session?.user?.id) return prev;
+          return session?.user ?? null;
+        })
 
         if (session?.user) {
-          await fetchProfile(session.user.id)
+          // Only fetch profile if we don't have one, or if it's a different user
+          setProfile(prev => {
+            if (!prev || prev.id !== session.user.id) {
+              fetchProfile(session.user.id).catch(console.error);
+            }
+            return prev;
+          });
+
           // Sync anonymous cart to database when user logs in
           if (event === 'SIGNED_IN') {
             await syncAnonymousCartToDatabase(session.user.id)

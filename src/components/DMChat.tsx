@@ -43,15 +43,20 @@ export default function DMChat({ threadId, otherUser }: DMChatProps) {
   useEffect(() => {
     if (!user || !threadId) return;
     fetchMessages(true);
-    const channel = supabase.channel('chat_messages')
+    const channel = supabase.channel(`chat_messages_${threadId}`)
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages', filter: `thread_id=eq.${threadId}` }, () => { fetchMessages(false); })
+      .on('broadcast', { event: 'new_message' }, () => { fetchMessages(false); })
       .subscribe();
     return () => { supabase.removeChannel(channel); };
   }, [threadId, user]);
 
   useEffect(() => {
     if (!initialLoadRef.current && messagesContainerRef.current) {
-      messagesContainerRef.current.scrollTo({ top: messagesContainerRef.current.scrollHeight, behavior: 'smooth' });
+      const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
+      const isNearBottom = scrollHeight - scrollTop - clientHeight < 150;
+      if (isNearBottom) {
+        messagesContainerRef.current.scrollTo({ top: scrollHeight, behavior: 'smooth' });
+      }
     }
   }, [messages]);
 
@@ -79,7 +84,14 @@ export default function DMChat({ threadId, otherUser }: DMChatProps) {
     const content = input.trim();
     setInput('');
     setSending(true);
-    await fetch('/api/chat/message', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ threadId, senderId: user.id, content }) });
+    try {
+      const res = await fetch('/api/chat/message', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ threadId, senderId: user.id, content }) });
+      if (!res.ok) throw new Error('Failed to send');
+    } catch (err) {
+      // Revert input on error
+      setInput(content);
+      console.error(err);
+    }
     setSending(false);
     inputRef.current?.focus();
   }
@@ -271,6 +283,7 @@ export default function DMChat({ threadId, otherUser }: DMChatProps) {
 
               let senderProfile: DMUser | undefined;
               if (participants.length > 0 && !isMine) senderProfile = participants.find(p => p.id === senderId);
+              if (!senderProfile && !isMine && isDM(otherUser) && senderId === otherUser.id) senderProfile = otherUser;
 
               let readStatus = null;
               if (isMine && Array.isArray(msg.readByRecipients)) {

@@ -282,7 +282,8 @@
     "ads": "विज्ञापन",
     "sellerDashboard": "विक्रेता डैशबोर्ड",
     "myProfile": "मेरी प्रोफ़ाइल",
-    "myOrders": "मेरे ऑर्डर"
+    "myOrders": "मेरे ऑर्डर",
+    "wishlist": "विशलिस्ट"
   },
   "reels": {
     "yourReels": "आपकी रील्स",
@@ -301,7 +302,12 @@
     "videoFileLabel": "वीडियो फ़ाइल",
     "addComment": "एक टिप्पणी जोड़ें...",
     "post": "पोस्ट करें",
-    "endOfList": "कोई और रील नहीं है।"
+    "endOfList": "कोई और रील नहीं है।",
+    "captionOptionalLabel": "कैप्शन (वैकल्पिक)",
+    "captionOptionalPlaceholder": "कैप्शन (वैकल्पिक)",
+    "linkProductLabel": "उत्पाद लिंक करें",
+    "uploadButton": "रील अपलोड करें",
+    "uploadLimitHint": "अधिकतम फ़ाइल आकार: 10MB। केवल वीडियो फ़ाइलें अनुमत हैं।"
   },
   "auth": {
     "signupTitle": "अपना खाता बनाएं",
@@ -492,7 +498,8 @@
     "requestSuccessDesc": "आपका कस्टम शिल्प अनुरोध कारीगर को भेज दिया गया है।",
     "requestSuccessDetail": "कारीगर आगे के विवरण के लिए सीधे संदेश के माध्यम से आपसे संपर्क करेंगे।",
     "youMightAlsoLike": "आपको यह भी पसंद आ सकता है",
-    "item": "वस्तु"
+    "item": "वस्तु",
+    "title": "उत्पाद देखें"
   },
   "auction": {
     "title": "नीलामी",

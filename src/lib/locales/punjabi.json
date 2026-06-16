@@ -282,7 +282,8 @@
     "ads": "ਵਿਗਿਆਪਨ",
     "sellerDashboard": "ਵਿਕਰੇਤਾ ਡੈਸ਼ਬੋਰਡ",
     "myProfile": "ਮੇਰੀ ਪ੍ਰੋਫਾਈਲ",
-    "myOrders": "ਮੇਰੇ ਆਰਡਰ"
+    "myOrders": "ਮੇਰੇ ਆਰਡਰ",
+    "wishlist": "ਵਿਸ਼ਲਿਸਟ"
   },
   "reels": {
     "yourReels": "ਤੁਹਾਡੀਆਂ ਰੀਲਜ਼",
@@ -301,7 +302,12 @@
     "videoFileLabel": "ਵੀਡੀਓ ਫਾਈਲ",
     "addComment": "ਟਿੱਪਣੀ ਜੋੜੋ...",
     "post": "ਪੋਸਟ ਕਰੋ",
-    "endOfList": "ਹੋਰ ਰੀਲਾਂ ਨਹੀਂ ਹਨ।"
+    "endOfList": "ਹੋਰ ਰੀਲਾਂ ਨਹੀਂ ਹਨ।",
+    "captionOptionalLabel": "ਸਿਰਲੇਖ (ਵਿਕਲਪਿਕ)",
+    "captionOptionalPlaceholder": "ਸਿਰਲੇਖ (ਵਿਕਲਪਿਕ)",
+    "linkProductLabel": "ਉਤਪਾਦ ਲਿੰਕ ਕਰੋ",
+    "uploadButton": "ਰੀਲ ਅੱਪਲੋਡ ਕਰੋ",
+    "uploadLimitHint": "ਅਧਿਕਤਮ ਫਾਈਲ ਆਕਾਰ: 10MB. ਸਿਰਫ਼ ਵੀਡੀਓ ਫਾਈਲਾਂ ਦੀ ਇਜਾਜ਼ਤ ਹੈ।"
   },
   "auth": {
     "signupTitle": "ਆਪਣਾ ਖਾਤਾ ਬਣਾਓ",
@@ -492,7 +498,8 @@
     "requestSuccessDesc": "ਤੁਹਾਡੀ ਕਸਟਮ ਕਰਾਫਟ ਬੇਨਤੀ ਕਾਰੀਗਰ ਨੂੰ ਭੇਜ ਦਿੱਤੀ ਗਈ ਹੈ।",
     "requestSuccessDetail": "ਕਾਰੀਗਰ ਹੋਰ ਵੇਰਵਿਆਂ ਲਈ ਸਿੱਧੇ ਸੁਨੇਹੇ ਰਾਹੀਂ ਤੁਹਾਡੇ ਨਾਲ ਸੰਪਰਕ ਕਰੇਗਾ।",
     "youMightAlsoLike": "ਤੁਹਾਨੂੰ ਇਹ ਵੀ ਪਸੰਦ ਆ ਸਕਦਾ ਹੈ",
-    "item": "ਆਈਟਮ"
+    "item": "ਆਈਟਮ",
+    "title": "ਉਤਪਾਦ ਦੇਖੋ"
   },
   "auction": {
     "title": "ਨਿਲਾਮ",

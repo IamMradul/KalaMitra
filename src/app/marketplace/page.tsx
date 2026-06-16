@@ -282,25 +282,24 @@ function MarketplaceContent() {
   const [semanticResults, setSemanticResults] = useState<Product[]>([])
   const [isSearching, setIsSearching] = useState(false)
   const [semanticResolved, setSemanticResolved] = useState(true)
+  const [realtimeUpdates, setRealtimeUpdates] = useState(0)
 
   const dedupeById = useCallback((items: Product[]) => {
     const map = new Map<string, Product>()
     for (const p of items) map.set(p.id, p)
     return Array.from(map.values())
   }, [])
-  // productsFetcher now only uses the backend API, no Supabase direct fetch
-  const productsFetcher = async () => {
-    // Always pass current language to backend for translation
-    const lang = currentLanguage || i18n.language || 'en';
+  const productsFetcher = async ([_key, lang, category, isCollab, isVirtual, updates]: readonly any[]) => {
     const qs = new URLSearchParams({
       page: '1',
       pageSize: String(PRODUCTS_PER_PAGE),
       lang,
       includeCategories: 'true',
     })
-    if (selectedCategory) qs.set('category', selectedCategory)
-    if (showCollaborativeOnly) qs.set('collaborativeOnly', 'true')
-    if (showVirtualOnly) qs.set('virtualOnly', 'true')
+    if (category) qs.set('category', category)
+    if (isCollab === '1') qs.set('collaborativeOnly', 'true')
+    if (isVirtual === '1') qs.set('virtualOnly', 'true')
+    if (updates > 0) qs.set('bypassCache', 'true')
 
     const res = await fetch(`/api/marketplace/products?${qs.toString()}`);
     if (!res.ok) throw new Error('Failed to fetch products');
@@ -318,8 +317,9 @@ function MarketplaceContent() {
       selectedCategory,
       showCollaborativeOnly ? '1' : '0',
       showVirtualOnly ? '1' : '0',
+      realtimeUpdates,
     ] as const
-  }, [currentLanguage, i18n.language, selectedCategory, showCollaborativeOnly, showVirtualOnly])
+  }, [currentLanguage, i18n.language, selectedCategory, showCollaborativeOnly, showVirtualOnly, realtimeUpdates])
 
   const { data: swrData, error: swrError, isLoading: swrLoading, isValidating: swrValidating } = useSWR(swrKey, productsFetcher, {
     revalidateOnFocus: false,
@@ -343,6 +343,38 @@ function MarketplaceContent() {
       setTotalProducts(swrData.total || 0)
     }
   }, [swrData, dedupeById])
+
+  // Real-time listener for products and collaborations
+  useEffect(() => {
+    const channel = supabase
+      .channel('marketplace_realtime_updates')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'collaborative_products' },
+        () => {
+          setRealtimeUpdates(prev => prev + 1);
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'collaborations' },
+        () => {
+          setRealtimeUpdates(prev => prev + 1);
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'products' },
+        () => {
+          setRealtimeUpdates(prev => prev + 1);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   // If needed later, you can render an error state from `swrError`.
 
@@ -497,28 +529,28 @@ function MarketplaceContent() {
   const [arImageUrl, setArImageUrl] = useState<string | undefined>(undefined)
   const [arProductType, setArProductType] = useState<'vertical' | 'horizontal'>('vertical')
 
-    // Fetch recommendations for logged-in user
-    useEffect(() => {
-      const fetchRecommendations = async () => {
-        if (!user) {
-          setRecommended([]);
-          return;
-        }
-        try {
-          setRecLoading(true);
-          const lang = currentLanguage || i18n.language || 'en';
-          const res = await fetch(`/api/recommendations?userId=${user.id}&lang=${encodeURIComponent(lang)}`);
-          if (!res.ok) throw new Error('Failed to fetch recommendations');
-          const json = await res.json();
-          setRecommended(json.products || []);
-        } catch (err) {
-          setRecommended([]);
-        } finally {
-          setRecLoading(false);
-        }
-      };
-      fetchRecommendations();
-    }, [user, currentLanguage]);
+  // Fetch recommendations for logged-in user
+  useEffect(() => {
+    const fetchRecommendations = async () => {
+      if (!user) {
+        setRecommended([]);
+        return;
+      }
+      try {
+        setRecLoading(true);
+        const lang = currentLanguage || i18n.language || 'en';
+        const res = await fetch(`/api/recommendations?userId=${user.id}&lang=${encodeURIComponent(lang)}`);
+        if (!res.ok) throw new Error('Failed to fetch recommendations');
+        const json = await res.json();
+        setRecommended(json.products || []);
+      } catch (err) {
+        setRecommended([]);
+      } finally {
+        setRecLoading(false);
+      }
+    };
+    fetchRecommendations();
+  }, [user, currentLanguage]);
 
   // Wishlist state
   const [wishlistIds, setWishlistIds] = useState<Set<string>>(new Set())
@@ -722,7 +754,7 @@ function MarketplaceContent() {
         addToAnonymousCart(productId, 1)
         setCartStatus('success');
         setCartMessage(t('cart.addedSuccess'));
-        
+
         // Dispatch custom event to immediately update cart count in navbar
         window.dispatchEvent(new CustomEvent('cartUpdated'));
         setCartModalOpen(true);
@@ -763,7 +795,7 @@ function MarketplaceContent() {
       if (res.error) throw res.error;
       setCartStatus('success');
       setCartMessage(t('cart.addedSuccess'));
-      
+
       // Dispatch custom event to immediately update cart count in navbar
       window.dispatchEvent(new CustomEvent('cartUpdated'));
     } catch (err) {
@@ -971,7 +1003,7 @@ function MarketplaceContent() {
           <div className="text-center py-20 bg-[var(--card)] rounded-2xl border border-red-200">
             <X className="w-12 h-12 text-red-500 mx-auto mb-4" />
             <h2 className="text-2xl font-bold text-[var(--text)]">{t('errors.general')}</h2>
-            <button 
+            <button
               onClick={() => window.location.reload()}
               className="mt-4 px-6 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700"
             >

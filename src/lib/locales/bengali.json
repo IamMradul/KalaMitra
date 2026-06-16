@@ -282,7 +282,8 @@
     "ads": "বিজ্ঞাপন",
     "sellerDashboard": "বিক্রেতা ড্যাশবোর্ড",
     "myProfile": "আমার প্রোফাইল",
-    "myOrders": "আমার অর্ডার"
+    "myOrders": "আমার অর্ডার",
+    "wishlist": "উইশলিস্ট"
   },
   "reels": {
     "yourReels": "আপনার রিলস",
@@ -301,7 +302,12 @@
     "videoFileLabel": "ভিডিও ফাইল",
     "addComment": "একটি মন্তব্য যোগ করুন...",
     "post": "পোস্ট করুন",
-    "endOfList": "আর কোনো রিল নেই।"
+    "endOfList": "আর কোনো রিল নেই।",
+    "captionOptionalLabel": "ক্যাপশন (ঐচ্ছিক)",
+    "captionOptionalPlaceholder": "ক্যাপশন (ঐচ্ছিক)",
+    "linkProductLabel": "পণ্য লিঙ্ক করুন",
+    "uploadButton": "রিল আপলোড করুন",
+    "uploadLimitHint": "সর্বোচ্চ ফাইল সাইজ: ১০ এমবি। শুধুমাত্র ভিডিও ফাইল অনুমোদিত।"
   },
   "auth": {
     "signupTitle": "আপনার অ্যাকাউন্ট তৈরি করুন",
@@ -492,7 +498,8 @@
     "requestSuccessDesc": "আপনার কাস্টম ক্রাফট অনুরোধ কারিগরের কাছে পাঠানো হয়েছে।",
     "requestSuccessDetail": "কারিগর আরও বিশদ বিবরণের জন্য সরাসরি বার্তার মাধ্যমে আপনার সাথে যোগাযোগ করবেন।",
     "youMightAlsoLike": "আপনার এটিও পছন্দ হতে পারে",
-    "item": "আইটেম"
+    "item": "আইটেম",
+    "title": "পণ্য দেখুন"
   },
   "auction": {
     "title": "নিলাম",

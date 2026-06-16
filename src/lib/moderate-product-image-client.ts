@@ -8,6 +8,7 @@ import {
 } from '@/lib/product-moderation-messages';
 import {
   isModerationApproved,
+  scanTextForVulgarity,
   type ProductModerationResult,
 } from '@/lib/product-moderation-rules';
 
@@ -26,12 +27,12 @@ export async function compressImageForUpload(
       URL.revokeObjectURL(url);
       const maxDim = 1200;
       let { width, height } = img;
-      
+
       if (Math.max(width, height) <= maxDim && file.size < 600_000) {
         resolve(file);
         return;
       }
-      
+
       const scale = Math.min(1, maxDim / Math.max(width, height));
       width = Math.round(width * scale);
       height = Math.round(height * scale);
@@ -76,6 +77,7 @@ export interface ModerationClientResponse {
   approved: boolean;
   result?: ProductModerationResult;
   message?: string;
+  moderation_status?: 'approved' | 'pending';
 }
 
 export function isModerationResponseAllowed(
@@ -156,7 +158,7 @@ async function compressImageForModeration(
   });
 }
 
-const MODERATION_TIMEOUT_MS = 15_000;
+const MODERATION_TIMEOUT_MS = 30_000;
 
 export async function moderateProductImage(params: {
   file?: File;
@@ -210,26 +212,42 @@ export async function moderateProductImage(params: {
 
     if (response.status === 403) {
       const reason = data.result?.reason || 'Violates safety guidelines.';
-      const msg = `❌ Product Upload Rejected\n\nThis marketplace only accepts genuine handmade products.\n\nReason:\n${reason}\n\nPlease upload an appropriate handmade product and try again.`;
+      const msg = `❌ Product Upload Rejected\n\nAdult products or sex toys are not allowed on this marketplace.\n\nReason:\n${reason}\n\nPlease upload an appropriate product and try again.`;
       throw new Error(msg);
     }
 
     if (!response.ok) {
-      throw new Error(data.message || MODERATION_API_FAILURE_MESSAGE);
+      if (response.status === 400 || response.status === 413 || response.status === 415) {
+        throw new Error(`Image Validation Error: ${data.message || 'The image is too large or has an invalid format.'}`);
+      }
+
+      // Service error (503, 429, etc.) — allow upload through with a warning unless text contains vulgarity
+      console.warn('[moderation-client] Moderation service returned error:', response.status, data.message);
+      const isVulgar = (title && scanTextForVulgarity(title)) || (description && scanTextForVulgarity(description));
+      if (isVulgar) {
+        throw new Error(`❌ Product Upload Rejected\n\nAdult products or sex toys are not allowed on this marketplace.\n\nReason:\nInappropriate or adult-related content detected.\n\nPlease upload an appropriate product and try again.`);
+      }
+      return { approved: true, moderation_status: 'pending', message: 'Moderation service unavailable — upload allowed pending later review.' } as ModerationClientResponse;
     }
 
     if (!isModerationResponseAllowed(data, isVirtual)) {
       const reason = data.result?.reason || 'Violates safety guidelines.';
-      const msg = `❌ Product Upload Rejected\n\nThis marketplace only accepts genuine handmade products.\n\nReason:\n${reason}\n\nPlease upload an appropriate handmade product and try again.`;
+      const msg = `❌ Product Upload Rejected\n\nAdult products or sex toys are not allowed on this marketplace.\n\nReason:\n${reason}\n\nPlease upload an appropriate product and try again.`;
       throw new Error(msg);
     }
 
     return data;
   } catch (err) {
-    if (err instanceof Error && err.message.includes('Product Upload Rejected')) {
+    if (err instanceof Error && (err.message.includes('Product Upload Rejected') || err.message.includes('Image Validation Error'))) {
       throw err;
     }
-    throw new Error(MODERATION_API_FAILURE_MESSAGE);
+    // Timeout, network error, or service unavailability — allow upload through unless text is vulgar
+    console.warn('[moderation-client] Moderation check failed (timeout or network error), allowing upload:', err);
+    const isVulgar = (title && scanTextForVulgarity(title)) || (description && scanTextForVulgarity(description));
+    if (isVulgar) {
+      throw new Error(`❌ Product Upload Rejected\n\nAdult products or sex toys are not allowed on this marketplace.\n\nReason:\nInappropriate or adult-related content detected.\n\nPlease upload an appropriate product and try again.`);
+    }
+    return { approved: true, moderation_status: 'pending', message: 'Moderation check skipped due to service unavailability.' } as ModerationClientResponse;
   } finally {
     clearTimeout(timeoutId);
   }

@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
 import { useLanguage } from '@/components/LanguageProvider'
-import { ShoppingCart, LogOut, Menu, X, Palette, Moon, Sun, User, Video, Gift, Heart, LayoutDashboard, Package, Bell, ChevronRight } from 'lucide-react'
+import { ShoppingCart, LogOut, Menu, X, Palette, Moon, Sun, User, Video, Gift, Heart, LayoutDashboard, Package, Bell, ChevronRight, MessageCircle } from 'lucide-react'
 import { useTheme } from './ThemeProvider'
 import Leaderboard from './Leaderboard'
 
@@ -133,7 +133,7 @@ export default function Navbar() {
     }
   }, []);
 
-  const { user, profile, signOut, loading } = useAuth();
+  const { user, profile, signOut, session, loading } = useAuth();
   const { currentLanguage, changeLanguage, isLoading: languageLoading } = useLanguage();
   const { theme, toggle } = useTheme();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -227,14 +227,20 @@ export default function Navbar() {
         }
       )
       .subscribe();
+    // Reliable polling fallback for all users to ensure UI syncs
+    const pollInterval = setInterval(() => {
+      if (!unsubscribed) fetchUnwrappedGifts();
+    }, 5000);
+
     return () => {
       unsubscribed = true;
       channel.unsubscribe();
       if (typeof window !== 'undefined') {
         window.removeEventListener('giftUpdated', handleGiftUpdate);
       }
+      clearInterval(pollInterval);
     };
-  }, [user?.id]);
+  }, [user?.id, session]);
 
   // Fetch unread notifications count and subscribe to real-time updates
   useEffect(() => {
@@ -245,13 +251,13 @@ export default function Navbar() {
 
     const fetchUnreadNotifications = async () => {
       try {
-        const { data, error } = await supabase
+        const { count, error } = await supabase
           .from('notifications')
-          .select('id', { count: 'exact' })
+          .select('id', { count: 'exact', head: true })
           .eq('user_id', user.id)
           .eq('read', false);
         if (error) throw error;
-        const unreadCount = data?.length || 0;
+        const unreadCount = count || 0;
         setUnreadNotificationsCount(unreadCount);
         // Show mobile red dot if there are unread notifications
         if (unreadCount > 0 && !showMobileNotificationDot) {
@@ -266,44 +272,66 @@ export default function Navbar() {
 
     // Subscribe to real-time notifications
     const channel = supabase
-      .channel(`notifications:${user.id}`)
+      .channel(`navbar_notifications_${user.id}`)
       .on(
         'postgres_changes',
         {
-          event: 'INSERT',
+          event: '*',
           schema: 'public',
           table: 'notifications',
           filter: `user_id=eq.${user.id}`,
         },
         (payload: any) => {
-          // Show toast for new notification
-          if (payload.new) {
+          if (payload.eventType === 'INSERT' && payload.new) {
             setNewNotificationToast({
               title: payload.new.title,
               body: payload.new.body,
             });
-            // Show mobile red dot indicator
             setShowMobileNotificationDot(true);
-            // Auto-hide toast after 5 seconds
             setTimeout(() => setNewNotificationToast(null), 5000);
-
-            // Immediately increment count if the new notification is unread
-            if (!payload.new.read) {
-              setUnreadNotificationsCount(prev => prev + 1);
-            }
           }
+          // Safely refetch the true unread count instead of relying on payload.old
+          fetchUnreadNotifications();
         }
       )
+      .on('broadcast', { event: 'new_notification' }, (payload: any) => {
+        const note = payload.payload.notification;
+        if (note) {
+          setNewNotificationToast({
+            title: note.title,
+            body: note.body,
+          });
+          setShowMobileNotificationDot(true);
+          setTimeout(() => setNewNotificationToast(null), 5000);
+        }
+        fetchUnreadNotifications();
+      })
       .subscribe();
+
+    // Listen for custom event for immediate updates (cross-component sync without network delay)
+    const handleNotificationUpdate = () => {
+      fetchUnreadNotifications();
+    };
+    if (typeof window !== 'undefined') {
+      window.addEventListener('notificationUpdated', handleNotificationUpdate);
+    }
+
+    // Reliable polling fallback for all users to ensure UI syncs
+    const pollInterval = setInterval(fetchUnreadNotifications, 5000);
 
     return () => {
       channel.unsubscribe();
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('notificationUpdated', handleNotificationUpdate);
+      }
+      clearInterval(pollInterval);
     };
-  }, [user?.id]);
+  }, [user?.id, session]);
 
   // Fetch notifications when popup opens
   useEffect(() => {
     if (!notificationsPopupOpen || !user?.id) return;
+    let isMounted = true;
 
     const fetchNotifications = async () => {
       setNotificationsLoading(true);
@@ -315,12 +343,12 @@ export default function Navbar() {
           .order('created_at', { ascending: false })
           .limit(10);
         if (error) throw error;
-        setNotifications(data || []);
+        if (isMounted) setNotifications(data || []);
       } catch (err) {
         console.error('Error fetching notifications:', err);
-        setNotifications([]);
+        if (isMounted) setNotifications([]);
       } finally {
-        setNotificationsLoading(false);
+        if (isMounted) setNotificationsLoading(false);
       }
     };
 
@@ -347,6 +375,7 @@ export default function Navbar() {
       .subscribe();
 
     return () => {
+      isMounted = false;
       channel.unsubscribe();
     };
   }, [notificationsPopupOpen, user?.id]);
@@ -385,9 +414,14 @@ export default function Navbar() {
         .limit(10);
       setNotifications(data || []);
 
-      // Update unread notifications count immediately
-      if (data) {
-        const unreadCount = data.filter((n) => !n.read).length;
+      // Refetch exact count since data only has 10 items
+      if (user?.id) {
+        const { count } = await supabase
+          .from('notifications')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', user.id)
+          .eq('read', false);
+        const unreadCount = count || 0;
         setUnreadNotificationsCount(unreadCount);
         if (unreadCount === 0) setShowMobileNotificationDot(false);
       }
@@ -599,11 +633,11 @@ export default function Navbar() {
           <div className="flex justify-between items-center py-4">
             {/* Logo placeholder */}
             <div className="flex items-center space-x-4 group">
-                <div className="relative w-14 h-14 flex items-center justify-center">
-                  <Image src="/kalamitra-symbol.png" alt="KalaMitra Symbol" width={56} height={56} className="object-contain w-auto h-auto" />
-                </div>
-                <span className="text-3xl font-bold heritage-title">{t('brand.name')}</span>
+              <div className="relative w-14 h-14 flex items-center justify-center">
+                <Image src="/kalamitra-symbol.png" alt="KalaMitra Symbol" width={56} height={56} className="object-contain w-auto h-auto" />
               </div>
+              <span className="text-3xl font-bold heritage-title">{t('brand.name')}</span>
+            </div>
             {/* navbar placeholder */}
             <div className="hidden md:flex items-center space-x-10">
               <Link href="/leaderboard" className="p-2 rounded-xl hover:bg-heritage-gold/50">
@@ -995,7 +1029,18 @@ export default function Navbar() {
                                 <div className="w-8 h-8 rounded-full bg-[var(--bg-1)] flex items-center justify-center border border-[var(--border)] group-hover:border-[var(--heritage-gold)] transition-colors">
                                   <Heart className="w-4 h-4 text-[var(--muted)] group-hover:text-[var(--heritage-gold)]" />
                                 </div>
-                                <span className="text-[var(--text)] font-medium">Wishlist</span>
+                                <span className="text-[var(--text)] font-medium">{t('navbar.wishlist', { defaultValue: 'Wishlist' })}</span>
+                              </Link>
+
+                              <Link
+                                href="/dm"
+                                onClick={() => setProfileDropdownOpen(false)}
+                                className="flex items-center space-x-3 w-full px-3 py-2.5 rounded-xl hover:bg-[var(--bg-3)] transition-colors group text-sm"
+                              >
+                                <div className="w-8 h-8 rounded-full bg-[var(--bg-1)] flex items-center justify-center border border-[var(--border)] group-hover:border-[var(--heritage-gold)] transition-colors">
+                                  <MessageCircle className="w-4 h-4 text-[var(--muted)] group-hover:text-[var(--heritage-gold)]" />
+                                </div>
+                                <span className="text-[var(--text)] font-medium">{t('navbar.messages', { defaultValue: 'Messages' })}</span>
                               </Link>
 
                               {/* Language Selector */}
@@ -1328,6 +1373,15 @@ export default function Navbar() {
                         >
                           <Heart className="w-6 h-6 text-red-500 mb-2" />
                           <span className="text-[10px] font-bold text-red-600 dark:text-red-400 uppercase tracking-wider">{t('profile.wishlist')}</span>
+                        </Link>
+
+                        <Link
+                          href="/dm"
+                          className="flex flex-col items-center justify-center p-4 bg-blue-50/30 dark:bg-blue-900/10 rounded-2xl border border-blue-100 dark:border-blue-900/20 active:scale-95 relative"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          <MessageCircle className="w-6 h-6 text-blue-500 mb-2" />
+                          <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider">Messages</span>
                         </Link>
                       </div>
 
