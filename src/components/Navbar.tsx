@@ -1085,6 +1085,18 @@ export default function Navbar() {
               </>
             ) : (
               <div className="flex items-center space-x-6">
+                {/* Theme Toggle (Desktop) */}
+                <button
+                  onClick={() => toggle()}
+                  className="p-2 rounded-xl hover:bg-heritage-gold/50 transition-all duration-300 hover:scale-105"
+                  aria-label="Toggle theme"
+                >
+                  {theme === 'dark' ? (
+                    <Sun className="w-5 h-5 text-[var(--text)]" />
+                  ) : (
+                    <Moon className="w-5 h-5 text-[var(--text)]" />
+                  )}
+                </button>
                 <Link
                   href="/auth/signin"
                   className="text-[var(--text)] hover:text-heritage-gold transition-all duration-300 font-medium hover:scale-105 transform hover:translate-y-[-2px] px-4 py-2 rounded-xl hover:bg-heritage-gold/50"
