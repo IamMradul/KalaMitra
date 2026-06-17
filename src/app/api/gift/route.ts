@@ -3,6 +3,48 @@ import { supabase } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
 
+export async function GET(req: NextRequest) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const userId = searchParams.get('userId');
+
+    if (!userId) {
+      return NextResponse.json({ error: 'userId is required' }, { status: 400 });
+    }
+
+    const [receivedResult, sentResult, groupResult] = await Promise.all([
+      supabase
+        .from('gifts')
+        .select('id, product_id, sender_id, recipient_id, message, created_at, status, viewed, metadata')
+        .eq('recipient_id', userId)
+        .order('created_at', { ascending: false }),
+      supabase
+        .from('gifts')
+        .select('id, product_id, sender_id, recipient_id, message, created_at, status, viewed, metadata')
+        .eq('sender_id', userId)
+        .order('created_at', { ascending: false }),
+      supabase
+        .from('group_gifts')
+        .select('id, product_id, recipient_id, initiator_id, message, created_at, target_amount, member_ids')
+        .or(`initiator_id.eq.${userId},member_ids.cs.{${userId}}`)
+        .not('recipient_id', 'eq', userId),
+    ]);
+
+    if (receivedResult.error) throw receivedResult.error;
+    if (sentResult.error) throw sentResult.error;
+    if (groupResult.error) throw groupResult.error;
+
+    return NextResponse.json({
+      received: receivedResult.data || [],
+      sent: sentResult.data || [],
+      group: groupResult.data || []
+    });
+  } catch (error) {
+    console.error('Error fetching gifts:', error);
+    return NextResponse.json({ error: 'Internal server error.' }, { status: 500 });
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
     const { product_id, recipient_id, message, user_id } = await req.json();
@@ -65,6 +107,27 @@ export async function POST(req: NextRequest) {
         }
       });
     return NextResponse.json({ gift });
+  } catch (err) {
+    return NextResponse.json({ error: 'Internal server error.' }, { status: 500 });
+  }
+}
+
+export async function PUT(req: NextRequest) {
+  try {
+    const { id, recipient_id, viewed } = await req.json();
+
+    if (!id || !recipient_id || viewed === undefined) {
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    }
+
+    const { error } = await supabase.from('gifts').update({ viewed }).eq('id', id).eq('recipient_id', recipient_id);
+
+    if (error) {
+      console.error('Failed to update gift:', error);
+      return NextResponse.json({ error: 'Failed to update gift' }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true });
   } catch (err) {
     return NextResponse.json({ error: 'Internal server error.' }, { status: 500 });
   }

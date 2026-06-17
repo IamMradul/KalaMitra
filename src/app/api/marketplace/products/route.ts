@@ -234,7 +234,134 @@ export async function GET(req: NextRequest) {
   return NextResponse.json(payload);
 }
 
-export async function DELETE() {
-  responseCache.clear();
-  return NextResponse.json({ success: true, message: 'Cache cleared' });
+// Bypassing RLS for Google/Microsoft OAuth users who lack a Supabase auth session
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+
+export async function POST(req: NextRequest) {
+  try {
+    const contentType = req.headers.get('content-type') || '';
+
+    // Image Upload
+    if (contentType.includes('multipart/form-data')) {
+      const formData = await req.formData();
+      const file = formData.get('file') as File;
+
+      if (!file) {
+        return NextResponse.json({ error: 'No file provided' }, { status: 400 });
+      }
+
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
+      const filePath = `product-images/${fileName}`;
+
+      const { data, error } = await supabaseAdmin.storage
+        .from('images')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false,
+        });
+
+      if (error) {
+        return NextResponse.json({ error: error.message }, { status: 500 });
+      }
+
+      const { data: publicUrlData } = supabaseAdmin.storage
+        .from('images')
+        .getPublicUrl(data.path);
+
+      return NextResponse.json({ url: publicUrlData.publicUrl });
+    }
+
+    // Add Product
+    if (contentType.includes('application/json')) {
+      const productData = await req.json();
+
+      if (!productData || !productData.seller_id || !productData.title) {
+        return NextResponse.json({ error: 'Missing required product data' }, { status: 400 });
+      }
+
+      const { data, error } = await supabaseAdmin
+        .from('products')
+        .insert([productData])
+        .select();
+
+      if (error) {
+        return NextResponse.json({ error: error.message }, { status: 500 });
+      }
+
+      responseCache.clear();
+      return NextResponse.json({ data });
+    }
+
+    return NextResponse.json({ error: 'Unsupported content type' }, { status: 400 });
+
+  } catch (error) {
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Internal Server Error' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PUT(req: NextRequest) {
+  try {
+    const { productId, updateData } = await req.json();
+
+    if (!productId || !updateData) {
+      return NextResponse.json({ error: 'Missing required product data or ID' }, { status: 400 });
+    }
+
+    const { data, error } = await supabaseAdmin
+      .from('products')
+      .update(updateData)
+      .eq('id', productId)
+      .select();
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    responseCache.clear();
+    return NextResponse.json({ data });
+  } catch (error) {
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Internal Server Error' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(req: NextRequest) {
+  try {
+    const bodyText = await req.text();
+    if (!bodyText) {
+      // Empty body -> clear cache
+      responseCache.clear();
+      return NextResponse.json({ success: true, message: 'Cache cleared' });
+    }
+
+    const { productId } = JSON.parse(bodyText);
+
+    if (!productId) {
+      return NextResponse.json({ error: 'Missing required product ID' }, { status: 400 });
+    }
+
+    const { error } = await supabaseAdmin
+      .from('products')
+      .delete()
+      .eq('id', productId);
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    responseCache.clear();
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Internal Server Error' },
+      { status: 500 }
+    );
+  }
 }

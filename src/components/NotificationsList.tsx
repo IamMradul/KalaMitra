@@ -23,12 +23,10 @@ export default function NotificationsList() {
     const fetchNotes = async () => {
       setLoading(true)
       try {
-        const { data } = await supabase
-          .from('notifications')
-          .select('*')
-          .eq('user_id', user?.id)
-          .order('created_at', { ascending: false })
-        if (isMounted) setNotes((data || []) as NotificationRow[])
+        const response = await fetch(`/api/notifications?userId=${user.id}`);
+        if (!response.ok) throw new Error('Failed to fetch notifications');
+        const data = await response.json();
+        if (isMounted) setNotes((data.notifications || []) as NotificationRow[]);
       } catch (err: unknown) {
         console.error('fetch notifications', err)
       } finally {
@@ -75,13 +73,12 @@ export default function NotificationsList() {
   }, [user, session])
 
   const fetchNotesForActions = async () => {
+    if (!user) return;
     try {
-      const { data } = await supabase
-        .from('notifications')
-        .select('*')
-        .eq('user_id', user?.id)
-        .order('created_at', { ascending: false })
-      setNotes((data || []) as NotificationRow[])
+      const response = await fetch(`/api/notifications?userId=${user.id}`);
+      if (!response.ok) throw new Error('Failed to fetch notifications');
+      const data = await response.json();
+      setNotes((data.notifications || []) as NotificationRow[]);
       if (typeof window !== 'undefined') {
         window.dispatchEvent(new Event('notificationUpdated'));
       }
@@ -92,7 +89,11 @@ export default function NotificationsList() {
 
   const markRead = async (id: string) => {
     try {
-      await supabase.from('notifications').update({ read: true }).eq('id', id)
+      await fetch('/api/notifications', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'mark_read', id })
+      });
       fetchNotesForActions()
     } catch (err: unknown) {
       console.error('mark read', err)
@@ -101,7 +102,9 @@ export default function NotificationsList() {
 
   const deleteNotification = async (id: string) => {
     try {
-      await supabase.from('notifications').delete().eq('id', id)
+      await fetch(`/api/notifications?id=${id}`, {
+        method: 'DELETE',
+      });
       fetchNotesForActions()
     } catch (err: unknown) {
       console.error('delete notification', err)
@@ -113,10 +116,11 @@ export default function NotificationsList() {
       const unreadIds = notes.filter(n => !n.read).map(n => n.id)
       if (unreadIds.length === 0) return
 
-      await supabase
-        .from('notifications')
-        .update({ read: true })
-        .in('id', unreadIds)
+      await fetch('/api/notifications', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'mark_read', ids: unreadIds })
+      });
       fetchNotesForActions()
     } catch (err: unknown) {
       console.error('mark all as read', err)

@@ -760,30 +760,30 @@ export default function SellerDashboard() {
       const product_story = formData.get('product_story') as string | null
       const product_type = formData.get('product_type') as 'vertical' | 'horizontal' | null
       const moderation_status = (formData.get('moderation_status') as string) || 'approved'
-
-      // Debug: Log all form data
-      console.log('=== FORM DATA DEBUG ===')
-      for (const [key, value] of formData.entries()) {
-        console.log(`${key}: ${value}`)
+      const additionalImagesRaw = formData.get('additional_images') as string | null
+      let additional_images: string[] | null = null
+      if (additionalImagesRaw) {
+        try {
+          additional_images = JSON.parse(additionalImagesRaw)
+        } catch (e) {
+          console.error('Failed to parse additional_images:', e)
+        }
       }
-      console.log('Extracted product_type:', product_type)
 
       // Fallback if product_type is not found
       const finalProductType = product_type || 'vertical'
-      console.log('Final product_type to save:', finalProductType)
 
       // Basic validation
       if (!title || !category || !description || isNaN(price) || price <= 0) {
         alert('Please fill in all required fields with valid values.')
+        setAddProductLoading(false)
         return
       }
-      console.log('=== ADDING PRODUCT ===')
-      console.log('User ID:', user.id)
-      console.log('User email:', user.email)
-      console.log('Profile role:', profile?.role)
-      console.log('User authenticated:', !!user)
-      console.log('Profile exists:', !!profile)
-      console.log('Product data:', { title, category, description, price, imageUrl, product_story, product_type })
+
+      let finalDescription = description
+      if (moderation_status === 'pending') {
+        finalDescription = `${description}\n<!-- moderation_status: pending -->`
+      }
 
       // Extract image features (best-effort)
       let features: { avgColor: { r: number; g: number; b: number }; aHash: string } | null = null
@@ -792,66 +792,44 @@ export default function SellerDashboard() {
           features = await extractImageFeatures(imageUrl)
         } catch { }
       }
-      console.log('Proceeding with insert...')
-      console.log('Insert data:', {
-        seller_id: user.id,
-        title,
-        category,
-        description,
-        price,
-        image_url: imageUrl || null,
-        product_story: product_story || null,
-        product_type: finalProductType,
+
+      const insertPromise = fetch('/api/marketplace/products', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          seller_id: user.id,
+          title,
+          category,
+          description: finalDescription,
+          price,
+          image_url: imageUrl || null,
+          product_story: product_story || null,
+          product_type: finalProductType,
+          is_virtual: formData.get('is_virtual') === 'true',
+          virtual_type: formData.get('virtual_type'),
+          virtual_file_url: formData.get('virtual_file_url') || null,
+          additional_images: additional_images,
+          image_avg_r: features?.avgColor.r ?? null,
+          image_avg_g: features?.avgColor.g ?? null,
+          image_avg_b: features?.avgColor.b ?? null,
+          image_ahash: features?.aHash ?? null,
+        }),
+      }).then(async (res) => {
+        if (!res.ok) {
+          const errData = await res.json()
+          throw new Error(errData.error || 'Failed to add product')
+        }
+        return res.json()
       })
-
-      // Test if product_type column exists by trying a simple query first
-      try {
-        const { data: _testData, error: _testError } = await supabase
-          .from('products')
-          .select('product_type')
-          .limit(1)
-        console.log('Column test result:', { _testData, _testError })
-      } catch (testErr) {
-        console.log('Column test error:', testErr)
-      }
-
-
-
-      let finalDescription = description
-      if (moderation_status === 'pending') {
-        finalDescription = `${description}\n<!-- moderation_status: pending -->`
-      }
-
-      // Add timeout to prevent hanging
-      const insertObj = {
-        seller_id: user.id,
-        title,
-        category,
-        description: finalDescription,
-        price,
-        image_url: imageUrl || null,
-        product_story: product_story || null,
-        product_type: finalProductType,
-        is_virtual: formData.get('is_virtual') === 'true',
-        virtual_type: formData.get('virtual_type'),
-        virtual_file_url: formData.get('virtual_file_url') || null,
-        image_avg_r: features?.avgColor.r ?? null,
-        image_avg_g: features?.avgColor.g ?? null,
-        image_avg_b: features?.avgColor.b ?? null,
-        image_ahash: features?.aHash ?? null,
-      }
-
-      const insertPromise = supabase
-        .from('products')
-        .insert([insertObj])
-        .select()
 
       const timeoutPromise = new Promise<never>((_, reject) => {
         setTimeout(() => reject(new Error('Database insert timeout after 10 seconds')), 10000)
       })
 
       const raced = await Promise.race([insertPromise, timeoutPromise])
-      const { data, error } = raced as { data: Product[] | null; error: { message: string; details?: string; hint?: string; code?: string } | null }
+      const { data, error } = raced as any
 
       if (error) {
         console.error('Error adding product:', error)
@@ -912,16 +890,24 @@ export default function SellerDashboard() {
     if (!confirm('Are you sure you want to delete this product?')) return
 
     try {
-      const { error } = await supabase
-        .from('products')
-        .delete()
-        .eq('id', productId)
+      const response = await fetch('/api/marketplace/products', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ productId }),
+      });
 
-      if (error) throw error
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to delete product');
+      }
+
       fetchProducts()
       fetch('/api/marketplace/products', { method: 'DELETE' }).catch(console.error);
     } catch (error) {
       console.error('Error deleting product:', error)
+      alert('Failed to delete product: ' + (error instanceof Error ? error.message : 'Unknown error'))
     }
   }
 
@@ -940,27 +926,27 @@ export default function SellerDashboard() {
       const product_type = formData.get('product_type') as 'vertical' | 'horizontal' | null
       const virtual_type = formData.get('virtual_type') as string | null
       const virtual_file_url = formData.get('virtual_file_url') as string | null
+      const additionalImagesRaw = formData.get('additional_images') as string | null
+      let additional_images: string[] | null = null
+      if (additionalImagesRaw) {
+        try {
+          additional_images = JSON.parse(additionalImagesRaw)
+        } catch (e) {
+          console.error('Failed to parse additional_images:', e)
+        }
+      }
 
       // Basic validation
       if (!title || !category || !description || isNaN(price) || price <= 0) {
         alert('Please fill in all required fields with valid values.')
+        setEditProductLoading(false)
         return
       }
       const isVirtual = editingProduct?.is_virtual || formData.get('is_virtual') === 'true';
       await moderateProductImage({ imageUrl, title, description, userId: user?.id, isVirtual })
 
       console.log('Updating product:', { productId, title, category, description, price, imageUrl, product_story, product_type, virtual_type, virtual_file_url })
-      const updateObj: {
-        title: string;
-        category: string;
-        description: string;
-        price: number;
-        image_url: string | null;
-        product_story: string | null;
-        product_type: 'vertical' | 'horizontal';
-        virtual_type?: string | null;
-        virtual_file_url?: string | null;
-      } = {
+      const updateObj: any = {
         title,
         category,
         description,
@@ -968,19 +954,26 @@ export default function SellerDashboard() {
         image_url: imageUrl || null,
         product_story: product_story || null,
         product_type: product_type || 'vertical',
+        additional_images: additional_images,
       };
       // Only update virtual fields if present in formData
       if (virtual_type !== undefined) updateObj.virtual_type = virtual_type;
       if (virtual_file_url !== undefined) updateObj.virtual_file_url = virtual_file_url;
-      const { error } = await supabase
-        .from('products')
-        .update(updateObj)
-        .eq('id', productId)
+      
+      const response = await fetch('/api/marketplace/products', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          productId,
+          updateData: updateObj
+        }),
+      })
 
-      if (error) {
-        console.error('Error updating product:', error)
-        alert(`Failed to update product: ${error.message}`)
-        throw error
+      if (!response.ok) {
+        const errData = await response.json()
+        throw new Error(errData.error || 'Failed to update product')
       }
 
       console.log('Product updated successfully')
@@ -1737,6 +1730,7 @@ export default function SellerDashboard() {
                         <button
                           onClick={() => {
                             setEditProductLoading(false)
+                            console.log('Editing product:', product);
                             setEditingProduct(product)
                           }}
                           className="flex-1 flex items-center justify-center px-3 py-2 text-xs sm:text-sm border border-[var(--border)] rounded-md text-[var(--text)] hover:bg-[var(--bg-2)] transition-colors"
@@ -1804,6 +1798,7 @@ export default function SellerDashboard() {
                 imageUrl: editingProduct.image_url || undefined,
                 product_story: editingProduct.product_story || undefined,
                 product_type: (editingProduct?.product_type as 'vertical' | 'horizontal' | undefined) || 'vertical',
+                additional_images: editingProduct.additional_images || undefined,
               }}
               onSubmit={async (formData) => {
                 try {
