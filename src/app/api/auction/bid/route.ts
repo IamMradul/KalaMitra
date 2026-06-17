@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
+import { createClient } from '@supabase/supabase-js'
 import { z } from 'zod';
 import { auctionRateLimit } from '@/lib/rate-limit';
 import { localRateLimit } from '@/lib/local-limit';
@@ -69,7 +70,12 @@ export async function POST(req: Request) {
     const highest = bids?.[0]?.amount ?? auction.starting_price
     if (amount <= highest) return NextResponse.json({ error: 'bid must be higher than current' }, { status: 400 })
 
-    const { error } = await supabase.from('bids').insert({ auction_id, bidder_id, amount })
+    const supabaseAdmin = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    )
+
+    const { error } = await supabaseAdmin.from('bids').insert({ auction_id, bidder_id, amount })
     if (error) return NextResponse.json({ error: error.message }, { status: 400 })
 
     return NextResponse.json({ success: true })

@@ -884,6 +884,7 @@ function MarketplaceContent() {
                   image_url: p.image_url,
                   description: p.description,
                   category: p.category as ThreeProduct['category'],
+                  additional_images: p.additional_images || undefined,
                 }))}
                 onAddToCart={addToCart}
                 onViewDetails={(id) => {
