@@ -70,7 +70,7 @@ export default function NotificationsList() {
       channel.unsubscribe();
       if (pollInterval) clearInterval(pollInterval);
     };
-  }, [user, session])
+  }, [user?.id, !!session])
 
   const fetchNotesForActions = async () => {
     if (!user) return;

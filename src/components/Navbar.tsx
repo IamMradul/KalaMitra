@@ -238,7 +238,7 @@ export default function Navbar() {
       }
       clearInterval(pollInterval);
     };
-  }, [user?.id, session]);
+  }, [user?.id]);
 
   // Fetch unread notifications count and subscribe to real-time updates
   useEffect(() => {
@@ -322,7 +322,7 @@ export default function Navbar() {
       }
       clearInterval(pollInterval);
     };
-  }, [user?.id, session]);
+  }, [user?.id]);
 
   // Fetch notifications when popup opens
   useEffect(() => {
