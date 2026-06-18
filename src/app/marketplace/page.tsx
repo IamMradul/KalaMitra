@@ -12,6 +12,7 @@ import { hammingDistanceHex as hammingHex } from '@/lib/image-similarity'
 import { Database } from '@/lib/supabase'
 import Link from 'next/link'
 import dynamic from 'next/dynamic'
+import Fuse from 'fuse.js'
 const Market3DButton = dynamic(() => import('@/components/Market3DButton'), { ssr: false })
 const ARViewer = dynamic(() => import('@/components/ARViewer'), { ssr: false })
 
@@ -280,9 +281,26 @@ function MarketplaceContent() {
   const [showCollaborativeOnly, setShowCollaborativeOnly] = useState(false)
   const [showVirtualOnly, setShowVirtualOnly] = useState(false)
   const [semanticResults, setSemanticResults] = useState<Product[]>([])
+  const [searchMeta, setSearchMeta] = useState<any>(null)
   const [isSearching, setIsSearching] = useState(false)
   const [semanticResolved, setSemanticResolved] = useState(true)
   const [realtimeUpdates, setRealtimeUpdates] = useState(0)
+
+  // Autocomplete UI State
+  const [showAutocomplete, setShowAutocomplete] = useState(false)
+  const [suggestions, setSuggestions] = useState<string[]>([])
+  
+  // Initialize Fuse.js for fast typo correction on frontend
+  const popularKeywords = useMemo(() => [
+    "handmade", "terracotta", "pottery", "decor", "gifts", "gift", "diya", 
+    "wall art", "clay pot", "vase", "sculpture", "painting", "saree", "handicraft",
+    "snack", "cookies", "biscuit", "jewelry"
+  ], [])
+
+  const fuse = useMemo(() => new Fuse(popularKeywords.map(k => ({ word: k })), {
+    keys: ['word'],
+    threshold: 0.4
+  }), [popularKeywords])
 
   const dedupeById = useCallback((items: Product[]) => {
     const map = new Map<string, Product>()
@@ -399,6 +417,7 @@ function MarketplaceContent() {
   useEffect(() => {
     if (!isSemanticSearchActive) {
       setSemanticResults([])
+      setSearchMeta(null)
       setSemanticResolved(true)
       return
     }
@@ -415,7 +434,9 @@ function MarketplaceContent() {
           setSemanticResults([])
           return
         }
-        const semanticResultsRaw = await response.json()
+        const data = await response.json()
+        const semanticResultsRaw = data.results || []
+        setSearchMeta(data.meta || null)
         const enrichedResults = (Array.isArray(semanticResultsRaw) ? semanticResultsRaw : [])
           .map((result: ProductBase) => {
             const fullProduct = products.find((p) => p.id === result.id) as Product | undefined
@@ -430,6 +451,7 @@ function MarketplaceContent() {
         setSemanticResults(dedupeById(enrichedResults))
       } catch {
         setSemanticResults([])
+        setSearchMeta(null)
       } finally {
         setIsSearching(false)
         setSemanticResolved(true)
@@ -710,6 +732,18 @@ function MarketplaceContent() {
     // Improved security: sanitize search term by removing potentially dangerous characters and trimming
     const sanitizedValue = value.replace(/[<>{}()]/g, '').slice(0, 100)
     setSearchTerm(sanitizedValue)
+    
+    if (sanitizedValue.trim().length > 1) {
+       setShowAutocomplete(true);
+       const res = fuse.search(sanitizedValue);
+       const exactMatches = popularKeywords.filter(k => k.includes(sanitizedValue.toLowerCase()));
+       // Combine fuzzy matches and exact subset matches
+       const combined = Array.from(new Set([...exactMatches, ...res.map(r => r.item.word)]));
+       setSuggestions(combined.slice(0, 4));
+    } else {
+       setShowAutocomplete(false);
+       setSuggestions([]);
+    }
   }
 
   // Remove clientSideFilter, now handled by useMemo
@@ -941,6 +975,35 @@ function MarketplaceContent() {
                   <div className="w-5 h-5 border-2 border-orange-200 border-t-orange-600 rounded-full animate-spin"></div>
                 </div>
               )}
+
+              {/* Autocomplete Dropdown */}
+              <AnimatePresence>
+                {showAutocomplete && suggestions.length > 0 && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="absolute z-50 w-full mt-2 bg-[var(--bg-1)] border border-[var(--border)] rounded-xl shadow-xl overflow-hidden"
+                  >
+                    <ul>
+                      {suggestions.map((sug, idx) => (
+                        <li key={idx}>
+                          <button
+                            onClick={() => {
+                              setSearchTerm(sug);
+                              setShowAutocomplete(false);
+                            }}
+                            className="w-full text-left px-4 py-3 hover:bg-[var(--bg-2)] transition-colors flex items-center gap-3 text-[var(--text)]"
+                          >
+                            <Search className="w-4 h-4 text-[var(--muted)]" />
+                            <span>{sug}</span>
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
             {/* Category Filter */}
@@ -1017,6 +1080,24 @@ function MarketplaceContent() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
           >
+            {/* Search Feedback Metadata */}
+            {searchMeta && (
+              <div className="mb-6 space-y-3">
+                {searchMeta.correctedQuery && (
+                  <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded-lg flex items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-yellow-600" />
+                    <p>Showing results for <span className="font-bold">{searchMeta.correctedQuery}</span> instead of <span className="line-through opacity-70">{searchMeta.originalQuery}</span></p>
+                  </div>
+                )}
+                {searchMeta.isFallback && paginatedProducts.length > 0 && (
+                  <div className="bg-orange-50 border border-orange-200 text-orange-800 px-4 py-3 rounded-lg flex items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-orange-600" />
+                    <p>We couldn't find exactly what you were looking for, but here are some related popular items!</p>
+                  </div>
+                )}
+              </div>
+            )}
+
             {paginatedProducts.length === 0 ? (
               <div className="text-center py-12">
                 <Search className="w-16 h-16 text-gray-300 mx-auto mb-4" />

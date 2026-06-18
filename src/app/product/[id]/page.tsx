@@ -748,9 +748,17 @@ export default function ProductDetail() {
               <div className="flex flex-col sm:flex-row gap-3">
                 {/* Gift Button */}
                 <button
-                  className="group relative flex-1 flex items-center justify-center px-4 py-2.5 bg-white border border-[#b08d55] text-[#b08d55] font-semibold rounded-lg transition-all duration-300 hover:bg-[#b08d55] hover:text-white hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus:ring-4 focus:ring-[#b08d55]/20"
+                  className={`group relative flex-1 flex items-center justify-center px-4 py-2.5 bg-white border border-[#b08d55] text-[#b08d55] font-semibold rounded-lg transition-all duration-300 hover:bg-[#b08d55] hover:text-white hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus:ring-4 focus:ring-[#b08d55]/20 ${hasActiveAuction ? 'opacity-80' : ''}`}
                   title={t('product.giftButtonTooltip')}
-                  onClick={() => setGiftModalOpen(true)}
+                  onClick={() => {
+                    if (hasActiveAuction) {
+                      const auctionEl = document.getElementById('auction-section');
+                      if (auctionEl) auctionEl.scrollIntoView({ behavior: 'smooth' });
+                      alert(t('product.bidFirstToGift', 'This product is on auction! Please place a bid and win the auction before sending it as a gift.'));
+                    } else {
+                      setGiftModalOpen(true);
+                    }
+                  }}
                 >
                   <div className="flex items-center gap-2 relative z-10">
                     <span role="img" aria-label="gift" className="text-lg group-hover:animate-bounce">🎁</span>
@@ -933,7 +941,7 @@ export default function ProductDetail() {
                 )}
               </motion.div>
               {/* Auction Widget */}
-              <div>
+              <div id="auction-section">
                 <h3 className="text-lg font-semibold text-[var(--text)] mb-4">{t('auction.title')}</h3>
                 <AuctionWidget productId={product.id} />
               </div>

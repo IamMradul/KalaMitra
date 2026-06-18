@@ -51,8 +51,19 @@ function DMPageContent() {
     const channel = supabase.channel('dm_sidebar')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages' }, () => { fetchThreads(); })
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_participants', filter: `user_id=eq.${user.id}` }, () => { fetchThreads(); })
+      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'chat_participants', filter: `user_id=eq.${user.id}` }, () => { setSelectedThread(null); fetchThreads(); })
       .subscribe();
-    return () => { supabase.removeChannel(channel); };
+      
+    const onThreadDeleted = () => {
+      setSelectedThread(null);
+      fetchThreads();
+    };
+    window.addEventListener('threadDeleted', onThreadDeleted);
+
+    return () => { 
+      supabase.removeChannel(channel); 
+      window.removeEventListener('threadDeleted', onThreadDeleted);
+    };
   }, [user]);
 
   useEffect(() => {
@@ -170,7 +181,7 @@ function DMPageContent() {
       <div className="flex -space-x-2 shrink-0">
         {participants.slice(0, 3).map((p, idx) => (
           <div key={p.id} style={{ zIndex: 10 - idx }}>
-            <Avatar src={p.profile_image} name={p.name} size="sm" />
+            {Avatar({ src: p.profile_image, name: p.name, size: "sm" })}
           </div>
         ))}
         {participants.length > 3 && (
@@ -198,7 +209,7 @@ function DMPageContent() {
       >
         {isSelected && <div className="absolute inset-0 rounded-xl opacity-5" style={{ background: 'var(--heritage-gold)' }} />}
         <div className="relative">
-          {isDM ? <Avatar src={thread.other?.profile_image} name={thread.other?.name} /> : <GroupAvatar participants={thread.participants} />}
+          {isDM ? Avatar({ src: thread.other?.profile_image, name: thread.other?.name }) : GroupAvatar({ participants: thread.participants })}
           {thread.isUnread && (
             <span className="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-[var(--card)]" style={{ background: 'var(--heritage-gold)' }} />
           )}
@@ -263,14 +274,15 @@ function DMPageContent() {
             </div>
           ) : (
             filteredThreads.map(thread => (
-              <ThreadItem
-                key={thread.id}
-                thread={thread}
-                onClick={() => {
-                  setSelectedThread(thread);
-                  if (isMobile) setShowThreadListMobile(false);
-                }}
-              />
+              <div key={thread.id}>
+                {ThreadItem({
+                  thread,
+                  onClick: () => {
+                    setSelectedThread(thread);
+                    if (isMobile) setShowThreadListMobile(false);
+                  }
+                })}
+              </div>
             ))
           )}
         </div>
@@ -322,7 +334,7 @@ function DMPageContent() {
                   <label key={u.id} className="flex items-center gap-3 px-3 py-2.5 cursor-pointer transition-colors hover:bg-[var(--bg-2)]">
                     <input type="checkbox" className="w-4 h-4 rounded" style={{ accentColor: 'var(--heritage-gold)' }} checked={groupParticipants.includes(u.id)}
                       onChange={e => setGroupParticipants(prev => e.target.checked ? [...prev, u.id] : prev.filter(id => id !== u.id))} />
-                    <Avatar src={u.profile_image} name={u.name} size="sm" />
+                    {Avatar({ src: u.profile_image, name: u.name, size: "sm" })}
                     <span className="text-sm font-medium text-[var(--text)]">{u.name}</span>
                   </label>
                 ))}
@@ -354,10 +366,10 @@ function DMPageContent() {
   if (isMobile) {
     return (
       <div className="flex flex-col h-screen" style={{ background: 'var(--bg-1)' }}>
-        {showGroupModal && <GroupModal />}
+        {showGroupModal && GroupModal()}
         <div className="relative flex-1 overflow-hidden">
           <div className={`absolute inset-0 transition-transform duration-300 ease-in-out ${showThreadListMobile ? 'translate-x-0' : '-translate-x-full'}`}>
-            <Sidebar />
+            {Sidebar()}
           </div>
           <div className={`absolute inset-0 transition-transform duration-300 ease-in-out ${showThreadListMobile ? 'translate-x-full' : 'translate-x-0'}`}>
             <div className="flex flex-col h-full">
@@ -371,7 +383,7 @@ function DMPageContent() {
                 {selectedThread ? (() => {
                   if (selectedThread.type === 'group' && typeof window !== 'undefined') (window as any).__DMCHAT_PARTICIPANTS = selectedThread.participants || [];
                   return <DMChat threadId={selectedThread.id} {...(selectedThread.type === 'group' ? { otherUser: { threadTitle: selectedThread.title || '', threadType: selectedThread.type } } : { otherUser: selectedThread.other as UserProfile })} />;
-                })() : <EmptyState />}
+                })() : EmptyState()}
               </div>
             </div>
           </div>
@@ -382,17 +394,17 @@ function DMPageContent() {
 
   return (
     <div className="flex h-[calc(100vh-70px)]" style={{ background: 'var(--bg-1)' }}>
-      {showGroupModal && <GroupModal />}
+      {showGroupModal && GroupModal()}
       {/* Sidebar */}
       <div className="w-80 shrink-0 flex flex-col h-full">
-        <Sidebar />
+        {Sidebar()}
       </div>
       {/* Chat Area */}
       <div className="flex-1 overflow-hidden h-full">
         {selectedThread ? (() => {
           if (selectedThread.type === 'group' && typeof window !== 'undefined') (window as any).__DMCHAT_PARTICIPANTS = selectedThread.participants || [];
           return <DMChat threadId={selectedThread.id} {...(selectedThread.type === 'group' ? { otherUser: { threadTitle: selectedThread.title || '', threadType: selectedThread.type } } : { otherUser: selectedThread.other as UserProfile })} />;
-        })() : <EmptyState />}
+        })() : EmptyState()}
       </div>
     </div>
   );

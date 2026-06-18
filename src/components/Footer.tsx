@@ -9,7 +9,7 @@ import '@/lib/i18n'
 const FooterItem = ({ text, link }: { text: string, link: string }) => {
   return (
     <li>
-      <Link href={link} className="duration-200 hover:text-[var(--heritage-gold)] dark:hover:text-[var(--heritage-accent)] transition-colors">
+      <Link href={link} className="text-sm font-medium duration-200 hover:text-[var(--heritage-gold)] dark:hover:text-[var(--heritage-accent)] transition-colors text-[var(--muted)]">
         {text}
       </Link>
     </li>
@@ -19,8 +19,8 @@ const FooterItem = ({ text, link }: { text: string, link: string }) => {
 const FooterBlockItem = ({ title, items }: { title: string, items: Array<{ id: number; link: string; text: string }> }) => {
   return (
     <div className="space-y-6">
-      <h1 className="text-lg font-semibold text-[var(--text)]">{title}</h1>
-      <ul className="space-y-3 font-medium text-[var(--muted)]">
+      <h3 className="text-lg font-bold font-cormorant text-[var(--text)]">{title}</h3>
+      <ul className="space-y-4">
         {
           items.map(item => (
             <FooterItem key={item.id} {...item} />
@@ -42,7 +42,7 @@ export default function Footer() {
   if (!mounted) {
     return (
       <footer className="bg-[var(--bg-1)] border-t border-[var(--border)] mt-auto">
-        <div className="container-custom py-20" />
+        <div className="max-w-7xl mx-auto py-16" />
       </footer>
     )
   }
@@ -50,45 +50,45 @@ export default function Footer() {
   const footerBlocks = [
     {
       id: 1,
-      title: t('footer.quickLinks'),
+      title: t('footer.quickLinks', 'Quick Links'),
       items: [
-        { id: 1, text: t('footer.about'), link: "/about" },
-        { id: 2, text: t('footer.howItWorks'), link: "/howitworks" },
-        { id: 3, text: t('footer.successStories'), link: "/successstories" },
-        { id: 4, text: t('footer.support'), link: "/support" }
+        { id: 1, text: t('footer.about', 'About Us'), link: "/about" },
+        { id: 2, text: t('footer.howItWorks', 'How It Works'), link: "/howitworks" },
+        { id: 3, text: t('footer.successStories', 'Success Stories'), link: "/successstories" },
+        { id: 4, text: t('footer.support', 'Support'), link: "/support" }
       ]
     },
     {
       id: 2,
-      title: t('footer.legal'),
+      title: t('footer.legal', 'Legal'),
       items: [
-        { id: 1, text: t('footer.privacy'), link: "/policy" },
-        { id: 2, text: t('footer.terms'), link: "/terms" },
-        { id: 3, text: t('footer.cookies'), link: "/cookies" },
-        { id: 4, text: t('footer.contact'), link: "/contact" }
+        { id: 1, text: t('footer.privacy', 'Privacy Policy'), link: "/policy" },
+        { id: 2, text: t('footer.terms', 'Terms of Service'), link: "/terms" },
+        { id: 3, text: t('footer.cookies', 'Cookie Policy'), link: "/cookies" },
+        { id: 4, text: t('footer.contact', 'Contact'), link: "/contact" }
       ]
     },
   ]
 
   return (
     <footer className="bg-[var(--bg-1)] border-t border-[var(--border)] mt-auto text-[var(--text)]">
-      <div className="max-w-7xl mx-auto px-5 sm:px-10 md:px-12 lg:px-5 grid grid-cols-2 lg:grid-cols-6 gap-12 lg:gap-16 py-20">
+      <div className="max-w-7xl mx-auto px-5 sm:px-10 md:px-12 lg:px-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-12 lg:gap-8 py-16">
 
         {/* Brand Section */}
-        <div className="space-y-6 col-span-2">
+        <div className="space-y-6 col-span-1 md:col-span-2">
           <Link href="/" className="flex items-center gap-3">
             <Image
               src="/kalamitra-symbol.png"
               alt="KalaMitra Symbol"
-              width={96}
-              height={96}
-              sizes="96px"
-              className="object-contain w-auto h-auto"
+              width={80}
+              height={80}
+              sizes="80px"
+              className="object-contain w-20 h-20"
             />
-            <span className="text-2xl font-bold">{t('brand.name')}</span>
+            <span className="text-2xl font-bold font-cormorant">{t('brand.name', 'KalaMitra')}</span>
           </Link>
-          <p className="max-w-lg text-[var(--muted)] leading-relaxed">
-            {t('footer.tagline')}
+          <p className="text-sm font-medium text-[var(--muted)] leading-relaxed max-w-sm">
+            {t('footer.tagline', 'Preserving Tradition, Empowering Artisans ✨')}
           </p>
         </div>
 
@@ -100,17 +100,19 @@ export default function Footer() {
         }
 
         {/* Newsletter Section */}
-        <div className="space-y-6 col-span-2">
-          <h1 className="text-lg font-semibold text-[var(--text)]">{t('footer.subscribeTitle')}</h1>
-          <p className="text-[var(--muted)] text-sm">{t('footer.communityBlurb')}</p>
-          <form className="w-full max-w-2xl flex flex-col sm:flex-row gap-3">
+        <div className="space-y-6 col-span-1 md:col-span-2">
+          <h3 className="text-lg font-bold font-cormorant text-[var(--text)]">{t('footer.subscribeTitle', 'Subscribe')}</h3>
+          <p className="text-[var(--muted)] text-sm leading-relaxed max-w-sm">
+            {t('footer.communityBlurb', 'Join our community of artisans and art lovers, preserving cultural heritage while embracing the future of digital commerce.')}
+          </p>
+          <form className="w-full max-w-md flex flex-col sm:flex-row gap-3">
             <input
               type="email"
-              placeholder={t('footer.emailPlaceholder')}
-              className="px-5 py-2.5 rounded-xl outline-none flex-1 bg-[var(--bg-2)] border border-[var(--border)] focus:border-[var(--heritage-gold)] transition-colors"
+              placeholder={t('footer.emailPlaceholder', 'email@example.com')}
+              className="px-4 py-2.5 rounded-lg outline-none flex-1 bg-[var(--bg-1)] border border-[var(--border)] focus:border-[var(--heritage-gold)] transition-colors text-sm"
             />
-            <button className="outline-none w-full py-2.5 px-5 sm:w-max bg-gradient-to-r from-[var(--heritage-gold)] to-[var(--heritage-red)] hover:opacity-90 text-white rounded-xl flex items-center justify-center font-semibold transition-opacity">
-              {t('footer.subscribeBtn')}
+            <button className="outline-none w-full py-2.5 px-6 sm:w-max bg-[#a94442] hover:bg-[#8a3634] text-white rounded-lg flex items-center justify-center font-semibold text-sm transition-colors shadow-sm">
+              {t('footer.subscribeBtn', 'Subscribe')}
             </button>
           </form>
         </div>
@@ -118,22 +120,22 @@ export default function Footer() {
 
       {/* Bottom Bar */}
       <div className="max-w-7xl mx-auto px-5 sm:px-10 md:px-12 lg:px-5">
-        <div className="w-full flex flex-col md:flex-row gap-4 items-center sm:justify-between py-6 border-t border-[var(--border)] text-[var(--muted)]">
+        <div className="w-full flex flex-col md:flex-row gap-4 items-center sm:justify-between py-6 border-t border-[var(--border)] text-sm text-[var(--muted)] font-medium">
           <div className="flex text-center sm:text-left sm:min-w-max">
-            <p> {t('footer.copyright')} </p>
+            <p> {t('footer.copyright', '© 2025 KalaMitra. All rights reserved.')} </p>
           </div>
-          <div className="flex justify-center sm:justify-end w-full gap-4">
+          <div className="flex justify-center sm:justify-end w-full gap-5">
             {/* LinkedIn */}
             <a href="https://www.linkedin.com/company/thinktech17" target="_blank" rel="noopener noreferrer" className="hover:text-[var(--heritage-gold)] transition-colors" aria-label="LinkedIn">
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.76 0-5 2.24-5 5v14c0 2.76 2.24 5 5 5h14c2.76 0 5-2.24 5-5v-14c0-2.76-2.24-5-5-5zm-11 19h-3v-9h3v9zm-1.5-10.28c-.97 0-1.75-.79-1.75-1.75s.78-1.75 1.75-1.75 1.75.79 1.75 1.75-.78 1.75-1.75 1.75zm15.5 10.28h-3v-4.5c0-1.08-.02-2.47-1.5-2.47-1.5 0-1.73 1.17-1.73 2.39v4.58h-3v-9h2.89v1.23h.04c.4-.75 1.37-1.54 2.82-1.54 3.01 0 3.57 1.98 3.57 4.56v4.75z" /></svg>
+              <svg className="w-[18px] h-[18px]" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.76 0-5 2.24-5 5v14c0 2.76 2.24 5 5 5h14c2.76 0 5-2.24 5-5v-14c0-2.76-2.24-5-5-5zm-11 19h-3v-9h3v9zm-1.5-10.28c-.97 0-1.75-.79-1.75-1.75s.78-1.75 1.75-1.75 1.75.79 1.75 1.75-.78 1.75-1.75 1.75zm15.5 10.28h-3v-4.5c0-1.08-.02-2.47-1.5-2.47-1.5 0-1.73 1.17-1.73 2.39v4.58h-3v-9h2.89v1.23h.04c.4-.75 1.37-1.54 2.82-1.54 3.01 0 3.57 1.98 3.57 4.56v4.75z" /></svg>
             </a>
             {/* GitHub */}
             <a href="https://github.com/iapoorv01/" target="_blank" rel="noopener noreferrer" className="hover:text-[var(--heritage-gold)] transition-colors" aria-label="GitHub">
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.387.6.113.82-.258.82-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.085 1.84 1.237 1.84 1.237 1.07 1.834 2.809 1.304 3.495.997.108-.775.418-1.305.762-1.605-2.665-.305-5.466-1.334-5.466-5.931 0-1.31.469-2.381 1.236-3.221-.124-.303-.535-1.523.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.873.119 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.803 5.624-5.475 5.921.43.371.823 1.102.823 2.222v3.293c0 .322.218.694.825.576C20.565 21.796 24 17.297 24 12c0-6.63-5.37-12-12-12z" /></svg>
+              <svg className="w-[18px] h-[18px]" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.387.6.113.82-.258.82-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.085 1.84 1.237 1.84 1.237 1.07 1.834 2.809 1.304 3.495.997.108-.775.418-1.305.762-1.605-2.665-.305-5.466-1.334-5.466-5.931 0-1.31.469-2.381 1.236-3.221-.124-.303-.535-1.523.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.873.119 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.803 5.624-5.475 5.921.43.371.823 1.102.823 2.222v3.293c0 .322.218.694.825.576C20.565 21.796 24 17.297 24 12c0-6.63-5.37-12-12-12z" /></svg>
             </a>
             {/* Instagram */}
             <a href="https://www.instagram.com/i__apoorv__01/" target="_blank" rel="noopener noreferrer" className="hover:text-[var(--heritage-gold)] transition-colors" aria-label="Instagram">
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 1.366.062 2.633.334 3.608 1.308.974.974 1.246 2.241 1.308 3.608.058 1.266.069 1.646.069 4.85s-.012 3.584-.07 4.85c-.062 1.366-.334 2.633-1.308 3.608-.974.974-2.241 1.246-3.608 1.308-1.266.058-1.646.069-4.85.069s-3.584-.012-4.85-.07c-1.366-.062-2.633-.334-3.608-1.308-.974-.974-1.246-2.241-1.308-3.608C2.175 15.747 2.163 15.367 2.163 12s.012-3.584.07-4.85c.062-1.366.334-2.633 1.308-3.608.974-.974 2.241-1.246 3.608-1.308C8.416 2.175 8.796 2.163 12 2.163zm0-2.163C8.741 0 8.332.013 7.052.072 5.775.131 4.602.425 3.635 1.392 2.668 2.359 2.374 3.532 2.315 4.808 2.256 6.088 2.243 6.497 2.243 12c0 5.503.013 5.912.072 7.192.059 1.276.353 2.449 1.32 3.416.967.967 2.14 1.261 3.416 1.32 1.28.059 1.689.072 7.192.072s5.912-.013 7.192-.072c1.276-.059 2.449-.353 3.416-1.32.967-.967 1.261-2.14 1.32-3.416.059-1.28.072-1.689.072-7.192s-.013-5.912-.072-7.192c-.059-1.276-.353-2.449-1.32-3.416C19.449.425 18.276.131 17 .072 15.72.013 15.311 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zm0 10.162a3.999 3.999 0 1 1 0-7.998 3.999 3.999 0 0 1 0 7.998zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z" /></svg>
+              <svg className="w-[18px] h-[18px]" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 1.366.062 2.633.334 3.608 1.308.974.974 1.246 2.241 1.308 3.608.058 1.266.069 1.646.069 4.85s-.012 3.584-.07 4.85c-.062 1.366-.334 2.633-1.308 3.608-.974.974-2.241 1.246-3.608 1.308-1.266.058-1.646.069-4.85.069s-3.584-.012-4.85-.07c-1.366-.062-2.633-.334-3.608-1.308-.974-.974-1.246-2.241-1.308-3.608C2.175 15.747 2.163 15.367 2.163 12s.012-3.584.07-4.85c.062-1.366.334-2.633 1.308-3.608.974-.974 2.241-1.246 3.608-1.308C8.416 2.175 8.796 2.163 12 2.163zm0-2.163C8.741 0 8.332.013 7.052.072 5.775.131 4.602.425 3.635 1.392 2.668 2.359 2.374 3.532 2.315 4.808 2.256 6.088 2.243 6.497 2.243 12c0 5.503.013 5.912.072 7.192.059 1.276.353 2.449 1.32 3.416.967.967 2.14 1.261 3.416 1.32 1.28.059 1.689.072 7.192.072s5.912-.013 7.192-.072c1.276-.059 2.449-.353 3.416-1.32.967-.967 1.261-2.14 1.32-3.416.059-1.28.072-1.689.072-7.192s-.013-5.912-.072-7.192c-.059-1.276-.353-2.449-1.32-3.416C19.449.425 18.276.131 17 .072 15.72.013 15.311 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zm0 10.162a3.999 3.999 0 1 1 0-7.998 3.999 3.999 0 0 1 0 7.998zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z" /></svg>
             </a>
           </div>
         </div>

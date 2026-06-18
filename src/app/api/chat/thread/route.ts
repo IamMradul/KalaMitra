@@ -98,7 +98,7 @@ export async function POST(req: Request) {
         .select('id, name')
         .eq('id', participantIds[0])
         .single();
-      const notifications = participantIds.slice(1).map(pid => ({
+      const notifications = participantIds.slice(1).map((pid: string) => ({
         user_id: pid,
         title: 'Added to group chat',
         body: `${creatorProfile?.name || 'Someone'} added you to group chat "${title}"`,
@@ -113,6 +113,43 @@ export async function POST(req: Request) {
       await supabase.from('notifications').insert(notifications);
     }
     return NextResponse.json({ threadId: thread.id }, { status: 201 });
+  } catch (err) {
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+
+export async function DELETE(req: Request) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const threadId = searchParams.get('threadId');
+    const userId = searchParams.get('userId');
+
+    if (!threadId || !userId) {
+      return NextResponse.json({ error: 'Missing threadId or userId' }, { status: 400 });
+    }
+
+    // Delete the participant entry.
+    const { error: partError } = await supabase
+      .from('chat_participants')
+      .delete()
+      .eq('thread_id', threadId)
+      .eq('user_id', userId);
+
+    if (partError) {
+      return NextResponse.json({ error: partError.message }, { status: 500 });
+    }
+
+    // Check if the thread has any participants left, if not, delete the thread.
+    const { data: remaining, error: checkError } = await supabase
+      .from('chat_participants')
+      .select('user_id')
+      .eq('thread_id', threadId);
+    
+    if (!checkError && remaining && remaining.length === 0) {
+      await supabase.from('chat_threads').delete().eq('id', threadId);
+    }
+
+    return NextResponse.json({ success: true }, { status: 200 });
   } catch (err) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

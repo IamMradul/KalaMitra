@@ -14,10 +14,7 @@ const getSupabaseHost = () => {
 const nextConfig: NextConfig = {
   // Enable static exports for better Vercel compatibility
   output: 'standalone',
-  // Ignore ESLint errors during build
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
+
   // Strip console.log / info / debug at build time in production.
   // console.error and console.warn are preserved so real issues stay visible.
   compiler: {
@@ -26,6 +23,7 @@ const nextConfig: NextConfig = {
       : false,
   },
   images: {
+    unoptimized: true,
     // Strictly allow only external hosts we use for product images
     remotePatterns: [
       { protocol: 'https', hostname: 'kalamitra.store' },
