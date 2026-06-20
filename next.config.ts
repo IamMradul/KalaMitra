@@ -15,6 +15,18 @@ const nextConfig: NextConfig = {
   // Enable static exports for better Vercel compatibility
   output: 'standalone',
 
+  // Tell Vercel's Node File Trace (NFT) to ONLY include the specific 15MB native library
+  // This bypasses the 50MB function size limit crash while fixing the Node module error
+  outputFileTracingIncludes: {
+    '/api/**/*': [
+      './node_modules/onnxruntime-node/bin/napi-v3/linux/x64/libonnxruntime.so.1.14.0',
+      './node_modules/onnxruntime-node/bin/napi-v3/linux/arm64/libonnxruntime.so.1.14.0'
+    ],
+  },
+
+  // Fix for @xenova/transformers missing libonnxruntime.so error on Vercel
+  serverExternalPackages: ['onnxruntime-node', '@xenova/transformers'],
+
   // Strip console.log / info / debug at build time in production.
   // console.error and console.warn are preserved so real issues stay visible.
   compiler: {
@@ -22,6 +34,7 @@ const nextConfig: NextConfig = {
       ? { exclude: ['error', 'warn'] }
       : false,
   },
+
   images: {
     unoptimized: true,
     // Strictly allow only external hosts we use for product images

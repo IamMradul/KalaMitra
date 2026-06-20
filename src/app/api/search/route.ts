@@ -31,11 +31,11 @@ export async function POST(req: Request) {
       isAllowed = localResult.success;
       limitInfo = { limit: 10, remaining: localResult.remaining, reset: Date.now() + 10000 };
     }
-    
+
     if (!isAllowed) {
       return NextResponse.json(
         { error: 'Too many requests' },
-        { 
+        {
           status: 429,
           headers: {
             'X-RateLimit-Limit': limitInfo.limit.toString(),
@@ -58,14 +58,18 @@ export async function POST(req: Request) {
 
     // 3. Analyze Query (Intent + Synonyms)
     const analysis = analyzeQuery(query);
-    const searchString = analysis.expansion.length > 0 
-      ? `${analysis.corrected} ${analysis.expansion.join(' ')}` 
+    const searchString = analysis.expansion.length > 0
+      ? `${analysis.corrected} ${analysis.expansion.join(' ')}`
       : analysis.corrected;
-    
-    console.log(`Original: ${query} -> Corrected: ${analysis.corrected} -> Expanded: ${searchString}`);
+
+    console.log(`\n[Search API] === New Search Request ===`);
+    console.log(`[Search API] Original: "${query}"`);
+    console.log(`[Search API] Corrected: "${analysis.corrected}"`);
+    console.log(`[Search API] Search String (with expansions): "${searchString}"`);
 
     // Generate an embedding for the corrected/expanded query
     const queryEmbedding = await generateEmbedding(searchString);
+    console.log(`[Search API] Embedding generation: ${queryEmbedding ? 'SUCCESS (vector length: ' + queryEmbedding.length + ')' : 'FAILED'}`);
 
     // 4. Hybrid Search 
     const { data: semanticData, error: semanticError } = await supabase.rpc('match_products', {
@@ -74,32 +78,43 @@ export async function POST(req: Request) {
       match_count: 30,
     });
 
+    console.log(`[Search API] Semantic search returned: ${semanticData?.length || 0} matches.`);
+
     if (semanticError) {
-      console.error('Error matching products:', semanticError);
-      return NextResponse.json({ error: 'Failed to match products' }, { status: 500 });
+      console.error('[Search API] Error matching products:', semanticError);
     }
 
-    let combinedResults = semanticData || [];
+    // 4.5 Exact Text Search (covers cases where embeddings are missing or threshold is missed)
+    let textQueryParts = [
+      `title.ilike."%${analysis.corrected}%"`,
+      `description.ilike."%${analysis.corrected}%"`,
+      `category.ilike."%${analysis.corrected}%"`
+    ];
 
-    // 5. Smart Fallback Engine
-    let isFallback = false;
-    if (combinedResults.length < 3) {
-      isFallback = true;
-      let fallbackQuery = supabase.from('products').select('*').limit(10);
-      
-      if (analysis.expansion.length > 0) {
-        const textQuery = analysis.expansion.join(' | ');
-        fallbackQuery = fallbackQuery.textSearch('description', textQuery);
-      }
-      
-      const { data: fallbackData } = await fallbackQuery;
-      if (fallbackData && fallbackData.length > 0) {
-        combinedResults = [...combinedResults, ...fallbackData];
-      } else {
-        const { data: ultimateFallback } = await supabase.from('products').select('*').limit(10).order('created_at', { ascending: false });
-        combinedResults = [...combinedResults, ...(ultimateFallback || [])];
-      }
+    // Also search for the expanded intents in the text search to be thorough
+    analysis.expansion.forEach(exp => {
+      textQueryParts.push(
+        `title.ilike."%${exp}%"`,
+        `description.ilike."%${exp}%"`,
+        `category.ilike."%${exp}%"`
+      );
+    });
+
+    const orQuery = textQueryParts.join(',');
+
+    const { data: textData, error: textError } = await supabase
+      .from('products')
+      .select('*')
+      .or(orQuery)
+      .limit(30);
+
+    console.log(`[Search API] Text search returned: ${textData?.length || 0} matches.`);
+
+    if (textError) {
+      console.error('[Search API] Error in text search:', textError);
     }
+
+    let combinedResults = [...(textData || []), ...(semanticData || [])];
 
     // Remove duplicates
     const uniqueMap = new Map();
@@ -109,6 +124,22 @@ export async function POST(req: Request) {
       }
     });
     combinedResults = Array.from(uniqueMap.values());
+    console.log(`[Search API] Combined unique results before fallback check: ${combinedResults.length}`);
+
+    // 5. Smart Fallback Engine
+    let isFallback = false;
+    if (combinedResults.length === 0) {
+      console.log(`[Search API] 0 results found! Triggering fallback...`);
+      isFallback = true;
+      // Ultimate fallback: just return latest products
+      const { data: ultimateFallback } = await supabase
+        .from('products')
+        .select('*')
+        .limit(12)
+        .order('created_at', { ascending: false });
+      combinedResults = ultimateFallback || [];
+      console.log(`[Search API] Fallback returned ${combinedResults.length} default products.`);
+    }
 
     // 6. Enrichment (Seller Names)
     const sellerIds = [...new Set((combinedResults).map((p: any) => p?.seller_id).filter(Boolean))] as string[]

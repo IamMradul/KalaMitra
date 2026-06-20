@@ -16,6 +16,7 @@ interface ProductCardProps {
   onNarrate: (product: Product) => void;
   onStopNarrate: () => void;
   onAR: (imageUrl?: string, productType?: 'vertical' | 'horizontal') => void;
+  priority?: boolean;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({
@@ -29,6 +30,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   onNarrate,
   onStopNarrate,
   onAR,
+  priority = false,
 }) => {
   const { t } = useTranslation();
   return (
@@ -66,8 +68,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
               fill
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
               className="object-cover hover:scale-110 transition-transform duration-300"
-              priority={false}
-              loading="lazy"
+              priority={priority}
+              loading={priority ? "eager" : "lazy"}
             />
           ) : (
             <div className={`w-full h-full bg-gradient-to-br flex items-center justify-center ${product.isCollaborative

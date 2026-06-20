@@ -38,19 +38,19 @@ export async function POST(req: Request) {
       'less', 'higher', 'lower', 'bigger', 'smaller', 'larger',
       'above', 'below', 'under', 'over'
     ];
-    
+
     // Check query content
     const hasFollowUpKeyword = followUpKeywords.some(keyword => query.toLowerCase().includes(keyword));
     const meaningfulKeywords = parsed.keywords.filter(k => !k.match(/^\d+\??$/));
     const hasFilters = parsed.minPrice !== null || parsed.maxPrice !== null;
-    
+
     // A query is a follow-up if:
     // 1. Has follow-up keywords OR
     // 2. Has filters (price) but no meaningful content (categories/keywords) - just applying filters
     const lacksContent = meaningfulKeywords.length === 0 && parsed.categories.length === 0 && !parsed.occasion;
     const isFilterOnly = hasFilters && lacksContent;
-    
-    const isFollowUp = conversationHistory && conversationHistory.length > 0 && 
+
+    const isFollowUp = conversationHistory && conversationHistory.length > 0 &&
       (hasFollowUpKeyword || isFilterOnly);
 
     // Extract context from previous messages for follow-ups
@@ -62,23 +62,23 @@ export async function POST(req: Request) {
         .slice()
         .reverse()
         .filter((m: ConversationMessage) => m.role === 'user');
-      
+
       // Find the last message with meaningful content (not just numbers/price)
       for (const msg of userMessages) {
         const testParsed = parseQuery(msg.message);
         const meaningfulKeywords = testParsed.keywords.filter(k => !k.match(/^\d+\??$/));
-        
+
         if (meaningfulKeywords.length > 0 || testParsed.categories.length > 0 || testParsed.occasion) {
           previousQuery = msg.message;
           previousParsed = testParsed;
           break;
         }
       }
-      
+
       if (previousQuery && previousParsed) {
         console.log('Follow-up detected, previous meaningful query:', previousQuery);
         console.log('Previous parsed:', previousParsed);
-        
+
         // Inherit context from previous query if current query is vague
         if (!parsed.categories.length && previousParsed.categories.length) {
           parsed.categories = previousParsed.categories;
@@ -88,7 +88,7 @@ export async function POST(req: Request) {
           parsed.occasion = previousParsed.occasion;
           console.log('Inherited occasion from previous query:', parsed.occasion);
         }
-        
+
         // If current query has no meaningful keywords (just price), inherit from previous
         const meaningfulKeywords = parsed.keywords.filter(k => !k.match(/^\d+\??$/));
         if (meaningfulKeywords.length === 0 && previousParsed.keywords.length > 0) {
@@ -97,7 +97,7 @@ export async function POST(req: Request) {
           // We'll use the previous query's keywords to maintain context
           parsed.keywords = previousParsed.keywords;
         }
-        
+
         // Handle price adjustments for follow-ups
         if (query.toLowerCase().includes('higher') || query.toLowerCase().includes('expensive')) {
           // If previous had maxPrice, use it as minPrice
@@ -129,7 +129,7 @@ export async function POST(req: Request) {
         .select('favorite_categories, common_search_terms')
         .eq('user_id', userId)
         .single();
-      
+
       userPreferences = prefs;
     }
 
@@ -144,14 +144,14 @@ export async function POST(req: Request) {
         console.log('Using previous query for embedding:', searchQuery);
       }
     }
-    
+
     const queryEmbedding = await generateEmbedding(searchQuery);
 
     // Search with semantic similarity
     // For price-only follow-ups, we need more results since we'll filter by price
     const matchCount = (isFollowUp && searchQuery !== query) ? 100 : 50;
     console.log('Searching with match_count:', matchCount);
-    
+
     const { data: semanticResults, error: semanticError } = await supabase.rpc('match_products', {
       query_embedding: queryEmbedding,
       match_threshold: 0.3,
@@ -160,11 +160,37 @@ export async function POST(req: Request) {
 
     if (semanticError) {
       console.error('Error in semantic search:', semanticError);
-      return NextResponse.json({ error: 'Search failed' }, { status: 500 });
+      // We don't return 500 here anymore, we fall back to text search
     }
 
     let results = semanticResults || [];
     console.log('Semantic results count:', results.length);
+
+    // Text Search Fallback
+    if (parsed.keywords.length > 0) {
+      const textQueryParts = parsed.keywords.map(word => {
+        return `title.ilike.%${word}%,description.ilike.%${word}%,category.ilike.%${word}%`;
+      });
+      const orQuery = textQueryParts.join(',');
+
+      const { data: textData, error: textError } = await supabase
+        .from('products')
+        .select('*')
+        .or(orQuery)
+        .limit(30);
+
+      if (!textError && textData) {
+        console.log(`Text search returned: ${textData.length} matches.`);
+        const uniqueMap = new Map();
+        // Add semantic results first
+        results.forEach((p: any) => uniqueMap.set(p.id, p));
+        // Add text results
+        textData.forEach((p: any) => uniqueMap.set(p.id, p));
+        results = Array.from(uniqueMap.values());
+      }
+    }
+
+    console.log('Combined results count:', results.length);
 
     // Keep original results before price filtering (for fallback)
     const resultsBeforeFiltering = [...results];
@@ -180,8 +206,8 @@ export async function POST(req: Request) {
     }
 
     // Fallback: If price filter removed all results but we had results before, use original
-    if (results.length === 0 && resultsBeforeFiltering.length > 0 && 
-        (parsed.minPrice !== null || parsed.maxPrice !== null)) {
+    if (results.length === 0 && resultsBeforeFiltering.length > 0 &&
+      (parsed.minPrice !== null || parsed.maxPrice !== null)) {
       console.log('Price filter removed all results, using original results as fallback');
       results = resultsBeforeFiltering;
       // Update context to indicate price range not available
@@ -196,7 +222,7 @@ export async function POST(req: Request) {
     if (parsed.sortBy === 'price') {
       results.sort((a: Product, b: Product) => a.price - b.price);
     } else if (parsed.sortBy === 'newest') {
-      results.sort((a: Product, b: Product) => 
+      results.sort((a: Product, b: Product) =>
         new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
       );
     }
@@ -262,7 +288,7 @@ export async function POST(req: Request) {
             productCount: topResults.length,
           },
         });
-        
+
         console.log('Conversation stored for user:', userId);
       } catch (dbError) {
         console.error('Error storing conversation:', dbError);
@@ -282,7 +308,7 @@ export async function POST(req: Request) {
 
   } catch (e) {
     console.error('AI Chat error:', e);
-    return NextResponse.json({ 
+    return NextResponse.json({
       error: 'An unexpected error occurred',
       message: "Sorry, I encountered an error. Please try again!"
     }, { status: 500 });

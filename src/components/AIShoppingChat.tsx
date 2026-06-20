@@ -152,7 +152,7 @@ export default function AIShoppingChat() {
   const loadChatHistory = async () => {
     try {
       setIsLoadingHistory(true)
-      
+
       const query = supabase
         .from('conversation_history')
         .select('*')
@@ -248,7 +248,7 @@ export default function AIShoppingChat() {
     const confirmed = window.confirm(
       t('aiShoppingChat.deleteConversationConfirm')
     )
-    
+
     if (!confirmed) return
 
     try {
@@ -258,7 +258,7 @@ export default function AIShoppingChat() {
       const response = await fetch('/api/ai-chat/delete', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           userId: user.id,
           sessionId,
         }),
@@ -270,7 +270,7 @@ export default function AIShoppingChat() {
 
       // Clear UI and start fresh
       handleClearHistory()
-      
+
       console.log('Conversation deleted from database:', sessionId)
     } catch (error) {
       console.error('Error deleting conversation:', error)
@@ -305,7 +305,7 @@ export default function AIShoppingChat() {
       const response = await fetch('/api/ai-chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           query: input,
           userId: user?.id || null,
           sessionId,
@@ -419,7 +419,7 @@ export default function AIShoppingChat() {
                   <Sparkles className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-lg">{t('aiChat.headerTitle')}</h3>
+                  <h3 className="font-semibold text-lg" style={{ color: 'white' }}>{t('aiChat.headerTitle')}</h3>
                   <p className="text-xs text-white/80">{t('aiChat.headerSubtitle')}</p>
                 </div>
               </div>
@@ -450,7 +450,7 @@ export default function AIShoppingChat() {
                   <span>⚠️</span>
                   <span>{t('aiChat.notSavedBanner')}</span>
                 </div>
-                <Link 
+                <Link
                   href="/auth/signin"
                   onClick={() => setIsOpen(false)}
                   className="text-xs font-semibold text-orange-600 dark:text-orange-400 hover:underline"
@@ -479,66 +479,66 @@ export default function AIShoppingChat() {
                     >
                       <div className={`max-w-[80%] ${message.type === 'user' ? 'bg-orange-500 text-white' : 'bg-white dark:bg-gray-700 text-gray-800 dark:text-white'} rounded-2xl px-4 py-2.5 shadow-md`}>
                         <p className="text-sm whitespace-pre-wrap">{message.text}</p>
-                    
-                    {/* Product Cards */}
-                    {message.products && message.products.length > 0 && (
-                      <div className="mt-3 space-y-2">
-                        {message.products.slice(0, 3).map((product: Product) => (
-                          <Link
-                            key={product.id}
-                            href={`/product/${product.id}`}
-                            onClick={() => setIsOpen(false)}
-                          >
-                            <motion.div
-                              whileHover={{ scale: 1.02 }}
-                              className="bg-gray-50 dark:bg-gray-600 rounded-lg p-2 flex items-center space-x-3 hover:shadow-lg transition-shadow cursor-pointer"
-                            >
-                              {product.image_url && (
-                                <img
-                                  src={product.image_url}
-                                  alt={product.title}
-                                  className="w-12 h-12 rounded object-cover"
-                                />
-                              )}
-                              <div className="flex-1 min-w-0">
-                                <p className="text-xs font-medium text-gray-900 dark:text-white truncate">
-                                  {product.title}
-                                </p>
-                                <p className="text-xs text-orange-600 dark:text-orange-400 font-bold">
-                                  ₹{product.price}
-                                </p>
-                              </div>
-                            </motion.div>
-                          </Link>
-                        ))}
-                        {message.products.length > 3 && (
-                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                            {t('aiChat.moreProducts', { count: message.products.length - 3 })}
-                          </p>
+
+                        {/* Product Cards */}
+                        {message.products && message.products.length > 0 && (
+                          <div className="mt-3 space-y-2">
+                            {message.products.slice(0, 3).map((product: Product) => (
+                              <Link
+                                key={product.id}
+                                href={`/product/${product.id}`}
+                                onClick={() => setIsOpen(false)}
+                              >
+                                <motion.div
+                                  whileHover={{ scale: 1.02 }}
+                                  className="bg-gray-50 dark:bg-gray-600 rounded-lg p-2 flex items-center space-x-3 hover:shadow-lg transition-shadow cursor-pointer"
+                                >
+                                  {product.image_url && (
+                                    <img
+                                      src={product.image_url}
+                                      alt={product.title}
+                                      className="w-12 h-12 rounded object-cover"
+                                    />
+                                  )}
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-xs font-medium text-gray-900 dark:text-white truncate">
+                                      {product.title}
+                                    </p>
+                                    <p className="text-xs text-orange-600 dark:text-orange-400 font-bold">
+                                      ₹{product.price}
+                                    </p>
+                                  </div>
+                                </motion.div>
+                              </Link>
+                            ))}
+                            {message.products.length > 3 && (
+                              <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                                {t('aiChat.moreProducts', { count: message.products.length - 3 })}
+                              </p>
+                            )}
+                          </div>
                         )}
                       </div>
-                    )}
-                  </div>
-                </motion.div>
-              ))}
-              
-              {isLoading && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="flex justify-start"
-                >
-                  <div className="bg-white dark:bg-gray-700 rounded-2xl px-4 py-3 shadow-md flex items-center space-x-2">
-                    <Loader2 className="w-4 h-4 animate-spin text-orange-500" />
-                    <span className="text-sm text-gray-600 dark:text-gray-300">
-                      {t('aiChat.analyzingProducts')}
-                    </span>
-                  </div>
-                </motion.div>
-              )}
-              
-              <div ref={messagesEndRef} />
-              </>
+                    </motion.div>
+                  ))}
+
+                  {isLoading && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="flex justify-start"
+                    >
+                      <div className="bg-white dark:bg-gray-700 rounded-2xl px-4 py-3 shadow-md flex items-center space-x-2">
+                        <Loader2 className="w-4 h-4 animate-spin text-orange-500" />
+                        <span className="text-sm text-gray-600 dark:text-gray-300">
+                          {t('aiChat.analyzingProducts')}
+                        </span>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  <div ref={messagesEndRef} />
+                </>
               )}
             </div>
 
