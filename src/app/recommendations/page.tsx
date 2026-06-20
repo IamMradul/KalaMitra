@@ -160,7 +160,7 @@ export default function RecommendationsPage() {
         for (const p of allProducts) {
           if (viewedIds.has(p.id)) continue
           let score = 0
-          
+
           // Category boost
           if (p.category && viewedCategories.has(String(p.category))) score += 2
 
@@ -175,15 +175,15 @@ export default function RecommendationsPage() {
 
           // Image similarity
           if (p.image_ahash) {
-             for (const vp of viewedProducts) {
-               if (vp.image_ahash) {
-                 const hd = hammingHex(p.image_ahash, vp.image_ahash)
-                 const sim = Math.max(0, 1 - hd / 64)
-                 score += (sim * 3)
-               }
-             }
+            for (const vp of viewedProducts) {
+              if (vp.image_ahash) {
+                const hd = hammingHex(p.image_ahash, vp.image_ahash)
+                const sim = Math.max(0, 1 - hd / 64)
+                score += (sim * 3)
+              }
+            }
           }
-          
+
           if (score > 0) scores.set(p.id, score)
         }
 
@@ -210,7 +210,7 @@ export default function RecommendationsPage() {
       const titles = recommended.map(p => p.title)
       const categories = recommended.map(p => p.category)
       const stories = recommended.map(p => p.product_story || p.description || '')
-      
+
       try {
         const [trTitles, trCats, trStories] = await Promise.all([
           translateArray(titles, lang),
@@ -222,7 +222,7 @@ export default function RecommendationsPage() {
         const trSellerNames = await translateArray(UNIQUE_SELLER_NAMES, lang)
         const sellerMap: Record<string, string> = {}
         UNIQUE_SELLER_NAMES.forEach((name, i) => sellerMap[name] = trSellerNames[i] || name)
-        
+
         const dp = recommended.map((p, idx) => ({
           ...p,
           title: trTitles[idx] || p.title,
@@ -262,10 +262,10 @@ export default function RecommendationsPage() {
 
   if (!user) return (
     <div className="min-h-screen heritage-bg pt-24 pb-12 px-4 text-center">
-       <Sparkles className="w-16 h-16 text-orange-400 mx-auto mb-4" />
-       <h1 className="text-3xl font-bold heritage-title mb-4">{t('marketplace.recsTitle')}</h1>
-       <p className="text-[var(--muted)] mb-8">{t('marketplace.recsSignInPrompt')}</p>
-       <Link href="/auth/signin" className="px-8 py-3 bg-orange-600 text-white rounded-xl font-bold hover:bg-orange-700 transition-all">{t('navbar.signIn')}</Link>
+      <Sparkles className="w-16 h-16 text-orange-400 mx-auto mb-4" />
+      <h1 className="text-3xl font-bold heritage-title mb-4">{t('marketplace.recsTitle')}</h1>
+      <p className="text-[var(--muted)] mb-8">{t('marketplace.recsSignInPrompt')}</p>
+      <Link href="/auth/signin" className="px-8 py-3 bg-orange-600 text-white rounded-xl font-bold hover:bg-orange-700 transition-all">{t('navbar.signIn')}</Link>
     </div>
   )
 
@@ -284,14 +284,14 @@ export default function RecommendationsPage() {
 
         {displayRecommended.length === 0 ? (
           <div className="text-center py-20 bg-[var(--card)] rounded-2xl border border-[var(--border)] shadow-sm">
-             <ShoppingBag className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-             <p className="text-[var(--text)] text-xl font-medium">{t('marketplace.recsEmptyTitle')}</p>
-             <p className="text-[var(--muted)] mt-2">{t('marketplace.recsEmptyDescription')}</p>
-             <Link href="/marketplace" className="mt-6 inline-block text-orange-600 font-bold hover:underline">{t('marketplace.exploreMarketplace')} →</Link>
+            <ShoppingBag className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <p className="text-[var(--text)] text-xl font-medium">{t('marketplace.recsEmptyTitle')}</p>
+            <p className="text-[var(--muted)] mt-2">{t('marketplace.recsEmptyDescription')}</p>
+            <Link href="/marketplace" className="mt-6 inline-block text-orange-600 font-bold hover:underline">{t('marketplace.exploreMarketplace')} →</Link>
           </div>
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {displayRecommended.map((displayP) => {
+            {displayRecommended.map((displayP, index) => {
               const originalP = recommended.find(p => p.id === displayP.id)
               return (
                 <ProductCard
@@ -313,6 +313,7 @@ export default function RecommendationsPage() {
                     setArProductType(type || 'vertical');
                     setArOpen(true);
                   }}
+                  priority={index < 4}
                 />
               )
             })}
@@ -321,7 +322,7 @@ export default function RecommendationsPage() {
       </div>
 
       <ARViewer open={arOpen} onClose={() => setArOpen(false)} imageUrl={arImageUrl} productType={arProductType} />
-      
+
       {/* Cart Modal */}
       {cartModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">

@@ -13,6 +13,7 @@ import { Database } from '@/lib/supabase'
 import Link from 'next/link'
 import dynamic from 'next/dynamic'
 import Fuse from 'fuse.js'
+import { popularKeywords } from '@/lib/search-intent'
 const Market3DButton = dynamic(() => import('@/components/Market3DButton'), { ssr: false })
 const ARViewer = dynamic(() => import('@/components/ARViewer'), { ssr: false })
 
@@ -289,14 +290,8 @@ function MarketplaceContent() {
   // Autocomplete UI State
   const [showAutocomplete, setShowAutocomplete] = useState(false)
   const [suggestions, setSuggestions] = useState<string[]>([])
-  
-  // Initialize Fuse.js for fast typo correction on frontend
-  const popularKeywords = useMemo(() => [
-    "handmade", "terracotta", "pottery", "decor", "gifts", "gift", "diya", 
-    "wall art", "clay pot", "vase", "sculpture", "painting", "saree", "handicraft",
-    "snack", "cookies", "biscuit", "jewelry"
-  ], [])
 
+  // popularKeywords are now imported from search-intent.ts to keep the typo-dictionary centralized
   const fuse = useMemo(() => new Fuse(popularKeywords.map(k => ({ word: k })), {
     keys: ['word'],
     threshold: 0.4
@@ -732,17 +727,17 @@ function MarketplaceContent() {
     // Improved security: sanitize search term by removing potentially dangerous characters and trimming
     const sanitizedValue = value.replace(/[<>{}()]/g, '').slice(0, 100)
     setSearchTerm(sanitizedValue)
-    
+
     if (sanitizedValue.trim().length > 1) {
-       setShowAutocomplete(true);
-       const res = fuse.search(sanitizedValue);
-       const exactMatches = popularKeywords.filter(k => k.includes(sanitizedValue.toLowerCase()));
-       // Combine fuzzy matches and exact subset matches
-       const combined = Array.from(new Set([...exactMatches, ...res.map(r => r.item.word)]));
-       setSuggestions(combined.slice(0, 4));
+      setShowAutocomplete(true);
+      const res = fuse.search(sanitizedValue);
+      const exactMatches = popularKeywords.filter(k => k.includes(sanitizedValue.toLowerCase()));
+      // Combine fuzzy matches and exact subset matches
+      const combined = Array.from(new Set([...exactMatches, ...res.map(r => r.item.word)]));
+      setSuggestions(combined.slice(0, 6));
     } else {
-       setShowAutocomplete(false);
-       setSuggestions([]);
+      setShowAutocomplete(false);
+      setSuggestions([]);
     }
   }
 
@@ -979,7 +974,7 @@ function MarketplaceContent() {
               {/* Autocomplete Dropdown */}
               <AnimatePresence>
                 {showAutocomplete && suggestions.length > 0 && (
-                  <motion.div 
+                  <motion.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
@@ -1127,6 +1122,7 @@ function MarketplaceContent() {
                           setArProductType(productType || 'vertical');
                           setArOpen(true);
                         }}
+                        priority={index < 4}
                       />
                     );
                     if ((index + 1) % 12 === 0 && (index + 1) < paginatedProducts.length && user && displayRecommended.length > 0) {

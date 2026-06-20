@@ -109,9 +109,9 @@ export default function Footer() {
             <input
               type="email"
               placeholder={t('footer.emailPlaceholder', 'email@example.com')}
-              className="px-4 py-2.5 rounded-lg outline-none flex-1 bg-[var(--bg-1)] border border-[var(--border)] focus:border-[var(--heritage-gold)] transition-colors text-sm"
+              className="px-4 py-2.5 rounded-lg outline-none flex-1 bg-[var(--bg-2)] border border-[var(--border)] focus:border-[var(--heritage-gold)] transition-colors text-sm"
             />
-            <button className="outline-none w-full py-2.5 px-6 sm:w-max bg-[#a94442] hover:bg-[#8a3634] text-white rounded-lg flex items-center justify-center font-semibold text-sm transition-colors shadow-sm">
+            <button className="outline-none w-full py-2.5 px-6 sm:w-max bg-gradient-to-r from-[var(--heritage-gold)] to-[var(--heritage-red)] hover:opacity-90 text-white rounded-lg flex items-center justify-center font-semibold text-sm transition-all shadow-sm">
               {t('footer.subscribeBtn', 'Subscribe')}
             </button>
           </form>

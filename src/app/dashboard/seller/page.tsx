@@ -959,7 +959,7 @@ export default function SellerDashboard() {
       // Only update virtual fields if present in formData
       if (virtual_type !== undefined) updateObj.virtual_type = virtual_type;
       if (virtual_file_url !== undefined) updateObj.virtual_file_url = virtual_file_url;
-      
+
       const response = await fetch('/api/marketplace/products', {
         method: 'PUT',
         headers: {
@@ -1610,7 +1610,7 @@ export default function SellerDashboard() {
                             <input
                               name="starts_at"
                               type="datetime-local"
-                              className="w-full px-3 py-2 sm:py-2.5 text-xs sm:text-sm rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-[var(--text)] border-2 border-purple-300 dark:border-purple-700 focus:border-purple-500 transition-all outline-none dark:[color-scheme:dark]"
+                              className="w-full px-3 py-2 sm:py-2.5 text-xs sm:text-sm rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-[var(--text)] border-2 border-purple-300 dark:border-purple-700 focus:border-purple-500 transition-all outline-none"
                             />
                           </div>
                           <div>
@@ -1618,7 +1618,7 @@ export default function SellerDashboard() {
                             <input
                               name="ends_at"
                               type="datetime-local"
-                              className="w-full px-3 py-2 sm:py-2.5 text-xs sm:text-sm rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-[var(--text)] border-2 border-purple-300 dark:border-purple-700 focus:border-purple-500 transition-all outline-none dark:[color-scheme:dark]"
+                              className="w-full px-3 py-2 sm:py-2.5 text-xs sm:text-sm rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-[var(--text)] border-2 border-purple-300 dark:border-purple-700 focus:border-purple-500 transition-all outline-none"
                             />
                           </div>
                         </div>

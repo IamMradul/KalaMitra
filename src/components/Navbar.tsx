@@ -179,6 +179,7 @@ export default function Navbar() {
           if ((count || 0) > 0) setShowMobileGiftDot(true);
         }
       } catch (err) {
+        // Silently fail on background polling errors to prevent dev overlays
         if (!unsubscribed) setUnwrappedGiftsCount(0);
       }
     };
@@ -260,7 +261,7 @@ export default function Navbar() {
           setShowMobileNotificationDot(true);
         }
       } catch (err) {
-        console.error('Error fetching unread notifications:', err);
+        // Silently ignore background polling network errors
       }
     };
 
@@ -527,7 +528,7 @@ export default function Navbar() {
       const { count } = await supabase.from('auctions').select('*', { count: 'exact', head: true }).eq('status', 'running').gt('ends_at', now)
       setHasLiveAuctions((count || 0) > 0)
     } catch (err) {
-      console.error('failed to fetch live auctions', err)
+      // Silently fail on background polling errors
     }
   }
 
@@ -619,7 +620,7 @@ export default function Navbar() {
             {/* Logo placeholder */}
             <div className="flex items-center space-x-4 group">
               <div className="relative w-14 h-14 flex items-center justify-center">
-                <Image src="/kalamitra-symbol.png" alt="KalaMitra Symbol" width={56} height={56} className="object-contain w-auto h-auto" />
+                <Image src="/kalamitra-symbol.png" alt="KalaMitra Symbol" width={56} height={56} className="object-contain" style={{ width: 'auto', height: 'auto' }} />
               </div>
               <span className="text-3xl font-bold heritage-title">{t('brand.name')}</span>
             </div>
@@ -690,7 +691,7 @@ export default function Navbar() {
           <div className="flex items-center space-x-4 group">
             <Link href="/" className="flex items-center space-x-4 group">
               <div className="relative w-14 h-14 flex items-center justify-center group-hover:scale-110 transition-all duration-500">
-                <Image src="/kalamitra-symbol.png" alt="KalaMitra Symbol" width={56} height={56} className="object-contain drop-shadow-md w-auto h-auto" priority />
+                <Image src="/kalamitra-symbol.png" alt="KalaMitra Symbol" width={56} height={56} className="object-contain drop-shadow-md" style={{ width: 'auto', height: 'auto' }} priority />
               </div>
               <span className="text-3xl font-extrabold heritage-title hidden md:inline" key={`brand-${currentLanguage}`}>{t('brand.name')}</span>
               {/* Mobile: Show "KM" when signed in, "KalaMitra" when not */}
