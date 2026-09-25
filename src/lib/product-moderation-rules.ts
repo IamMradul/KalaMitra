@@ -1,3 +1,4 @@
+// © ThinkTech — KalaMitra — 2026
 /**
  * Shared moderation approval rules (safe for client + server).
  */

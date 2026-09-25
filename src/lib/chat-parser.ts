@@ -1,3 +1,4 @@
+// © ThinkTech — KalaMitra — 2026
 /**
  * Parse natural language queries for product search
  */

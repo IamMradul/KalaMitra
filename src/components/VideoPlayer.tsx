@@ -1,3 +1,4 @@
+// © ThinkTech — KalaMitra — 2026
 'use client'
 import { useState, useRef, useEffect } from 'react'
 import { Play, Pause, Volume2, VolumeX, Maximize, RotateCcw } from 'lucide-react'

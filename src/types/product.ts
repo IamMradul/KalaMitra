@@ -1,3 +1,4 @@
+// © ThinkTech — KalaMitra — 2026
 export interface Product {
   id: string;
   name: string;

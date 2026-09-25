@@ -1,3 +1,4 @@
+// © ThinkTech — KalaMitra — 2026
 import { NextRequest, NextResponse } from 'next/server';
 import { MODERATION_REJECTED_MESSAGE } from '@/lib/product-moderation-messages';
 import {

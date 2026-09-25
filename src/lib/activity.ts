@@ -1,3 +1,4 @@
+// © ThinkTech — KalaMitra — 2026
 import { supabase } from '@/lib/supabase'
 
 export type ActivityType = 'view' | 'search' | 'add_to_cart' | 'purchase' | 'stall_view'

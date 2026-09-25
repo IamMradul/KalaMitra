@@ -1,3 +1,4 @@
+// © ThinkTech — KalaMitra — 2026
 'use client'
 
 import { createContext, useContext, useEffect, useState, useRef } from 'react'

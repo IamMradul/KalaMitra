@@ -1,3 +1,4 @@
+// © ThinkTech — KalaMitra — 2026
 /**
  * RAG-based search with template response generation
  * Uses RAG (Retrieval-Augmented Generation) for semantic product search

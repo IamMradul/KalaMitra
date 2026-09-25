@@ -1,3 +1,4 @@
+// © ThinkTech — KalaMitra — 2026
 'use client'
 
 import { useState, useEffect } from 'react'
@@ -330,6 +331,9 @@ export default function SignIn() {
                 </p>
                 <p className="text-xs text-[var(--text-muted)] bg-[var(--bg-2)] p-2 rounded-lg">
                   💡 {t('auth.chooseRoleTip')}
+                </p>
+                <p className="pt-2 text-xs font-semibold text-[var(--heritage-gold)]">
+                  Built by Team ThinkTech
                 </p>
               </div>
             </form>

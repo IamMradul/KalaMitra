@@ -1,0 +1,23 @@
+/* TEAM */
+ThinkTech
+
+Apoorv Gupta
+Role: Developer
+GitHub: https://github.com/iapoorv01/
+LinkedIn: https://www.linkedin.com/company/thinktech17
+Instagram: https://www.instagram.com/i__apoorv__01/
+
+Mradul Gupta
+Role: Developer
+GitHub: https://github.com/IamMradul
+LinkedIn: https://www.linkedin.com/in/mradul-gupta26/
+Twitter: https://x.com/Mradul42
+Instagram: https://www.instagram.com/mradul_5/
+
+
+/* SITE */
+Last update: 2026
+Language: English
+Standards: HTML5, CSS3, ES6, React, Next.js
+Components: TailwindCSS, Supabase, Framer Motion
+Ideology: Empowering Indian Artisans with AI

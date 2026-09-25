@@ -1,3 +1,4 @@
+// © ThinkTech — KalaMitra — 2026
 
 'use client'
 

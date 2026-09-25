@@ -1,3 +1,4 @@
+// © ThinkTech — KalaMitra — 2026
 'use client'
 
 import { useEffect } from 'react'
@@ -84,6 +85,9 @@ function DashboardContent() {
           className="w-12 h-12 border-4 border-heritage-gold border-t-heritage-red rounded-full mx-auto mb-4"
         />
         <p className="text-[var(--heritage-brown)] heritage-title">Redirecting...</p>
+        <p className="mt-4 font-semibold text-[var(--heritage-gold)] text-sm">
+          Built by Team ThinkTech
+        </p>
       </div>
     </div>
   )

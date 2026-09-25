@@ -1,3 +1,4 @@
+// © ThinkTech — KalaMitra — 2026
 // Lightweight client-side image features for similarity
 
 export type ImageFeatures = {

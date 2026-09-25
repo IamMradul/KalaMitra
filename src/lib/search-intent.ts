@@ -1,3 +1,4 @@
+// © ThinkTech — KalaMitra — 2026
 import Fuse from 'fuse.js';
 
 export const popularKeywords = [

@@ -1,3 +1,4 @@
+// © ThinkTech — KalaMitra — 2026
 // Desktop UI and layout is preserved by the conditional rendering above. No further code changes needed for this step.
 "use client"
 import DMChat from '@/components/DMChat';

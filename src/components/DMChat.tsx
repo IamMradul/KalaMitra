@@ -1,3 +1,4 @@
+// © ThinkTech — KalaMitra — 2026
 import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from '@/components/LanguageProvider';

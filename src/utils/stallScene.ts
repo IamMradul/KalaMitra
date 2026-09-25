@@ -1,3 +1,4 @@
+// © ThinkTech — KalaMitra — 2026
 import * as THREE from 'three';
 
 type Mesh = InstanceType<typeof import('three')['Mesh']>;

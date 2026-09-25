@@ -1,3 +1,4 @@
+// © ThinkTech — KalaMitra — 2026
 import React, { Component, ErrorInfo, ReactNode } from 'react'
 import { Translation } from 'react-i18next'
 

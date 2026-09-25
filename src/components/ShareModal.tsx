@@ -1,3 +1,4 @@
+// © ThinkTech — KalaMitra — 2026
 import React from 'react';
 import { Share2 } from 'lucide-react';
 

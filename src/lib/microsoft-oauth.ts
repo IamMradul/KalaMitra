@@ -1,3 +1,4 @@
+// © ThinkTech — KalaMitra — 2026
 // Microsoft OAuth Configuration
 const MICROSOFT_CLIENT_ID = process.env.NEXT_PUBLIC_MICROSOFT_CLIENT_ID!
 const MICROSOFT_CLIENT_SECRET = process.env.MICROSOFT_CLIENT_SECRET!

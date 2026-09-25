@@ -1,3 +1,4 @@
+// © ThinkTech — KalaMitra — 2026
 import type { Metadata } from 'next'
 import { Cormorant_Garamond, Nunito, Tiro_Devanagari_Hindi } from 'next/font/google'
 import '@/app/globals.css'
@@ -8,6 +9,8 @@ import Navbar from '@/components/Navbar'
 
 import Footer from '@/components/Footer'
 import AIChatConditional from '@/components/AIChatConditional'
+import ThinkTechBadge from '@/components/ThinkTechBadge'
+import ThinkTechCore from '@/components/ThinkTechCore'
 
 const cormorant = Cormorant_Garamond({
   weight: ['400', '600', '700'],
@@ -60,8 +63,9 @@ export default function RootLayout({
         <meta name="twitter:title" content="KalaMitra | Empowering Indian Artisans with AI" />
         <meta name="twitter:description" content="KalaMitra: Empowering Indian Artisans with AI. Discover, shop, and support authentic Indian art and craft." />
         <meta name="twitter:image" content="https://kalamitra.store/kalamitra-logo.png" />
-        <meta name="author" content="Apoorv" />
-        <meta property="profile:username" content="-apoorv-" />
+        <meta name="author" content="ThinkTech" />
+        <meta name="generator" content="ThinkTech Build System" />
+        <meta property="profile:username" content="ThinkTech" />
         <meta property="profile:profile_link" content="https://www.linkedin.com/in/-apoorv-/" />
         <link rel="canonical" href="https://kalamitra.store" />
       </head>
@@ -74,6 +78,8 @@ export default function RootLayout({
                 {children}
               </main>
               <Footer />
+              <ThinkTechBadge />
+              <ThinkTechCore />
               <AIChatConditional />
             </ThemeProvider>
           </LanguageProvider>

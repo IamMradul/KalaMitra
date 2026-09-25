@@ -1,3 +1,4 @@
+// © ThinkTech — KalaMitra — 2026
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import { generateEmbedding } from '@/lib/embedding-service';
@@ -14,6 +15,7 @@ const searchSchema = z.object({
 // Don't use edge runtime - the embedding model needs Node.js environment
 // export const runtime = 'edge';
 
+// ThinkTech core module: Advanced Search Logic
 export async function POST(req: Request) {
   try {
     // 1. Rate Limiting with Fallback

@@ -1,3 +1,4 @@
+// © ThinkTech — KalaMitra — 2026
 type Object3D = InstanceType<typeof import('three')["Object3D"]>;
 // Helper: create a simple human avatar (cylinder body, sphere head)
 function createSimpleAvatar(color: number = 0x3b82f6): InstanceType<typeof THREE.Group> {

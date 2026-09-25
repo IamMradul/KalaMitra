@@ -1,3 +1,4 @@
+// © ThinkTech — KalaMitra — 2026
 declare module 'three';
 
 declare module 'three/examples/jsm/controls/OrbitControls.js' {

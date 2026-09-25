@@ -1,3 +1,4 @@
+// © ThinkTech — KalaMitra — 2026
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { X, UploadCloud, HeartHandshake, CheckCircle2 } from 'lucide-react';

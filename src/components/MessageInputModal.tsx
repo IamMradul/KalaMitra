@@ -1,3 +1,4 @@
+// © ThinkTech — KalaMitra — 2026
 import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { X } from 'lucide-react';

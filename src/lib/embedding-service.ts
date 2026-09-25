@@ -1,3 +1,4 @@
+// © ThinkTech — KalaMitra — 2026
 import { pipeline, FeatureExtractionPipeline } from '@xenova/transformers';
 
 /**

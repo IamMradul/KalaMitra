@@ -1,3 +1,4 @@
+// © ThinkTech — KalaMitra — 2026
 import React, { useEffect } from 'react';
 import { X } from 'lucide-react';
 import ThreeDStall from './ThreeDStall';

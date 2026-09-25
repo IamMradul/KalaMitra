@@ -1,3 +1,4 @@
+// © ThinkTech — KalaMitra — 2026
 "use client"
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'

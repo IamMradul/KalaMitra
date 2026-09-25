@@ -1,3 +1,4 @@
+// © ThinkTech — KalaMitra — 2026
 // Global types for SpeechRecognition API for TypeScript
 // These are not included in the default DOM lib, so we declare them here
 

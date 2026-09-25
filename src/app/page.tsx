@@ -1,3 +1,4 @@
+// © ThinkTech — KalaMitra — 2026
 'use client'
 import Leaderboard from '../components/Leaderboard'
 import VideoPlayer from '../components/VideoPlayer'
@@ -438,7 +439,7 @@ export default function Home() {
                     height="100%"
                     src="https://www.youtube.com/embed/Ge7mo6KzMTo?autoplay=1&mute=1&loop=1&playlist=Ge7mo6KzMTo&controls=0&modestbranding=1&rel=0&showinfo=0&fs=0&disablekb=1"
                     title="KalaMitra 3D Bazaar Preview"
-                    allow="autoplay; encrypted-media"
+                    allow="autoplay; encrypted-media; compute-pressure"
                     allowFullScreen={false}
                     className="aspect-square rounded-2xl overflow-hidden"
                     style={{ minHeight: '100%', minWidth: '100%', border: 'none', pointerEvents: 'none' }}

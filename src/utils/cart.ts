@@ -1,3 +1,4 @@
+// © ThinkTech — KalaMitra — 2026
 // Cart utility for managing cart in localStorage (for anonymous users)
 // and syncing with database when user logs in
 

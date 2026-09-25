@@ -1,3 +1,4 @@
+// © ThinkTech — KalaMitra — 2026
 'use client';
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from '@/components/LanguageProvider';
@@ -18,6 +19,9 @@ export default function AboutPage() {
           </h1>
           <p className="text-lg text-[var(--muted)] max-w-2xl leading-relaxed">
             {t("aboutUs.subtitle")}
+          </p>
+          <p className="mt-4 font-medium text-[var(--heritage-gold)]">
+            Built with ❤️ by Team ThinkTech
           </p>
         </div>
       </div>

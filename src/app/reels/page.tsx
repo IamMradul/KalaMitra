@@ -1,3 +1,4 @@
+// © ThinkTech — KalaMitra — 2026
 
 'use client';
 import { useEffect, useState, useRef, ChangeEvent, FormEvent } from 'react';

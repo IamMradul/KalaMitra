@@ -1,3 +1,4 @@
+// © ThinkTech — KalaMitra — 2026
 import NotificationsList from '@/components/NotificationsList'
 
 export default function NotificationsPage() {

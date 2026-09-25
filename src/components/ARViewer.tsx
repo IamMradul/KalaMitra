@@ -1,3 +1,4 @@
+// © ThinkTech — KalaMitra — 2026
 // Minimal XRSession type for WebXR
 interface XRReferenceSpace {
   // Minimal property for reference space

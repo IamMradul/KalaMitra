@@ -1,4 +1,5 @@
 # *
+# Built by Team ThinkTech
 User-agent: *
 Allow: /
 

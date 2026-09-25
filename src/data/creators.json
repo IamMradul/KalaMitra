@@ -1,0 +1,36 @@
+[
+  {
+    "name": "Mradul Gupta",
+    "photo": "https://github.com/IamMradul.png",
+    "github": "https://github.com/IamMradul",
+    "social": [
+      {
+        "platform": "linkedin",
+        "url": "https://www.linkedin.com/in/mradul-gupta26/"
+      },
+      {
+        "platform": "instagram",
+        "url": "https://www.instagram.com/mradul_5/"
+      },
+      {
+        "platform": "twitter",
+        "url": "https://x.com/Mradul42"
+      }
+    ]
+  },
+  {
+    "name": "Apoorv Gupta",
+    "photo": "https://avatars.githubusercontent.com/u/171412961?v=4",
+    "github": "https://github.com/iapoorv01/",
+    "social": [
+      {
+        "platform": "linkedin",
+        "url": "https://www.linkedin.com/company/thinktech17"
+      },
+      {
+        "platform": "instagram",
+        "url": "https://www.instagram.com/i__apoorv__01/"
+      }
+    ]
+  }
+]

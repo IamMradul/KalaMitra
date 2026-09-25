@@ -1,3 +1,4 @@
+// © ThinkTech — KalaMitra — 2026
 /**
  * Client-side helper that calls the backend moderation API.
  */

@@ -1,3 +1,4 @@
+// © ThinkTech — KalaMitra — 2026
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { initStallScene, BillboardSpec } from '../utils/stallScene';

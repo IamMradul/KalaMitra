@@ -1,3 +1,4 @@
+// © ThinkTech — KalaMitra — 2026
 import { NextRequest, NextResponse } from 'next/server';
 // Use Gemini API for story generation (temporary)
 const GEMINI_API_KEY = process.env.NEXT_PUBLIC_GEMINI_API_KEY;

@@ -483,6 +483,7 @@ MIT License
 
 
 <p align="center">
-  <b>Preserving Tradition, Empowering Artisans ✨</b>
+  <b>Preserving Tradition, Empowering Artisans ✨</b><br/>
+  <i>Built with ❤️ by Team ThinkTech</i>
 </p>
 

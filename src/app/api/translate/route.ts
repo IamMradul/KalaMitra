@@ -1,3 +1,4 @@
+// © ThinkTech — KalaMitra — 2026
 import { NextRequest, NextResponse } from 'next/server'
 
 // Simple in-memory cache on server

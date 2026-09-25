@@ -1,3 +1,4 @@
+// © ThinkTech — KalaMitra — 2026
 // Client-safe translation utility using Google Cloud Translation API v2
 // Uses NEXT_PUBLIC_GEMINI_API_KEY (enabled for Translation) per user's setup
 

@@ -1,6 +1,7 @@
 {
   "name": "kalamitra",
   "version": "0.1.0",
+  "author": "ThinkTech",
   "private": true,
   "scripts": {
     "dev": "next dev --turbo",

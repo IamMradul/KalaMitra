@@ -1,3 +1,4 @@
+// © ThinkTech — KalaMitra — 2026
 import { NextResponse } from 'next/server';
 import { supabase, Database } from '@/lib/supabase';
 import { generateEmbedding } from '@/lib/embedding-service';

@@ -1,3 +1,4 @@
+// © ThinkTech — KalaMitra — 2026
 
 import { supabase } from '@/lib/supabase';
 import { NextRequest, NextResponse } from 'next/server';

@@ -1,3 +1,4 @@
+// © ThinkTech — KalaMitra — 2026
 /**
  * Product image moderation for the handmade marketplace.
  *

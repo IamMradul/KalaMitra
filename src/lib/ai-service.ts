@@ -1,3 +1,4 @@
+// © ThinkTech — KalaMitra — 2026
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 // Initialize Google AI

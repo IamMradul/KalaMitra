@@ -1,3 +1,4 @@
+// © ThinkTech — KalaMitra — 2026
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Palette, Sparkles } from 'lucide-react';

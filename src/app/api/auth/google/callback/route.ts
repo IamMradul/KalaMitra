@@ -1,3 +1,4 @@
+// © ThinkTech — KalaMitra — 2026
 import { NextRequest, NextResponse } from 'next/server'
 import { completeGoogleAuth } from '@/lib/google-oauth'
 import { createClient } from '@supabase/supabase-js'

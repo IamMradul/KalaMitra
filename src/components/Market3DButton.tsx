@@ -1,3 +1,4 @@
+// © ThinkTech — KalaMitra — 2026
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'next-i18next';
 import { Shapes } from 'lucide-react';
