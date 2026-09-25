@@ -829,7 +829,7 @@ function MarketplaceContent() {
       // Dispatch custom event to immediately update cart count in navbar
       window.dispatchEvent(new CustomEvent('cartUpdated'));
     } catch (err) {
-      // eslint-disable-next-line no-console
+       
       console.error('Add to cart error:', err);
       setCartStatus('error');
       setCartMessage(t('cart.addedError'));

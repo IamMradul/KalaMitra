@@ -206,7 +206,7 @@ export default function SellerDashboard() {
     if (showStallCustomization) {
       fetchStallCustomization();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [showStallCustomization, user]);
   const [stallProfile, setStallProfile] = useState<Profile | null>(null)
   const [productsLoading, setProductsLoading] = useState(false)

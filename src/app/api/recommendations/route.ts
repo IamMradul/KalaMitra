@@ -171,7 +171,7 @@ export async function GET(req: NextRequest) {
         }))
       } catch (err) {
         // If translation fails, fallback to original
-        // eslint-disable-next-line no-console
+         
         console.error('Translation error in recommendations API:', err)
       }
     }

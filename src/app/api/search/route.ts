@@ -87,7 +87,7 @@ export async function POST(req: Request) {
     }
 
     // 4.5 Exact Text Search (covers cases where embeddings are missing or threshold is missed)
-    let textQueryParts = [
+    const textQueryParts = [
       `title.ilike."%${analysis.corrected}%"`,
       `description.ilike."%${analysis.corrected}%"`,
       `category.ilike."%${analysis.corrected}%"`

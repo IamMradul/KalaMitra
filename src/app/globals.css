@@ -26,7 +26,7 @@
 /* Hindi Custom Font */
 @font-face {
   font-family: 'AmsHindi';
-  src: url('D:/Project/KalaMitra/public/Ams_Handwritting_Unicode.ttf') format('truetype');
+  src: url('/Ams_Handwritting_Unicode.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
 }

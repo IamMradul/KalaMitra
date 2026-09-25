@@ -212,7 +212,7 @@ export default function CartPage() {
       await fetchCartItems()
     } catch (error) {
       setFeedback(t('cart.removeError'))
-      // eslint-disable-next-line no-console
+       
       console.error('Error removing item from cart:', error)
     }
     setActionLoading(null)

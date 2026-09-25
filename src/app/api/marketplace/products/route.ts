@@ -128,7 +128,7 @@ export async function GET(req: NextRequest) {
   const { data, count, error } = await query;
   if (error) {
     // Return structured error to help debugging in dev (avoid losing details)
-    // eslint-disable-next-line no-console
+     
     console.error('[marketplace/products] supabase error', error);
     return NextResponse.json(
       { error: error.message, code: (error as any).code, details: (error as any).details, hint: (error as any).hint },
@@ -218,7 +218,7 @@ export async function GET(req: NextRequest) {
       }));
     } catch (err) {
       // If translation fails, fallback to original
-      // eslint-disable-next-line no-console
+       
       console.error('Translation error in products API:', err);
     }
   }

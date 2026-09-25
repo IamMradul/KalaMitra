@@ -77,7 +77,7 @@ export default function VideoPlayer({
         .catch((err: unknown) => {
           // Rapid play/pause interactions can reject with AbortError; this is expected browser behavior.
           if (err instanceof DOMException && (err.name === 'AbortError' || err.name === 'NotSupportedError')) return;
-          // eslint-disable-next-line no-console
+           
           console.error('Video play failed:', err)
         })
         .finally(() => {

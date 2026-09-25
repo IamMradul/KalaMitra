@@ -135,7 +135,7 @@ function parseModerationResponse(
   }
 
   const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
-  let jsonString = jsonMatch ? jsonMatch[0] : cleaned;
+  const jsonString = jsonMatch ? jsonMatch[0] : cleaned;
 
   let parsed: Partial<ProductModerationResult>;
   try {

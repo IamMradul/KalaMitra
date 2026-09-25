@@ -58,7 +58,7 @@ export async function GET(req: Request) {
     .map((p: ChatParticipant) => p.user_id)
     .filter(id => id !== currentUserId);
 
-  let statusMap: Record<string, Record<string, boolean>> = {};
+  const statusMap: Record<string, Record<string, boolean>> = {};
   
   if (messageIds.length > 0 && otherParticipantIds.length > 0) {
     const { data: allStatuses } = await supabase
