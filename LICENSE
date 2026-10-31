@@ -1,0 +1,62 @@
+PROPRIETARY SOFTWARE LICENSE & TERMS OF USE
+
+Copyright (c) 2026 Team ThinkTech (Apoorv Gupta & Mradul Gupta).
+All rights reserved.
+
+Project: KalaMitra
+Owner / Licensor: ThinkTech (Apoorv Gupta & Mradul Gupta)
+
+================================================================================
+1. OWNERSHIP & INTELLECTUAL PROPERTY
+================================================================================
+All source code, design elements, software architecture, databases, graphics,
+trademarks, algorithms, and documentation contained in this repository and 
+project are the exclusive intellectual property of Team ThinkTech (Apoorv Gupta
+and Mradul Gupta), unless explicitly stated otherwise for third-party open-source
+dependencies.
+
+================================================================================
+2. RESTRICTIONS ON USE, MODIFICATION & DERIVATIVE WORKS
+================================================================================
+Under this license, STRICT PROHIBITIONS apply to any individual, entity, or
+organization obtaining a copy of this repository or software:
+
+  a) NO MODIFICATION OR FORKING:
+     You may NOT alter, adapt, modify, reverse-engineer, decompile, or create
+     derivative works from this code to launch your own version, clone, or 
+     competing platform.
+
+  b) NO REDISTRIBUTION OR RE-LICENSING:
+     You may NOT copy, distribute, sub-license, publish, lease, or resell any
+     part or totality of this source code or its built assets without prior
+     written authorization signed by the Licensors.
+
+  c) NO REMOVAL OF ATTRIBUTION:
+     You may NOT delete, hide, obscure, or alter any copyright notices, watermarks,
+     creator attributions, author comments, or tamper-protection mechanisms present
+     in the source code, metadata, web pages, or application interfaces.
+
+  d) NO COMMERCIAL EXPLOITATION:
+     No part of this codebase may be used for commercial purposes, fundraising,
+     or commercial deployment without explicit written permission from the Licensors.
+
+================================================================================
+3. PERMITTED USE
+================================================================================
+Viewing, cloning, or downloading this repository is granted SOLELY for:
+  - Personal educational review, code inspection, or recruitment/evaluation purposes.
+  - Authorized collaboration as directly approved in writing by Team ThinkTech.
+
+Any unauthorized use, deployment, re-branding, or creation of derivative works
+constitutes copyright infringement and will be subject to legal remedies available
+under applicable copyright and intellectual property laws.
+
+================================================================================
+4. DISCLAIMER OF WARRANTY
+================================================================================
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER
+LIABILITY ARISING FROM, OUT OF, OR IN CONNECTION WITH THE SOFTWARE OR THE USE
+OR OTHER DEALINGS IN THE SOFTWARE.

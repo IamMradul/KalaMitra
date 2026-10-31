@@ -2,6 +2,7 @@
   "name": "kalamitra",
   "version": "0.1.0",
   "author": "ThinkTech",
+  "license": "UNLICENSED",
   "private": true,
   "scripts": {
     "dev": "next dev --turbo",

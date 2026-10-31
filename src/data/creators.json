@@ -20,16 +20,20 @@
   },
   {
     "name": "Apoorv Gupta",
-    "photo": "https://avatars.githubusercontent.com/u/171412961?v=4",
-    "github": "https://github.com/iapoorv01/",
+    "photo": "https://github.com/thinkapoorv.png",
+    "github": "https://github.com/thinkapoorv",
     "social": [
       {
         "platform": "linkedin",
-        "url": "https://www.linkedin.com/company/thinktech17"
+        "url": "https://www.linkedin.com/in/-apoorv-/"
       },
       {
         "platform": "instagram",
-        "url": "https://www.instagram.com/i__apoorv__01/"
+        "url": "https://www.instagram.com/think.apoorv/"
+      },
+      {
+        "platform": "twitter",
+        "url": "https://x.com/think_apoorv"
       }
     ]
   }
